@@ -1,0 +1,44 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="页面未找到" description="请求的页面不存在。" noindex>
+  <main class="not-found">
+    <p class="not-found__code">404 / RECORD NOT FOUND</p>
+    <h1>这里没有留下记录。</h1>
+    <a href="/">返回入口</a>
+  </main>
+</BaseLayout>
+
+<style>
+  .not-found {
+    display: grid;
+    min-block-size: 100vh;
+    min-block-size: 100svh;
+    align-content: center;
+    justify-items: start;
+    gap: 1rem;
+    max-inline-size: var(--content-width);
+    margin-inline: auto;
+    padding: var(--space-page);
+  }
+
+  .not-found__code {
+    color: var(--color-ink-muted);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 7vw, 4.5rem);
+    font-weight: 500;
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+
+  a {
+    margin-block-start: 1.5rem;
+  }
+</style>

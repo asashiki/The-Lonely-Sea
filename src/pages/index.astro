@@ -1,0 +1,86 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout>
+  <main class="foundation">
+    <section class="foundation__panel" aria-labelledby="foundation-title">
+      <p class="foundation__eyebrow">THE LONELY SEA / FOUNDATION</p>
+      <h1 id="foundation-title">孤独之海</h1>
+      <p class="foundation__summary">正式工程基线已建立，内容与视觉将在后续阶段逐步迁入。</p>
+      <p class="foundation__status" aria-label="工程状态">FRAMEWORK BASELINE / READY</p>
+    </section>
+  </main>
+</BaseLayout>
+
+<style>
+  .foundation {
+    container: foundation / inline-size;
+    display: grid;
+    min-block-size: 100vh;
+    min-block-size: 100svh;
+    place-items: center;
+    padding: var(--space-page);
+  }
+
+  .foundation__panel {
+    inline-size: min(100%, var(--content-width));
+    padding-block: clamp(2rem, 8vw, 7rem);
+    padding-inline: clamp(1.5rem, 7vw, 7rem);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-panel);
+    background: var(--color-surface);
+    box-shadow: 0 2rem 6rem rgb(0 0 0 / 28%);
+
+    &::before {
+      display: block;
+      inline-size: clamp(3rem, 10vw, 8rem);
+      block-size: 1px;
+      margin-block-end: clamp(2rem, 6vw, 5rem);
+      background: var(--color-mist);
+      content: "";
+    }
+  }
+
+  .foundation__eyebrow,
+  .foundation__status {
+    color: var(--color-ink-muted);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+  }
+
+  h1 {
+    margin-block: 0.7rem 1.2rem;
+    font-family: var(--font-display);
+    font-size: clamp(2.75rem, 12vw, 7rem);
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    line-height: 1.08;
+    text-wrap: balance;
+  }
+
+  .foundation__summary {
+    max-inline-size: 38rem;
+    color: var(--color-ink-muted);
+    font-size: clamp(0.95rem, 2vw, 1.1rem);
+    text-wrap: pretty;
+  }
+
+  .foundation__status {
+    margin-block-start: clamp(3rem, 8vw, 7rem);
+  }
+
+  @supports (color: color-mix(in oklab, black, white)) {
+    .foundation__panel {
+      border-color: color-mix(in oklab, var(--color-mist) 28%, transparent);
+      background: color-mix(in oklab, var(--color-sea-deep) 82%, transparent);
+    }
+  }
+
+  @container foundation (inline-size >= 48rem) {
+    .foundation__summary {
+      margin-inline-start: 0.35rem;
+    }
+  }
+</style>
