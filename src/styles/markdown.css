@@ -3,7 +3,7 @@
     color: var(--reading-ink);
     font-family: var(--font-display);
     font-size: clamp(1rem, 1.7vw, 1.075rem);
-    line-height: 1.95;
+    line-height: 1.8;
     overflow-wrap: anywhere;
   }
 
@@ -24,25 +24,25 @@
   }
 
   .prose h2 {
-    margin-block: 3.8rem 1.2rem;
-    padding-block-end: 0.65rem;
+    margin-block: 2.8rem 0.9rem;
+    padding-block-end: 0.55rem;
     border-block-end: 1px solid var(--reading-line);
     font-size: clamp(1.65rem, 4vw, 2.35rem);
     letter-spacing: 0.045em;
   }
 
   .prose h3 {
-    margin-block: 2.7rem 1rem;
+    margin-block: 2.1rem 0.75rem;
     font-size: clamp(1.3rem, 3vw, 1.65rem);
   }
 
   .prose h4 {
-    margin-block: 2.2rem 0.8rem;
+    margin-block: 1.75rem 0.65rem;
     font-size: 1.12rem;
   }
 
   .prose :where(p, ul, ol, blockquote, pre, table, details) {
-    margin-block: 1.25rem;
+    margin-block: 0.95rem;
   }
 
   .prose :where(ul, ol) {
@@ -65,6 +65,65 @@
     color: var(--reading-accent);
     text-decoration-thickness: 1px;
     text-underline-offset: 0.22em;
+  }
+
+  .prose .image-preview-link {
+    position: relative;
+    display: inline-block;
+    outline-offset: 0.2em;
+  }
+
+  .prose .image-link-preview {
+    position: absolute;
+    z-index: 10;
+    inset-block-start: calc(100% + 0.7rem);
+    inset-inline-start: 50%;
+    display: grid;
+    inline-size: min(17rem, 70vw);
+    max-block-size: 13rem;
+    padding: 0.4rem;
+    border: 1px solid rgb(73 91 104 / 24%);
+    border-radius: 0.2rem;
+    background: #f7f8f6;
+    box-shadow: 0 1rem 2.4rem rgb(26 39 48 / 24%);
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, -0.25rem) scale(0.98);
+    transform-origin: 50% 0;
+    transition:
+      opacity 140ms ease,
+      transform 180ms ease,
+      visibility 180ms;
+    visibility: hidden;
+  }
+
+  .prose .image-link-preview::before {
+    position: absolute;
+    inset-block-start: -0.45rem;
+    inset-inline-start: 50%;
+    inline-size: 0.75rem;
+    block-size: 0.75rem;
+    border-block-start: 1px solid rgb(73 91 104 / 24%);
+    border-inline-start: 1px solid rgb(73 91 104 / 24%);
+    background: #f7f8f6;
+    content: "";
+    transform: translateX(-50%) rotate(45deg);
+  }
+
+  .prose .image-link-preview img {
+    position: relative;
+    z-index: 1;
+    inline-size: 100%;
+    max-block-size: 12rem;
+    margin: 0;
+    border-radius: 0.1rem;
+    object-fit: contain;
+  }
+
+  .prose .image-preview-link:is(:hover, :focus-visible) .image-link-preview {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+    visibility: visible;
   }
 
   .prose strong {
@@ -209,15 +268,43 @@
 
   @media (max-width: 40rem) {
     .prose {
-      line-height: 1.88;
+      line-height: 1.74;
     }
 
     .prose h2 {
-      margin-block-start: 3rem;
+      margin-block-start: 2.4rem;
+    }
+
+    .prose .image-link-preview {
+      position: fixed;
+      inset-block: auto 1rem;
+      inset-inline: 50% auto;
+      inline-size: min(18rem, calc(100vw - 2rem));
+      max-block-size: min(14rem, 42vh);
+      transform: translate(-50%, 0.3rem) scale(0.98);
+      transform-origin: 50% 100%;
+    }
+
+    .prose .image-link-preview::before {
+      display: none;
+    }
+
+    .prose .image-link-preview img {
+      max-block-size: min(13rem, calc(42vh - 0.8rem));
+    }
+
+    .prose .image-preview-link:is(:hover, :focus-visible) .image-link-preview {
+      transform: translate(-50%, 0) scale(1);
     }
 
     .prose :where(th, td) {
       padding: 0.65rem 0.7rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .prose .image-link-preview {
+      transition: none;
     }
   }
 }
