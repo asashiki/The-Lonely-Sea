@@ -1,0 +1,91 @@
+---
+import { Image } from "astro:assets";
+import mist from "../assets/scenes/mist.png";
+
+interface Props {
+  priority?: boolean;
+}
+
+const { priority = false } = Astro.props;
+---
+
+<div class="scene" aria-hidden="true">
+  <Image
+    class="scene__image"
+    src={mist}
+    alt=""
+    format="webp"
+    quality={84}
+    loading={priority ? "eager" : "lazy"}
+    fetchpriority={priority ? "high" : "auto"}
+  />
+  <div class="scene__wash"></div>
+  <div class="scene__grain"></div>
+  <div class="scene__vignette"></div>
+</div>
+
+<style>
+  .scene,
+  .scene__wash,
+  .scene__grain,
+  .scene__vignette {
+    position: absolute;
+    inset: 0;
+  }
+
+  .scene {
+    z-index: -1;
+    overflow: hidden;
+    background: #c5cbd2;
+    pointer-events: none;
+  }
+
+  .scene__image {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+    object-position: center;
+    filter: saturate(0.72) contrast(0.94);
+    transform: scale(1.012);
+  }
+
+  .scene__wash {
+    background:
+      linear-gradient(90deg, rgb(255 255 255 / 8%), transparent 38%, rgb(4 10 18 / 5%)),
+      linear-gradient(180deg, transparent 54%, rgb(12 20 29 / 9%));
+  }
+
+  .scene__grain {
+    opacity: 0.08;
+    background-image:
+      repeating-radial-gradient(circle at 17% 23%, rgb(255 255 255 / 80%) 0 0.35px, transparent 0.6px 3px),
+      repeating-radial-gradient(circle at 73% 61%, rgb(4 8 13 / 65%) 0 0.3px, transparent 0.55px 3.5px);
+    background-size: 7px 7px, 9px 9px;
+    mix-blend-mode: soft-light;
+  }
+
+  .scene__vignette {
+    background:
+      radial-gradient(ellipse at 50% 43%, transparent 44%, rgb(5 11 20 / 13%) 100%),
+      linear-gradient(90deg, rgb(255 255 255 / 3%), transparent 42%, rgb(4 10 18 / 10%));
+  }
+
+  @media (max-width: 48rem) {
+    .scene__image {
+      object-position: 44% center;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .scene__image {
+      animation: scene-arrive 1.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+  }
+
+  @keyframes scene-arrive {
+    from {
+      opacity: 0;
+      transform: scale(1.025);
+    }
+  }
+</style>

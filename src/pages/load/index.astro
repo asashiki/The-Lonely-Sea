@@ -1,0 +1,299 @@
+---
+import PostCard from "../../components/PostCard.astro";
+import SceneBackdrop from "../../components/SceneBackdrop.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getPublishedPosts } from "../../lib/posts";
+
+const posts = await getPublishedPosts();
+const featured = posts.find((post) => post.data.cover);
+const displayPosts = featured
+  ? [featured, ...posts.filter((post) => post.id !== featured.id)]
+  : posts;
+---
+
+<BaseLayout title="LOAD" description="孤独之海的文章存档。">
+  <main class="archive-screen">
+    <SceneBackdrop priority />
+
+    <div class="archive-canvas">
+      <a class="archive-back" href="/" aria-label="返回标题页"><span aria-hidden="true">×</span> BACK</a>
+      <p class="scene-sign"><span>CURRENT SCENE</span><strong>灰霭</strong></p>
+
+      <header class="archive-heading">
+        <h1>LOAD</h1>
+        <p>READING RECORD / 文章存档</p>
+      </header>
+
+      <div class="archive-summary" aria-label="存档摘要">
+        <span>ALL RECORDS</span>
+        <strong>{String(displayPosts.length).padStart(2, "0")}</strong>
+      </div>
+
+      <section class="record-grid" aria-label="文章列表">
+        {
+          displayPosts.map((post, index) => (
+            <PostCard post={post} index={index} featured={post.id === featured?.id} />
+          ))
+        }
+      </section>
+
+      <footer class="archive-footer">
+        <small>ONE CLICK TO OPEN / 选择存档直接进入文章</small>
+        <small>NO. {String(displayPosts.length).padStart(2, "0")} RECORDS</small>
+      </footer>
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .archive-screen {
+    --archive-ink: #26313c;
+    --archive-soft: rgb(38 49 60 / 64%);
+    --archive-faint: rgb(38 49 60 / 40%);
+    --archive-line: rgb(48 66 81 / 22%);
+    --archive-accent: #607992;
+    --archive-card: rgb(231 235 237 / 80%);
+    --color-mist: #405d76;
+
+    position: relative;
+    isolation: isolate;
+    min-block-size: 100vh;
+    min-block-size: 100svh;
+    padding: clamp(0.75rem, 2vw, 1.7rem);
+    color: var(--archive-ink);
+    font-family: var(--font-display);
+  }
+
+  .archive-screen::before {
+    position: fixed;
+    z-index: -1;
+    inset: -4%;
+    background: rgb(183 193 201 / 62%);
+    backdrop-filter: blur(1.1rem) saturate(0.78);
+    content: "";
+  }
+
+  .archive-canvas {
+    container: archive / inline-size;
+    position: relative;
+    display: grid;
+    grid-template-rows: auto auto minmax(24rem, 1fr) auto;
+    min-block-size: calc(100vh - clamp(1.5rem, 4vw, 3.4rem));
+    min-block-size: calc(100svh - clamp(1.5rem, 4vw, 3.4rem));
+    padding: clamp(1.25rem, 4vw, 4rem);
+    overflow: hidden;
+    border: 1px solid rgb(255 255 255 / 24%);
+    background:
+      linear-gradient(90deg, rgb(255 255 255 / 4%) 1px, transparent 1px) 0 0 / clamp(3rem, 5vw, 5.5rem) 100%,
+      linear-gradient(125deg, rgb(226 232 235 / 80%), rgb(179 191 200 / 62%));
+    box-shadow:
+      0 0 4rem rgb(26 39 49 / 16%),
+      inset 0 0 7rem rgb(255 255 255 / 12%);
+    backdrop-filter: blur(1.15rem) saturate(0.8);
+  }
+
+  .archive-canvas::after {
+    position: absolute;
+    z-index: 10;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, rgb(255 255 255 / 10%) 0 1px, transparent 1px 5px);
+    content: "";
+    mix-blend-mode: soft-light;
+    opacity: 0.18;
+    pointer-events: none;
+  }
+
+  .archive-back,
+  .scene-sign {
+    position: absolute;
+    z-index: 12;
+    top: clamp(1.2rem, 3vw, 2.8rem);
+    font-family: var(--font-sans);
+    font-size: 0.57rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+  }
+
+  .archive-back {
+    right: clamp(1.2rem, 3vw, 2.8rem);
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    color: var(--archive-soft);
+    text-decoration: none;
+
+    span {
+      display: grid;
+      inline-size: 1.8rem;
+      block-size: 1.8rem;
+      border: 1px solid var(--archive-line);
+      place-items: center;
+      font-family: var(--font-latin);
+      font-size: 1rem;
+      font-weight: 400;
+    }
+  }
+
+  .scene-sign {
+    right: clamp(1.2rem, 3vw, 2.8rem);
+    top: auto;
+    bottom: clamp(1.2rem, 2.7vw, 2.5rem);
+    display: flex;
+    align-items: baseline;
+    gap: 0.65rem;
+    margin: 0;
+    color: var(--archive-soft);
+
+    strong {
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      font-weight: 400;
+      letter-spacing: 0.1em;
+    }
+  }
+
+  .archive-heading {
+    display: flex;
+    align-items: baseline;
+    gap: clamp(1rem, 2vw, 2rem);
+    padding-inline-end: 7rem;
+
+    h1 {
+      margin: 0;
+      font-family: var(--font-latin);
+      font-size: clamp(2.7rem, 5vw, 5.2rem);
+      font-weight: 400;
+      letter-spacing: 0.065em;
+      line-height: 0.9;
+    }
+
+    p {
+      color: var(--archive-soft);
+      font-family: var(--font-sans);
+      font-size: 0.58rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+    }
+  }
+
+  .archive-summary {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    margin-block: clamp(1.4rem, 3vh, 2.4rem) 0.9rem;
+    padding-block-end: 0.75rem;
+    border-block-end: 1px solid var(--archive-line);
+    color: var(--archive-soft);
+    font-family: var(--font-sans);
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+
+    strong {
+      display: grid;
+      inline-size: 1.6rem;
+      block-size: 1.6rem;
+      border: 1px solid var(--archive-line);
+      place-items: center;
+      color: var(--archive-ink);
+      font-family: var(--font-latin);
+      font-size: 0.66rem;
+      font-weight: 400;
+    }
+  }
+
+  .record-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(18rem, 0.8fr);
+    gap: clamp(0.8rem, 1.4vw, 1.4rem);
+    min-block-size: 0;
+    padding-block: 0.2rem;
+  }
+
+  .archive-footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block-start: 1.1rem;
+    padding-inline-end: 10rem;
+    color: var(--archive-faint);
+    font-family: var(--font-sans);
+    font-size: 0.58rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+  }
+
+  @media (max-width: 62rem) {
+    .archive-canvas {
+      grid-template-rows: auto auto auto auto;
+      overflow: visible;
+    }
+
+    .record-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 40rem) {
+    .archive-screen {
+      padding: 0;
+    }
+
+    .archive-canvas {
+      min-block-size: 100svh;
+      padding: 1.25rem;
+      border: 0;
+    }
+
+    .archive-heading {
+      display: block;
+      padding-block-start: 3.5rem;
+      padding-inline-end: 0;
+
+      p {
+        margin-block-start: 0.7rem;
+      }
+    }
+
+    .archive-back {
+      top: 1.2rem;
+      right: 1.2rem;
+    }
+
+    .scene-sign {
+      display: none;
+    }
+
+    .archive-footer {
+      display: block;
+      padding-inline-end: 0;
+
+      small:last-child {
+        display: none;
+      }
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .archive-heading,
+    .archive-summary,
+    .record-grid {
+      animation: archive-arrive 620ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .archive-summary {
+      animation-delay: 55ms;
+    }
+
+    .record-grid {
+      animation-delay: 110ms;
+    }
+  }
+
+  @keyframes archive-arrive {
+    from {
+      opacity: 0;
+      translate: 0 0.55rem;
+    }
+  }
+</style>

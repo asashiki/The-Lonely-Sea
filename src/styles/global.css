@@ -1,4 +1,4 @@
-@layer reset, tokens, base;
+@layer reset, tokens, base, content;
 
 @layer reset {
   *,
@@ -10,8 +10,21 @@
   html,
   body,
   h1,
-  p {
+  h2,
+  h3,
+  h4,
+  p,
+  figure {
     margin: 0;
+  }
+
+  img,
+  picture,
+  video,
+  canvas,
+  svg {
+    display: block;
+    max-inline-size: 100%;
   }
 
   button,
@@ -32,8 +45,9 @@
     --color-mist: #7895a0;
     --color-line: rgb(168 203 214 / 24%);
     --color-surface: rgb(10 25 32 / 78%);
-    --font-sans: "Noto Sans SC", "Microsoft YaHei", system-ui, sans-serif;
-    --font-display: "Noto Serif SC", "Songti SC", SimSun, serif;
+    --font-sans: "Noto Sans SC", "Microsoft YaHei", "Yu Gothic", system-ui, sans-serif;
+    --font-display: "Noto Serif SC", "Yu Mincho", "Songti SC", SimSun, serif;
+    --font-latin: Baskerville, "Iowan Old Style", "Times New Roman", serif;
     --space-page: clamp(1.25rem, 4vw, 4rem);
     --content-width: 72rem;
     --radius-panel: 0.25rem;
@@ -46,6 +60,7 @@
     background: var(--color-sea-deep);
     font-family: var(--font-sans);
     line-height: 1.6;
+    scrollbar-gutter: stable;
     text-size-adjust: 100%;
   }
 
@@ -61,6 +76,11 @@
   a {
     color: inherit;
     text-underline-offset: 0.2em;
+  }
+
+  button,
+  a {
+    -webkit-tap-highlight-color: transparent;
   }
 
   :focus-visible {
