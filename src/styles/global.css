@@ -60,7 +60,6 @@
     background: var(--color-sea-deep);
     font-family: var(--font-sans);
     line-height: 1.6;
-    scrollbar-gutter: stable;
     text-size-adjust: 100%;
   }
 

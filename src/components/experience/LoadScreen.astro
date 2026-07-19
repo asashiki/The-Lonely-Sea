@@ -1,0 +1,75 @@
+---
+import type { ExperienceRecord } from "../../lib/experience-records";
+
+interface Props {
+  records: ExperienceRecord[];
+}
+
+const { records } = Astro.props;
+---
+
+<section class="system-screen load-screen" data-screen="load" aria-hidden="true" aria-label="文章存档">
+  <div class="system-canvas load-canvas">
+    <p class="v4-scene-sign"><span>CURRENT SCENE</span><strong data-scene-label>灰霭</strong></p>
+    <button class="system-back" type="button" data-back>BACK</button>
+    <header class="sys-heading"><h2>LOAD</h2><p>READING RECORD / 文章存档</p></header>
+    <div class="sys-tabs load-tabs" role="group" aria-label="文章分类">
+      <button class="sys-tab archive-tab" type="button" data-archive-tab="all" aria-pressed="true">ALL</button>
+      <button class="sys-tab archive-tab" type="button" data-archive-tab="essay" aria-pressed="false">ESSAY</button>
+      <button class="sys-tab archive-tab" type="button" data-archive-tab="anime" aria-pressed="false">ANIME</button>
+      <button class="sys-tab archive-tab" type="button" data-archive-tab="project" aria-pressed="false">PROJECT</button>
+      <button class="sys-tab archive-tab" type="button" data-archive-tab="note" aria-pressed="false">NOTE</button>
+    </div>
+    <div class="sys-workspace load-workspace">
+      <div class="save-grid">
+        {
+          records.map((record, index) => (
+            <button
+              class:list={["save-slot", { "is-selected": index === 0 }]}
+              type="button"
+              data-category={record.archiveCategory}
+              data-date={record.date}
+              data-date-label={record.dateLabel}
+              data-excerpt={record.excerpt}
+              data-href={record.url}
+              data-thumb={record.scene}
+              data-cover={record.coverUrl}
+            >
+              <span class="slot-thumb" style={`--thumb:url("${record.coverUrl}")`}></span>
+              <span class="slot-copy">
+                <span class="slot-number">{record.number}</span>
+                <span class="slot-title">{record.title}</span>
+                <span class="slot-meta">{record.label} / {record.minutes} MIN</span>
+              </span>
+            </button>
+          ))
+        }
+      </div>
+      <p class="load-empty" id="load-empty" hidden>NO RECORDS / 此分类暂时没有文章</p>
+    </div>
+    <footer class="sys-footer load-footer">
+      <small id="load-selection">ONE CLICK TO OPEN / 点击存档直接进入文章</small>
+    </footer>
+    <div class="v4-edge-turners load-edge-turners" aria-label="文章存档翻页">
+      <button type="button" data-load-page-direction="-1" aria-label="上一页">‹</button>
+      <button type="button" data-load-page-direction="1" aria-label="下一页">›</button>
+    </div>
+    <nav class="v4-page-turner load-page-turner" aria-label="文章存档页码">
+      <button type="button" data-load-page-direction="-1"><span>PREV</span><b>‹</b></button>
+      <div class="page-turner-track"><i id="load-page-progress"></i></div>
+      <strong id="load-page-label">PAGE 01 / 03</strong>
+      <button type="button" data-load-page-direction="1"><b>›</b><span>NEXT</span></button>
+    </nav>
+    <section class="article-launch" id="article-launch" aria-hidden="true" aria-label="文章页面占位预览">
+      <div class="article-launch-art" id="article-launch-art"></div>
+      <div class="article-launch-shade"></div>
+      <div class="article-launch-copy">
+        <small id="article-launch-meta">{records[0]?.label} / {records[0]?.minutes} MIN</small>
+        <h2 id="article-launch-title">{records[0]?.title}</h2>
+        <p id="article-launch-excerpt">{records[0]?.excerpt}</p>
+        <span id="article-launch-path">{records[0]?.url}</span>
+      </div>
+      <button type="button" class="article-launch-back" id="article-launch-back">RETURN TO LOAD</button>
+    </section>
+  </div>
+</section>

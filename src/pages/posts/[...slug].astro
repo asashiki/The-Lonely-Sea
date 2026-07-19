@@ -2,14 +2,19 @@
 import { Image } from "astro:assets";
 import { type CollectionEntry, render } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { formatPostDate, getPublishedPosts } from "../../lib/posts";
+import {
+  formatPostDate,
+  getPublishedPosts,
+  normalizePostLocale,
+  postSlug,
+} from "../../lib/posts";
 import "../../styles/markdown.css";
 
 export async function getStaticPaths() {
   const posts = await getPublishedPosts();
 
   return posts.map((post) => ({
-    params: { slug: post.id },
+    params: { slug: postSlug(post) },
     props: { post },
   }));
 }
@@ -28,14 +33,14 @@ const { Content } = await render(post);
     <header class="site-header">
       <a class="site-title" href="/">孤独之海 <span>LONELY SEA</span></a>
       <nav aria-label="文章导航">
-        <a href="/load/">LOAD / 文章存档</a>
+        <a href="/?screen=load">LOAD / 文章存档</a>
       </nav>
     </header>
 
     <main class="reading-main">
-      <article lang={data.lang ?? "zh-CN"}>
+      <article lang={normalizePostLocale(data.lang)}>
         <header class="article-header">
-          <a class="return-link" href="/load/">← RETURN TO LOAD</a>
+          <a class="return-link" href="/?screen=load">← RETURN TO LOAD</a>
           <p class="article-kicker">READING RECORD / {data.category ?? "未分类"}</p>
           <h1>{data.title}</h1>
           <p class="article-description">{data.description}</p>
@@ -73,7 +78,7 @@ const { Content } = await render(post);
 
         <footer class="article-footer">
           <p>RECORD END</p>
-          <a href="/load/">返回文章存档</a>
+          <a href="/?screen=load">返回文章存档</a>
         </footer>
       </article>
     </main>
@@ -81,6 +86,11 @@ const { Content } = await render(post);
 </BaseLayout>
 
 <style>
+  :global(:root) {
+    color-scheme: light;
+    background: #f2f3f1;
+  }
+
   .reading-shell {
     --reading-ink: #263039;
     --reading-soft: #68747d;

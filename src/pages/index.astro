@@ -1,268 +1,45 @@
 ---
-import SceneBackdrop from "../components/SceneBackdrop.astro";
-import BaseLayout from "../layouts/BaseLayout.astro";
+import ExitDialog from "../components/experience/ExitDialog.astro";
+import ExtraScreen from "../components/experience/ExtraScreen.astro";
+import LoadScreen from "../components/experience/LoadScreen.astro";
+import OpeningSequence from "../components/experience/OpeningSequence.astro";
+import OptionScreen from "../components/experience/OptionScreen.astro";
+import TitleStage from "../components/experience/TitleStage.astro";
+import { getExperienceRecords } from "../lib/experience-records";
+import "../styles/experience.css";
+import { siteConfig } from "../../site.config.mjs";
 
-const disabledCommands = ["START", "CONTINUE", "EXTRA", "OPTION", "EXIT"];
+const canonicalUrl = new URL(Astro.url.pathname, siteConfig.url);
+const records = await getExperienceRecords();
 ---
 
-<BaseLayout>
-  <main class="title-screen">
-    <SceneBackdrop priority />
+<!doctype html>
+<!-- V4 视觉金标准迁移：体验组件的 DOM 与层叠顺序均经过视觉回归。 -->
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#bfc4cb">
+  <meta name="description" content={siteConfig.description}>
+  <link rel="canonical" href={canonicalUrl}>
+  <title>{siteConfig.name}</title>
+  <link rel="preload" as="image" href="/assets/lonely-sea/mist.png">
+</head>
+<body data-scene="mist" data-weather="snow" data-route="title">
+  <OpeningSequence />
+  <div class="route-curtain" id="route-curtain" aria-hidden="true"></div>
 
-    <header class="identity">
-      <p class="identity__kicker">ASASHIKI / SCENE 01</p>
-      <h1>孤独之海</h1>
-      <p class="identity__subtitle">LONELY SEA — A PLACE BETWEEN MEMORY AND TIDE</p>
-    </header>
-
-    <nav class="title-menu" aria-label="主菜单">
-      <p class="title-menu__note">MAIN MENU</p>
-      <ul>
-        <li><button type="button" disabled>{disabledCommands[0]}</button></li>
-        <li><a href="/load/" aria-label="LOAD"><span data-text="LOAD">LOAD</span></a></li>
-        {disabledCommands.slice(1).map((command) => <li><button type="button" disabled>{command}</button></li>)}
-      </ul>
-      <p class="title-menu__status">LOAD AVAILABLE / 读取文章存档</p>
-    </nav>
-
-    <small class="build-mark">MODERN ROUTE / GREY MIST</small>
+  <main class="stage" aria-label="孤独之海现代 Galgame 交互界面">
+    <TitleStage />
+    <LoadScreen records={records} />
+    <ExtraScreen />
+    <OptionScreen />
   </main>
-</BaseLayout>
 
-<style>
-  .title-screen {
-    --title-ink: rgb(24 31 42 / 92%);
-    --title-soft: rgb(36 46 60 / 60%);
-    --title-accent: #566b86;
-    --color-mist: #405d76;
+  <ExitDialog />
 
-    position: relative;
-    isolation: isolate;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(17rem, 26rem);
-    grid-template-rows: auto 1fr auto;
-    min-block-size: 100vh;
-    min-block-size: 100svh;
-    padding: max(2rem, env(safe-area-inset-top)) max(1.5rem, env(safe-area-inset-right)) max(1.5rem, env(safe-area-inset-bottom)) max(1.5rem, env(safe-area-inset-left));
-    overflow: clip;
-    color: var(--title-ink);
-    font-family: var(--font-display);
-  }
-
-  .identity {
-    grid-column: 1;
-    max-inline-size: 40rem;
-    margin-block-start: clamp(1rem, 4vh, 3.5rem);
-    margin-inline-start: clamp(0rem, 3.5vw, 3.8rem);
-    text-shadow: 0 1px 0.9rem rgb(255 255 255 / 72%);
-  }
-
-  .identity__kicker {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    color: var(--title-soft);
-    font-family: var(--font-sans);
-    font-size: 0.58rem;
-    font-weight: 600;
-    letter-spacing: 0.3em;
-
-    &::before {
-      inline-size: 2.1rem;
-      block-size: 1px;
-      background: currentColor;
-      content: "";
-    }
-  }
-
-  h1 {
-    margin-block: 0.65rem 0;
-    font-size: clamp(2.6rem, 6vw, 5.2rem);
-    font-weight: 400;
-    letter-spacing: 0.12em;
-    line-height: 0.98;
-    text-wrap: balance;
-  }
-
-  .identity__subtitle {
-    margin-block-start: 0.85rem;
-    color: var(--title-soft);
-    font-family: var(--font-latin);
-    font-size: clamp(0.58rem, 0.9vw, 0.78rem);
-    font-style: italic;
-    letter-spacing: 0.22em;
-    line-height: 1.55;
-  }
-
-  .title-menu {
-    grid-column: 2;
-    grid-row: 1 / 3;
-    align-self: center;
-    inline-size: min(100%, 22rem);
-    margin-inline: auto clamp(0rem, 5vw, 6rem);
-    text-shadow: 0 1px 0.85rem rgb(255 255 255 / 70%);
-  }
-
-  .title-menu__note,
-  .title-menu__status {
-    color: var(--title-soft);
-    font-family: var(--font-sans);
-    font-size: 0.52rem;
-    font-weight: 600;
-    letter-spacing: 0.26em;
-  }
-
-  .title-menu__note {
-    margin-block-end: 0.6rem;
-  }
-
-  .title-menu ul {
-    display: grid;
-    gap: clamp(0.1rem, 0.5vh, 0.45rem);
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .title-menu a,
-  .title-menu button {
-    position: relative;
-    display: block;
-    inline-size: 100%;
-    min-block-size: clamp(3rem, 6.8vh, 4.5rem);
-    padding: 0.5rem 0;
-    border: 0;
-    color: var(--title-ink);
-    background: transparent;
-    font-family: var(--font-latin);
-    font-size: clamp(1.35rem, 2.2vw, 2.05rem);
-    font-weight: 400;
-    letter-spacing: 0.14em;
-    line-height: 1;
-    text-align: start;
-    text-decoration: none;
-  }
-
-  .title-menu button:disabled {
-    color: var(--title-soft);
-    cursor: default;
-    opacity: 0.44;
-  }
-
-  .title-menu a span {
-    position: relative;
-    z-index: 0;
-    display: inline-block;
-    isolation: isolate;
-
-    &::before {
-      position: absolute;
-      z-index: -1;
-      top: 50%;
-      left: 50%;
-      color: var(--title-accent);
-      font: inherit;
-      font-size: 1.52em;
-      letter-spacing: 0.08em;
-      white-space: nowrap;
-      content: attr(data-text);
-      opacity: 0;
-      pointer-events: none;
-      transform: translate3d(-56%, -50%, 0) scale(0.9);
-      transition:
-        opacity 210ms ease,
-        transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
-    }
-  }
-
-  .title-menu__status {
-    margin-block-start: 0.85rem;
-    line-height: 1.7;
-  }
-
-  .build-mark {
-    grid-column: 2;
-    justify-self: end;
-    align-self: end;
-    color: var(--title-soft);
-    font-family: var(--font-sans);
-    font-size: 0.46rem;
-    font-weight: 600;
-    letter-spacing: 0.22em;
-    writing-mode: vertical-rl;
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    .title-menu a:hover span::before,
-    .title-menu a:focus-visible span::before {
-      opacity: 0.3;
-      transform: translate3d(-50%, -50%, 0) scale(1);
-    }
-  }
-
-  @media (max-width: 48rem) {
-    .title-screen {
-      grid-template-columns: 1fr;
-      grid-template-rows: auto minmax(1rem, 1fr) auto;
-      padding-inline: max(1.25rem, env(safe-area-inset-left));
-    }
-
-    .identity {
-      grid-column: 1;
-      margin: 0;
-    }
-
-    .identity__subtitle {
-      max-inline-size: 25rem;
-    }
-
-    .title-menu {
-      grid-column: 1;
-      grid-row: 2;
-      align-self: end;
-      justify-self: end;
-      inline-size: min(76vw, 20rem);
-      margin: 0 0 clamp(1rem, 5vh, 3.5rem);
-    }
-
-    .title-menu__status {
-      display: none;
-    }
-
-    .build-mark {
-      grid-column: 1;
-      writing-mode: horizontal-tb;
-    }
-  }
-
-  @media (max-height: 42rem) and (min-width: 48.01rem) {
-    .title-menu a,
-    .title-menu button {
-      min-block-size: 2.75rem;
-    }
-  }
-
-  @media (prefers-reduced-motion: no-preference) {
-    .identity,
-    .title-menu {
-      animation: title-arrive 760ms 120ms cubic-bezier(0.22, 1, 0.36, 1) both;
-    }
-
-    .title-menu {
-      animation-delay: 220ms;
-    }
-  }
-
-  @keyframes title-arrive {
-    from {
-      opacity: 0;
-      translate: 0 0.65rem;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .title-menu a span::before {
-      transition: none;
-    }
-  }
-</style>
+  <script>
+    import "../scripts/experience.js";
+  </script>
+</body>
+</html>
