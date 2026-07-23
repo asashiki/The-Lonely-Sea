@@ -1,7 +1,7 @@
 import { sceneArt } from "./config.js";
 import { all, required, updatePressed } from "./dom.js";
 
-const VARIANT_STORAGE_KEY = "lonely-sea-load-variant-v2";
+const VARIANT_STORAGE_KEY = "lonely-sea-load-variant-v3";
 const LAST_LOAD_STORAGE_KEY = "lonely-sea-last-load";
 const VARIANTS = new Set([
   "memory",
@@ -14,6 +14,7 @@ const VARIANTS = new Set([
   "tsukihime",
   "cartagra",
   "tracks",
+  "tracks-xi",
 ]);
 const GAME_VARIANTS = new Set(["moon", "dossier", "tide", "vnclassic", "tsukihime", "cartagra"]);
 const SLOT_CAPACITY = 24;
@@ -23,9 +24,10 @@ export function initLoadScreen({ reduceMotion }) {
   const emptySlots = all("[data-empty-slot]");
   const saveSlots = [...postSlots, ...emptySlots];
   const loadGrid = required(".save-grid");
-  const loadCanvas = required(".load-canvas");
+  const loadCanvas = required(".load-legacy-canvas");
   const loadScreenRoot = required(".load-screen");
   const tracksCanvas = required(".load-tracks-canvas");
+  const tracksXiCanvas = required(".load-tracks-xi-canvas");
   const loadSurface = required(".load-view-surface");
   const loadPageLabel = required("#load-page-label");
   const loadPageProgress = required("#load-page-progress");
@@ -53,13 +55,14 @@ export function initLoadScreen({ reduceMotion }) {
   let previewArtIndex = 0;
   let activeSlot = null;
   let activePreviewCover = "";
+  let referenceControllers = {};
 
   function readVariant() {
     try {
       const stored = localStorage.getItem(VARIANT_STORAGE_KEY);
-      return VARIANTS.has(stored) ? stored : "tracks";
+      return VARIANTS.has(stored) ? stored : "tracks-xi";
     } catch {
-      return "tracks";
+      return "tracks-xi";
     }
   }
 
@@ -290,17 +293,46 @@ export function initLoadScreen({ reduceMotion }) {
 
   function applyVariant(next, { animate = true, persist = true } = {}) {
     if (!VARIANTS.has(next) || next === variant && animate) return;
+    const focusedElement = document.activeElement instanceof Element
+      ? document.activeElement
+      : null;
+    const focusedVariantOption = focusedElement?.closest("[data-load-variant-option]");
+    const focusWasInsideCanvas = [loadCanvas, tracksCanvas, tracksXiCanvas].some(
+      (canvas) => focusedElement && canvas.contains(focusedElement),
+    );
+
     transitionView(() => {
       variant = next;
       loadCanvas.dataset.loadVariant = next;
-      const tracksSelected = next === "tracks";
-      loadScreenRoot.dataset.loadReference = tracksSelected ? "tracks" : "legacy";
-      loadCanvas.setAttribute("aria-hidden", String(tracksSelected));
-      tracksCanvas.setAttribute("aria-hidden", String(!tracksSelected));
+      const previousReference = loadScreenRoot.dataset.loadReference || "legacy";
+      const nextReference = next === "tracks"
+        ? "tracks"
+        : next === "tracks-xi"
+          ? "tracks-xi"
+          : "legacy";
+      referenceControllers[previousReference]?.deactivate?.();
+      loadScreenRoot.dataset.loadReference = nextReference;
+      loadCanvas.setAttribute("aria-hidden", String(nextReference !== "legacy"));
+      tracksCanvas.setAttribute("aria-hidden", String(nextReference !== "tracks"));
+      tracksXiCanvas.setAttribute("aria-hidden", String(nextReference !== "tracks-xi"));
       updatePressed("[data-load-variant-option]", next, "loadVariantOption");
       loadPage = 0;
       activeSlot = null;
       renderPage({ previewInstant: true });
+      referenceControllers[nextReference]?.activate?.();
+      if (focusWasInsideCanvas) {
+        const targetCanvas = {
+          legacy: loadCanvas,
+          tracks: tracksCanvas,
+          "tracks-xi": tracksXiCanvas,
+        }[nextReference];
+        const matchingVariantOption = [...targetCanvas.querySelectorAll("[data-load-variant-option]")]
+          .find((button) => button.dataset.loadVariantOption === next);
+        const focusTarget = focusedVariantOption
+          ? matchingVariantOption
+          : targetCanvas.querySelector("[data-back]");
+        window.requestAnimationFrame(() => focusTarget?.focus({ preventScroll: true }));
+      }
       if (persist) persistVariant();
     }, { animate });
   }
@@ -399,6 +431,7 @@ export function initLoadScreen({ reduceMotion }) {
       8: "tsukihime",
       9: "cartagra",
       0: "tracks",
+      "-": "tracks-xi",
     }[event.key];
     if (variantByKey) {
       event.preventDefault();
@@ -438,5 +471,12 @@ export function initLoadScreen({ reduceMotion }) {
   return {
     changePage,
     closeArticle,
+    getActiveController() {
+      return referenceControllers[loadScreenRoot.dataset.loadReference] || null;
+    },
+    registerReferenceControllers(controllers) {
+      referenceControllers = controllers;
+      referenceControllers[loadScreenRoot.dataset.loadReference]?.activate?.();
+    },
   };
 }

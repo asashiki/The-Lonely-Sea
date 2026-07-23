@@ -2,6 +2,7 @@
 import type { ExperienceRecord } from "../../lib/experience-records";
 import { LOAD_SLOT_CAPACITY } from "../../lib/experience-records";
 import LoadTracksConcept from "./LoadTracksConcept.astro";
+import LoadTracksXiConcept from "./LoadTracksXiConcept.astro";
 
 interface Props {
   records: ExperienceRecord[];
@@ -143,6 +144,7 @@ const emptyNumbers = Array.from(
         <button type="button" data-load-variant-option="tsukihime" aria-pressed="false" title="月姬 Remake 参考">Ⅷ</button>
         <button type="button" data-load-variant-option="cartagra" aria-pressed="false" title="恋狱月狂病 Remake 参考">Ⅸ</button>
         <button type="button" data-load-variant-option="tracks" aria-pressed="false" title="三轨记录实验">Ⅹ</button>
+        <button type="button" data-load-variant-option="tracks-xi" aria-pressed="false" title="月潮图谱">Ⅺ</button>
       </div>
       <section class="article-launch" id="article-launch" aria-hidden="true" aria-label="文章页面占位预览">
         <div class="article-launch-art" id="article-launch-art"></div>
@@ -158,4 +160,5 @@ const emptyNumbers = Array.from(
     </div>
   </div>
   <LoadTracksConcept records={records} />
+  <LoadTracksXiConcept records={records} />
 </section>

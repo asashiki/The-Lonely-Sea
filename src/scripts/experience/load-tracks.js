@@ -685,8 +685,21 @@ export function initLoadTracksConcept({ reduceMotion }) {
 
   updateSelectionState();
 
+  function activate() {
+    window.requestAnimationFrame(updateStoryScrollbar);
+  }
+
+  function deactivate() {
+    closeDiaryReader();
+    if (flowExpanded) setFlowExpanded(false, { animate: false });
+    clearArticleNavigation();
+    clearFallbackTransition();
+  }
+
   return {
+    activate,
     changePage,
     closeArticle,
+    deactivate,
   };
 }

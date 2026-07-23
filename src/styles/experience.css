@@ -4889,9 +4889,11 @@ body[data-scene="crimson"] .exit-dialog { --modal-accent: 214,125,107; --modal-c
   .system-screen[aria-hidden="false"] .load-content-stage { animation: none; }
 }
 
-.load-tracks-canvas { display: none; }
-.load-screen[data-load-reference="tracks"] .load-legacy-canvas { display: none; }
+.load-tracks-canvas,
+.load-tracks-xi-canvas { display: none; }
+.load-screen:is([data-load-reference="tracks"],[data-load-reference="tracks-xi"]) .load-legacy-canvas { display: none; }
 .load-screen[data-load-reference="tracks"] .load-tracks-canvas { display: grid; }
+.load-screen[data-load-reference="tracks-xi"] .load-tracks-xi-canvas { display: grid; }
 .load-tracks-reference-switcher {
   right: auto;
   bottom: 3.2cqh;

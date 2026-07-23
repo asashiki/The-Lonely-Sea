@@ -4,6 +4,7 @@ import { initExitDialog } from "./experience/exit.js";
 import { initExtraScreen } from "./experience/extra.js";
 import { initLoadScreen } from "./experience/load.js";
 import { initLoadTracksConcept } from "./experience/load-tracks.js";
+import { initLoadTracksXiConcept } from "./experience/load-tracks-xi.js";
 import { initOptions } from "./experience/options.js";
 import { createWeatherController } from "./experience/weather.js";
 
@@ -121,7 +122,11 @@ async function navigateTo(route, { instant = false } = {}) {
   routeBusy = false;
   stage.inert = false;
   if (route !== "title") {
-    required(`[data-screen="${route}"] [data-back]`).focus({ preventScroll: true });
+    const routeScreen = required(`[data-screen="${route}"]`);
+    const visibleBack = all("[data-back]", routeScreen).find(
+      (button) => !button.closest('[aria-hidden="true"]'),
+    );
+    (visibleBack || required("[data-back]", routeScreen)).focus({ preventScroll: true });
   }
 }
 
@@ -183,6 +188,11 @@ function resetExperience() {
 
 const loadScreen = initLoadScreen({ reduceMotion });
 const loadTracksConcept = initLoadTracksConcept({ reduceMotion });
+const loadTracksXiConcept = initLoadTracksXiConcept({ reduceMotion });
+loadScreen.registerReferenceControllers({
+  tracks: loadTracksConcept,
+  "tracks-xi": loadTracksXiConcept,
+});
 const extraScreen = initExtraScreen();
 const optionScreen = initOptions({
   onReplayOpening: replayOpeningFromTitle,
@@ -250,7 +260,8 @@ document.addEventListener("keydown", (event) => {
   const key = event.key.toLowerCase();
 
   if (key === "escape") {
-    if (exitDialog.close() || extraScreen.closeCg() || loadScreen.closeArticle() || loadTracksConcept.closeArticle()) {
+    const activeLoadController = loadScreen.getActiveController() || loadScreen;
+    if (exitDialog.close() || extraScreen.closeCg() || activeLoadController.closeArticle()) {
       event.preventDefault();
       event.stopImmediatePropagation();
       return;
@@ -262,14 +273,13 @@ document.addEventListener("keydown", (event) => {
     }
   }
 
+  if (event.defaultPrevented) return;
   if (editing) return;
   const horizontalDirection = event.key === "ArrowLeft" ? -1 : event.key === "ArrowRight" ? 1 : 0;
 
   if (body.dataset.route === "load" && horizontalDirection) {
     event.preventDefault();
-    const activeLoad = document.querySelector(".load-screen")?.dataset.loadReference === "tracks"
-      ? loadTracksConcept
-      : loadScreen;
+    const activeLoad = loadScreen.getActiveController() || loadScreen;
     activeLoad.changePage(horizontalDirection);
     return;
   }
