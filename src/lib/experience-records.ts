@@ -8,14 +8,18 @@ export interface ExperienceRecord {
   dateLabel: string;
   excerpt: string;
   label: string;
-  minutes: string;
   number: string;
+  savedAt: string;
   scene: string;
   title: string;
   url: string;
 }
 
+export const LOAD_SLOT_CAPACITY = 24;
+
 const fallbackScenes = ["mist", "day", "night", "crimson"];
+
+const WEEKDAY_LABELS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 
 function archiveCategory(tags: string[]): string {
   if (tags.includes("anime")) return "anime";
@@ -45,16 +49,18 @@ export async function getExperienceRecords(): Promise<ExperienceRecord[]> {
           quality: 84,
         })
       : undefined;
+    const isoDate = post.data.published.toISOString().slice(0, 10);
+    const dottedDate = isoDate.replaceAll("-", ".");
 
     return {
       archiveCategory: archiveCategory(tags),
-      coverUrl: cover?.src ?? `/assets/lonely-sea/${scene}.png`,
-      date: post.data.published.toISOString().slice(0, 10).replaceAll("-", "."),
+      coverUrl: cover?.src ?? "/assets/lonely-sea/" + scene + ".png",
+      date: dottedDate,
       dateLabel: formatPostDate(post.data.published, post.data.lang),
       excerpt: post.data.description,
       label: recordLabel(tags, post.data.category),
-      minutes: String(Math.min(18, 5 + index)).padStart(2, "0"),
       number: String(index + 1).padStart(2, "0"),
+      savedAt: dottedDate + " " + WEEKDAY_LABELS[post.data.published.getUTCDay()],
       scene,
       title: post.data.title,
       url: postHref(post),

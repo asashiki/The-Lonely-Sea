@@ -3,6 +3,7 @@ import { all, required, updatePressed, wait } from "./experience/dom.js";
 import { initExitDialog } from "./experience/exit.js";
 import { initExtraScreen } from "./experience/extra.js";
 import { initLoadScreen } from "./experience/load.js";
+import { initLoadTracksConcept } from "./experience/load-tracks.js";
 import { initOptions } from "./experience/options.js";
 import { createWeatherController } from "./experience/weather.js";
 
@@ -181,6 +182,7 @@ function resetExperience() {
 }
 
 const loadScreen = initLoadScreen({ reduceMotion });
+const loadTracksConcept = initLoadTracksConcept({ reduceMotion });
 const extraScreen = initExtraScreen();
 const optionScreen = initOptions({
   onReplayOpening: replayOpeningFromTitle,
@@ -248,7 +250,7 @@ document.addEventListener("keydown", (event) => {
   const key = event.key.toLowerCase();
 
   if (key === "escape") {
-    if (exitDialog.close() || extraScreen.closeCg() || loadScreen.closeArticle()) {
+    if (exitDialog.close() || extraScreen.closeCg() || loadScreen.closeArticle() || loadTracksConcept.closeArticle()) {
       event.preventDefault();
       event.stopImmediatePropagation();
       return;
@@ -265,7 +267,10 @@ document.addEventListener("keydown", (event) => {
 
   if (body.dataset.route === "load" && horizontalDirection) {
     event.preventDefault();
-    loadScreen.changePage(horizontalDirection);
+    const activeLoad = document.querySelector(".load-screen")?.dataset.loadReference === "tracks"
+      ? loadTracksConcept
+      : loadScreen;
+    activeLoad.changePage(horizontalDirection);
     return;
   }
   if (body.dataset.route === "extra" && horizontalDirection) {

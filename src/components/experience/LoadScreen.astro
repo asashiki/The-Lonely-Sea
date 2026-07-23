@@ -1,75 +1,161 @@
 ---
 import type { ExperienceRecord } from "../../lib/experience-records";
+import { LOAD_SLOT_CAPACITY } from "../../lib/experience-records";
+import LoadTracksConcept from "./LoadTracksConcept.astro";
 
 interface Props {
   records: ExperienceRecord[];
 }
 
 const { records } = Astro.props;
+const initialRecord = records[0];
+const emptyNumbers = Array.from(
+  { length: LOAD_SLOT_CAPACITY },
+  (_, index) => records.length + index + 1,
+);
 ---
 
-<section class="system-screen load-screen" data-screen="load" aria-hidden="true" aria-label="文章存档">
-  <div class="system-canvas load-canvas">
-    <p class="v4-scene-sign"><span>CURRENT SCENE</span><strong data-scene-label>灰霭</strong></p>
-    <button class="system-back" type="button" data-back>BACK</button>
-    <header class="sys-heading"><h2>LOAD</h2><p>READING RECORD / 文章存档</p></header>
-    <div class="sys-tabs load-tabs" role="group" aria-label="文章分类">
-      <button class="sys-tab archive-tab" type="button" data-archive-tab="all" aria-pressed="true">ALL</button>
-      <button class="sys-tab archive-tab" type="button" data-archive-tab="essay" aria-pressed="false">ESSAY</button>
-      <button class="sys-tab archive-tab" type="button" data-archive-tab="anime" aria-pressed="false">ANIME</button>
-      <button class="sys-tab archive-tab" type="button" data-archive-tab="project" aria-pressed="false">PROJECT</button>
-      <button class="sys-tab archive-tab" type="button" data-archive-tab="note" aria-pressed="false">NOTE</button>
-    </div>
-    <div class="sys-workspace load-workspace">
-      <div class="save-grid">
-        {
-          records.map((record, index) => (
-            <button
-              class:list={["save-slot", { "is-selected": index === 0 }]}
-              type="button"
-              data-category={record.archiveCategory}
-              data-date={record.date}
-              data-date-label={record.dateLabel}
-              data-excerpt={record.excerpt}
-              data-href={record.url}
-              data-thumb={record.scene}
-              data-cover={record.coverUrl}
-            >
-              <span class="slot-thumb" style={`--thumb:url("${record.coverUrl}")`}></span>
-              <span class="slot-copy">
-                <span class="slot-number">{record.number}</span>
-                <span class="slot-title">{record.title}</span>
-                <span class="slot-meta">{record.label} / {record.minutes} MIN</span>
-              </span>
-            </button>
-          ))
-        }
+<section class="system-screen load-screen" data-screen="load" data-load-reference="legacy" aria-hidden="true" aria-label="文章存档">
+  <div class="system-canvas load-canvas load-legacy-canvas" data-load-variant="moon" aria-hidden="false">
+    <div class="load-safe-frame">
+      <p class="v4-scene-sign"><span>CURRENT SCENE</span><strong data-scene-label>灰霭</strong></p>
+      <button class="system-back" type="button" data-back>BACK</button>
+      <header class="sys-heading"><h2>LOAD</h2><p>READING RECORD / 文章存档</p></header>
+      <div class="load-classic-title" aria-hidden="true">
+        <small>MEMORY ARCHIVE</small>
+        <strong>LOAD DATA</strong>
+        <span>记录读取</span>
       </div>
-      <p class="load-empty" id="load-empty" hidden>NO RECORDS / 此分类暂时没有文章</p>
-    </div>
-    <footer class="sys-footer load-footer">
-      <small id="load-selection">ONE CLICK TO OPEN / 点击存档直接进入文章</small>
-    </footer>
-    <div class="v4-edge-turners load-edge-turners" aria-label="文章存档翻页">
-      <button type="button" data-load-page-direction="-1" aria-label="上一页">‹</button>
-      <button type="button" data-load-page-direction="1" aria-label="下一页">›</button>
-    </div>
-    <nav class="v4-page-turner load-page-turner" aria-label="文章存档页码">
-      <button type="button" data-load-page-direction="-1"><span>PREV</span><b>‹</b></button>
-      <div class="page-turner-track"><i id="load-page-progress"></i></div>
-      <strong id="load-page-label">PAGE 01 / 03</strong>
-      <button type="button" data-load-page-direction="1"><b>›</b><span>NEXT</span></button>
-    </nav>
-    <section class="article-launch" id="article-launch" aria-hidden="true" aria-label="文章页面占位预览">
-      <div class="article-launch-art" id="article-launch-art"></div>
-      <div class="article-launch-shade"></div>
-      <div class="article-launch-copy">
-        <small id="article-launch-meta">{records[0]?.label} / {records[0]?.minutes} MIN</small>
-        <h2 id="article-launch-title">{records[0]?.title}</h2>
-        <p id="article-launch-excerpt">{records[0]?.excerpt}</p>
-        <span id="article-launch-path">{records[0]?.url}</span>
+      <div class="load-tsuki-system" aria-hidden="true">
+        <p class="load-tsuki-chapter"><b>第七章</b><span>/ 灰霭之海 I</span></p>
+        <ol>
+          <li>Save</li>
+          <li class="is-current">Load <small>记录を読み込みます</small></li>
+          <li>Config</li>
+          <li>FlowChart</li>
+          <li>Title</li>
+        </ol>
+        <p class="load-tsuki-note"><span>Note.</span><b>灰霭 / 文章存档</b></p>
       </div>
-      <button type="button" class="article-launch-back" id="article-launch-back">RETURN TO LOAD</button>
-    </section>
+      <div class="load-cartagra-title" aria-hidden="true">
+        <p><span>記録</span><b>を</b><strong>読む</strong></p>
+        <small>LOAD / READING ARCHIVE</small>
+        <i></i>
+      </div>
+      <div class="sys-tabs load-tabs load-device-tabs" role="group" aria-label="存储设备">
+        <button class="sys-tab device-tab" type="button" data-device-tab="a" aria-pressed="true"><b>RECORD A</b><span>文章存档</span></button>
+        <button class="sys-tab device-tab" type="button" data-device-tab="b" aria-pressed="false"><b>RECORD B</b><span>游戏存档</span></button>
+      </div>
+      <div class="sys-tabs load-tabs load-category-tabs" role="group" aria-label="文章分类">
+        <button class="sys-tab archive-tab" type="button" data-archive-tab="all" aria-pressed="true">ALL</button>
+        <button class="sys-tab archive-tab" type="button" data-archive-tab="essay" aria-pressed="false">ESSAY</button>
+        <button class="sys-tab archive-tab" type="button" data-archive-tab="anime" aria-pressed="false">ANIME</button>
+        <button class="sys-tab archive-tab" type="button" data-archive-tab="project" aria-pressed="false">PROJECT</button>
+        <button class="sys-tab archive-tab" type="button" data-archive-tab="note" aria-pressed="false">NOTE</button>
+      </div>
+      <div class="sys-workspace load-workspace">
+        <div class="load-view-surface">
+          <section class="load-focus-stage" aria-label="当前存档预览">
+            <div class="load-focus-visual" aria-hidden="true">
+              <span
+                class="load-focus-art-layer is-active"
+                data-load-preview-art
+                style={"--focus-art:url('" + (initialRecord?.coverUrl ?? "/assets/lonely-sea/mist.png") + "')"}
+              ></span>
+              <span class="load-focus-art-layer" data-load-preview-art></span>
+              <span class="load-focus-rule"></span>
+              <span class="load-focus-sigil">RECORD</span>
+            </div>
+            <div class="load-focus-copy" data-load-preview-copy>
+              <p class="load-focus-overline">
+                <span data-load-preview-label>{initialRecord?.label ?? "NO DATA"}</span>
+                <time data-load-preview-date>{initialRecord?.savedAt ?? "----.--.--"}</time>
+              </p>
+              <strong class="load-focus-number" data-load-preview-number>{initialRecord?.number ?? "--"}</strong>
+              <h3 data-load-preview-title>{initialRecord?.title ?? "EMPTY RECORD"}</h3>
+              <p class="load-focus-excerpt" data-load-preview-excerpt>{initialRecord?.excerpt ?? "此记录尚未写入。"}</p>
+              <p class="load-focus-command"><span>LOAD THIS RECORD</span><i></i><b>○</b></p>
+            </div>
+          </section>
+          <div class="save-grid" id="save-grid">
+            {
+              records.map((record) => (
+                <button
+                  class="save-slot"
+                  type="button"
+                  data-post-slot
+                  data-category={record.archiveCategory}
+                  data-date={record.date}
+                  data-saved-at={record.savedAt}
+                  data-label={record.label}
+                  data-excerpt={record.excerpt}
+                  data-href={record.url}
+                  data-thumb={record.scene}
+                  data-cover={record.coverUrl}
+                  aria-label={"读取存档：" + record.title}
+                >
+                  <span class="slot-thumb" style={"--thumb:url('" + record.coverUrl + "')"}></span>
+                  <span class="slot-copy">
+                    <span class="slot-number">{"No." + record.number}</span>
+                    <span class="slot-tag">{record.label}</span>
+                    <span class="slot-title">{record.title}</span>
+                    <span class="slot-date">{record.savedAt}</span>
+                  </span>
+                  <span class="slot-command" aria-hidden="true"><b>LOAD</b><i>○</i></span>
+                  <span class="slot-last" aria-hidden="true">LAST LOAD</span>
+                </button>
+              ))
+            }
+            {
+              emptyNumbers.map((number) => (
+                <button class="save-slot is-empty" type="button" data-empty-slot disabled>
+                  <span class="slot-copy">
+                    <span class="slot-number">{"No." + String(number).padStart(2, "0")}</span>
+                    <span class="slot-empty-label">EMPTY DATA</span>
+                  </span>
+                  <span class="slot-command" aria-hidden="true"><b>NO DATA</b><i>—</i></span>
+                </button>
+              ))
+            }
+          </div>
+        </div>
+      </div>
+      <div class="v4-edge-turners load-edge-turners" aria-label="文章存档翻页">
+        <button type="button" data-load-page-direction="-1" aria-label="上一页">‹</button>
+        <button type="button" data-load-page-direction="1" aria-label="下一页">›</button>
+      </div>
+      <nav class="v4-page-turner load-page-turner" aria-label="文章存档页码">
+        <button type="button" data-load-page-direction="-1"><span>PREV</span><b>‹</b></button>
+        <div class="load-page-numbers" id="load-page-numbers" role="group" aria-label="页码直达"></div>
+        <div class="page-turner-track"><i id="load-page-progress"></i></div>
+        <strong id="load-page-label">PAGE 01 / 04</strong>
+        <button type="button" data-load-page-direction="1"><b>›</b><span>NEXT</span></button>
+      </nav>
+      <p class="load-control-hints" aria-hidden="true"><span><b>○</b> DECIDE</span><span><b>×</b> BACK</span><span><b>L1</b><b>R1</b> PAGE</span></p>
+      <div class="load-variant-switcher" aria-label="布局方案切换（临时调试）">
+        <button type="button" data-load-variant-option="memory" aria-pressed="false" title="Kimi 方案一">Ⅰ</button>
+        <button type="button" data-load-variant-option="list" aria-pressed="false" title="Kimi 方案二">Ⅱ</button>
+        <button type="button" data-load-variant-option="editorial" aria-pressed="false" title="Kimi 方案三">Ⅲ</button>
+        <button type="button" data-load-variant-option="moon" aria-pressed="true" title="月白">Ⅳ</button>
+        <button type="button" data-load-variant-option="dossier" aria-pressed="false" title="残卷">Ⅴ</button>
+        <button type="button" data-load-variant-option="tide" aria-pressed="false" title="潮汐">Ⅵ</button>
+        <button type="button" data-load-variant-option="vnclassic" aria-pressed="false" title="传统 Galgame">Ⅶ</button>
+        <button type="button" data-load-variant-option="tsukihime" aria-pressed="false" title="月姬 Remake 参考">Ⅷ</button>
+        <button type="button" data-load-variant-option="cartagra" aria-pressed="false" title="恋狱月狂病 Remake 参考">Ⅸ</button>
+        <button type="button" data-load-variant-option="tracks" aria-pressed="false" title="三轨记录实验">Ⅹ</button>
+      </div>
+      <section class="article-launch" id="article-launch" aria-hidden="true" aria-label="文章页面占位预览">
+        <div class="article-launch-art" id="article-launch-art"></div>
+        <div class="article-launch-shade"></div>
+        <div class="article-launch-copy">
+          <small id="article-launch-meta">{records[0]?.label + " / " + records[0]?.savedAt}</small>
+          <h2 id="article-launch-title">{records[0]?.title}</h2>
+          <p id="article-launch-excerpt">{records[0]?.excerpt}</p>
+          <span id="article-launch-path">{records[0]?.url}</span>
+        </div>
+        <button type="button" class="article-launch-back" id="article-launch-back">RETURN TO LOAD</button>
+      </section>
+    </div>
   </div>
+  <LoadTracksConcept records={records} />
 </section>

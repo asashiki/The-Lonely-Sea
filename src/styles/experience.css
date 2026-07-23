@@ -10,7 +10,7 @@
   --accent: #566b86;
   --halo: rgba(247, 250, 255, .76);
   --shadow: rgba(255, 255, 255, .72);
-  --scene-fade: 1500ms;
+  --scene-fade: 800ms;
 }
 
 body[data-scene="day"] {
@@ -346,7 +346,7 @@ body.is-ready .title-menu {
 
   .menu-button:not(:disabled):hover .menu-name,
   .menu-button:not(:disabled):focus-visible .menu-name {
-    color: var(--accent);
+    color: color-mix(in srgb, var(--accent) 72%, var(--ink));
     letter-spacing: .2em;
     transform: translate3d(8px, 0, 0);
   }
@@ -405,7 +405,7 @@ body.is-ready .fx-panel:not([hidden]) {
   transition: color 200ms ease, opacity 200ms ease;
 }
 
-.fx-button[aria-pressed="true"] { color: var(--accent); }
+.fx-button[aria-pressed="true"] { color: color-mix(in srgb, var(--accent) 72%, var(--ink)); }
 .fx-button[aria-pressed="true"]::before { content: "●"; margin-right: 6px; font-size: 6px; }
 
 .fx-reveal {
@@ -517,7 +517,7 @@ body.is-ready .fx-panel:not([hidden]) {
   z-index: -1;
   top: 50%;
   left: 50%;
-  color: var(--accent);
+  color: color-mix(in srgb, var(--accent) 72%, var(--ink));
   font: inherit;
   font-size: 1.52em;
   letter-spacing: .08em;
@@ -1052,8 +1052,8 @@ body[data-scene="crimson"] .system-screen {
   background: transparent;
   cursor: pointer;
 }
-.v4-page-turner button:first-child { border-right: 1px solid var(--v4-line); }
-.v4-page-turner button:last-child { border-left: 1px solid var(--v4-line); }
+.v4-page-turner > button:first-child { border-right: 1px solid var(--v4-line); }
+.v4-page-turner > button:last-child { border-left: 1px solid var(--v4-line); }
 .v4-page-turner button span {
   font: 500 clamp(7px,.49cqw,9px)/1 "Yu Gothic", sans-serif;
   letter-spacing: .13em;
@@ -1101,20 +1101,6 @@ body[data-scene="crimson"] .system-screen {
   min-height: 0;
 }
 
-.load-empty {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  margin: 0;
-  border: 1px solid var(--v4-line);
-  color: var(--v4-soft);
-  background: var(--v4-card);
-  font: 500 clamp(9px,.62cqw,12px)/1.6 "Yu Gothic", sans-serif;
-  letter-spacing: .18em;
-}
-
-.load-empty[hidden] { display: none; }
 .load-preview { display: none; }
 .save-grid {
   display: grid;
@@ -1233,13 +1219,7 @@ body[data-scene="crimson"] .system-screen {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.slot-meta {
-  margin-top: .55cqh;
-  color: var(--v4-soft);
-  font: 500 clamp(7px,.49cqw,9px)/1 "Yu Gothic", sans-serif;
-  letter-spacing: .13em;
-}
-.slot-date { display: none; }
+
 .save-slot.is-featured .slot-thumb {
   position: absolute;
   inset: 0;
@@ -1260,34 +1240,13 @@ body[data-scene="crimson"] .system-screen {
   background: linear-gradient(180deg, transparent, rgba(5,11,17,.83));
 }
 .save-slot.is-featured .slot-number,
-.save-slot.is-featured .slot-meta { color: rgba(230,239,244,.62); }
-.save-slot.is-featured .slot-title {
+.save-slot.is-featured .save-slot.is-featured .slot-title {
   display: block;
   margin: .7cqh 0;
   color: #f4f7f8;
   font: 400 clamp(18px,1.65cqw,29px)/1.25 "Yu Mincho", serif;
   letter-spacing: .07em;
   white-space: normal;
-}
-.load-footer {
-  position: absolute;
-  z-index: 7;
-  right: auto;
-  bottom: 3.2cqh;
-  left: 4.8cqw;
-  display: flex;
-  align-items: center;
-  min-height: 4.7cqh;
-  padding: 0;
-  color: var(--v4-faint);
-  font: 500 clamp(9px,.68cqw,12px)/1 "Yu Gothic", sans-serif;
-  letter-spacing: .13em;
-}
-.load-footer small {
-  display: block;
-  color: inherit;
-  font: 500 clamp(7px,.48cqw,9px)/1 "Yu Gothic", sans-serif;
-  letter-spacing: .16em;
 }
 .article-launch {
   position: absolute;
@@ -2029,7 +1988,7 @@ body[data-scene="crimson"] .exit-dialog { --modal-accent: 214,125,107; --modal-c
   .v4-page-turner { transform: translateX(-50%) scale(.86); transform-origin: center bottom; }
   .character-profile { grid-template-columns: 1fr 13cqw; }
 }
-@media (max-width: 600px) and (orientation: portrait) {
+@media (max-width: 900px) and (orientation: portrait) {
   body .system-screen::after {
     content: "横屏浏览  /  PLEASE ROTATE YOUR DEVICE";
     position: absolute;
@@ -2059,3 +2018,2884 @@ body[data-scene="crimson"] .exit-dialog { --modal-accent: 214,125,107; --modal-c
   .project-card,
   .exit-dialog-card { transition: none; }
 }
+
+/* ============================================================
+   LOAD 三方案对比期样式（定稿后清理落选变体）
+   memory=方案一 记忆卡 / list=方案二 列表 / editorial=方案三 对照
+   ============================================================ */
+
+/* ---- 槽位信息结构（三方案共用） ---- */
+.slot-tag {
+  float: right;
+  margin-left: .5cqw;
+  color: var(--v4-faint);
+  font: 500 clamp(7px,.48cqw,9px)/1 "Yu Gothic", sans-serif;
+  letter-spacing: .16em;
+}
+.slot-date {
+  display: block;
+  margin-top: .5cqh;
+  color: var(--v4-soft);
+  font: 400 clamp(8px,.56cqw,10px)/1.4 Baskerville, serif;
+  letter-spacing: .16em;
+}
+
+/* ---- 空存档槽：内框双线，克制的“系统预留位” ---- */
+.save-slot.is-empty {
+  grid-template-rows: minmax(0,1fr);
+  background: transparent;
+  box-shadow: none;
+  cursor: default;
+}
+.save-slot.is-empty::after {
+  content: "";
+  position: absolute;
+  inset: .4cqw;
+  border: 1px solid rgba(var(--v4-accent-rgb),.12);
+  pointer-events: none;
+}
+.save-slot.is-empty:hover,
+.save-slot.is-empty:focus-visible {
+  border-color: var(--v4-line);
+  box-shadow: none;
+  transform: none;
+}
+.save-slot.is-empty:hover::before,
+.save-slot.is-empty:focus-visible::before { opacity: 0; }
+.save-slot.is-empty .slot-copy {
+  display: grid;
+  place-items: center;
+  border-top: 0;
+  background: transparent;
+}
+.save-slot.is-empty .slot-number {
+  position: absolute;
+  top: 1cqh;
+  left: 1cqw;
+  margin: 0;
+}
+.slot-empty-label {
+  color: var(--v4-faint);
+  font: 500 clamp(7px,.5cqw,9px)/1 "Yu Gothic", sans-serif;
+  letter-spacing: .36em;
+  opacity: .72;
+}
+
+/* ---- 上次读档标记 ---- */
+.slot-last {
+  position: absolute;
+  z-index: 5;
+  top: .8cqh;
+  right: .8cqw;
+  padding: .35cqh .45cqw;
+  border: 1px solid rgba(var(--v4-accent-rgb),.5);
+  color: var(--v4-ink);
+  background: color-mix(in srgb, var(--v4-paper) 84%, transparent);
+  font: 500 clamp(7px,.48cqw,9px)/1 "Yu Gothic", sans-serif;
+  letter-spacing: .18em;
+  opacity: 0;
+  transform: translate3d(0,-.3cqh,0);
+  transition: opacity 200ms ease, transform 260ms cubic-bezier(.22,1,.36,1);
+  pointer-events: none;
+}
+.save-slot.is-last-load { border-color: rgba(var(--v4-accent-rgb),.52); }
+.save-slot.is-last-load .slot-last { opacity: 1; transform: none; }
+
+/* ---- 变体互斥的 tab 组 ---- */
+.load-canvas[data-load-variant="memory"] .load-category-tabs,
+.load-canvas[data-load-variant="list"] .load-device-tabs,
+.load-canvas[data-load-variant="editorial"] .load-device-tabs { display: none; }
+
+/* ---- 方案一：设备切换 tab（RECORD A / B） ---- */
+.load-device-tabs .device-tab {
+  position: relative;
+  display: grid;
+  justify-items: start;
+  align-content: center;
+  gap: .5cqh;
+  min-width: 12.5cqw;
+  min-height: 5cqh;
+  padding: .7cqh 1.3cqw .8cqh;
+  border: 1px solid var(--v4-line);
+  color: var(--v4-soft);
+  background: rgba(var(--v4-accent-rgb),.03);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 180ms ease, background-color 180ms ease;
+}
+.load-device-tabs .device-tab b {
+  color: var(--v4-ink);
+  font: 400 clamp(10px,.82cqw,15px)/1 Baskerville, serif;
+  font-weight: 400;
+  letter-spacing: .18em;
+}
+.load-device-tabs .device-tab span {
+  color: var(--v4-faint);
+  font: 500 clamp(7px,.5cqw,9px)/1 "Yu Gothic", sans-serif;
+  letter-spacing: .3em;
+  transition: color 180ms ease;
+}
+.load-device-tabs .device-tab:hover { border-color: rgba(var(--v4-accent-rgb),.44); }
+.load-device-tabs .device-tab[aria-pressed="true"] {
+  border-color: rgba(var(--v4-accent-rgb),.58);
+  background: rgba(var(--v4-accent-rgb),.1);
+}
+.load-device-tabs .device-tab[aria-pressed="true"] span { color: var(--v4-soft); }
+
+/* ---- 页码条：flex 化以容纳数字直达 ---- */
+.load-page-turner { display: flex; }
+.load-page-turner > button { flex: 0 0 7.4cqw; }
+.load-page-turner > strong { flex: 0 0 7.2cqw; }
+.load-page-turner .page-turner-track { flex: 1 1 auto; }
+.load-page-numbers {
+  display: none;
+  flex: 0 0 auto;
+  align-items: baseline;
+  justify-content: center;
+  gap: 1.6cqw;
+  padding: 0 1.6cqw;
+}
+.page-number {
+  padding: 0 0 .25cqh;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  color: var(--v4-faint);
+  background: transparent;
+  font: 400 clamp(11px,.9cqw,16px)/1.25 Baskerville, serif;
+  letter-spacing: .2em;
+  cursor: pointer;
+  transition: color 180ms ease, border-color 180ms ease;
+}
+.page-number:hover { color: var(--v4-ink); }
+.page-number[aria-pressed="true"] {
+  color: var(--v4-ink);
+  border-bottom-color: rgba(var(--v4-accent-rgb),.65);
+  cursor: default;
+}
+
+/* ---- 方案一 memory：只留数字页码 ---- */
+.load-canvas[data-load-variant="memory"] .load-page-turner { justify-content: center; }
+.load-canvas[data-load-variant="memory"] .load-page-numbers { display: flex; }
+.load-canvas[data-load-variant="memory"] .load-page-turner > button,
+.load-canvas[data-load-variant="memory"] .load-page-turner > strong,
+.load-canvas[data-load-variant="memory"] .load-page-turner .page-turner-track { display: none; }
+
+/* ---- 方案一 memory：BACK 的另一种克制形态 ---- */
+.load-canvas[data-load-variant="memory"] .system-back {
+  padding-left: 1.15cqw;
+  letter-spacing: .42em;
+  opacity: .62;
+}
+.load-canvas[data-load-variant="memory"] .system-back::before {
+  content: "";
+  top: 50%;
+  left: 0;
+  width: 1px;
+  height: 2.2cqh;
+  border: 0;
+  background: rgba(var(--v4-accent-rgb),.55);
+  transform: translateY(-50%);
+}
+.load-canvas[data-load-variant="memory"] .system-back:hover { opacity: 1; }
+
+/* ---- 方案二 list：横向条目 ---- */
+.load-canvas[data-load-variant="list"] .save-grid {
+  grid-template-columns: minmax(0,1fr);
+  grid-template-rows: repeat(6, minmax(0,1fr));
+  gap: .9cqh 0;
+}
+.load-canvas[data-load-variant="list"] .save-slot {
+  grid-template-columns: minmax(0,16.5cqw) minmax(0,1fr);
+  grid-template-rows: minmax(0,1fr);
+}
+.load-canvas[data-load-variant="list"] .slot-thumb { height: 100%; }
+.load-canvas[data-load-variant="list"] .slot-copy {
+  align-content: center;
+  border-top: 0;
+  border-left: 1px solid var(--v4-line);
+  padding: 1cqh 1.3cqw;
+}
+.load-canvas[data-load-variant="list"] .slot-title { font-size: clamp(11px,.88cqw,16px); }
+.load-canvas[data-load-variant="list"] .slot-date { margin-top: .7cqh; }
+.load-canvas[data-load-variant="list"] .save-slot:hover,
+.load-canvas[data-load-variant="list"] .save-slot:focus-visible { transform: translate3d(.3cqw,0,0); }
+.load-canvas[data-load-variant="list"] .save-slot.is-empty { grid-template-columns: minmax(0,1fr); }
+.load-canvas[data-load-variant="list"] .save-slot.is-empty:hover { transform: none; }
+
+/* ---- 临时方案切换器（定稿后删除） ---- */
+.load-variant-switcher {
+  position: absolute;
+  z-index: 90;
+  bottom: 3.2cqh;
+  left: 4.8cqw;
+  display: flex;
+  gap: .55cqw;
+  opacity: .32;
+  transition: opacity 200ms ease;
+}
+.load-variant-switcher:hover { opacity: 1; }
+.load-variant-switcher button {
+  display: grid;
+  place-items: center;
+  width: 2.1cqw;
+  min-width: 26px;
+  height: 3.4cqh;
+  min-height: 26px;
+  padding: 0;
+  border: 1px solid var(--v4-line);
+  color: var(--v4-soft);
+  background: transparent;
+  font: 400 clamp(10px,.72cqw,13px)/1 Baskerville, serif;
+  cursor: pointer;
+}
+.load-variant-switcher button[aria-pressed="true"] {
+  color: var(--v4-ink);
+  border-color: rgba(var(--v4-accent-rgb),.6);
+  background: rgba(var(--v4-accent-rgb),.12);
+}
+
+/* ---- 修正：空槽不出现 ENTER 提示；memory 页码条去框 ---- */
+.save-slot.is-empty .slot-copy::after { content: none; }
+.load-canvas[data-load-variant="memory"] .load-page-turner {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+/* ============================================================
+   LOAD 方案 IV–VI：以 Kimi 修改前的 V4 气质为壳，重做为游戏存档界面
+   moon=月白 / dossier=残卷 / tide=潮汐
+   ============================================================ */
+
+/* LOAD 单独使用全视口背景与 16:9 安全构图区：宽屏延展背景，不再暴露内画布边线。 */
+.load-canvas {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  width: 100vw;
+  height: 100vh;
+  background:
+    linear-gradient(90deg, rgba(var(--v4-accent-rgb),.045), transparent 22%, transparent 78%, rgba(var(--v4-accent-rgb),.045)),
+    var(--v4-wash),
+    var(--v4-bg) center / cover;
+  box-shadow: none;
+}
+.load-screen {
+  position: fixed;
+  overflow: clip;
+}
+.load-canvas { overflow: clip; }
+.load-safe-frame {
+  position: relative;
+  z-index: 1;
+  width: min(100vw, 177.7778vh);
+  height: min(100vh, 56.25vw);
+  container-type: size;
+  isolation: isolate;
+}
+.load-view-surface {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  opacity: 1;
+  transform: translate3d(0,0,0);
+  transition:
+    opacity 110ms ease,
+    transform 180ms cubic-bezier(.22,1,.36,1);
+}
+.load-view-surface.is-leaving {
+  opacity: 0;
+  transform: translate3d(0,.55cqh,0);
+}
+.load-view-surface.is-entering {
+  opacity: 0;
+  transform: translate3d(0,-.45cqh,0);
+  transition: none;
+}
+
+.load-focus-stage,
+.load-control-hints { display: none; }
+.load-focus-stage {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  isolation: isolate;
+}
+.load-focus-visual,
+.load-focus-art-layer {
+  position: absolute;
+  inset: 0;
+}
+.load-focus-art-layer {
+  opacity: 0;
+  background: var(--focus-art, var(--v4-bg)) center / cover no-repeat;
+  transition: opacity 230ms cubic-bezier(.22,1,.36,1);
+}
+.load-focus-art-layer.is-active { opacity: 1; }
+.load-focus-copy {
+  position: absolute;
+  z-index: 4;
+  min-width: 0;
+  opacity: 1;
+  transform: translate3d(0,0,0);
+  transition:
+    opacity 150ms ease,
+    transform 180ms cubic-bezier(.22,1,.36,1);
+}
+.load-focus-copy.is-changing {
+  opacity: 0;
+  transform: translate3d(0,.45cqh,0);
+}
+.load-focus-overline {
+  display: flex;
+  align-items: center;
+  gap: .9cqw;
+  margin: 0;
+  font: 500 clamp(7px,.49cqw,9px)/1 "Yu Gothic", sans-serif;
+  letter-spacing: .2em;
+}
+.load-focus-overline time { opacity: .62; }
+.load-focus-number {
+  font: italic 400 clamp(34px,4.8cqw,84px)/.9 Baskerville, "Iowan Old Style", serif;
+  letter-spacing: -.03em;
+}
+.load-focus-copy h3 {
+  margin: 0;
+  font: 400 clamp(22px,2.15cqw,38px)/1.28 "Yu Mincho", serif;
+  letter-spacing: .08em;
+}
+.load-focus-excerpt {
+  display: -webkit-box;
+  margin: 1.2cqh 0 0;
+  overflow: hidden;
+  font-size: clamp(9px,.65cqw,12px);
+  line-height: 1.8;
+  letter-spacing: .06em;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.load-focus-command {
+  display: flex;
+  align-items: center;
+  gap: .8cqw;
+  margin: 2.2cqh 0 0;
+  font: 500 clamp(7px,.48cqw,9px)/1 "Yu Gothic", sans-serif;
+  letter-spacing: .2em;
+}
+.load-focus-command i {
+  width: 4.6cqw;
+  height: 1px;
+  background: currentColor;
+  opacity: .35;
+}
+.load-focus-command b {
+  display: grid;
+  place-items: center;
+  width: 1.55cqw;
+  min-width: 20px;
+  aspect-ratio: 1;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font: 400 clamp(8px,.52cqw,10px)/1 sans-serif;
+}
+
+/* 三套游戏化方案共用：保留 V4 标题与场景签名，隐藏网页式分类。 */
+.load-canvas:is([data-load-variant="moon"],[data-load-variant="dossier"],[data-load-variant="tide"]) .load-focus-stage,
+.load-canvas:is([data-load-variant="moon"],[data-load-variant="dossier"],[data-load-variant="tide"]) .load-control-hints { display: flex; }
+.load-canvas:is([data-load-variant="moon"],[data-load-variant="dossier"],[data-load-variant="tide"]) .load-category-tabs,
+.load-canvas:is([data-load-variant="moon"],[data-load-variant="dossier"],[data-load-variant="tide"]) .load-edge-turners { display: none; }
+.load-canvas:is([data-load-variant="moon"],[data-load-variant="dossier"],[data-load-variant="tide"]) .load-device-tabs {
+  top: 12.7cqh;
+  right: auto;
+  left: 4.8cqw;
+  gap: 2.2cqw;
+  width: auto;
+  min-height: 3.5cqh;
+}
+.load-canvas:is([data-load-variant="moon"],[data-load-variant="dossier"],[data-load-variant="tide"]) .load-device-tabs .device-tab {
+  display: flex;
+  align-items: baseline;
+  gap: .7cqw;
+  min-width: 0;
+  min-height: 3.5cqh;
+  padding: 0 0 .7cqh;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  color: var(--v4-faint);
+  background: transparent;
+  box-shadow: none;
+  text-align: left;
+  transform: none;
+}
+.load-canvas:is([data-load-variant="moon"],[data-load-variant="dossier"],[data-load-variant="tide"]) .load-device-tabs .device-tab b {
+  color: inherit;
+  font-size: clamp(9px,.68cqw,12px);
+  letter-spacing: .22em;
+}
+.load-canvas:is([data-load-variant="moon"],[data-load-variant="dossier"],[data-load-variant="tide"]) .load-device-tabs .device-tab span {
+  color: inherit;
+  font-size: clamp(7px,.46cqw,8px);
+  letter-spacing: .2em;
+  opacity: .72;
+}
+.load-canvas:is([data-load-variant="moon"],[data-load-variant="dossier"],[data-load-variant="tide"]) .load-device-tabs .device-tab[aria-pressed="true"] {
+  color: var(--v4-ink);
+  border-bottom-color: rgba(var(--v4-accent-rgb),.72);
+  background: transparent;
+}
+.load-canvas:is([data-load-variant="moon"],[data-load-variant="dossier"],[data-load-variant="tide"]) .load-workspace {
+  top: 17.4cqh;
+  right: 4.8cqw;
+  bottom: 11.2cqh;
+  left: 4.8cqw;
+}
+.load-canvas:is([data-load-variant="moon"],[data-load-variant="dossier"],[data-load-variant="tide"]) .save-slot {
+  min-width: 0;
+  min-height: 0;
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+  transform: none;
+}
+.load-canvas:is([data-load-variant="moon"],[data-load-variant="dossier"],[data-load-variant="tide"]) .save-slot::before {
+  border: 0;
+  background: var(--v4-accent);
+}
+.load-canvas:is([data-load-variant="moon"],[data-load-variant="dossier"],[data-load-variant="tide"]) .save-slot:hover,
+.load-canvas:is([data-load-variant="moon"],[data-load-variant="dossier"],[data-load-variant="tide"]) .save-slot:focus-visible {
+  border-color: transparent;
+  box-shadow: none;
+  transform: none;
+}
+.load-canvas:is([data-load-variant="moon"],[data-load-variant="dossier"],[data-load-variant="tide"]) .save-slot .slot-copy {
+  border: 0;
+  background: transparent;
+}
+.load-canvas:is([data-load-variant="moon"],[data-load-variant="dossier"],[data-load-variant="tide"]) .save-slot .slot-copy::after { content: none; }
+.load-canvas:is([data-load-variant="moon"],[data-load-variant="dossier"],[data-load-variant="tide"]) .load-page-turner {
+  bottom: 2.55cqh;
+  display: flex;
+  width: 19cqw;
+  min-height: 4cqh;
+  border: 0;
+  color: var(--v4-soft);
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+.load-canvas:is([data-load-variant="moon"],[data-load-variant="dossier"],[data-load-variant="tide"]) .load-page-turner > button {
+  flex: 0 0 4.2cqw;
+  min-height: 4cqh;
+  border: 0;
+}
+.load-canvas:is([data-load-variant="moon"],[data-load-variant="dossier"],[data-load-variant="tide"]) .load-page-turner > strong {
+  flex: 1 1 auto;
+  font-size: clamp(8px,.56cqw,10px);
+}
+.load-canvas:is([data-load-variant="moon"],[data-load-variant="dossier"],[data-load-variant="tide"]) .load-page-turner .page-turner-track,
+.load-canvas:is([data-load-variant="moon"],[data-load-variant="dossier"],[data-load-variant="tide"]) .load-page-numbers { display: none; }
+.load-control-hints {
+  position: absolute;
+  z-index: 72;
+  bottom: 3.15cqh;
+  left: 23.5cqw;
+  align-items: center;
+  gap: 1.35cqw;
+  margin: 0;
+  color: var(--v4-faint);
+  font: 500 clamp(6px,.42cqw,8px)/1 "Yu Gothic", sans-serif;
+  letter-spacing: .14em;
+}
+.load-control-hints span { display: flex; align-items: center; gap: .38cqw; }
+.load-control-hints b {
+  color: var(--v4-soft);
+  font-size: clamp(7px,.48cqw,9px);
+  font-weight: 500;
+  letter-spacing: .04em;
+}
+
+/* IV / 月白：大片场景与纵向存档列。结构冷峻，焦点只有一个。 */
+.load-canvas[data-load-variant="moon"] .load-view-surface {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) 27cqw;
+  gap: 2.6cqw;
+}
+.load-canvas[data-load-variant="moon"] .load-focus-stage {
+  display: block;
+  border-left: 1px solid rgba(var(--v4-accent-rgb),.48);
+  background: rgba(7,13,18,.1);
+  box-shadow: 0 2.5cqh 5cqw rgba(12,20,27,.14);
+}
+.load-canvas[data-load-variant="moon"] .load-focus-visual::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(5,10,15,.2), transparent 52%),
+    linear-gradient(180deg, transparent 38%, rgba(5,10,15,.82));
+}
+.load-canvas[data-load-variant="moon"] .load-focus-art-layer {
+  filter: saturate(.72) brightness(.88) contrast(.96);
+}
+.load-canvas[data-load-variant="moon"] .load-focus-rule {
+  position: absolute;
+  z-index: 3;
+  top: 4.2cqh;
+  bottom: 4.2cqh;
+  left: 2.1cqw;
+  width: 1px;
+  background: rgba(235,242,246,.34);
+}
+.load-canvas[data-load-variant="moon"] .load-focus-sigil {
+  position: absolute;
+  z-index: 3;
+  top: 3.8cqh;
+  right: 2cqw;
+  color: rgba(238,245,248,.52);
+  font: 500 clamp(7px,.46cqw,9px)/1 "Yu Gothic", sans-serif;
+  letter-spacing: .38em;
+  writing-mode: vertical-rl;
+}
+.load-canvas[data-load-variant="moon"] .load-focus-copy {
+  right: 3.4cqw;
+  bottom: 5.2cqh;
+  left: 4.2cqw;
+  color: #f2f6f8;
+  text-shadow: 0 2px 18px rgba(3,8,12,.46);
+}
+.load-canvas[data-load-variant="moon"] .load-focus-overline { color: rgba(231,241,246,.6); }
+.load-canvas[data-load-variant="moon"] .load-focus-number {
+  position: absolute;
+  right: 0;
+  bottom: -.9cqh;
+  color: rgba(238,245,248,.15);
+  font-size: clamp(58px,7.3cqw,126px);
+  pointer-events: none;
+}
+.load-canvas[data-load-variant="moon"] .load-focus-copy h3 {
+  max-width: 38cqw;
+  margin-top: 1.15cqh;
+}
+.load-canvas[data-load-variant="moon"] .load-focus-excerpt {
+  max-width: 34cqw;
+  color: rgba(226,237,242,.68);
+}
+.load-canvas[data-load-variant="moon"] .load-focus-command { color: rgba(230,240,245,.68); }
+.load-canvas[data-load-variant="moon"] .save-grid {
+  display: grid;
+  grid-template-columns: minmax(0,1fr);
+  grid-template-rows: repeat(6,minmax(0,1fr));
+  gap: 0;
+  border-top: 1px solid var(--v4-line);
+  border-bottom: 1px solid var(--v4-line);
+}
+.load-canvas[data-load-variant="moon"] .save-slot {
+  display: block;
+  overflow: hidden;
+  border: 0;
+  border-bottom: 1px solid var(--v4-line);
+  text-align: left;
+}
+.load-canvas[data-load-variant="moon"] .save-slot:last-child { border-bottom: 0; }
+.load-canvas[data-load-variant="moon"] .save-slot::before {
+  top: 18%;
+  right: auto;
+  bottom: 18%;
+  left: 0;
+  width: 2px;
+  opacity: 0;
+  transform: scaleY(.35);
+  transform-origin: center;
+  transition: opacity 160ms ease, transform 220ms cubic-bezier(.22,1,.36,1);
+}
+.load-canvas[data-load-variant="moon"] .save-slot.is-focus-current::before,
+.load-canvas[data-load-variant="moon"] .save-slot:focus-visible::before {
+  opacity: 1;
+  transform: scaleY(1);
+}
+.load-canvas[data-load-variant="moon"] .slot-thumb {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  filter: saturate(.35) brightness(.78);
+  transform: scale(1.03);
+  transition: opacity 200ms ease;
+}
+.load-canvas[data-load-variant="moon"] .slot-thumb::after {
+  background: linear-gradient(90deg, var(--v4-paper) 10%, rgba(var(--v4-accent-rgb),.28), var(--v4-paper));
+}
+.load-canvas[data-load-variant="moon"] .save-slot.is-focus-current .slot-thumb { opacity: .18; }
+.load-canvas[data-load-variant="moon"] .slot-copy {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 4.3cqw minmax(0,1fr);
+  align-content: center;
+  height: 100%;
+  padding: 1.05cqh 1.25cqw 1cqh 1.4cqw;
+}
+.load-canvas[data-load-variant="moon"] .slot-number {
+  grid-row: 1 / 3;
+  align-self: center;
+  margin: 0;
+  font-size: clamp(10px,.72cqw,13px);
+}
+.load-canvas[data-load-variant="moon"] .slot-tag { display: none; }
+.load-canvas[data-load-variant="moon"] .slot-title {
+  align-self: end;
+  font: 400 clamp(10px,.77cqw,14px)/1.2 "Yu Mincho", serif;
+  letter-spacing: .08em;
+}
+.load-canvas[data-load-variant="moon"] .slot-date {
+  align-self: start;
+  margin-top: .65cqh;
+  font-size: clamp(7px,.47cqw,9px);
+  opacity: .64;
+}
+.load-canvas[data-load-variant="moon"] .save-slot.is-focus-current .slot-title { color: var(--v4-ink); }
+.load-canvas[data-load-variant="moon"] .save-slot:not(.is-focus-current) .slot-title { color: var(--v4-soft); }
+.load-canvas[data-load-variant="moon"] .save-slot.is-empty .slot-copy {
+  display: grid;
+  grid-template-columns: 4.3cqw minmax(0,1fr);
+  place-items: initial;
+}
+.load-canvas[data-load-variant="moon"] .save-slot.is-empty .slot-number {
+  position: static;
+  grid-row: auto;
+  align-self: center;
+}
+.load-canvas[data-load-variant="moon"] .save-slot.is-empty .slot-empty-label {
+  align-self: center;
+  letter-spacing: .24em;
+}
+
+/* V / 残卷：暗色档案夹、偏置照片与层叠索引。 */
+.load-canvas[data-load-variant="dossier"] .load-safe-frame::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  top: 50%;
+  left: 50%;
+  width: 100vw;
+  height: 100vh;
+  background:
+    linear-gradient(110deg, rgba(14,14,14,.72), rgba(30,28,25,.36) 48%, rgba(8,10,12,.58)),
+    repeating-linear-gradient(90deg, rgba(221,208,186,.018) 0 1px, transparent 1px 4.8cqw);
+  transform: translate(-50%,-50%);
+  pointer-events: none;
+}
+.load-canvas[data-load-variant="dossier"] .sys-heading,
+.load-canvas[data-load-variant="dossier"] .v4-scene-sign,
+.load-canvas[data-load-variant="dossier"] .load-device-tabs,
+.load-canvas[data-load-variant="dossier"] .load-workspace,
+.load-canvas[data-load-variant="dossier"] .load-page-turner,
+.load-canvas[data-load-variant="dossier"] .load-control-hints,
+.load-canvas[data-load-variant="dossier"] .load-variant-switcher,
+.load-canvas[data-load-variant="dossier"] .system-back { color: #e4ddd2; }
+.load-canvas[data-load-variant="dossier"] .sys-heading p,
+.load-canvas[data-load-variant="dossier"] .v4-scene-sign,
+.load-canvas[data-load-variant="dossier"] .load-control-hints { color: rgba(228,221,210,.48); }
+.load-canvas[data-load-variant="dossier"] .sys-heading h2 { color: #e4ddd2; }
+.load-canvas[data-load-variant="dossier"] .load-device-tabs .device-tab { color: rgba(228,221,210,.32); }
+.load-canvas[data-load-variant="dossier"] .load-device-tabs .device-tab[aria-pressed="true"] { color: #e4ddd2; }
+.load-canvas[data-load-variant="dossier"] .load-view-surface {
+  display: grid;
+  grid-template-columns: 23cqw minmax(0,1fr);
+  gap: 3.2cqw;
+}
+.load-canvas[data-load-variant="dossier"] .save-grid {
+  display: grid;
+  grid-template-columns: minmax(0,1fr);
+  grid-template-rows: repeat(6,minmax(0,1fr));
+  gap: .55cqh;
+  order: 1;
+  padding: 1.8cqh 0;
+}
+.load-canvas[data-load-variant="dossier"] .save-slot {
+  display: grid;
+  grid-template-columns: 5.5cqw minmax(0,1fr);
+  grid-template-rows: minmax(0,1fr);
+  overflow: hidden;
+  border: 1px solid rgba(221,210,192,.12);
+  color: rgba(233,227,216,.58);
+  background: rgba(10,11,12,.2);
+  text-align: left;
+  transform: translate3d(0,0,0);
+  transition:
+    color 180ms ease,
+    border-color 180ms ease,
+    background-color 180ms ease,
+    transform 220ms cubic-bezier(.22,1,.36,1);
+}
+.load-canvas[data-load-variant="dossier"] .save-slot:nth-child(2n) { margin-left: .7cqw; }
+.load-canvas[data-load-variant="dossier"] .save-slot:nth-child(3n) { margin-right: .45cqw; }
+.load-canvas[data-load-variant="dossier"] .save-slot.is-focus-current {
+  color: #f2ede4;
+  border-color: rgba(205,188,160,.52);
+  background: rgba(156,132,98,.12);
+  transform: translate3d(.8cqw,0,0);
+}
+.load-canvas[data-load-variant="dossier"] .save-slot::before {
+  inset: 0 auto 0 0;
+  width: .22cqw;
+  min-width: 2px;
+  opacity: 0;
+  background: #a38a68;
+}
+.load-canvas[data-load-variant="dossier"] .save-slot.is-focus-current::before { opacity: 1; }
+.load-canvas[data-load-variant="dossier"] .slot-thumb {
+  position: relative;
+  height: 100%;
+  opacity: .45;
+  filter: sepia(.36) saturate(.48) brightness(.68) contrast(1.08);
+}
+.load-canvas[data-load-variant="dossier"] .slot-thumb::after { background: rgba(41,34,26,.18); }
+.load-canvas[data-load-variant="dossier"] .save-slot.is-focus-current .slot-thumb { opacity: .78; }
+.load-canvas[data-load-variant="dossier"] .slot-copy {
+  display: grid;
+  grid-template-columns: 3.5cqw minmax(0,1fr);
+  align-content: center;
+  min-width: 0;
+  padding: .8cqh .9cqw;
+}
+.load-canvas[data-load-variant="dossier"] .slot-number {
+  grid-row: 1 / 3;
+  align-self: center;
+  margin: 0;
+  color: rgba(226,216,200,.36);
+}
+.load-canvas[data-load-variant="dossier"] .slot-tag { display: none; }
+.load-canvas[data-load-variant="dossier"] .slot-title {
+  color: inherit;
+  font: 400 clamp(9px,.7cqw,13px)/1.2 "Yu Mincho", serif;
+}
+.load-canvas[data-load-variant="dossier"] .slot-date {
+  margin-top: .45cqh;
+  color: rgba(226,216,200,.36);
+  font-size: clamp(7px,.44cqw,8px);
+}
+.load-canvas[data-load-variant="dossier"] .load-focus-stage {
+  display: block;
+  order: 2;
+  overflow: visible;
+}
+.load-canvas[data-load-variant="dossier"] .load-focus-stage::before {
+  content: "ARCHIVE / READING RECORD";
+  position: absolute;
+  z-index: 5;
+  top: 2.2cqh;
+  left: 1.7cqw;
+  padding-bottom: .9cqh;
+  border-bottom: 1px solid rgba(217,202,180,.28);
+  color: rgba(226,216,199,.42);
+  font: 500 clamp(7px,.47cqw,9px)/1 "Yu Gothic", sans-serif;
+  letter-spacing: .28em;
+}
+.load-canvas[data-load-variant="dossier"] .load-focus-visual {
+  top: 5.5cqh;
+  right: 8.4cqw;
+  bottom: 4.5cqh;
+  left: 1.5cqw;
+  overflow: hidden;
+  border: 1px solid rgba(220,209,191,.25);
+  background: #151718;
+  box-shadow: 0 2.5cqh 5cqw rgba(0,0,0,.32);
+  transform: rotate(-.55deg);
+}
+.load-canvas[data-load-variant="dossier"] .load-focus-visual::before {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  inset: .7cqw;
+  border: 1px solid rgba(226,215,197,.17);
+  pointer-events: none;
+}
+.load-canvas[data-load-variant="dossier"] .load-focus-visual::after {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  background:
+    linear-gradient(90deg, transparent 48%, rgba(15,16,16,.18)),
+    linear-gradient(180deg, transparent 64%, rgba(8,9,9,.6));
+}
+.load-canvas[data-load-variant="dossier"] .load-focus-art-layer {
+  inset: 1.35cqw;
+  filter: sepia(.26) saturate(.58) brightness(.76) contrast(1.04);
+}
+.load-canvas[data-load-variant="dossier"] .load-focus-rule {
+  position: absolute;
+  z-index: 4;
+  right: 1.5cqw;
+  bottom: 1.8cqh;
+  width: 8cqw;
+  height: 1px;
+  background: rgba(226,215,198,.28);
+}
+.load-canvas[data-load-variant="dossier"] .load-focus-sigil {
+  position: absolute;
+  z-index: 4;
+  right: 1.2cqw;
+  bottom: 3cqh;
+  color: rgba(229,219,203,.26);
+  font: italic 400 clamp(19px,2.2cqw,39px)/1 Baskerville, serif;
+  letter-spacing: .14em;
+}
+.load-canvas[data-load-variant="dossier"] .load-focus-copy {
+  right: 1.2cqw;
+  bottom: 6.5cqh;
+  width: 25cqw;
+  padding: 3.1cqh 2.1cqw 2.6cqh;
+  color: #eee9df;
+  background:
+    linear-gradient(135deg, rgba(181,160,128,.08), transparent 42%),
+    rgba(17,18,18,.9);
+  box-shadow: 0 2.2cqh 4cqw rgba(0,0,0,.38);
+  clip-path: polygon(0 0, calc(100% - 1.3cqw) 0, 100% 1.3cqw, 100% 100%, 0 100%);
+}
+.load-canvas[data-load-variant="dossier"] .load-focus-copy::before {
+  content: "FILE";
+  position: absolute;
+  top: 1.3cqh;
+  right: 1.2cqw;
+  color: rgba(224,211,191,.22);
+  font: 500 clamp(7px,.45cqw,8px)/1 "Yu Gothic", sans-serif;
+  letter-spacing: .35em;
+}
+.load-canvas[data-load-variant="dossier"] .load-focus-overline { color: rgba(228,217,200,.5); }
+.load-canvas[data-load-variant="dossier"] .load-focus-number {
+  display: block;
+  margin: 1.8cqh 0 .8cqh;
+  color: rgba(190,167,132,.52);
+  font-size: clamp(34px,3.8cqw,68px);
+}
+.load-canvas[data-load-variant="dossier"] .load-focus-copy h3 {
+  font-size: clamp(18px,1.75cqw,31px);
+}
+.load-canvas[data-load-variant="dossier"] .load-focus-excerpt { color: rgba(229,220,207,.57); }
+.load-canvas[data-load-variant="dossier"] .load-focus-command { color: rgba(199,181,153,.68); }
+.load-canvas[data-load-variant="dossier"] .save-slot.is-empty {
+  grid-template-columns: minmax(0,1fr);
+  opacity: .46;
+}
+.load-canvas[data-load-variant="dossier"] .save-slot.is-empty .slot-copy {
+  grid-template-columns: 3.5cqw minmax(0,1fr);
+  place-items: initial;
+}
+.load-canvas[data-load-variant="dossier"] .save-slot.is-empty .slot-number {
+  position: static;
+  grid-row: auto;
+  align-self: center;
+}
+.load-canvas[data-load-variant="dossier"] .save-slot.is-empty .slot-empty-label { align-self: center; }
+
+/* VI / 潮汐：选中画面溶入整页，底部只留一条存档轨道。 */
+.load-canvas[data-load-variant="tide"] .load-workspace { inset: 0; }
+.load-canvas[data-load-variant="tide"] .load-view-surface { display: block; }
+.load-canvas[data-load-variant="tide"] .load-focus-stage {
+  position: absolute;
+  inset: 0;
+  display: block;
+  overflow: visible;
+}
+.load-canvas[data-load-variant="tide"] .load-focus-visual {
+  top: 50%;
+  right: auto;
+  bottom: auto;
+  left: 50%;
+  width: 100vw;
+  height: 100vh;
+  transform: translate(-50%,-50%);
+}
+.load-canvas[data-load-variant="tide"] .load-focus-visual::after {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(5,10,15,.72) 0, rgba(5,10,15,.2) 46%, rgba(5,10,15,.08)),
+    linear-gradient(180deg, rgba(5,10,15,.25), transparent 26%, transparent 52%, rgba(5,10,15,.86));
+}
+.load-canvas[data-load-variant="tide"] .load-focus-art-layer {
+  filter: saturate(.68) brightness(.74) contrast(.98);
+  transform: scale(1.012);
+}
+.load-canvas[data-load-variant="tide"] .load-focus-rule {
+  position: absolute;
+  z-index: 3;
+  top: 0;
+  bottom: 0;
+  left: calc((100vw - min(100vw,177.7778vh))/2 + 5.6cqw);
+  width: 1px;
+  background: linear-gradient(180deg, transparent, rgba(228,240,246,.34) 18%, rgba(228,240,246,.18) 76%, transparent);
+}
+.load-canvas[data-load-variant="tide"] .load-focus-sigil {
+  position: absolute;
+  z-index: 3;
+  top: 31cqh;
+  left: calc((100vw - min(100vw,177.7778vh))/2 + 3.3cqw);
+  color: rgba(232,241,246,.34);
+  font: 500 clamp(7px,.46cqw,9px)/1 "Yu Gothic", sans-serif;
+  letter-spacing: .36em;
+  writing-mode: vertical-rl;
+}
+.load-canvas[data-load-variant="tide"] .load-focus-copy {
+  bottom: 20.5cqh;
+  left: 8cqw;
+  width: 48cqw;
+  color: #f2f6f8;
+  text-shadow: 0 2px 22px rgba(0,0,0,.56);
+}
+.load-canvas[data-load-variant="tide"] .load-focus-overline { color: rgba(232,241,246,.56); }
+.load-canvas[data-load-variant="tide"] .load-focus-number {
+  position: absolute;
+  top: -2.1cqh;
+  left: -3.2cqw;
+  color: rgba(236,244,248,.12);
+  font-size: clamp(64px,8cqw,138px);
+}
+.load-canvas[data-load-variant="tide"] .load-focus-copy h3 {
+  max-width: 43cqw;
+  margin-top: 1.4cqh;
+  font-size: clamp(27px,2.75cqw,49px);
+  letter-spacing: .1em;
+}
+.load-canvas[data-load-variant="tide"] .load-focus-excerpt {
+  max-width: 37cqw;
+  color: rgba(228,238,243,.65);
+}
+.load-canvas[data-load-variant="tide"] .load-focus-command { color: rgba(231,241,246,.65); }
+.load-canvas[data-load-variant="tide"] .save-grid {
+  position: absolute;
+  z-index: 8;
+  right: 5.4cqw;
+  bottom: 7.2cqh;
+  left: 27.5cqw;
+  display: grid;
+  grid-template-columns: repeat(6,minmax(0,1fr));
+  grid-template-rows: minmax(0,1fr);
+  gap: .55cqw;
+  width: auto;
+  height: 9.5cqh;
+}
+.load-canvas[data-load-variant="tide"] .save-slot {
+  display: block;
+  overflow: hidden;
+  border: 1px solid rgba(225,237,243,.2);
+  color: #eef4f7;
+  background: rgba(5,10,14,.25);
+  text-align: left;
+}
+.load-canvas[data-load-variant="tide"] .save-slot::before {
+  inset: auto 8% 0;
+  width: auto;
+  height: 2px;
+  opacity: 0;
+  background: rgba(235,245,249,.82);
+  transform: scaleX(.35);
+  transform-origin: center;
+  transition: opacity 160ms ease, transform 220ms cubic-bezier(.22,1,.36,1);
+}
+.load-canvas[data-load-variant="tide"] .save-slot.is-focus-current {
+  border-color: rgba(235,245,249,.68);
+}
+.load-canvas[data-load-variant="tide"] .save-slot.is-focus-current::before {
+  opacity: 1;
+  transform: scaleX(1);
+}
+.load-canvas[data-load-variant="tide"] .slot-thumb {
+  position: absolute;
+  inset: 0;
+  opacity: .48;
+  filter: saturate(.5) brightness(.58);
+}
+.load-canvas[data-load-variant="tide"] .slot-thumb::after {
+  background: linear-gradient(180deg, transparent 18%, rgba(4,9,13,.84));
+}
+.load-canvas[data-load-variant="tide"] .save-slot.is-focus-current .slot-thumb {
+  opacity: .86;
+  filter: saturate(.72) brightness(.7);
+}
+.load-canvas[data-load-variant="tide"] .slot-copy {
+  position: absolute;
+  z-index: 2;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: .8cqh .7cqw .9cqh;
+  color: inherit;
+}
+.load-canvas[data-load-variant="tide"] .slot-number {
+  display: block;
+  margin: 0 0 .45cqh;
+  color: rgba(232,242,247,.52);
+  font-size: clamp(7px,.46cqw,9px);
+}
+.load-canvas[data-load-variant="tide"] .slot-tag,
+.load-canvas[data-load-variant="tide"] .slot-date { display: none; }
+.load-canvas[data-load-variant="tide"] .slot-title {
+  color: inherit;
+  font: 400 clamp(8px,.59cqw,11px)/1.2 "Yu Mincho", serif;
+  letter-spacing: .07em;
+}
+.load-canvas[data-load-variant="tide"] .save-slot.is-empty {
+  opacity: .48;
+  background: rgba(4,9,13,.18);
+}
+.load-canvas[data-load-variant="tide"] .save-slot.is-empty::after { border-color: rgba(227,238,243,.12); }
+.load-canvas[data-load-variant="tide"] .save-slot.is-empty .slot-copy {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  inset: 0;
+  padding: 0;
+}
+.load-canvas[data-load-variant="tide"] .save-slot.is-empty .slot-number {
+  position: absolute;
+  top: .8cqh;
+  left: .7cqw;
+}
+.load-canvas[data-load-variant="tide"] .save-slot.is-empty .slot-empty-label {
+  color: rgba(232,241,246,.34);
+  letter-spacing: .18em;
+}
+.load-canvas[data-load-variant="tide"] .sys-heading,
+.load-canvas[data-load-variant="tide"] .v4-scene-sign,
+.load-canvas[data-load-variant="tide"] .load-device-tabs,
+.load-canvas[data-load-variant="tide"] .load-page-turner,
+.load-canvas[data-load-variant="tide"] .load-control-hints,
+.load-canvas[data-load-variant="tide"] .system-back { color: #edf4f7; text-shadow: 0 2px 18px rgba(0,0,0,.4); }
+.load-canvas[data-load-variant="tide"] .sys-heading p,
+.load-canvas[data-load-variant="tide"] .v4-scene-sign,
+.load-canvas[data-load-variant="tide"] .load-control-hints { color: rgba(231,241,246,.52); }
+.load-canvas[data-load-variant="tide"] .sys-heading h2 { color: #edf4f7; }
+.load-canvas[data-load-variant="tide"] .load-device-tabs .device-tab { color: rgba(231,241,246,.34); }
+.load-canvas[data-load-variant="tide"] .load-device-tabs .device-tab[aria-pressed="true"] { color: #edf4f7; }
+.load-canvas[data-load-variant="tide"] .load-variant-switcher button {
+  color: rgba(232,241,246,.52);
+  border-color: rgba(232,241,246,.18);
+}
+.load-canvas[data-load-variant="tide"] .load-variant-switcher button[aria-pressed="true"] {
+  color: #f1f6f8;
+  border-color: rgba(232,242,247,.58);
+  background: rgba(5,10,14,.2);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .load-canvas[data-load-variant="moon"] .save-slot:not(.is-empty):hover {
+    transform: translate3d(.38cqw,0,0);
+  }
+  .load-canvas[data-load-variant="dossier"] .save-slot:not(.is-empty):hover {
+    color: #f2ede4;
+    border-color: rgba(205,188,160,.42);
+    transform: translate3d(.8cqw,0,0);
+  }
+  .load-canvas[data-load-variant="tide"] .save-slot:not(.is-empty):hover {
+    border-color: rgba(235,245,249,.58);
+    transform: translate3d(0,-.35cqh,0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .load-view-surface,
+  .load-focus-art-layer,
+  .load-focus-copy,
+  .load-canvas:is([data-load-variant="moon"],[data-load-variant="dossier"],[data-load-variant="tide"]) .save-slot,
+  .load-canvas:is([data-load-variant="moon"],[data-load-variant="dossier"],[data-load-variant="tide"]) .save-slot::before {
+    transform: none;
+    transition: none;
+  }
+}
+
+/* ============================================================
+   LOAD VII–IX：三种真正不同的 Galgame 读档语法
+   VII=传统主机 VN / VIII=月姬 Remake 系统语法 / IX=恋狱漆绘
+   ============================================================ */
+
+.load-classic-title,
+.load-tsuki-system,
+.load-cartagra-title,
+.slot-command { display: none; }
+
+.load-canvas:is([data-load-variant="vnclassic"],[data-load-variant="tsukihime"],[data-load-variant="cartagra"]) .load-category-tabs,
+.load-canvas:is([data-load-variant="vnclassic"],[data-load-variant="tsukihime"],[data-load-variant="cartagra"]) .load-edge-turners { display: none; }
+
+.load-canvas:is([data-load-variant="vnclassic"],[data-load-variant="tsukihime"],[data-load-variant="cartagra"]) .save-slot {
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  text-align: left;
+}
+.load-canvas:is([data-load-variant="vnclassic"],[data-load-variant="tsukihime"],[data-load-variant="cartagra"]) .system-back:focus-visible {
+  outline: 0;
+  filter: drop-shadow(0 0 .8cqw rgba(128,211,235,.42));
+}
+
+/* VII / 传统 Galgame：厚实的主机存档面板，八槽位一屏。 */
+.load-canvas[data-load-variant="vnclassic"] {
+  background:
+    linear-gradient(180deg, rgba(5,12,28,.28), rgba(5,9,22,.72)),
+    var(--v4-wash),
+    var(--v4-bg) center / cover;
+}
+.load-canvas[data-load-variant="vnclassic"]::before {
+  background:
+    radial-gradient(ellipse at 50% 38%, rgba(153,197,233,.2), transparent 54%),
+    linear-gradient(180deg, rgba(8,18,38,.15), rgba(3,8,22,.46));
+}
+.load-canvas[data-load-variant="vnclassic"] .load-safe-frame::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 50%;
+  left: 50%;
+  width: 100vw;
+  height: 100vh;
+  background:
+    radial-gradient(ellipse at 50% 42%, transparent 30%, rgba(3,8,22,.44) 100%),
+    linear-gradient(180deg, rgba(6,15,33,.12), rgba(4,9,24,.45));
+  transform: translate(-50%,-50%);
+  pointer-events: none;
+}
+.load-canvas[data-load-variant="vnclassic"] .sys-heading,
+.load-canvas[data-load-variant="vnclassic"] .v4-scene-sign { display: none; }
+.load-canvas[data-load-variant="vnclassic"] .load-classic-title {
+  position: absolute;
+  z-index: 20;
+  top: 3.8cqh;
+  left: 50%;
+  display: grid;
+  grid-template-columns: auto auto;
+  grid-template-rows: auto auto;
+  align-items: end;
+  column-gap: 1.2cqw;
+  min-width: 31cqw;
+  padding: 1.2cqh 3cqw 1.4cqh;
+  color: #f5f7fb;
+  background:
+    linear-gradient(90deg, transparent, rgba(12,29,61,.94) 13%, rgba(19,46,88,.96) 50%, rgba(12,29,61,.94) 87%, transparent);
+  filter: drop-shadow(0 1.2cqh 2.2cqw rgba(0,0,0,.32));
+  text-align: center;
+  transform: translateX(-50%);
+}
+.load-canvas[data-load-variant="vnclassic"] .load-classic-title::before,
+.load-canvas[data-load-variant="vnclassic"] .load-classic-title::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 12cqw;
+  height: .55cqh;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, rgba(218,232,248,.72));
+}
+.load-canvas[data-load-variant="vnclassic"] .load-classic-title::before { right: 100%; }
+.load-canvas[data-load-variant="vnclassic"] .load-classic-title::after {
+  left: 100%;
+  transform: rotate(180deg);
+}
+.load-canvas[data-load-variant="vnclassic"] .load-classic-title small {
+  grid-column: 1 / 3;
+  color: #a9c9e7;
+  font: 700 clamp(7px,.49cqw,9px)/1 "Yu Gothic", sans-serif;
+  letter-spacing: .42em;
+}
+.load-canvas[data-load-variant="vnclassic"] .load-classic-title strong {
+  font: italic 700 clamp(31px,2.75cqw,49px)/1.05 Georgia, serif;
+  letter-spacing: .08em;
+  text-shadow: 0 .3cqh .8cqw rgba(0,0,0,.36);
+}
+.load-canvas[data-load-variant="vnclassic"] .load-classic-title span {
+  align-self: center;
+  padding: .7cqh 1cqw;
+  border-radius: 999px;
+  color: #102b55;
+  background: #e7eff8;
+  font: 700 clamp(8px,.58cqw,11px)/1 "Yu Gothic", sans-serif;
+  letter-spacing: .22em;
+}
+.load-canvas[data-load-variant="vnclassic"] .load-device-tabs {
+  top: 13.2cqh;
+  right: auto;
+  left: 50%;
+  display: flex;
+  gap: .7cqw;
+  width: auto;
+  min-height: 4.8cqh;
+  transform: translateX(-50%);
+}
+.load-canvas[data-load-variant="vnclassic"] .load-device-tabs .device-tab {
+  display: flex;
+  align-items: center;
+  gap: .8cqw;
+  min-width: 14cqw;
+  min-height: 4.4cqh;
+  padding: 0 1.35cqw;
+  border: 0;
+  border-radius: 999px;
+  color: rgba(225,236,249,.68);
+  background: rgba(7,18,42,.78);
+  box-shadow: inset 0 .25cqh .6cqw rgba(255,255,255,.08), 0 .5cqh 1.2cqw rgba(0,0,0,.2);
+}
+.load-canvas[data-load-variant="vnclassic"] .load-device-tabs .device-tab b {
+  color: inherit;
+  font: 700 clamp(9px,.66cqw,12px)/1 "Trebuchet MS", sans-serif;
+  letter-spacing: .16em;
+}
+.load-canvas[data-load-variant="vnclassic"] .load-device-tabs .device-tab span {
+  color: inherit;
+  font: 500 clamp(7px,.47cqw,9px)/1 "Yu Gothic", sans-serif;
+  letter-spacing: .14em;
+}
+.load-canvas[data-load-variant="vnclassic"] .load-device-tabs .device-tab[aria-pressed="true"] {
+  color: #0b2852;
+  background: linear-gradient(180deg,#f7fbff,#bfd6eb);
+  box-shadow: inset 0 -.35cqh .7cqw rgba(31,73,115,.18), 0 .65cqh 1.4cqw rgba(0,0,0,.24);
+}
+.load-canvas[data-load-variant="vnclassic"] .load-workspace {
+  top: 19.2cqh;
+  right: 7.4cqw;
+  bottom: 13.5cqh;
+  left: 7.4cqw;
+}
+.load-canvas[data-load-variant="vnclassic"] .load-view-surface { display: block; }
+.load-canvas[data-load-variant="vnclassic"] .load-focus-stage { display: none; }
+.load-canvas[data-load-variant="vnclassic"] .save-grid {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  grid-template-rows: repeat(4,minmax(0,1fr));
+  gap: 1.15cqh 1.25cqw;
+}
+.load-canvas[data-load-variant="vnclassic"] .save-slot {
+  display: grid;
+  grid-template-columns: 10.7cqw minmax(0,1fr) 4.2cqw;
+  grid-template-rows: minmax(0,1fr);
+  overflow: hidden;
+  border: .22cqw solid rgba(210,225,241,.78);
+  border-radius: .72cqw;
+  color: #edf5fc;
+  background: linear-gradient(145deg,rgba(25,55,96,.96),rgba(8,24,55,.96));
+  box-shadow:
+    inset 0 0 0 .16cqw rgba(7,20,47,.8),
+    inset 0 .35cqh .9cqw rgba(255,255,255,.08),
+    0 .75cqh 1.45cqw rgba(0,0,0,.3);
+  transform: translate3d(0,0,0);
+  transition: color 160ms ease, background-color 160ms ease, transform 220ms cubic-bezier(.22,1,.36,1), box-shadow 200ms ease;
+}
+.load-canvas[data-load-variant="vnclassic"] .save-slot::before {
+  content: "";
+  position: absolute;
+  z-index: 4;
+  inset: .35cqw;
+  border: 0;
+  border-radius: .35cqw;
+  background: linear-gradient(105deg,rgba(255,255,255,.12),transparent 32%);
+  opacity: 1;
+  pointer-events: none;
+}
+.load-canvas[data-load-variant="vnclassic"] .save-slot::after { content: none; }
+.load-canvas[data-load-variant="vnclassic"] .save-slot.is-focus-current,
+.load-canvas[data-load-variant="vnclassic"] .save-slot:focus-visible {
+  z-index: 5;
+  color: #09254b;
+  background: linear-gradient(150deg,#fbfdff,#b9d5ee);
+  box-shadow:
+    inset 0 0 0 .16cqw rgba(39,83,126,.34),
+    0 0 0 .22cqw rgba(125,193,241,.24),
+    0 1.1cqh 2.3cqw rgba(0,0,0,.38);
+  transform: translate3d(0,-.28cqh,0) scale(1.015);
+}
+.load-canvas[data-load-variant="vnclassic"] .slot-thumb {
+  position: relative;
+  z-index: 1;
+  width: auto;
+  height: 100%;
+  margin: .45cqw;
+  border-radius: .35cqw;
+  background-position: center;
+  filter: saturate(.7) brightness(.72);
+  box-shadow: inset 0 0 0 .15cqw rgba(235,245,255,.36);
+}
+.load-canvas[data-load-variant="vnclassic"] .slot-thumb::after { background: linear-gradient(90deg,transparent,rgba(5,15,34,.18)); }
+.load-canvas[data-load-variant="vnclassic"] .save-slot.is-focus-current .slot-thumb {
+  filter: saturate(.92) brightness(.94);
+}
+.load-canvas[data-load-variant="vnclassic"] .slot-copy {
+  display: grid;
+  align-content: center;
+  min-width: 0;
+  padding: 1cqh 1cqw;
+  border: 0;
+  background: transparent;
+}
+.load-canvas[data-load-variant="vnclassic"] .slot-copy::after { content: none; }
+.load-canvas[data-load-variant="vnclassic"] .slot-number {
+  margin: 0 0 .7cqh;
+  color: #9fc4e4;
+  font: 700 clamp(8px,.59cqw,11px)/1 "Trebuchet MS", sans-serif;
+  letter-spacing: .16em;
+}
+.load-canvas[data-load-variant="vnclassic"] .slot-tag { display: none; }
+.load-canvas[data-load-variant="vnclassic"] .slot-title {
+  color: inherit;
+  font: 700 clamp(10px,.77cqw,14px)/1.25 "Yu Gothic", sans-serif;
+  letter-spacing: .04em;
+}
+.load-canvas[data-load-variant="vnclassic"] .slot-date {
+  margin-top: .75cqh;
+  color: currentColor;
+  font: 500 clamp(7px,.49cqw,9px)/1 "Trebuchet MS", sans-serif;
+  letter-spacing: .13em;
+  opacity: .65;
+}
+.load-canvas[data-load-variant="vnclassic"] .save-slot.is-focus-current .slot-number { color: #255b8b; }
+.load-canvas[data-load-variant="vnclassic"] .slot-command {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  place-content: center;
+  gap: .6cqh;
+  color: #b8d2e9;
+  background: rgba(3,15,38,.34);
+  text-align: center;
+}
+.load-canvas[data-load-variant="vnclassic"] .slot-command b {
+  font: 700 clamp(6px,.42cqw,8px)/1 "Trebuchet MS", sans-serif;
+  letter-spacing: .13em;
+}
+.load-canvas[data-load-variant="vnclassic"] .slot-command i {
+  font: normal 700 clamp(15px,1.15cqw,21px)/1 sans-serif;
+}
+.load-canvas[data-load-variant="vnclassic"] .save-slot.is-focus-current .slot-command {
+  color: #fff;
+  background: linear-gradient(180deg,#2f73ae,#174b7d);
+}
+.load-canvas[data-load-variant="vnclassic"] .save-slot.is-empty {
+  grid-template-columns: minmax(0,1fr) 4.2cqw;
+  opacity: .62;
+  border-color: rgba(185,205,226,.55);
+  cursor: default;
+}
+.load-canvas[data-load-variant="vnclassic"] .save-slot.is-empty .slot-copy {
+  place-items: start;
+  align-content: center;
+}
+.load-canvas[data-load-variant="vnclassic"] .save-slot.is-empty .slot-number {
+  position: static;
+  margin: 0 0 .8cqh;
+}
+.load-canvas[data-load-variant="vnclassic"] .save-slot.is-empty .slot-empty-label {
+  color: rgba(220,234,246,.45);
+  letter-spacing: .2em;
+}
+.load-canvas[data-load-variant="vnclassic"] .slot-last {
+  top: .7cqh;
+  right: 4.8cqw;
+  border: 0;
+  border-radius: 999px;
+  color: #0c315c;
+  background: #dcebf7;
+}
+.load-canvas[data-load-variant="vnclassic"] .load-page-turner {
+  bottom: 3.2cqh;
+  display: flex;
+  justify-content: center;
+  gap: .5cqw;
+  width: auto;
+  min-height: 4.5cqh;
+  padding: .45cqh .45cqw;
+  border: 0;
+  border-radius: 999px;
+  color: #dcebf7;
+  background: rgba(7,20,47,.88);
+  box-shadow: 0 .7cqh 1.8cqw rgba(0,0,0,.3);
+  backdrop-filter: blur(12px);
+}
+.load-canvas[data-load-variant="vnclassic"] .load-page-turner > button {
+  flex: 0 0 4cqw;
+  min-height: 3.5cqh;
+  border: 0;
+  border-radius: 999px;
+  color: inherit;
+}
+.load-canvas[data-load-variant="vnclassic"] .load-page-turner > button:hover { background: rgba(195,221,243,.18); }
+.load-canvas[data-load-variant="vnclassic"] .load-page-turner > strong,
+.load-canvas[data-load-variant="vnclassic"] .load-page-turner .page-turner-track { display: none; }
+.load-canvas[data-load-variant="vnclassic"] .load-page-numbers { display: flex; gap: .35cqw; padding: 0; }
+.load-canvas[data-load-variant="vnclassic"] .page-number {
+  display: grid;
+  place-items: center;
+  width: 2.35cqw;
+  min-width: 28px;
+  aspect-ratio: 1;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  color: rgba(222,237,249,.58);
+  background: rgba(190,216,238,.09);
+  font: 700 clamp(8px,.55cqw,10px)/1 "Trebuchet MS", sans-serif;
+}
+.load-canvas[data-load-variant="vnclassic"] .page-number[aria-pressed="true"] {
+  color: #0b2d58;
+  background: #dbeaf6;
+}
+.load-canvas[data-load-variant="vnclassic"] .load-control-hints {
+  right: 12cqw;
+  bottom: 4.2cqh;
+  left: auto;
+  display: flex;
+  color: rgba(226,238,249,.58);
+}
+.load-canvas[data-load-variant="vnclassic"] .load-control-hints b { color: #e8f2fa; }
+.load-canvas[data-load-variant="vnclassic"] .system-back {
+  top: 5cqh;
+  right: 4.5cqw;
+  bottom: auto;
+  min-width: 7cqw;
+  min-height: 4cqh;
+  padding: 0 1cqw 0 2.8cqw;
+  border: 0;
+  border-radius: 999px;
+  color: #e7f1fa;
+  background: rgba(7,20,47,.74);
+}
+.load-canvas[data-load-variant="vnclassic"] .system-back::before {
+  left: .6cqw;
+  width: 2.1cqw;
+  height: 2.1cqw;
+  max-height: 3.4cqh;
+  border: 0;
+  border-radius: 50%;
+  color: #0b315c;
+  background: #dbeaf6;
+}
+
+/* VIII / 月姬 Remake 参考：场景即界面，蓝色系统带与流动选中行。 */
+.load-canvas[data-load-variant="tsukihime"] {
+  background: var(--v4-bg) center / cover;
+}
+.load-canvas[data-load-variant="tsukihime"]::before {
+  background:
+    linear-gradient(180deg,rgba(94,224,245,.5) 0,rgba(70,191,222,.18) 5%,transparent 14%),
+    radial-gradient(ellipse at 45% 38%,transparent 35%,rgba(3,18,39,.4) 108%);
+}
+.load-canvas[data-load-variant="tsukihime"] .sys-heading,
+.load-canvas[data-load-variant="tsukihime"] .v4-scene-sign { display: none; }
+.load-canvas[data-load-variant="tsukihime"] .load-tsuki-system {
+  position: absolute;
+  z-index: 24;
+  inset: 0;
+  display: block;
+  color: #eefcff;
+  pointer-events: none;
+  text-shadow: 0 .18cqh .55cqw rgba(0,28,55,.42);
+}
+.load-canvas[data-load-variant="tsukihime"] .load-tsuki-system::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -2cqw;
+  width: 20.2cqw;
+  background:
+    linear-gradient(90deg,rgba(12,62,116,.78),rgba(15,112,172,.54) 72%,rgba(25,174,218,.16));
+  clip-path: polygon(0 0,88% 0,100% 100%,0 100%);
+  backdrop-filter: blur(5px) saturate(.82);
+}
+.load-canvas[data-load-variant="tsukihime"] .load-tsuki-system::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: -8cqw;
+  left: -8cqw;
+  height: 7.4cqh;
+  background:
+    radial-gradient(ellipse at 24% 5%,rgba(232,255,255,.72),transparent 21%),
+    linear-gradient(180deg,rgba(85,220,243,.74),rgba(53,171,210,.16) 72%,transparent);
+  filter: blur(.15cqw);
+  opacity: .72;
+}
+.load-tsuki-chapter {
+  position: absolute;
+  z-index: 2;
+  top: 1.25cqh;
+  left: 1.8cqw;
+  display: flex;
+  align-items: baseline;
+  gap: .7cqw;
+  margin: 0;
+}
+.load-tsuki-chapter b {
+  font: 400 clamp(26px,2.4cqw,43px)/1 "Yu Mincho", serif;
+  letter-spacing: .08em;
+}
+.load-tsuki-chapter span {
+  font: 400 clamp(13px,1.05cqw,19px)/1 "Yu Mincho", serif;
+  letter-spacing: .08em;
+}
+.load-tsuki-system ol {
+  position: absolute;
+  z-index: 2;
+  top: 12.4cqh;
+  left: 2.7cqw;
+  display: grid;
+  gap: 1.45cqh;
+  width: 14cqw;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font: 400 clamp(16px,1.32cqw,24px)/1.25 "Segoe UI", sans-serif;
+  letter-spacing: .02em;
+}
+.load-tsuki-system li { color: rgba(231,251,255,.66); }
+.load-tsuki-system li.is-current {
+  position: relative;
+  color: #74edff;
+  text-shadow: 0 0 1.2cqw rgba(69,225,255,.5);
+}
+.load-tsuki-system li.is-current::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: calc(100% + .8cqw);
+  width: 2.2cqw;
+  height: .55cqh;
+  border-radius: 999px;
+  background: #83f1ff;
+  box-shadow: 0 0 1cqw rgba(78,224,255,.88);
+  transform: translateY(-50%);
+}
+.load-tsuki-system li small {
+  display: inline-block;
+  margin-left: .65cqw;
+  color: rgba(232,253,255,.78);
+  font: 500 clamp(7px,.49cqw,9px)/1 "Yu Gothic", sans-serif;
+  letter-spacing: .12em;
+}
+.load-tsuki-note {
+  position: absolute;
+  z-index: 2;
+  top: 1.2cqh;
+  right: 2.4cqw;
+  display: grid;
+  justify-items: end;
+  gap: .3cqh;
+  margin: 0;
+  color: #eafbff;
+}
+.load-tsuki-note span { font: 500 clamp(7px,.48cqw,9px)/1 "Segoe UI", sans-serif; }
+.load-tsuki-note b { font: 400 clamp(9px,.65cqw,12px)/1 "Yu Mincho", serif; letter-spacing: .16em; }
+.load-canvas[data-load-variant="tsukihime"] .load-workspace { inset: 0; }
+.load-canvas[data-load-variant="tsukihime"] .load-view-surface { display: block; }
+.load-canvas[data-load-variant="tsukihime"] .load-focus-stage {
+  position: absolute;
+  inset: 0;
+  display: block;
+  overflow: visible;
+}
+.load-canvas[data-load-variant="tsukihime"] .load-focus-visual {
+  top: 50%;
+  right: auto;
+  bottom: auto;
+  left: 50%;
+  width: 100vw;
+  height: 100vh;
+  transform: translate(-50%,-50%);
+}
+.load-canvas[data-load-variant="tsukihime"] .load-focus-art-layer {
+  filter: saturate(.72) brightness(.72) contrast(.96);
+  transform: scale(1.01);
+}
+.load-canvas[data-load-variant="tsukihime"] .load-focus-visual::after {
+  content: "";
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  background:
+    linear-gradient(90deg,rgba(0,25,62,.58),rgba(0,38,78,.16) 34%,rgba(0,14,32,.3)),
+    linear-gradient(180deg,rgba(43,177,218,.2),transparent 18%,transparent 70%,rgba(2,20,43,.62));
+}
+.load-canvas[data-load-variant="tsukihime"] .load-focus-copy,
+.load-canvas[data-load-variant="tsukihime"] .load-focus-rule,
+.load-canvas[data-load-variant="tsukihime"] .load-focus-sigil { display: none; }
+.load-canvas[data-load-variant="tsukihime"] .load-device-tabs {
+  top: 9.6cqh;
+  right: 4.6cqw;
+  left: 22.5cqw;
+  display: flex;
+  gap: 2.4cqw;
+  width: auto;
+  min-height: 4.5cqh;
+}
+.load-canvas[data-load-variant="tsukihime"] .load-device-tabs .device-tab {
+  display: flex;
+  align-items: baseline;
+  gap: .7cqw;
+  min-width: 0;
+  min-height: 3.8cqh;
+  padding: 0 0 .7cqh;
+  border: 0;
+  color: rgba(225,249,255,.45);
+  background: transparent;
+  text-shadow: 0 .2cqh .55cqw rgba(0,19,43,.58);
+}
+.load-canvas[data-load-variant="tsukihime"] .load-device-tabs .device-tab b {
+  color: inherit;
+  font: 400 clamp(12px,.93cqw,17px)/1 "Segoe UI", sans-serif;
+  letter-spacing: .04em;
+}
+.load-canvas[data-load-variant="tsukihime"] .load-device-tabs .device-tab span {
+  color: inherit;
+  font: 500 clamp(7px,.47cqw,9px)/1 "Yu Gothic", sans-serif;
+  letter-spacing: .12em;
+}
+.load-canvas[data-load-variant="tsukihime"] .load-device-tabs .device-tab[aria-pressed="true"] {
+  color: #dffcff;
+  background: transparent;
+}
+.load-canvas[data-load-variant="tsukihime"] .load-device-tabs .device-tab[aria-pressed="true"]::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: .55cqh;
+  border-radius: 999px;
+  background: #62e8ff;
+  box-shadow: 0 0 1.2cqw rgba(60,222,255,.8);
+}
+.load-canvas[data-load-variant="tsukihime"] .save-grid {
+  position: absolute;
+  z-index: 15;
+  top: 15.2cqh;
+  right: 4.2cqw;
+  bottom: 12.5cqh;
+  left: 22.5cqw;
+  display: grid;
+  grid-template-columns: minmax(0,1fr);
+  grid-template-rows: repeat(6,minmax(0,1fr));
+  gap: .62cqh;
+  width: auto;
+  height: auto;
+}
+.load-canvas[data-load-variant="tsukihime"] .save-slot {
+  display: grid;
+  grid-template-columns: 12.8cqw minmax(0,1fr) 6.2cqw;
+  grid-template-rows: minmax(0,1fr);
+  overflow: hidden;
+  border: 0;
+  color: rgba(236,251,255,.72);
+  background: linear-gradient(90deg,rgba(11,64,112,.68),rgba(10,68,111,.42) 62%,rgba(14,92,139,.2));
+  box-shadow: 0 .5cqh 1.4cqw rgba(0,18,42,.16);
+  clip-path: polygon(0 0,98.8% 0,100% 50%,98.8% 100%,0 100%,.8% 50%);
+  transform: translate3d(0,0,0);
+  transition: color 150ms ease, background-color 150ms ease, transform 220ms cubic-bezier(.22,1,.36,1), filter 180ms ease;
+}
+.load-canvas[data-load-variant="tsukihime"] .save-slot::before {
+  content: "";
+  position: absolute;
+  z-index: 4;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: .62cqw;
+  border: 0;
+  background: #72ecff;
+  opacity: 0;
+  box-shadow: 0 0 1.5cqw rgba(72,225,255,.9);
+}
+.load-canvas[data-load-variant="tsukihime"] .save-slot::after { content: none; }
+.load-canvas[data-load-variant="tsukihime"] .save-slot.is-focus-current,
+.load-canvas[data-load-variant="tsukihime"] .save-slot:focus-visible {
+  z-index: 4;
+  color: #052e55;
+  background: linear-gradient(90deg,rgba(209,252,255,.97),rgba(103,224,243,.93) 65%,rgba(50,181,222,.78));
+  filter: drop-shadow(0 .65cqh 1.1cqw rgba(0,29,62,.34));
+  transform: translate3d(1cqw,0,0);
+}
+.load-canvas[data-load-variant="tsukihime"] .save-slot.is-focus-current::before { opacity: 1; }
+.load-canvas[data-load-variant="tsukihime"] .slot-thumb {
+  position: relative;
+  width: auto;
+  height: 100%;
+  filter: saturate(.52) brightness(.68);
+}
+.load-canvas[data-load-variant="tsukihime"] .slot-thumb::after {
+  background: linear-gradient(90deg,transparent 55%,rgba(7,52,92,.62));
+}
+.load-canvas[data-load-variant="tsukihime"] .save-slot.is-focus-current .slot-thumb {
+  filter: saturate(.8) brightness(.88);
+}
+.load-canvas[data-load-variant="tsukihime"] .slot-copy {
+  display: grid;
+  grid-template-columns: 6.2cqw minmax(0,1fr);
+  align-content: center;
+  min-width: 0;
+  padding: .8cqh 1.25cqw;
+  border: 0;
+  background: transparent;
+}
+.load-canvas[data-load-variant="tsukihime"] .slot-copy::after { content: none; }
+.load-canvas[data-load-variant="tsukihime"] .slot-number {
+  grid-row: 1 / 3;
+  align-self: center;
+  margin: 0;
+  color: currentColor;
+  font: 300 clamp(13px,1.05cqw,19px)/1 "Segoe UI", sans-serif;
+  letter-spacing: .06em;
+  opacity: .68;
+}
+.load-canvas[data-load-variant="tsukihime"] .slot-tag { display: none; }
+.load-canvas[data-load-variant="tsukihime"] .slot-title {
+  align-self: end;
+  color: inherit;
+  font: 400 clamp(10px,.78cqw,14px)/1.25 "Yu Mincho", serif;
+  letter-spacing: .06em;
+}
+.load-canvas[data-load-variant="tsukihime"] .slot-date {
+  align-self: start;
+  margin-top: .55cqh;
+  color: inherit;
+  font: 400 clamp(7px,.48cqw,9px)/1 "Segoe UI", sans-serif;
+  letter-spacing: .13em;
+  opacity: .6;
+}
+.load-canvas[data-load-variant="tsukihime"] .slot-command {
+  display: grid;
+  place-content: center;
+  gap: .45cqh;
+  color: inherit;
+  text-align: center;
+  opacity: .48;
+}
+.load-canvas[data-load-variant="tsukihime"] .slot-command b {
+  font: 500 clamp(6px,.42cqw,8px)/1 "Segoe UI", sans-serif;
+  letter-spacing: .13em;
+}
+.load-canvas[data-load-variant="tsukihime"] .slot-command i { font: normal 400 clamp(14px,1.05cqw,19px)/1 sans-serif; }
+.load-canvas[data-load-variant="tsukihime"] .save-slot.is-focus-current .slot-command { opacity: .9; }
+.load-canvas[data-load-variant="tsukihime"] .save-slot.is-empty {
+  grid-template-columns: minmax(0,1fr) 6.2cqw;
+  color: rgba(226,247,252,.34);
+  background: linear-gradient(90deg,rgba(8,52,94,.42),rgba(7,54,92,.16));
+  opacity: .78;
+}
+.load-canvas[data-load-variant="tsukihime"] .save-slot.is-empty .slot-copy {
+  grid-template-columns: 6.2cqw minmax(0,1fr);
+  place-items: initial;
+}
+.load-canvas[data-load-variant="tsukihime"] .save-slot.is-empty .slot-number {
+  position: static;
+  grid-row: auto;
+  align-self: center;
+}
+.load-canvas[data-load-variant="tsukihime"] .save-slot.is-empty .slot-empty-label {
+  align-self: center;
+  color: inherit;
+  letter-spacing: .22em;
+}
+.load-canvas[data-load-variant="tsukihime"] .slot-last {
+  top: .65cqh;
+  right: 6.8cqw;
+  border: 0;
+  color: #083660;
+  background: rgba(218,253,255,.86);
+}
+.load-canvas[data-load-variant="tsukihime"] .load-page-turner {
+  bottom: 3.25cqh;
+  left: 55%;
+  display: flex;
+  width: 20cqw;
+  min-height: 4.2cqh;
+  border: 0;
+  color: rgba(226,250,255,.8);
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  text-shadow: 0 .2cqh .6cqw rgba(0,18,42,.72);
+}
+.load-canvas[data-load-variant="tsukihime"] .load-page-turner > button {
+  flex: 0 0 4.2cqw;
+  min-height: 4cqh;
+  border: 0;
+}
+.load-canvas[data-load-variant="tsukihime"] .load-page-turner > strong { flex: 1 1 auto; }
+.load-canvas[data-load-variant="tsukihime"] .load-page-turner .page-turner-track,
+.load-canvas[data-load-variant="tsukihime"] .load-page-numbers { display: none; }
+.load-canvas[data-load-variant="tsukihime"] .load-control-hints { display: none; }
+.load-canvas[data-load-variant="tsukihime"] .system-back {
+  right: 3cqw;
+  bottom: 3.5cqh;
+  color: rgba(229,251,255,.82);
+  text-shadow: 0 .2cqh .7cqw rgba(0,20,45,.72);
+}
+.load-canvas[data-load-variant="tsukihime"] .system-back::before {
+  border: 0;
+  border-radius: 50%;
+  color: #06335d;
+  background: rgba(205,249,255,.86);
+  box-shadow: 0 0 1cqw rgba(75,223,250,.42);
+}
+
+/* IX / 恋狱月狂病参考：墨、漆与群青书签组成的横向读档列。 */
+.load-canvas[data-load-variant="cartagra"] {
+  background: #071019 var(--v4-bg) center / cover;
+}
+.load-canvas[data-load-variant="cartagra"]::before {
+  background:
+    radial-gradient(ellipse at 50% 38%,transparent 24%,rgba(2,7,11,.72) 108%),
+    repeating-radial-gradient(ellipse at 18% 82%,rgba(157,184,201,.025) 0 1px,transparent 1px 5px);
+}
+.load-canvas[data-load-variant="cartagra"]::after {
+  opacity: .2;
+  background:
+    repeating-linear-gradient(116deg,rgba(230,238,230,.05) 0 1px,transparent 1px 6px),
+    radial-gradient(circle at 80% 22%,rgba(106,151,189,.16),transparent 28%);
+  mix-blend-mode: overlay;
+}
+.load-canvas[data-load-variant="cartagra"] .sys-heading,
+.load-canvas[data-load-variant="cartagra"] .v4-scene-sign { display: none; }
+.load-canvas[data-load-variant="cartagra"] .load-cartagra-title {
+  position: absolute;
+  z-index: 24;
+  top: 5cqh;
+  left: 5.2cqw;
+  display: block;
+  width: 34cqw;
+  color: #eef1e9;
+  text-shadow: 0 .35cqh 1.2cqw rgba(0,0,0,.68);
+  pointer-events: none;
+}
+.load-canvas[data-load-variant="cartagra"] .load-cartagra-title::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: -2.4cqh;
+  right: -4cqw;
+  bottom: -3cqh;
+  left: -5.5cqw;
+  background:
+    radial-gradient(ellipse at 36% 50%,rgba(3,9,14,.92),rgba(7,16,23,.74) 48%,transparent 74%);
+  filter: blur(.45cqw);
+  transform: rotate(-1.2deg);
+}
+.load-canvas[data-load-variant="cartagra"] .load-cartagra-title p {
+  display: flex;
+  align-items: baseline;
+  gap: .45cqw;
+  margin: 0;
+  font-family: "Yu Mincho", "Hiragino Mincho ProN", serif;
+}
+.load-canvas[data-load-variant="cartagra"] .load-cartagra-title span {
+  font-size: clamp(23px,2.2cqw,39px);
+  font-weight: 400;
+  letter-spacing: .18em;
+}
+.load-canvas[data-load-variant="cartagra"] .load-cartagra-title b {
+  color: rgba(229,234,223,.56);
+  font-size: clamp(13px,1cqw,18px);
+  font-weight: 400;
+}
+.load-canvas[data-load-variant="cartagra"] .load-cartagra-title strong {
+  color: #f7f3e8;
+  font-size: clamp(38px,3.8cqw,68px);
+  font-weight: 400;
+  letter-spacing: .12em;
+}
+.load-canvas[data-load-variant="cartagra"] .load-cartagra-title small {
+  display: block;
+  margin-top: .8cqh;
+  color: rgba(208,220,218,.48);
+  font: 500 clamp(7px,.48cqw,9px)/1 "Yu Gothic", sans-serif;
+  letter-spacing: .4em;
+}
+.load-canvas[data-load-variant="cartagra"] .load-cartagra-title i {
+  display: block;
+  width: 21cqw;
+  height: .7cqh;
+  margin-top: 1.35cqh;
+  border-radius: 50%;
+  background: linear-gradient(90deg,#4e81a7,rgba(71,119,156,.24),transparent);
+  filter: blur(.12cqw);
+  transform: skewX(-24deg);
+}
+.load-canvas[data-load-variant="cartagra"] .load-workspace { inset: 0; }
+.load-canvas[data-load-variant="cartagra"] .load-view-surface { display: block; }
+.load-canvas[data-load-variant="cartagra"] .load-focus-stage {
+  position: absolute;
+  inset: 0;
+  display: block;
+  overflow: visible;
+}
+.load-canvas[data-load-variant="cartagra"] .load-focus-visual {
+  top: 50%;
+  right: auto;
+  bottom: auto;
+  left: 50%;
+  width: 100vw;
+  height: 100vh;
+  transform: translate(-50%,-50%);
+}
+.load-canvas[data-load-variant="cartagra"] .load-focus-art-layer {
+  filter: sepia(.16) saturate(.58) brightness(.52) contrast(1.08);
+  transform: scale(1.015);
+}
+.load-canvas[data-load-variant="cartagra"] .load-focus-visual::before {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  background:
+    linear-gradient(90deg,rgba(3,8,12,.77),rgba(4,11,17,.26) 58%,rgba(2,7,11,.56)),
+    linear-gradient(180deg,rgba(2,7,11,.38),transparent 37%,rgba(2,7,11,.84));
+}
+.load-canvas[data-load-variant="cartagra"] .load-focus-visual::after {
+  content: "";
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 72% 34%,rgba(42,91,129,.16),transparent 26%),
+    radial-gradient(ellipse at 16% 72%,rgba(8,14,18,.68),transparent 42%);
+}
+.load-canvas[data-load-variant="cartagra"] .load-focus-rule,
+.load-canvas[data-load-variant="cartagra"] .load-focus-sigil { display: none; }
+.load-canvas[data-load-variant="cartagra"] .load-focus-copy {
+  top: 29cqh;
+  right: auto;
+  bottom: auto;
+  left: 6.2cqw;
+  width: 42cqw;
+  padding: 2.5cqh 3.2cqw 2.8cqh 2.5cqw;
+  color: #eceee8;
+  text-shadow: 0 .3cqh 1cqw rgba(0,0,0,.78);
+}
+.load-canvas[data-load-variant="cartagra"] .load-focus-copy::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -2cqh -4cqw -2cqh -5cqw;
+  background: radial-gradient(ellipse at 42% 50%,rgba(3,9,13,.86),rgba(5,13,19,.55) 52%,transparent 75%);
+  filter: blur(.5cqw);
+  transform: rotate(.8deg);
+}
+.load-canvas[data-load-variant="cartagra"] .load-focus-overline {
+  color: rgba(205,217,212,.48);
+  letter-spacing: .28em;
+}
+.load-canvas[data-load-variant="cartagra"] .load-focus-number {
+  position: absolute;
+  top: -2cqh;
+  left: -1cqw;
+  color: rgba(111,160,193,.17);
+  font-size: clamp(70px,8.5cqw,150px);
+}
+.load-canvas[data-load-variant="cartagra"] .load-focus-copy h3 {
+  position: relative;
+  max-width: 38cqw;
+  margin-top: 2.2cqh;
+  font: 400 clamp(25px,2.45cqw,44px)/1.35 "Yu Mincho", serif;
+  letter-spacing: .12em;
+}
+.load-canvas[data-load-variant="cartagra"] .load-focus-excerpt {
+  max-width: 34cqw;
+  color: rgba(219,226,218,.6);
+  font-family: "Yu Mincho", serif;
+  line-height: 1.9;
+}
+.load-canvas[data-load-variant="cartagra"] .load-focus-command { color: rgba(139,180,204,.74); }
+.load-canvas[data-load-variant="cartagra"] .load-device-tabs {
+  top: 5.4cqh;
+  right: 5cqw;
+  left: auto;
+  display: flex;
+  gap: .7cqw;
+  width: auto;
+  min-height: 5cqh;
+}
+.load-canvas[data-load-variant="cartagra"] .load-device-tabs .device-tab {
+  display: grid;
+  place-content: center;
+  gap: .45cqh;
+  min-width: 10.5cqw;
+  min-height: 4.8cqh;
+  padding: .7cqh 1.1cqw;
+  border: 0;
+  color: rgba(222,227,217,.48);
+  background:
+    repeating-linear-gradient(135deg,rgba(255,255,255,.025) 0 2px,transparent 2px 7px),
+    linear-gradient(145deg,rgba(16,39,57,.88),rgba(5,17,28,.92));
+  box-shadow: inset 0 .35cqh .8cqw rgba(92,137,169,.12),0 .8cqh 1.8cqw rgba(0,0,0,.34);
+  clip-path: polygon(7% 0,93% 0,100% 22%,96% 100%,4% 100%,0 22%);
+}
+.load-canvas[data-load-variant="cartagra"] .load-device-tabs .device-tab b {
+  color: inherit;
+  font: 400 clamp(10px,.75cqw,14px)/1 "Yu Mincho", serif;
+  letter-spacing: .18em;
+}
+.load-canvas[data-load-variant="cartagra"] .load-device-tabs .device-tab span {
+  color: inherit;
+  font: 500 clamp(6px,.42cqw,8px)/1 "Yu Gothic", sans-serif;
+  letter-spacing: .2em;
+}
+.load-canvas[data-load-variant="cartagra"] .load-device-tabs .device-tab[aria-pressed="true"] {
+  color: #f0f1e9;
+  background:
+    radial-gradient(circle at 50% 28%,rgba(91,145,181,.24),transparent 45%),
+    repeating-linear-gradient(135deg,rgba(255,255,255,.035) 0 2px,transparent 2px 7px),
+    linear-gradient(145deg,#24577a,#0b263d);
+  box-shadow: inset 0 .4cqh 1cqw rgba(151,194,218,.16),0 0 2cqw rgba(52,105,143,.3),0 .8cqh 1.8cqw rgba(0,0,0,.4);
+}
+.load-canvas[data-load-variant="cartagra"] .save-grid {
+  position: absolute;
+  z-index: 18;
+  right: 4.5cqw;
+  bottom: 9.5cqh;
+  left: 4.5cqw;
+  display: grid;
+  grid-template-columns: repeat(6,minmax(0,1fr));
+  grid-template-rows: minmax(0,1fr);
+  align-items: end;
+  gap: .25cqw;
+  width: auto;
+  height: 22cqh;
+}
+.load-canvas[data-load-variant="cartagra"] .save-slot {
+  display: grid;
+  grid-template-columns: minmax(0,1fr);
+  grid-template-rows: minmax(0,1fr) auto;
+  height: 18cqh;
+  overflow: hidden;
+  border: 0;
+  color: rgba(231,235,225,.64);
+  background:
+    radial-gradient(circle at 24% 22%,rgba(80,135,173,.22),transparent 30%),
+    repeating-linear-gradient(135deg,rgba(219,232,236,.025) 0 2px,transparent 2px 7px),
+    linear-gradient(155deg,#173f5c,#071a2b 75%);
+  box-shadow: inset 0 .5cqh 1cqw rgba(133,174,199,.08),0 1.1cqh 2cqw rgba(0,0,0,.48);
+  clip-path: polygon(7% 0,93% 0,100% 12%,97% 88%,90% 100%,8% 100%,0 88%,3% 12%);
+  transform: translate3d(0,0,0) scale(.94);
+  transform-origin: center bottom;
+  transition: color 160ms ease, transform 260ms cubic-bezier(.22,1,.36,1), filter 180ms ease, background-color 160ms ease;
+}
+.load-canvas[data-load-variant="cartagra"] .save-slot:nth-child(2n) { transform: translate3d(0,.9cqh,0) scale(.94) rotate(.35deg); }
+.load-canvas[data-load-variant="cartagra"] .save-slot:nth-child(3n) { transform: translate3d(0,.3cqh,0) scale(.94) rotate(-.3deg); }
+.load-canvas[data-load-variant="cartagra"] .save-slot::before {
+  content: "";
+  position: absolute;
+  z-index: 4;
+  inset: .45cqw;
+  border: 0;
+  background:
+    linear-gradient(90deg,transparent,rgba(186,215,229,.12),transparent) top / 100% .45cqh no-repeat,
+    linear-gradient(90deg,transparent,rgba(186,215,229,.09),transparent) bottom / 100% .35cqh no-repeat;
+  opacity: .8;
+  pointer-events: none;
+}
+.load-canvas[data-load-variant="cartagra"] .save-slot::after {
+  content: "";
+  position: absolute;
+  z-index: 5;
+  top: .6cqh;
+  left: 50%;
+  width: 1.1cqw;
+  min-width: 12px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle,#8fb2c6 0 18%,#294e68 20% 52%,transparent 54%);
+  opacity: .55;
+  transform: translateX(-50%);
+}
+.load-canvas[data-load-variant="cartagra"] .save-slot.is-focus-current,
+.load-canvas[data-load-variant="cartagra"] .save-slot:focus-visible {
+  z-index: 6;
+  color: #f7f4e9;
+  background:
+    radial-gradient(circle at 50% 22%,rgba(151,204,231,.36),transparent 36%),
+    repeating-linear-gradient(135deg,rgba(235,243,241,.045) 0 2px,transparent 2px 7px),
+    linear-gradient(155deg,#2b6b91,#0d2f4b 76%);
+  filter: drop-shadow(0 0 1.6cqw rgba(63,132,175,.5));
+  transform: translate3d(0,-2.2cqh,0) scale(1.045) rotate(0);
+}
+.load-canvas[data-load-variant="cartagra"] .slot-thumb {
+  position: relative;
+  width: auto;
+  min-height: 0;
+  margin: 1.5cqh .8cqw .25cqh;
+  background-position: center;
+  filter: sepia(.22) saturate(.55) brightness(.62);
+  clip-path: ellipse(48% 45% at 50% 50%);
+  box-shadow: inset 0 0 1.2cqw rgba(2,8,13,.72);
+}
+.load-canvas[data-load-variant="cartagra"] .slot-thumb::after {
+  background: radial-gradient(ellipse at 50% 50%,transparent 38%,rgba(2,9,14,.66));
+}
+.load-canvas[data-load-variant="cartagra"] .save-slot.is-focus-current .slot-thumb {
+  filter: sepia(.1) saturate(.8) brightness(.82);
+}
+.load-canvas[data-load-variant="cartagra"] .slot-copy {
+  min-width: 0;
+  padding: .55cqh 1cqw 1.2cqh;
+  border: 0;
+  background: transparent;
+  text-align: center;
+}
+.load-canvas[data-load-variant="cartagra"] .slot-copy::after { content: none; }
+.load-canvas[data-load-variant="cartagra"] .slot-number {
+  display: block;
+  margin: 0 0 .5cqh;
+  color: rgba(151,191,213,.68);
+  font: 400 clamp(8px,.56cqw,10px)/1 "Yu Mincho", serif;
+  letter-spacing: .2em;
+}
+.load-canvas[data-load-variant="cartagra"] .slot-tag,
+.load-canvas[data-load-variant="cartagra"] .slot-date { display: none; }
+.load-canvas[data-load-variant="cartagra"] .slot-title {
+  color: inherit;
+  font: 400 clamp(8px,.61cqw,11px)/1.25 "Yu Mincho", serif;
+  letter-spacing: .09em;
+}
+.load-canvas[data-load-variant="cartagra"] .slot-command {
+  position: absolute;
+  z-index: 7;
+  right: .75cqw;
+  bottom: .75cqh;
+  display: flex;
+  align-items: center;
+  gap: .35cqw;
+  color: rgba(220,232,230,.48);
+}
+.load-canvas[data-load-variant="cartagra"] .slot-command b { font-size: 0; }
+.load-canvas[data-load-variant="cartagra"] .slot-command b::after {
+  content: "読む";
+  font: 500 clamp(6px,.4cqw,8px)/1 "Yu Gothic", sans-serif;
+  letter-spacing: .12em;
+}
+.load-canvas[data-load-variant="cartagra"] .slot-command i { font: normal 400 clamp(10px,.74cqw,13px)/1 sans-serif; }
+.load-canvas[data-load-variant="cartagra"] .save-slot.is-focus-current .slot-command { color: #f0f3eb; }
+.load-canvas[data-load-variant="cartagra"] .save-slot.is-empty {
+  grid-template-rows: minmax(0,1fr);
+  color: rgba(212,222,216,.3);
+  opacity: .58;
+}
+.load-canvas[data-load-variant="cartagra"] .save-slot.is-empty .slot-copy {
+  display: grid;
+  place-content: center;
+}
+.load-canvas[data-load-variant="cartagra"] .save-slot.is-empty .slot-number {
+  position: static;
+  margin: 0 0 1cqh;
+}
+.load-canvas[data-load-variant="cartagra"] .save-slot.is-empty .slot-empty-label {
+  color: inherit;
+  letter-spacing: .2em;
+}
+.load-canvas[data-load-variant="cartagra"] .save-slot.is-empty .slot-command { display: none; }
+.load-canvas[data-load-variant="cartagra"] .slot-last {
+  top: 1cqh;
+  right: auto;
+  left: 50%;
+  border: 0;
+  color: #e9eee7;
+  background: #244f69;
+  transform: translate3d(-50%,-.3cqh,0);
+}
+.load-canvas[data-load-variant="cartagra"] .save-slot.is-last-load .slot-last { transform: translateX(-50%); }
+.load-canvas[data-load-variant="cartagra"] .load-page-turner {
+  bottom: 2.5cqh;
+  display: flex;
+  width: 18cqw;
+  min-height: 4cqh;
+  border: 0;
+  color: rgba(221,230,224,.62);
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+.load-canvas[data-load-variant="cartagra"] .load-page-turner > button {
+  flex: 0 0 4cqw;
+  min-height: 4cqh;
+  border: 0;
+}
+.load-canvas[data-load-variant="cartagra"] .load-page-turner > strong { flex: 1 1 auto; font-family: "Yu Mincho",serif; }
+.load-canvas[data-load-variant="cartagra"] .load-page-turner .page-turner-track,
+.load-canvas[data-load-variant="cartagra"] .load-page-numbers { display: none; }
+.load-canvas[data-load-variant="cartagra"] .load-control-hints { display: none; }
+.load-canvas[data-load-variant="cartagra"] .system-back {
+  right: 3.5cqw;
+  bottom: 2.9cqh;
+  color: rgba(230,235,226,.7);
+  font-family: "Yu Mincho",serif;
+}
+.load-canvas[data-load-variant="cartagra"] .system-back::before {
+  border: 0;
+  color: #e7ede7;
+  background: radial-gradient(circle,#315f79,#0a2437 70%);
+  box-shadow: 0 0 1cqw rgba(58,112,145,.35);
+  clip-path: polygon(50% 0,88% 14%,100% 50%,86% 88%,50% 100%,13% 87%,0 50%,15% 13%);
+}
+
+/* 仅新三案把调试切换器改成实体圆点，避免它继续制造“细线方框”错觉。 */
+.load-canvas:is([data-load-variant="vnclassic"],[data-load-variant="tsukihime"],[data-load-variant="cartagra"]) .load-variant-switcher {
+  gap: .35cqw;
+  padding: .45cqh .45cqw;
+  border-radius: 999px;
+  background: rgba(4,13,28,.5);
+  box-shadow: 0 .5cqh 1.4cqw rgba(0,0,0,.18);
+  backdrop-filter: blur(10px);
+  opacity: .42;
+}
+.load-canvas:is([data-load-variant="vnclassic"],[data-load-variant="tsukihime"],[data-load-variant="cartagra"]) .load-variant-switcher button {
+  width: 1.85cqw;
+  min-width: 24px;
+  height: 1.85cqw;
+  min-height: 24px;
+  border: 0;
+  border-radius: 50%;
+  color: rgba(232,241,246,.62);
+  background: rgba(213,230,241,.1);
+}
+.load-canvas:is([data-load-variant="vnclassic"],[data-load-variant="tsukihime"],[data-load-variant="cartagra"]) .load-variant-switcher button[aria-pressed="true"] {
+  color: #0a2949;
+  background: #dcecf4;
+  box-shadow: 0 0 1cqw rgba(129,210,237,.38);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .load-canvas[data-load-variant="vnclassic"] .save-slot:not(.is-empty):hover {
+    color: #09254b;
+    background: linear-gradient(150deg,#fbfdff,#b9d5ee);
+    box-shadow: inset 0 0 0 .16cqw rgba(39,83,126,.34),0 1.1cqh 2.3cqw rgba(0,0,0,.38);
+    transform: translate3d(0,-.28cqh,0) scale(1.015);
+  }
+  .load-canvas[data-load-variant="tsukihime"] .save-slot:not(.is-empty):hover {
+    color: #052e55;
+    background: linear-gradient(90deg,rgba(209,252,255,.97),rgba(103,224,243,.93) 65%,rgba(50,181,222,.78));
+    transform: translate3d(1cqw,0,0);
+  }
+  .load-canvas[data-load-variant="cartagra"] .save-slot:not(.is-empty):hover {
+    z-index: 6;
+    color: #f7f4e9;
+    filter: drop-shadow(0 0 1.6cqw rgba(63,132,175,.5));
+    transform: translate3d(0,-2.2cqh,0) scale(1.045) rotate(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .load-canvas:is([data-load-variant="vnclassic"],[data-load-variant="tsukihime"],[data-load-variant="cartagra"]) .save-slot,
+  .load-canvas:is([data-load-variant="vnclassic"],[data-load-variant="tsukihime"],[data-load-variant="cartagra"]) .load-focus-art-layer,
+  .load-canvas:is([data-load-variant="vnclassic"],[data-load-variant="tsukihime"],[data-load-variant="cartagra"]) .load-focus-copy {
+    transition: none;
+  }
+}
+
+
+/* ============================================================
+   LOAD / 三轨记录系统
+   文章、玩家存档与 NVL 日记共享一套读取语法，不再作为视觉变体切换。
+   ============================================================ */
+
+.load-canvas[data-load-kind] {
+  background:
+    radial-gradient(ellipse at 72% 36%, rgba(226,239,246,.34), transparent 38%),
+    linear-gradient(90deg, rgba(var(--v4-accent-rgb),.065), transparent 23%, transparent 82%, rgba(var(--v4-accent-rgb),.04)),
+    var(--v4-wash),
+    var(--v4-bg) center / cover;
+}
+.load-canvas[data-load-kind]::before {
+  background:
+    radial-gradient(ellipse at 58% 46%, transparent 24%, rgba(21,35,47,.12) 105%),
+    linear-gradient(110deg, rgba(255,255,255,.06), transparent 44%);
+}
+.load-canvas[data-load-kind] .sys-heading { top: 3.6cqh; }
+.load-canvas[data-load-kind] .sys-heading h2 { font-size: clamp(31px,2.85cqw,51px); }
+.load-canvas[data-load-kind] .v4-scene-sign { top: 3.8cqh; }
+
+.load-track-tabs {
+  position: absolute;
+  z-index: 12;
+  top: 11.6cqh;
+  right: 4.8cqw;
+  left: 4.8cqw;
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  gap: 2.2cqw;
+  height: 8.4cqh;
+}
+.load-track-tab {
+  position: relative;
+  display: grid;
+  grid-template-columns: 3.3cqw minmax(0,1fr);
+  align-items: center;
+  min-width: 0;
+  padding: 0 .8cqw 0 0;
+  overflow: hidden;
+  border: 0;
+  color: var(--v4-soft);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+.load-track-tab::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 8% 0 8% 1.35cqw;
+  opacity: 0;
+  background: linear-gradient(90deg, rgba(var(--v4-accent-rgb),.18), rgba(var(--v4-accent-rgb),.035) 70%, transparent);
+  transform: translate3d(-1.2cqw,0,0) skewX(-11deg);
+  transition: opacity 200ms ease, transform 240ms cubic-bezier(.22,1,.36,1);
+}
+.load-track-tab::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: .7cqh;
+  left: 3.3cqw;
+  height: 1px;
+  opacity: .22;
+  background: linear-gradient(90deg, currentColor, transparent 82%);
+  transform: scaleX(.35);
+  transform-origin: left;
+  transition: opacity 200ms ease, transform 240ms cubic-bezier(.22,1,.36,1);
+}
+.load-track-tab > i {
+  align-self: center;
+  color: rgba(var(--v4-accent-rgb),.32);
+  font: italic 400 clamp(20px,2.1cqw,38px)/1 Baskerville, "Iowan Old Style", serif;
+  letter-spacing: -.04em;
+  transition: color 200ms ease, transform 240ms cubic-bezier(.22,1,.36,1);
+}
+.load-track-tab > span {
+  display: grid;
+  align-content: center;
+  gap: .7cqh;
+  min-width: 0;
+}
+.load-track-tab b {
+  font: 400 clamp(10px,.83cqw,15px)/1 Baskerville, "Iowan Old Style", serif;
+  letter-spacing: .16em;
+}
+.load-track-tab small {
+  color: var(--v4-faint);
+  font: 500 clamp(8px,.57cqw,10px)/1 "Yu Gothic", sans-serif;
+  letter-spacing: .24em;
+}
+.load-track-tab[aria-selected="true"] { color: var(--v4-ink); }
+.load-track-tab[aria-selected="true"]::before { opacity: 1; transform: skewX(-11deg); }
+.load-track-tab[aria-selected="true"]::after { opacity: .72; transform: scaleX(1); }
+.load-track-tab[aria-selected="true"] > i { color: rgba(var(--v4-accent-rgb),.74); transform: translate3d(.28cqw,0,0); }
+.load-track-tab:focus-visible { outline: 0; filter: drop-shadow(0 0 .7cqw rgba(var(--v4-accent-rgb),.28)); }
+
+.load-content-stage {
+  position: absolute;
+  z-index: 8;
+  top: 22.4cqh;
+  right: 4.8cqw;
+  bottom: 10.4cqh;
+  left: 4.8cqw;
+  display: grid;
+  grid-template-columns: 17.2cqw minmax(0,1fr);
+  gap: 3cqw;
+  min-width: 0;
+  min-height: 0;
+}
+.load-index {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  padding: 1.2cqh .3cqw 5cqh .3cqw;
+}
+.load-index::before {
+  content: "INDEX";
+  position: absolute;
+  z-index: -1;
+  top: 9cqh;
+  right: .5cqw;
+  color: rgba(var(--v4-accent-rgb),.05);
+  font: italic 400 clamp(44px,5.5cqw,98px)/1 Baskerville, serif;
+  letter-spacing: -.05em;
+  writing-mode: vertical-rl;
+  pointer-events: none;
+}
+.load-index-heading { margin: 0 0 3cqh; }
+.load-index-heading > span {
+  display: block;
+  margin-bottom: 1cqh;
+  color: var(--v4-faint);
+  font: 500 clamp(7px,.49cqw,9px)/1 "Yu Gothic", sans-serif;
+  letter-spacing: .26em;
+}
+.load-index-heading h3 {
+  margin: 0;
+  font: 400 clamp(18px,1.65cqw,29px)/1.15 "Yu Mincho", "Hiragino Mincho ProN", serif;
+  letter-spacing: .12em;
+}
+.load-index-heading p {
+  max-width: 13.5cqw;
+  margin: 1.1cqh 0 0;
+  color: var(--v4-soft);
+  font: 400 clamp(8px,.54cqw,10px)/1.8 "Yu Gothic", sans-serif;
+  letter-spacing: .09em;
+}
+.load-index-group {
+  display: grid;
+  align-content: start;
+  gap: .4cqh;
+}
+.load-index-group[hidden] { display: none; }
+.load-index-group button {
+  position: relative;
+  display: grid;
+  grid-template-columns: 2.35cqw 5.9cqw minmax(0,1fr);
+  align-items: baseline;
+  min-width: 0;
+  min-height: 4.8cqh;
+  padding: 0 .4cqw 0 1cqw;
+  border: 0;
+  color: var(--v4-faint);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transform: translate3d(0,0,0);
+  transition: color 200ms ease, transform 240ms cubic-bezier(.22,1,.36,1);
+}
+.load-index-group button::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: .05cqw;
+  width: .36cqw;
+  height: .36cqw;
+  min-width: 4px;
+  min-height: 4px;
+  opacity: .28;
+  background: currentColor;
+  border-radius: 50%;
+  transform: translateY(-50%) scale(.7);
+  transition: opacity 200ms ease, transform 240ms cubic-bezier(.22,1,.36,1);
+}
+.load-index-group button i {
+  font: italic 400 clamp(9px,.68cqw,12px)/1 Baskerville, serif;
+  letter-spacing: .05em;
+  opacity: .5;
+}
+.load-index-group button b {
+  overflow: hidden;
+  font: 400 clamp(8px,.58cqw,11px)/1 Baskerville, serif;
+  font-weight: 400;
+  letter-spacing: .12em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.load-index-group button span {
+  overflow: hidden;
+  font: 500 clamp(7px,.48cqw,9px)/1 "Yu Gothic", sans-serif;
+  letter-spacing: .12em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.load-index-group button[aria-selected="true"] {
+  color: var(--v4-ink);
+  transform: translate3d(.65cqw,0,0);
+}
+.load-index-group button[aria-selected="true"]::before { opacity: .88; transform: translateY(-50%) scale(1.18); }
+.load-index-group button[aria-selected="true"] i { color: rgba(var(--v4-accent-rgb),.74); opacity: 1; }
+.load-index-group button:focus-visible { outline: 0; color: var(--v4-ink); }
+.diary-index-group button { grid-template-columns: 2.35cqw 5.6cqw minmax(0,1fr); }
+.load-index-foot {
+  position: absolute;
+  bottom: 0;
+  left: .3cqw;
+  display: flex;
+  align-items: center;
+  gap: .7cqw;
+  margin: 0;
+  color: var(--v4-faint);
+  font: 500 clamp(7px,.46cqw,9px)/1 "Yu Gothic", sans-serif;
+  letter-spacing: .22em;
+}
+.load-index-foot b {
+  display: grid;
+  place-items: center;
+  width: 1.45cqw;
+  height: 1.45cqw;
+  min-width: 18px;
+  min-height: 18px;
+  border: 1px solid rgba(var(--v4-accent-rgb),.3);
+  border-radius: 50%;
+  font: 400 clamp(8px,.54cqw,10px)/1 sans-serif;
+}
+
+.load-canvas[data-load-kind] .load-view-surface {
+  min-width: 0;
+  min-height: 0;
+  overflow: clip;
+}
+.load-track-panel {
+  position: absolute;
+  inset: 0;
+  min-width: 0;
+  min-height: 0;
+}
+.load-track-panel[aria-hidden="true"] { display: none; }
+.article-track-panel .save-grid {
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  grid-template-rows: repeat(2,minmax(0,1fr));
+  gap: 1.25cqh .9cqw;
+}
+.article-track-panel .save-slot {
+  border-color: rgba(var(--v4-accent-rgb),.2);
+  box-shadow: 0 .55cqh 1.45cqw rgba(17,30,41,.07);
+}
+.article-track-panel .save-slot.is-empty { box-shadow: none; }
+
+.load-canvas[data-load-kind] .load-page-turner {
+  bottom: 2.5cqh;
+  left: calc(50% + 10cqw);
+  display: flex;
+  min-height: 4cqh;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+.load-canvas[data-load-kind] .load-page-numbers { display: flex; }
+.load-canvas[data-load-kind] .load-page-turner .page-turner-track,
+.load-canvas[data-load-kind] .load-page-turner > strong { display: none; }
+.load-canvas[data-load-kind] .load-page-turner > button {
+  flex-basis: 3.2cqw;
+  min-height: 3.8cqh;
+  border: 0;
+}
+.load-canvas[data-load-kind] .load-page-turner > button span { display: none; }
+.load-canvas[data-load-kind] .load-edge-turners button { top: 56%; }
+
+/* 玩家存档：四种读取入口仍属于同一条游戏记录轨道。 */
+.player-archive-view,
+.diary-month-view {
+  position: absolute;
+  inset: 0;
+}
+.player-archive-view[aria-hidden="true"],
+.diary-month-view[aria-hidden="true"] { display: none; }
+.player-archive-view > header {
+  position: absolute;
+  z-index: 4;
+  top: 1.2cqh;
+  left: 1cqw;
+}
+.player-archive-view > header > span {
+  display: block;
+  margin-bottom: .8cqh;
+  color: var(--v4-faint);
+  font: 500 clamp(7px,.48cqw,9px)/1 "Yu Gothic", sans-serif;
+  letter-spacing: .28em;
+}
+.player-archive-view > header h3 {
+  margin: 0;
+  font: 400 clamp(22px,2.1cqw,38px)/1 "Yu Mincho", serif;
+  letter-spacing: .14em;
+}
+.player-archive-view > header p {
+  margin: 1.1cqh 0 0;
+  color: var(--v4-soft);
+  font: 400 clamp(8px,.56cqw,10px)/1.7 "Yu Gothic", sans-serif;
+  letter-spacing: .08em;
+}
+.player-save-grid {
+  position: absolute;
+  top: 15.5cqh;
+  right: 1cqw;
+  bottom: 1cqh;
+  left: 1cqw;
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  grid-template-rows: repeat(2,minmax(0,1fr));
+  gap: 1.2cqh .9cqw;
+}
+.player-save-slot {
+  position: relative;
+  display: grid;
+  align-content: end;
+  gap: .8cqh;
+  padding: 1.5cqh 1.2cqw;
+  overflow: hidden;
+  color: var(--v4-soft);
+  background:
+    linear-gradient(145deg, rgba(255,255,255,.2), transparent 38%),
+    rgba(var(--v4-accent-rgb),.055);
+  box-shadow: inset 0 -.16cqh rgba(var(--v4-accent-rgb),.18);
+}
+.player-save-slot::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: .22;
+  background: var(--v4-bg) center / cover;
+  mix-blend-mode: luminosity;
+  mask-image: linear-gradient(180deg,#000,transparent 72%);
+}
+.player-save-slot i {
+  position: absolute;
+  z-index: 1;
+  top: .9cqh;
+  right: 1cqw;
+  color: rgba(var(--v4-accent-rgb),.16);
+  font: italic 400 clamp(32px,3.6cqw,64px)/1 Baskerville, serif;
+}
+.player-save-slot b,
+.player-save-slot span { position: relative; z-index: 1; }
+.player-save-slot b { font: 400 clamp(9px,.68cqw,12px)/1 Baskerville, serif; letter-spacing: .22em; }
+.player-save-slot span { color: var(--v4-faint); font: 500 clamp(7px,.47cqw,9px)/1 "Yu Gothic", sans-serif; letter-spacing: .18em; }
+
+.flow-map {
+  position: absolute;
+  top: 15cqh;
+  right: .6cqw;
+  bottom: 1cqh;
+  left: .6cqw;
+}
+.flow-map svg { position: absolute; inset: 4% 2%; width: 96%; height: 92%; overflow: visible; }
+.flow-map path {
+  fill: none;
+  stroke: rgba(var(--v4-accent-rgb),.37);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+.flow-map path:nth-child(3), .flow-map path:nth-child(4) { stroke-dasharray: 3 6; opacity: .7; }
+.flow-node {
+  position: absolute;
+  display: grid;
+  grid-template-columns: 1.1cqw minmax(0,1fr);
+  grid-template-rows: auto auto;
+  align-items: center;
+  min-width: 7.2cqw;
+  color: var(--v4-soft);
+  transform: translate(-50%,-50%);
+}
+.flow-node i {
+  grid-row: 1 / 3;
+  width: .75cqw;
+  height: .75cqw;
+  min-width: 8px;
+  min-height: 8px;
+  border: .22cqw solid rgba(var(--v4-accent-rgb),.24);
+  background: var(--v4-accent);
+  border-radius: 50%;
+  box-shadow: 0 0 0 .4cqw rgba(var(--v4-accent-rgb),.08);
+}
+.flow-node b { font: 400 clamp(8px,.58cqw,11px)/1 Baskerville, serif; letter-spacing: .15em; }
+.flow-node small { margin-top: .45cqh; color: var(--v4-faint); font: 500 clamp(7px,.45cqw,8px)/1 "Yu Gothic", sans-serif; letter-spacing: .14em; }
+.flow-node-start { top: 50%; left: 4%; }
+.flow-node-a { top: 22%; left: 29%; }
+.flow-node-b { top: 78%; left: 29%; }
+.flow-node-cross { top: 50%; left: 67%; }
+.flow-node-end-a { top: 12%; left: 91%; }
+.flow-node-end-b { top: 88%; left: 91%; }
+
+.story-choice-list {
+  position: absolute;
+  top: 16cqh;
+  right: 1.5cqw;
+  left: 1cqw;
+  display: grid;
+  gap: 1.1cqh;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.story-choice-list li {
+  position: relative;
+  display: grid;
+  grid-template-columns: 4.2cqw minmax(0,1fr) auto;
+  align-items: center;
+  min-height: 10cqh;
+  padding: .9cqh 1.2cqw .9cqh 0;
+  overflow: hidden;
+  color: var(--v4-soft);
+  background: linear-gradient(90deg, rgba(var(--v4-accent-rgb),.07), transparent 78%);
+}
+.story-choice-list li::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(var(--v4-accent-rgb),.28), transparent 86%);
+}
+.story-choice-list li > i {
+  color: rgba(var(--v4-accent-rgb),.23);
+  font: italic 400 clamp(24px,2.7cqw,48px)/1 Baskerville, serif;
+}
+.story-choice-list li > span { display: grid; gap: .8cqh; }
+.story-choice-list small { color: var(--v4-faint); font: 500 clamp(7px,.48cqw,9px)/1 "Yu Gothic", sans-serif; letter-spacing: .24em; }
+.story-choice-list b { font: 400 clamp(12px,1cqw,18px)/1.2 "Yu Mincho", serif; letter-spacing: .12em; }
+.story-choice-list em { color: var(--v4-faint); font: 400 clamp(8px,.55cqw,10px)/1 Baskerville, serif; letter-spacing: .18em; }
+
+.character-memory-list {
+  position: absolute;
+  top: 15.5cqh;
+  right: 1cqw;
+  bottom: 1cqh;
+  left: 1cqw;
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  gap: 1.2cqw;
+}
+.character-memory-list article {
+  position: relative;
+  overflow: hidden;
+  background: var(--memory-art) center / cover;
+  box-shadow: inset 0 -15cqh 6cqw rgba(11,21,29,.68);
+  filter: saturate(.55) contrast(.94);
+}
+.character-memory-list article::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(235,244,248,.03), rgba(9,17,24,.16) 48%, rgba(7,14,21,.72));
+}
+.character-memory-list article > i {
+  position: absolute;
+  top: 1.2cqh;
+  right: .9cqw;
+  color: rgba(239,246,249,.28);
+  font: italic 400 clamp(22px,2.3cqw,41px)/1 Baskerville, serif;
+}
+.character-memory-list article > span {
+  position: absolute;
+  right: 1.2cqw;
+  bottom: 2cqh;
+  left: 1.2cqw;
+  display: grid;
+  gap: .8cqh;
+  color: #edf3f5;
+}
+.character-memory-list article b { font: 400 clamp(11px,.85cqw,15px)/1 Baskerville, serif; letter-spacing: .22em; }
+.character-memory-list article small { color: rgba(237,244,247,.56); font: 500 clamp(7px,.48cqw,9px)/1 "Yu Gothic", sans-serif; letter-spacing: .16em; }
+
+/* NVL 日记：月索引进入文字密度更高的阅读记录，而不是文章卡片。 */
+.diary-month-view {
+  display: grid;
+  grid-template-columns: 20cqw minmax(0,1fr);
+  gap: 4cqw;
+  align-items: stretch;
+  padding: 1cqh 1cqw 1.4cqh;
+}
+.diary-month-mark {
+  position: relative;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  overflow: hidden;
+  color: #edf4f7;
+  background:
+    linear-gradient(180deg, rgba(8,19,29,.16), rgba(7,15,24,.68)),
+    var(--v4-bg) center / cover;
+  box-shadow: 0 1.4cqh 3cqw rgba(7,16,24,.18);
+}
+.diary-month-mark::before {
+  content: "記";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  color: rgba(240,247,249,.07);
+  font: 400 clamp(120px,15cqw,270px)/1 "Yu Mincho", serif;
+  transform: translate(-50%,-50%);
+}
+.diary-month-mark span,
+.diary-month-mark strong,
+.diary-month-mark small { position: relative; z-index: 1; }
+.diary-month-mark span { font: italic 400 clamp(28px,3.3cqw,59px)/1 Baskerville, serif; letter-spacing: .13em; }
+.diary-month-mark strong { margin-top: 2.2cqh; font: 400 clamp(13px,1.2cqw,21px)/1 Baskerville, serif; letter-spacing: .26em; }
+.diary-month-mark small { margin-top: 1cqh; color: rgba(237,245,247,.5); font: 500 clamp(7px,.47cqw,9px)/1 "Yu Gothic", sans-serif; letter-spacing: .28em; }
+.diary-month-copy {
+  align-self: center;
+  max-width: 39cqw;
+}
+.diary-month-copy > p {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 0 2.2cqh;
+  color: var(--v4-faint);
+  font: 500 clamp(7px,.5cqw,9px)/1 "Yu Gothic", sans-serif;
+  letter-spacing: .23em;
+}
+.diary-month-copy h3 {
+  margin: 0;
+  font: 400 clamp(23px,2.2cqw,40px)/1.25 "Yu Mincho", serif;
+  letter-spacing: .1em;
+}
+.diary-month-copy blockquote {
+  max-width: 34cqw;
+  margin: 2.5cqh 0 3cqh;
+  padding: 0;
+  border: 0;
+  color: var(--v4-soft);
+  font: 400 clamp(10px,.72cqw,13px)/2 "Yu Mincho", serif;
+  letter-spacing: .08em;
+}
+.diary-month-copy ol { display: grid; gap: .75cqh; margin: 0; padding: 0; list-style: none; }
+.diary-month-copy li {
+  display: grid;
+  grid-template-columns: 5.5cqw minmax(0,1fr);
+  padding: .75cqh 0;
+  color: var(--v4-faint);
+  font: 400 clamp(8px,.54cqw,10px)/1 Baskerville, serif;
+  letter-spacing: .2em;
+  background: linear-gradient(90deg, rgba(var(--v4-accent-rgb),.1), transparent) left bottom / 100% 1px no-repeat;
+}
+.diary-mode-note {
+  position: absolute;
+  right: 1.2cqw;
+  bottom: 2cqh;
+  display: flex;
+  align-items: baseline;
+  gap: 1cqw;
+  margin: 0;
+  color: var(--v4-faint);
+}
+.diary-mode-note b { font: italic 400 clamp(11px,.85cqw,15px)/1 Baskerville, serif; letter-spacing: .16em; }
+.diary-mode-note span { font: 500 clamp(7px,.47cqw,9px)/1 "Yu Gothic", sans-serif; letter-spacing: .18em; }
+
+@media (hover: hover) and (pointer: fine) {
+  .load-track-tab:hover { color: var(--v4-ink); }
+  .load-track-tab:hover::before { opacity: .55; transform: skewX(-11deg); }
+  .load-index-group button:hover { color: var(--v4-ink); transform: translate3d(.45cqw,0,0); }
+  .article-track-panel .save-slot:not(.is-empty):hover { transform: translate3d(0,-.4cqh,0); }
+}
+
+.system-screen[aria-hidden="false"] .load-track-tabs,
+.system-screen[aria-hidden="false"] .load-content-stage {
+  animation: v4-page-in 520ms cubic-bezier(.22,1,.36,1) both;
+}
+.system-screen[aria-hidden="false"] .load-content-stage { animation-delay: 60ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .load-track-tab::before,
+  .load-track-tab::after,
+  .load-track-tab > i,
+  .load-index-group button,
+  .load-index-group button::before,
+  .load-canvas[data-load-kind] .load-view-surface {
+    transform: none;
+    transition: none;
+  }
+  .system-screen[aria-hidden="false"] .load-track-tabs,
+  .system-screen[aria-hidden="false"] .load-content-stage { animation: none; }
+}
+
+.load-tracks-canvas { display: none; }
+.load-screen[data-load-reference="tracks"] .load-legacy-canvas { display: none; }
+.load-screen[data-load-reference="tracks"] .load-tracks-canvas { display: grid; }
+.load-tracks-reference-switcher {
+  right: auto;
+  bottom: 3.2cqh;
+  left: 25cqw;
+}
+.load-canvas:is([data-load-kind="player"],[data-load-kind="diary"]) .load-page-turner,
+.load-canvas:is([data-load-kind="player"],[data-load-kind="diary"]) .load-edge-turners { display: none; }
