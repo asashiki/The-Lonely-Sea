@@ -10,6 +10,9 @@ export default defineConfig({
   site: siteConfig.url,
   output: "static",
   trailingSlash: "always",
+  devToolbar: {
+    enabled: false,
+  },
   markdown: {
     processor: satteri({
       hastPlugins: [satteriImageAttributes(), satteriImageLinkPreviews()],

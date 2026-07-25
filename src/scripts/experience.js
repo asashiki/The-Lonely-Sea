@@ -5,6 +5,7 @@ import { initExtraScreen } from "./experience/extra.js";
 import { initLoadScreen } from "./experience/load.js";
 import { initLoadTracksConcept } from "./experience/load-tracks.js";
 import { initLoadTracksXiConcept } from "./experience/load-tracks-xi.js";
+import { initLoadTracksXiiConcept } from "./experience/load-tracks-xii.js";
 import { initOptions } from "./experience/options.js";
 import { createWeatherController } from "./experience/weather.js";
 
@@ -189,9 +190,11 @@ function resetExperience() {
 const loadScreen = initLoadScreen({ reduceMotion });
 const loadTracksConcept = initLoadTracksConcept({ reduceMotion });
 const loadTracksXiConcept = initLoadTracksXiConcept({ reduceMotion });
+const loadTracksXiiConcept = initLoadTracksXiiConcept({ reduceMotion });
 loadScreen.registerReferenceControllers({
   tracks: loadTracksConcept,
   "tracks-xi": loadTracksXiConcept,
+  "tracks-xii": loadTracksXiiConcept,
 });
 const extraScreen = initExtraScreen();
 const optionScreen = initOptions({

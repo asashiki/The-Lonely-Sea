@@ -1,7 +1,7 @@
 import { sceneArt } from "./config.js";
 import { all, required, updatePressed } from "./dom.js";
 
-const VARIANT_STORAGE_KEY = "lonely-sea-load-variant-v3";
+const VARIANT_STORAGE_KEY = "lonely-sea-load-variant-v4";
 const LAST_LOAD_STORAGE_KEY = "lonely-sea-last-load";
 const VARIANTS = new Set([
   "memory",
@@ -15,6 +15,7 @@ const VARIANTS = new Set([
   "cartagra",
   "tracks",
   "tracks-xi",
+  "tracks-xii",
 ]);
 const GAME_VARIANTS = new Set(["moon", "dossier", "tide", "vnclassic", "tsukihime", "cartagra"]);
 const SLOT_CAPACITY = 24;
@@ -28,6 +29,7 @@ export function initLoadScreen({ reduceMotion }) {
   const loadScreenRoot = required(".load-screen");
   const tracksCanvas = required(".load-tracks-canvas");
   const tracksXiCanvas = required(".load-tracks-xi-canvas");
+  const tracksXiiCanvas = required(".load-tracks-xii-canvas");
   const loadSurface = required(".load-view-surface");
   const loadPageLabel = required("#load-page-label");
   const loadPageProgress = required("#load-page-progress");
@@ -60,9 +62,9 @@ export function initLoadScreen({ reduceMotion }) {
   function readVariant() {
     try {
       const stored = localStorage.getItem(VARIANT_STORAGE_KEY);
-      return VARIANTS.has(stored) ? stored : "tracks-xi";
+      return VARIANTS.has(stored) ? stored : "tracks-xii";
     } catch {
-      return "tracks-xi";
+      return "tracks-xii";
     }
   }
 
@@ -297,7 +299,7 @@ export function initLoadScreen({ reduceMotion }) {
       ? document.activeElement
       : null;
     const focusedVariantOption = focusedElement?.closest("[data-load-variant-option]");
-    const focusWasInsideCanvas = [loadCanvas, tracksCanvas, tracksXiCanvas].some(
+    const focusWasInsideCanvas = [loadCanvas, tracksCanvas, tracksXiCanvas, tracksXiiCanvas].some(
       (canvas) => focusedElement && canvas.contains(focusedElement),
     );
 
@@ -305,16 +307,17 @@ export function initLoadScreen({ reduceMotion }) {
       variant = next;
       loadCanvas.dataset.loadVariant = next;
       const previousReference = loadScreenRoot.dataset.loadReference || "legacy";
-      const nextReference = next === "tracks"
-        ? "tracks"
-        : next === "tracks-xi"
-          ? "tracks-xi"
-          : "legacy";
+      const nextReference = {
+        tracks: "tracks",
+        "tracks-xi": "tracks-xi",
+        "tracks-xii": "tracks-xii",
+      }[next] ?? "legacy";
       referenceControllers[previousReference]?.deactivate?.();
       loadScreenRoot.dataset.loadReference = nextReference;
       loadCanvas.setAttribute("aria-hidden", String(nextReference !== "legacy"));
       tracksCanvas.setAttribute("aria-hidden", String(nextReference !== "tracks"));
       tracksXiCanvas.setAttribute("aria-hidden", String(nextReference !== "tracks-xi"));
+      tracksXiiCanvas.setAttribute("aria-hidden", String(nextReference !== "tracks-xii"));
       updatePressed("[data-load-variant-option]", next, "loadVariantOption");
       loadPage = 0;
       activeSlot = null;
@@ -325,6 +328,7 @@ export function initLoadScreen({ reduceMotion }) {
           legacy: loadCanvas,
           tracks: tracksCanvas,
           "tracks-xi": tracksXiCanvas,
+          "tracks-xii": tracksXiiCanvas,
         }[nextReference];
         const matchingVariantOption = [...targetCanvas.querySelectorAll("[data-load-variant-option]")]
           .find((button) => button.dataset.loadVariantOption === next);
@@ -432,6 +436,7 @@ export function initLoadScreen({ reduceMotion }) {
       9: "cartagra",
       0: "tracks",
       "-": "tracks-xi",
+      "=": "tracks-xii",
     }[event.key];
     if (variantByKey) {
       event.preventDefault();
