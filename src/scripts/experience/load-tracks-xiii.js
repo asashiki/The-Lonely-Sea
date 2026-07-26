@@ -26,12 +26,14 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
     return node;
   };
 
-  const kindTabs = all("[data-xiii-kind-tab]");
+  const pageEntrances = all("[data-xiii-page-entry]");
   const indexGroups = all("[data-xiii-index-group]");
   const panels = all("[data-xiii-panel]");
   const gameViews = all("[data-xiii-game-view]");
   const articleSlots = all("[data-xiii-article-slot]");
   const articleEmptySlots = all("[data-xiii-article-empty]");
+  const saveSlots = all("[data-xiii-save-slot]");
+  const saveEmptySlots = all("[data-xiii-save-empty]");
   const stage = required(".tracks-xiii-stage");
   const index = required(".tracks-xiii-index");
   const indexStack = required(".tracks-xiii-index-stack");
@@ -103,11 +105,13 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
       || map.querySelector("[data-xiii-flow-node]");
   });
 
-  let kind = "articles";
+  let activePage = "articles";
   let articlePage = 0;
+  let savePage = 0;
   let flowTheme = "blue";
   let flowExpanded = false;
   let flowAnimation = null;
+  let flowDetailRevealTimer = 0;
   let flowThemeSerial = 0;
   let flowThemeAnimations = [];
   let flowDrag = null;
@@ -285,7 +289,7 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
     return Math.max(1, Math.ceil(articleItems().length / PAGE_CAPACITY));
   }
 
-  function setArticleSlotVisible(slot, visible) {
+  function setPagedSlotVisible(slot, visible) {
     slot.classList.toggle("is-page-hidden", !visible);
     slot.setAttribute("aria-hidden", String(!visible));
     if (slot.matches("button")) slot.tabIndex = visible ? 0 : -1;
@@ -297,8 +301,26 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
     articlePage = Math.max(0, Math.min(articlePage, total - 1));
     const start = articlePage * PAGE_CAPACITY;
     const shown = new Set(items.slice(start, start + PAGE_CAPACITY));
-    articleSlots.forEach((slot) => setArticleSlotVisible(slot, shown.has(slot)));
-    articleEmptySlots.forEach((slot) => setArticleSlotVisible(slot, shown.has(slot)));
+    articleSlots.forEach((slot) => setPagedSlotVisible(slot, shown.has(slot)));
+    articleEmptySlots.forEach((slot) => setPagedSlotVisible(slot, shown.has(slot)));
+  }
+
+  function saveItems() {
+    return [...saveSlots, ...saveEmptySlots];
+  }
+
+  function saveTotalPages() {
+    return Math.max(1, Math.ceil(saveItems().length / PAGE_CAPACITY));
+  }
+
+  function renderSavePage() {
+    const items = saveItems();
+    const total = saveTotalPages();
+    savePage = Math.max(0, Math.min(savePage, total - 1));
+    const start = savePage * PAGE_CAPACITY;
+    const shown = new Set(items.slice(start, start + PAGE_CAPACITY));
+    saveSlots.forEach((slot) => setPagedSlotVisible(slot, shown.has(slot)));
+    saveEmptySlots.forEach((slot) => setPagedSlotVisible(slot, shown.has(slot)));
   }
 
   function diaryEntriesForYear(year) {
@@ -321,7 +343,7 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
   }
 
   function paginationModel() {
-    if (kind === "articles") {
+    if (activePage === "articles") {
       const total = articleTotalPages();
       return {
         active: articlePage,
@@ -330,13 +352,22 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
       };
     }
 
-    if (kind === "diary") {
+    if (activePage === "diary") {
       const year = activeFilter.diary;
       const entries = diaryEntriesForYear(year);
       return {
         active: diaryPageByYear[year] ?? 0,
         labels: entries.map((entry) => entry.dataset.xiiiDiaryMonth?.split("-")[1] || "--"),
         mode: "diary",
+      };
+    }
+
+    if (activePage === "game" && activeFilter.game === "save") {
+      const total = saveTotalPages();
+      return {
+        active: savePage,
+        labels: Array.from({ length: total }, (_, index) => String(index + 1).padStart(2, "0")),
+        mode: "save",
       };
     }
 
@@ -383,28 +414,31 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
   }
 
   function updateRovingTabStops() {
-    kindTabs.forEach((button) => {
-      button.tabIndex = button.dataset.xiiiKindTab === kind ? 0 : -1;
+    pageEntrances.forEach((button) => {
+      button.tabIndex = button.dataset.xiiiPageEntry === activePage ? 0 : -1;
     });
     indexGroups.forEach((group) => {
-      const visible = group.dataset.xiiiIndexGroup === kind;
+      const visible = group.dataset.xiiiIndexGroup === activePage;
       all("[data-xiii-filter]", group).forEach((button) => {
-        button.tabIndex = visible && button.dataset.xiiiFilter === activeFilter[kind] ? 0 : -1;
+        button.tabIndex = visible && button.dataset.xiiiFilter === activeFilter[activePage] ? 0 : -1;
       });
     });
   }
 
   function updateSelectionState() {
-    const section = activeFilter[kind];
-    loadCanvas.dataset.xiiiKind = kind;
+    const section = activeFilter[activePage];
+    loadCanvas.dataset.xiiiPage = activePage;
     loadCanvas.dataset.xiiiSection = section;
 
-    kindTabs.forEach((button) => {
-      button.setAttribute("aria-selected", String(button.dataset.xiiiKindTab === kind));
+    pageEntrances.forEach((button) => {
+      button.setAttribute(
+        "aria-current",
+        button.dataset.xiiiPageEntry === activePage ? "page" : "false",
+      );
     });
 
     indexGroups.forEach((group) => {
-      const visible = group.dataset.xiiiIndexGroup === kind;
+      const visible = group.dataset.xiiiIndexGroup === activePage;
       group.setAttribute("aria-hidden", String(!visible));
       all("[data-xiii-filter]", group).forEach((button) => {
         button.setAttribute("aria-selected", String(visible && button.dataset.xiiiFilter === section));
@@ -412,18 +446,19 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
     });
 
     panels.forEach((panel) => {
-      panel.setAttribute("aria-hidden", String(panel.dataset.xiiiPanel !== kind));
+      panel.setAttribute("aria-hidden", String(panel.dataset.xiiiPanel !== activePage));
     });
 
     gameViews.forEach((gameView) => {
       gameView.setAttribute(
         "aria-hidden",
-        String(kind !== "game" || gameView.dataset.xiiiGameView !== activeFilter.game),
+        String(activePage !== "game" || gameView.dataset.xiiiGameView !== activeFilter.game),
       );
     });
 
-    if (kind === "articles") renderArticlePage();
-    if (kind === "diary") renderDiaryMonth();
+    if (activePage === "articles") renderArticlePage();
+    if (activePage === "game" && activeFilter.game === "save") renderSavePage();
+    if (activePage === "diary") renderDiaryMonth();
     renderPagination();
     updateRovingTabStops();
     syncKeyboardCursor();
@@ -433,26 +468,28 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
     });
   }
 
-  function applyKind(nextKind, { animate = true } = {}) {
-    if (!["articles", "game", "diary"].includes(nextKind) || nextKind === kind) return;
-    dispatchCue("confirm", { target: nextKind });
+  function applyPage(nextPage, { animate = true } = {}) {
+    if (!["articles", "game", "diary"].includes(nextPage) || nextPage === activePage) return;
+    dispatchCue("confirm", { target: nextPage });
     runTransition(() => {
-      kind = nextKind;
+      activePage = nextPage;
       articlePage = 0;
+      savePage = 0;
       updateSelectionState();
     }, { animate });
   }
 
   function applyFilter(nextFilter, { animate = true } = {}) {
-    const group = loadCanvas.querySelector(`[data-xiii-index-group="${kind}"]`);
+    const group = loadCanvas.querySelector(`[data-xiii-index-group="${activePage}"]`);
     if (!group?.querySelector(`[data-xiii-filter="${CSS.escape(nextFilter)}"]`)) return;
-    if (nextFilter === activeFilter[kind]) return;
+    if (nextFilter === activeFilter[activePage]) return;
 
     dispatchCue("select", { target: nextFilter });
     runTransition(() => {
-      activeFilter[kind] = nextFilter;
-      if (kind === "articles") articlePage = 0;
-      if (kind === "diary" && diaryPageByYear[nextFilter] === undefined) {
+      activeFilter[activePage] = nextFilter;
+      if (activePage === "articles") articlePage = 0;
+      if (activePage === "game" && nextFilter === "save") savePage = 0;
+      if (activePage === "diary" && diaryPageByYear[nextFilter] === undefined) {
         diaryPageByYear[nextFilter] = 0;
       }
       updateSelectionState();
@@ -468,10 +505,13 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
 
     dispatchCue("page", { direction: travelDirection });
     runTransition(() => {
-      if (kind === "articles") {
+      if (activePage === "articles") {
         articlePage = clamped;
         renderArticlePage();
-      } else if (kind === "diary") {
+      } else if (activePage === "game" && activeFilter.game === "save") {
+        savePage = clamped;
+        renderSavePage();
+      } else if (activePage === "diary") {
         diaryPageByYear[activeFilter.diary] = clamped;
         renderDiaryMonth();
       }
@@ -645,6 +685,8 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
 
   function setFlowExpanded(expanded, { animate = true } = {}) {
     if (expanded === flowExpanded) return;
+    window.clearTimeout(flowDetailRevealTimer);
+    flowDetailRevealTimer = 0;
     flowAnimation?.cancel();
     flowAnimation = null;
     const first = flowShell.getBoundingClientRect();
@@ -654,10 +696,12 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
       setInterfaceInert(true);
       loadCanvas.classList.add("has-expanded-flow");
       flowShell.classList.add("is-expanded");
+      flowShell.classList.remove("is-detail-visible");
       document.documentElement.classList.add("tracks-xiii-flow-open");
     } else {
       flowScrollByTheme[flowTheme] = flowViewport.scrollTop;
       setInterfaceInert(false);
+      flowShell.classList.remove("is-detail-visible");
       flowShell.classList.remove("is-expanded");
       loadCanvas.classList.remove("has-expanded-flow");
       document.documentElement.classList.remove("tracks-xiii-flow-open");
@@ -669,6 +713,7 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
     dispatchCue(expanded ? "open" : "back", { target: "flowchart" });
 
     if (!animate || reduceMotion.matches) {
+      flowShell.classList.toggle("is-detail-visible", expanded);
       loadCanvas.classList.remove("is-flow-transitioning");
       flowExpand.focus({ preventScroll: true });
       updateFlowScrollbar();
@@ -690,11 +735,18 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
       },
     );
     const animation = flowAnimation;
+    if (expanded) {
+      flowDetailRevealTimer = window.setTimeout(() => {
+        flowDetailRevealTimer = 0;
+        if (flowExpanded) flowShell.classList.add("is-detail-visible");
+      }, Math.round(FLOW_DURATION * .58));
+    }
     animation.finished.then(() => {
       if (flowAnimation !== animation) return;
       flowShell.style.removeProperty("will-change");
       flowShell.style.removeProperty("transform-origin");
       flowAnimation = null;
+      if (flowExpanded) flowShell.classList.add("is-detail-visible");
       loadCanvas.classList.remove("is-flow-transitioning");
       flowExpand.focus({ preventScroll: true });
       updateFlowScrollbar();
@@ -945,13 +997,13 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
 
   function keyboardCursorTargets() {
     let targets = [];
-    if (kind === "articles") {
+    if (activePage === "articles") {
       targets = articleSlots.filter((slot) => !slot.classList.contains("is-page-hidden"));
-    } else if (kind === "diary") {
+    } else if (activePage === "diary") {
       const entry = activeDiaryEntry()?.querySelector("[data-xiii-diary-entry]");
       if (entry) targets = [entry];
     } else if (activeFilter.game === "save") {
-      targets = all("[data-xiii-save-slot]");
+      targets = saveSlots;
     } else if (activeFilter.game === "story") {
       targets = storySlots;
     } else if (activeFilter.game === "flow") {
@@ -1048,7 +1100,16 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
     )) return;
 
     const targets = keyboardCursorTargets();
-    if (!targets.length) return;
+    if (!targets.length) {
+      const pagedArchive = activePage === "articles"
+        || (activePage === "game" && activeFilter.game === "save");
+      if (pagedArchive && (event.key === "ArrowLeft" || event.key === "ArrowRight")) {
+        event.preventDefault();
+        event.stopPropagation();
+        pageFromKeyboard(event.key === "ArrowRight" ? 1 : -1);
+      }
+      return;
+    }
     const current = targets.includes(keyboardCursorItem)
       ? keyboardCursorItem
       : targets.includes(document.activeElement)
@@ -1074,8 +1135,8 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
     }
 
     let next = null;
-    if (kind === "articles" || (kind === "game" && activeFilter.game === "save")) {
-      const columns = 2;
+    if (activePage === "articles" || (activePage === "game" && activeFilter.game === "save")) {
+      const columns = 3;
       const index = targets.indexOf(current);
       const offsets = {
         ArrowLeft: -1,
@@ -1090,18 +1151,26 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
       );
       if (!crossesRow && candidateIndex >= 0 && candidateIndex < targets.length) {
         next = targets[candidateIndex];
-      } else if (kind === "articles" && event.key === "ArrowRight" && index === targets.length - 1) {
+      } else if (
+        (activePage === "articles" || (activePage === "game" && activeFilter.game === "save"))
+        && event.key === "ArrowRight"
+        && index === targets.length - 1
+      ) {
         if (pageFromKeyboard(1)) return;
-      } else if (kind === "articles" && event.key === "ArrowLeft" && index === 0) {
+      } else if (
+        (activePage === "articles" || (activePage === "game" && activeFilter.game === "save"))
+        && event.key === "ArrowLeft"
+        && index === 0
+      ) {
         if (pageFromKeyboard(-1)) return;
       }
-    } else if (kind === "game" && activeFilter.game === "story") {
+    } else if (activePage === "game" && activeFilter.game === "story") {
       const index = targets.indexOf(current);
       const offset = event.key === "ArrowUp" ? -1 : event.key === "ArrowDown" ? 1 : 0;
       if (offset) next = targets[index + offset];
-    } else if (kind === "game" && activeFilter.game === "flow") {
+    } else if (activePage === "game" && activeFilter.game === "flow") {
       next = closestDirectionalTarget(current, targets, event.key);
-    } else if (kind === "diary" && (event.key === "ArrowLeft" || event.key === "ArrowRight")) {
+    } else if (activePage === "diary" && (event.key === "ArrowLeft" || event.key === "ArrowRight")) {
       pageFromKeyboard(event.key === "ArrowRight" ? 1 : -1);
       return;
     }
@@ -1124,12 +1193,12 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
     });
   }
 
-  kindTabs.forEach((button) => {
+  pageEntrances.forEach((button) => {
     button.addEventListener("click", (event) => {
-      applyKind(button.dataset.xiiiKindTab, { animate: event.detail > 0 });
+      applyPage(button.dataset.xiiiPageEntry, { animate: event.detail > 0 });
     });
   });
-  bindRovingKeys(kindTabs, "ArrowLeft", "ArrowRight");
+  bindRovingKeys(pageEntrances, "ArrowLeft", "ArrowRight");
   systemBack.addEventListener("click", () => {
     dispatchCue("back", { target: "load" });
   });
@@ -1138,7 +1207,7 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
     const buttons = all("[data-xiii-filter]", group);
     buttons.forEach((button) => {
       button.addEventListener("click", (event) => {
-        if (group.dataset.xiiiIndexGroup !== kind) return;
+        if (group.dataset.xiiiIndexGroup !== activePage) return;
         applyFilter(button.dataset.xiiiFilter, { animate: event.detail > 0 });
       });
     });
@@ -1172,6 +1241,7 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
           title: slot.dataset.saveTitle || "",
           chapter: slot.dataset.saveChapter || "",
           progress: slot.dataset.saveProgress || "",
+          savedAt: slot.dataset.saveSavedAt || "",
         },
       }));
     });
@@ -1266,6 +1336,8 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
     closeDiaryReader();
     if (flowExpanded) setFlowExpanded(false, { animate: false });
     clearArticleNavigation();
+    window.clearTimeout(flowDetailRevealTimer);
+    flowDetailRevealTimer = 0;
     clearTransition();
     flowThemeSerial += 1;
     clearFlowThemeAnimations();

@@ -30,6 +30,7 @@ const demoSaves = [
     title: "序章：来到孤独之海",
     chapter: "PROLOGUE / OPEN SEA",
     progress: "00:18:42",
+    savedAt: "2026.07.26 23:14",
     art: "/assets/lonely-sea/mist.png",
   },
   {
@@ -37,7 +38,16 @@ const demoSaves = [
     title: "第一幕：关于我",
     chapter: "CHAPTER 01 / ABOUT ME",
     progress: "01:06:17",
+    savedAt: "2026.07.27 00:02",
     art: "/assets/lonely-sea/day.png",
+  },
+  {
+    number: "03",
+    title: "第二幕：潮声留下的记录",
+    chapter: "CHAPTER 02 / AFTERTIDE",
+    progress: "01:48:05",
+    savedAt: "2026.07.27 00:44",
+    art: "/assets/lonely-sea/night.png",
   },
 ];
 
@@ -205,14 +215,17 @@ const articleEmptySlots = Array.from(
   { length: Math.max(0, LOAD_SLOT_CAPACITY - records.length) },
   (_, index) => index,
 );
-const saveEmptySlots = Array.from({ length: 6 - demoSaves.length }, (_, index) => index);
+const saveEmptySlots = Array.from(
+  { length: LOAD_SLOT_CAPACITY - demoSaves.length },
+  (_, index) => index,
+);
 const lockedStorySlots = Array.from({ length: 7 }, (_, index) => index);
 ---
 
 <div
   class="system-canvas load-canvas load-tracks-xiii-canvas tracks-xiii-canvas"
   aria-hidden="true"
-  data-xiii-kind="articles"
+  data-xiii-page="articles"
   data-xiii-section="all"
   data-xiii-page-mode="articles"
   data-xiii-flow-theme="blue"
@@ -225,15 +238,15 @@ const lockedStorySlots = Array.from({ length: 7 }, (_, index) => index);
     </header>
 
     <div class="tracks-xiii-primary-shell">
-      <nav class="tracks-xiii-primary" role="tablist" aria-label="可读取内容">
-        <button type="button" role="tab" data-xiii-kind-tab="articles" aria-selected="true" aria-controls="tracks-xiii-panel-articles">
-          <i aria-hidden="true"></i><span>ARTICLES</span>
+      <nav class="tracks-xiii-primary" aria-label="读取页面">
+        <button type="button" data-xiii-page-entry="articles" aria-current="page" aria-controls="tracks-xiii-panel-articles">
+          <span>ARTICLES</span>
         </button>
-        <button type="button" role="tab" data-xiii-kind-tab="game" aria-selected="false" aria-controls="tracks-xiii-panel-game">
-          <i aria-hidden="true"></i><span>GAME DATA</span>
+        <button type="button" data-xiii-page-entry="game" aria-current="false" aria-controls="tracks-xiii-panel-game">
+          <span>GAME DATA</span>
         </button>
-        <button type="button" role="tab" data-xiii-kind-tab="diary" aria-selected="false" aria-controls="tracks-xiii-panel-diary">
-          <i aria-hidden="true"></i><span>DIARY</span>
+        <button type="button" data-xiii-page-entry="diary" aria-current="false" aria-controls="tracks-xiii-panel-diary">
+          <span>DIARY</span>
         </button>
       </nav>
     </div>
@@ -245,7 +258,7 @@ const lockedStorySlots = Array.from({ length: 7 }, (_, index) => index);
           <div class="tracks-xiii-index-group" data-xiii-index-group="articles" role="tablist" aria-label="文章分类" aria-hidden="false">
             {articleCategories.map((category, index) => (
               <button type="button" role="tab" data-xiii-filter={category.id} aria-selected={index === 0}>
-                <i aria-hidden="true"></i><span>{category.label}</span>
+                <span>{category.label}</span>
               </button>
             ))}
           </div>
@@ -253,7 +266,7 @@ const lockedStorySlots = Array.from({ length: 7 }, (_, index) => index);
           <div class="tracks-xiii-index-group" data-xiii-index-group="game" role="tablist" aria-label="游戏记录分类" aria-hidden="true">
             {gameSections.map((section) => (
               <button type="button" role="tab" data-xiii-filter={section.id} aria-selected={section.id === "save"}>
-                <i aria-hidden="true"></i><span>{section.label}</span>
+                <span>{section.label}</span>
               </button>
             ))}
           </div>
@@ -261,7 +274,7 @@ const lockedStorySlots = Array.from({ length: 7 }, (_, index) => index);
           <div class="tracks-xiii-index-group tracks-xiii-year-index" data-xiii-index-group="diary" role="tablist" aria-label="日记年份" aria-hidden="true">
             {diaryYears.map((year, index) => (
               <button type="button" role="tab" data-xiii-filter={year} aria-selected={index === 0}>
-                <i aria-hidden="true"></i><span>{year}</span>
+                <span>{year}</span>
               </button>
             ))}
           </div>
@@ -269,7 +282,7 @@ const lockedStorySlots = Array.from({ length: 7 }, (_, index) => index);
       </aside>
 
       <div class="tracks-xiii-view" data-xiii-view-transition>
-        <section class="tracks-xiii-panel tracks-xiii-articles" id="tracks-xiii-panel-articles" data-xiii-panel="articles" role="tabpanel" aria-hidden="false">
+        <section class="tracks-xiii-panel tracks-xiii-articles" id="tracks-xiii-panel-articles" data-xiii-panel="articles" role="region" aria-label="文章记录" aria-hidden="false">
           <div class="tracks-xiii-record-grid" data-xiii-article-grid>
             {records.map((record) => (
               <button
@@ -288,7 +301,7 @@ const lockedStorySlots = Array.from({ length: 7 }, (_, index) => index);
                   <strong>{record.title}</strong>
                   <time datetime={record.date.replaceAll(".", "-")}>{record.date}</time>
                 </span>
-                <span class="tracks-xiii-slot-command" aria-hidden="true">LOAD</span>
+                <span class="tracks-xiii-slot-command" aria-hidden="true">READ</span>
               </button>
             ))}
             {articleEmptySlots.map((index) => (
@@ -301,7 +314,7 @@ const lockedStorySlots = Array.from({ length: 7 }, (_, index) => index);
           </div>
         </section>
 
-        <section class="tracks-xiii-panel tracks-xiii-game" id="tracks-xiii-panel-game" data-xiii-panel="game" role="tabpanel" aria-hidden="true">
+        <section class="tracks-xiii-panel tracks-xiii-game" id="tracks-xiii-panel-game" data-xiii-panel="game" role="region" aria-label="游戏记录" aria-hidden="true">
           <div class="tracks-xiii-game-view tracks-xiii-save-view" data-xiii-game-view="save" aria-hidden="false">
             <div class="tracks-xiii-save-grid">
               {demoSaves.map((save) => (
@@ -313,6 +326,7 @@ const lockedStorySlots = Array.from({ length: 7 }, (_, index) => index);
                   data-save-title={save.title}
                   data-save-chapter={save.chapter}
                   data-save-progress={save.progress}
+                  data-save-saved-at={save.savedAt}
                   aria-label={`读取游戏存档 ${save.number}：${save.title}`}
                   aria-pressed="false"
                   style={`--save-art:url('${save.art}')`}
@@ -322,13 +336,16 @@ const lockedStorySlots = Array.from({ length: 7 }, (_, index) => index);
                   <span class="tracks-xiii-save-copy">
                     <small>{save.chapter}</small>
                     <strong>{save.title}</strong>
-                    <time>{save.progress}</time>
+                    <span class="tracks-xiii-save-meta">
+                      <time>{save.savedAt}</time>
+                      <b>{save.progress}</b>
+                    </span>
                   </span>
                   <span class="tracks-xiii-save-command" aria-hidden="true">LOAD</span>
                 </button>
               ))}
               {saveEmptySlots.map((index) => (
-                <div class="tracks-xiii-save-slot is-empty" aria-label="空存档槽位">
+                <div class="tracks-xiii-save-slot is-empty" data-xiii-save-empty aria-label="空存档槽位">
                   <span class="tracks-xiii-save-number">{String(index + demoSaves.length + 1).padStart(2, "0")}</span>
                   <span class="tracks-xiii-save-art" aria-hidden="true"><i></i></span>
                   <span class="tracks-xiii-save-copy"><strong>EMPTY DATA</strong></span>
@@ -437,7 +454,6 @@ const lockedStorySlots = Array.from({ length: 7 }, (_, index) => index);
                       <strong>{scene.title}</strong>
                       <span>{scene.summary}</span>
                     </span>
-                    <span class="tracks-xiii-story-command" aria-hidden="true">ENTER</span>
                   </button>
                 ))}
                 {lockedStorySlots.map((_, index) => (
@@ -455,7 +471,7 @@ const lockedStorySlots = Array.from({ length: 7 }, (_, index) => index);
           </div>
         </section>
 
-        <section class="tracks-xiii-panel tracks-xiii-diary" id="tracks-xiii-panel-diary" data-xiii-panel="diary" role="tabpanel" aria-hidden="true">
+        <section class="tracks-xiii-panel tracks-xiii-diary" id="tracks-xiii-panel-diary" data-xiii-panel="diary" role="region" aria-label="日记记录" aria-hidden="true">
           {diaryMonths.map((entry, index) => (
             <article
               class="tracks-xiii-diary-month"
@@ -502,8 +518,6 @@ const lockedStorySlots = Array.from({ length: 7 }, (_, index) => index);
         </section>
       </div>
     </div>
-
-    <p class="tracks-xiii-hints" aria-hidden="true"><span><b>○</b> DECIDE</span><span><b>×</b> BACK</span><span><b>← →</b> PAGE</span><span data-xiii-hint-cursor><b>↑ ↓</b> CURSOR</span></p>
 
     <div class="tracks-xiii-edge-turners" data-xiii-page-controls aria-label="内容翻页">
       <button type="button" data-xiii-page-direction="-1" aria-label="上一页"><span>‹</span></button>

@@ -1,119 +1,116 @@
-/* LOAD XIII — 记录铭牌
-   Session 019f9911: connected game navigation, readable record plates,
-   PS-style focus, and a Tsukihime-inspired route atlas. */
+/* LOAD XIII — 月海读取
+   X supplies the composition; XIII rebuilds the visual language.
+   Shared controls stay coherent while each record type keeps its own grammar. */
 
 .tracks-xiii-canvas {
-  --xiii-ink: color-mix(in srgb, var(--v4-ink) 100%, transparent);
-  --xiii-soft: color-mix(in srgb, var(--v4-ink) 78%, transparent);
-  --xiii-muted: color-mix(in srgb, var(--v4-ink) 64%, transparent);
-  --xiii-frame: color-mix(in srgb, var(--v4-ink) 48%, var(--v4-accent) 52%);
-  --xiii-frame-soft: color-mix(in srgb, var(--v4-ink) 34%, transparent);
-  --xiii-plate: color-mix(in srgb, var(--v4-card) 93%, transparent);
-  --xiii-plate-empty: color-mix(in srgb, var(--v4-paper) 69%, transparent);
-  --xiii-focus: color-mix(in srgb, var(--v4-accent) 72%, white 12%);
-  --xiii-focus-wash: color-mix(in srgb, var(--v4-accent) 24%, transparent);
-  --xiii-glow: color-mix(in srgb, var(--v4-accent) 54%, transparent);
-  --xiii-shadow: color-mix(in srgb, var(--v4-shadow) 88%, transparent);
+  --xiii-ink: color-mix(in srgb, var(--v4-ink) 98%, transparent);
+  --xiii-soft: color-mix(in srgb, var(--v4-ink) 72%, transparent);
+  --xiii-muted: color-mix(in srgb, var(--v4-ink) 58%, transparent);
+  --xiii-edge: color-mix(in srgb, var(--v4-ink) 38%, var(--v4-accent) 22%);
+  --xiii-edge-soft: color-mix(in srgb, var(--v4-ink) 22%, transparent);
+  --xiii-surface: color-mix(in srgb, var(--v4-card) 76%, transparent);
+  --xiii-surface-strong: color-mix(in srgb, var(--v4-card) 91%, transparent);
+  --xiii-surface-soft: color-mix(in srgb, var(--v4-paper) 54%, transparent);
+  --xiii-focus: color-mix(in srgb, var(--v4-accent) 74%, var(--v4-ink) 26%);
+  --xiii-shadow: color-mix(in srgb, var(--v4-shadow) 78%, transparent);
   color: var(--xiii-ink);
 }
 
 .tracks-xiii-canvas::before {
   background:
-    linear-gradient(90deg, color-mix(in srgb, var(--v4-outer) 16%, transparent), transparent 23%, transparent 84%, color-mix(in srgb, var(--v4-outer) 14%, transparent)),
-    linear-gradient(180deg, color-mix(in srgb, var(--v4-paper) 5%, transparent), transparent 35%, transparent 79%, color-mix(in srgb, var(--v4-outer) 11%, transparent)),
-    radial-gradient(ellipse at 57% 52%, transparent 31%, color-mix(in srgb, var(--v4-outer) 14%, transparent) 112%);
+    linear-gradient(90deg, color-mix(in srgb, var(--v4-outer) 12%, transparent), transparent 23%, transparent 83%, color-mix(in srgb, var(--v4-outer) 10%, transparent)),
+    radial-gradient(ellipse at 58% 45%, transparent 30%, color-mix(in srgb, var(--v4-outer) 13%, transparent) 112%);
 }
 
 .tracks-xiii-canvas .system-back {
   right: 4.7cqw;
-  bottom: 3.2cqh;
-  min-width: clamp(88px, 7.5cqw, 144px);
-  min-height: clamp(30px, 4cqh, 44px);
-  color: var(--xiii-ink);
-  font: 650 clamp(12px, .68cqw, 14px)/1 "Segoe UI Variable", "Segoe UI", sans-serif;
-  letter-spacing: .12em;
-  opacity: .96;
+  bottom: 3cqh;
+  min-width: 7.4cqw;
+  min-height: 4cqh;
+  color: var(--xiii-soft);
+  font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", sans-serif;
+  font-size: clamp(10px, .68cqw, 13px);
+  letter-spacing: .18em;
+  opacity: .82;
 }
 
 .tracks-xiii-canvas .system-back::before {
-  border-color: var(--xiii-frame);
-  background: color-mix(in srgb, var(--v4-card) 86%, transparent);
-  box-shadow: 0 .4cqh 1.1cqw var(--xiii-shadow);
+  border-color: var(--xiii-edge);
+  color: var(--xiii-ink);
+  background: var(--xiii-surface-soft);
+}
+
+.tracks-xiii-canvas .system-back:hover,
+.tracks-xiii-canvas .system-back:focus-visible {
+  color: var(--xiii-ink);
+  opacity: 1;
 }
 
 .tracks-xiii-heading {
   position: absolute;
-  z-index: 12;
-  top: 4.5cqh;
-  left: 5cqw;
-  display: flex;
-  align-items: baseline;
+  z-index: 20;
+  top: 4.45cqh;
+  left: 4.8cqw;
   margin: 0;
-  text-shadow: 0 .25cqh 1.3cqw var(--xiii-shadow);
+  text-shadow: 0 .3cqh 1.25cqw var(--xiii-shadow);
 }
 
 .tracks-xiii-heading h2 {
   margin: 0;
-  font: 400 clamp(34px, 3.05cqw, 58px)/.9 "Times New Roman", "Yu Mincho", serif;
-  letter-spacing: .095em;
+  font: 400 clamp(36px, 3.2cqw, 60px) / .88 Baskerville, "Iowan Old Style", "Yu Mincho", serif;
+  letter-spacing: .075em;
 }
 
-/* One connected selector over the data field, not floating web pills. */
+/* Primary page entrances: one family, three independent game buttons. */
 .tracks-xiii-primary-shell {
   position: absolute;
-  z-index: 20;
-  top: 9.4cqh;
-  left: calc(50% + 5.2cqw);
-  width: clamp(460px, 48cqw, 820px);
-  height: 8.5cqh;
-  min-height: 46px;
-  filter: drop-shadow(0 .7cqh 1.5cqw var(--xiii-shadow));
-  transform: translateX(-50%);
+  z-index: 24;
+  top: 11.5cqh;
+  right: 4.8cqw;
+  left: 4.8cqw;
+  height: 7.8cqh;
+  filter: drop-shadow(0 .7cqh 1.35cqw var(--xiii-shadow));
 }
 
 .tracks-xiii-primary-shell::before,
 .tracks-xiii-primary-shell::after {
-  content: "";
-  position: absolute;
-  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%);
-}
-
-.tracks-xiii-primary-shell::before {
-  inset: 0;
-  background: var(--xiii-frame);
-}
-
-.tracks-xiii-primary-shell::after {
-  inset: 1.5px;
-  background:
-    linear-gradient(180deg, color-mix(in srgb, var(--v4-card) 97%, transparent), color-mix(in srgb, var(--v4-paper) 84%, transparent)),
-    var(--xiii-plate);
+  display: none;
 }
 
 .tracks-xiii-primary {
-  position: absolute;
-  z-index: 1;
-  inset: 1.5px;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2.15cqw;
+  height: 100%;
 }
 
 .tracks-xiii-primary button {
   position: relative;
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
   min-width: 0;
-  min-height: 44px;
-  padding: 0;
-  border: 0;
+  padding: 0 1.55cqw;
+  overflow: hidden;
+  border: 1px solid var(--xiii-edge);
+  border-radius: 0;
   color: var(--xiii-soft);
-  background: transparent;
-  font: 650 clamp(13px, .86cqw, 17px)/1 "Segoe UI Variable", "Segoe UI", "Yu Gothic", sans-serif;
-  letter-spacing: .12em;
+  background:
+    linear-gradient(115deg, color-mix(in srgb, white 8%, transparent), transparent 44%),
+    color-mix(in srgb, var(--v4-card) 43%, transparent);
+  box-shadow:
+    inset 0 1px color-mix(in srgb, white 11%, transparent),
+    0 .45cqh 1.1cqw color-mix(in srgb, var(--v4-shadow) 42%, transparent);
+  font: 400 clamp(14px, 1.16cqw, 21px) / 1 Baskerville, "Iowan Old Style", "Yu Mincho", serif;
+  letter-spacing: .16em;
+  text-align: left;
   cursor: pointer;
   isolation: isolate;
   transform: translate3d(0, 0, 0);
-  transition: color 160ms ease, filter 160ms ease, transform 130ms ease;
+  transition:
+    color 180ms ease,
+    border-color 180ms ease,
+    background-color 180ms ease,
+    box-shadow 200ms ease;
 }
 
 .tracks-xiii-primary button::before {
@@ -121,91 +118,82 @@
   position: absolute;
   z-index: -1;
   inset: 0;
+  opacity: .13;
   background:
-    linear-gradient(96deg, transparent 4%, var(--xiii-focus-wash) 28%, color-mix(in srgb, var(--v4-accent) 12%, transparent) 72%, transparent 98%);
-  opacity: 0;
-  transform: scaleX(.78);
-  transition: opacity 170ms ease, transform 240ms cubic-bezier(.22, 1, .36, 1);
+    repeating-linear-gradient(0deg, color-mix(in srgb, white 18%, transparent) 0 1px, transparent 1px 4px),
+    linear-gradient(90deg, transparent, color-mix(in srgb, var(--v4-accent) 19%, transparent), transparent);
+  mix-blend-mode: soft-light;
+  pointer-events: none;
 }
 
 .tracks-xiii-primary button::after {
   content: "";
   position: absolute;
-  z-index: 3;
-  right: 22%;
+  right: 1.2cqw;
   bottom: 0;
-  left: 22%;
-  height: 3px;
-  border-radius: 3px 3px 0 0;
+  left: 1.2cqw;
+  height: 2px;
   background: var(--xiii-focus);
-  box-shadow: 0 0 .8cqw var(--xiii-glow);
   opacity: 0;
-  transform: scaleX(.4);
-  transition: opacity 160ms ease, transform 240ms cubic-bezier(.22, 1, .36, 1);
+  transition: opacity 180ms ease;
 }
 
-.tracks-xiii-primary button > i {
-  display: none;
-}
-
-.tracks-xiii-primary button[aria-selected="true"] {
+.tracks-xiii-primary button[aria-current="page"] {
   color: var(--xiii-ink);
-  filter: saturate(1.08);
+  border-color: color-mix(in srgb, var(--v4-accent) 72%, var(--v4-ink) 28%);
+  background:
+    linear-gradient(115deg, color-mix(in srgb, white 10%, transparent), transparent 44%),
+    color-mix(in srgb, var(--v4-accent) 18%, var(--v4-card) 58%);
+  box-shadow:
+    inset 0 1px color-mix(in srgb, white 15%, transparent),
+    0 .5cqh 1.25cqw color-mix(in srgb, var(--v4-shadow) 50%, transparent);
 }
 
-.tracks-xiii-primary button[aria-selected="true"]::before,
-.tracks-xiii-primary button:hover::before,
-.tracks-xiii-primary button:focus-visible::before {
-  opacity: 1;
-  transform: scaleX(1);
+.tracks-xiii-primary button[aria-current="page"]::after {
+  opacity: .72;
 }
 
-.tracks-xiii-primary button[aria-selected="true"]::after {
-  opacity: 1;
-  transform: scaleX(1);
-}
-
-.tracks-xiii-primary button:hover,
 .tracks-xiii-primary button:focus-visible {
   outline: 0;
-  color: var(--xiii-ink);
-  text-shadow: 0 0 1.1cqw var(--xiii-glow);
+  border-color: color-mix(in srgb, var(--v4-accent) 82%, var(--v4-ink) 18%);
+  box-shadow:
+    inset 0 1px color-mix(in srgb, white 16%, transparent),
+    0 .5cqh 1.25cqw color-mix(in srgb, var(--v4-shadow) 50%, transparent),
+    0 0 1.15cqw color-mix(in srgb, var(--v4-accent) 22%, transparent);
 }
 
 .tracks-xiii-primary button:active {
-  transform: scale(.975);
+  transform: scale(.985);
 }
 
+/* Shared page composition. */
 .tracks-xiii-stage {
   position: absolute;
-  z-index: 10;
-  top: 17.9cqh;
-  right: 4.7cqw;
-  bottom: 13.2cqh;
-  left: 5cqw;
+  z-index: 12;
+  top: 22cqh;
+  right: 4.8cqw;
+  bottom: 13.3cqh;
+  left: 4.8cqw;
   display: grid;
-  grid-template-columns: clamp(130px, 11.8cqw, 210px) minmax(0, 1fr);
-  column-gap: clamp(18px, 2cqw, 36px);
+  grid-template-columns: 12.2cqw minmax(0, 1fr);
+  column-gap: 2.25cqw;
+  min-width: 0;
+  min-height: 0;
 }
 
 .tracks-xiii-index {
   position: relative;
   min-width: 0;
-  height: 100%;
-}
-
-.tracks-xiii-index::after {
-  content: "";
-  position: absolute;
-  top: 2.5cqh;
-  right: 0;
-  bottom: 2.5cqh;
-  width: 1.5px;
-  background: linear-gradient(transparent, var(--xiii-frame-soft) 9%, var(--xiii-frame-soft) 91%, transparent);
+  min-height: 0;
 }
 
 .tracks-xiii-index-spine {
-  display: none;
+  position: absolute;
+  top: 4.2cqh;
+  bottom: 4.2cqh;
+  left: .62cqw;
+  width: 1px;
+  background: linear-gradient(transparent, var(--xiii-edge-soft) 10%, var(--xiii-edge-soft) 90%, transparent);
 }
 
 .tracks-xiii-index-stack {
@@ -213,16 +201,11 @@
   inset: 0;
 }
 
-.tracks-xiii-index-ghost {
-  z-index: 5;
-  pointer-events: none;
-}
-
 .tracks-xiii-index-group {
   position: absolute;
-  inset: 50% .75cqw auto 0;
+  inset: 50% .5cqw auto 0;
   display: grid;
-  gap: .65cqh;
+  gap: .55cqh;
   transform: translateY(-50%);
 }
 
@@ -235,68 +218,67 @@
   display: flex;
   align-items: center;
   min-width: 0;
-  height: 6.1cqh;
+  height: 6cqh;
   min-height: 36px;
-  padding: 0 1.05cqw 0 1.25cqw;
+  padding: 0 .55cqw 0 1.55cqw;
   border: 0;
   color: var(--xiii-muted);
   background: transparent;
-  font: 650 clamp(13px, .77cqw, 15px)/1 "Segoe UI Variable", "Segoe UI", "Yu Gothic", sans-serif;
-  letter-spacing: .105em;
+  font: 500 clamp(12px, .82cqw, 16px) / 1 Baskerville, "Iowan Old Style", "Yu Mincho", serif;
+  letter-spacing: .12em;
   text-align: left;
   cursor: pointer;
-  transition: color 160ms ease, background-color 180ms ease, transform 220ms cubic-bezier(.22, 1, .36, 1);
-}
-
-.tracks-xiii-index-group button > i {
-  display: none;
+  transition:
+    color 180ms ease,
+    text-shadow 180ms ease;
 }
 
 .tracks-xiii-index-group button::before {
   content: "";
   position: absolute;
-  top: 18%;
-  bottom: 18%;
-  left: 0;
-  width: 3px;
-  border-radius: 0 2px 2px 0;
+  top: 27%;
+  bottom: 27%;
+  left: .58cqw;
+  width: 1px;
   background: var(--xiii-focus);
-  box-shadow: 0 0 .8cqw var(--xiii-glow);
   opacity: 0;
-  transform: scaleY(.35);
-  transition: opacity 160ms ease, transform 220ms cubic-bezier(.22, 1, .36, 1);
+  transition: opacity 180ms ease;
+}
+
+.tracks-xiii-index-group button span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .tracks-xiii-index-group button[aria-selected="true"] {
   color: var(--xiii-ink);
-  background: linear-gradient(90deg, var(--xiii-focus-wash), color-mix(in srgb, var(--v4-accent) 7%, transparent) 72%, transparent);
-  text-shadow: 0 0 .9cqw var(--xiii-glow);
-  transform: translate3d(.25cqw, 0, 0);
+  text-shadow: 0 0 .75cqw color-mix(in srgb, var(--v4-accent) 13%, transparent);
 }
 
 .tracks-xiii-index-group button[aria-selected="true"]::before {
-  opacity: 1;
-  transform: scaleY(1);
+  opacity: .52;
 }
 
-.tracks-xiii-index-group button:hover,
+.tracks-xiii-index-group button:hover {
+  color: color-mix(in srgb, var(--xiii-ink) 88%, var(--xiii-soft));
+}
+
 .tracks-xiii-index-group button:focus-visible {
-  outline: 0;
-  color: var(--xiii-ink);
-  background: linear-gradient(90deg, color-mix(in srgb, var(--v4-accent) 14%, transparent), transparent);
+  outline: 1px solid color-mix(in srgb, var(--v4-accent) 52%, transparent);
+  outline-offset: -1px;
+}
+
+.tracks-xiii-year-index button {
+  font-size: clamp(16px, 1.16cqw, 22px);
+  letter-spacing: .16em;
 }
 
 .tracks-xiii-view {
   position: relative;
   min-width: 0;
-  height: 100%;
-}
-
-.tracks-xiii-view-ghost {
-  position: absolute;
-  z-index: 40;
-  inset: 0 0 0 calc(clamp(130px, 11.8cqw, 210px) + clamp(18px, 2cqw, 36px));
-  pointer-events: none;
+  min-height: 0;
+  overflow: clip;
 }
 
 .tracks-xiii-panel,
@@ -304,6 +286,7 @@
   position: absolute;
   inset: 0;
   min-width: 0;
+  min-height: 0;
 }
 
 .tracks-xiii-panel[aria-hidden="true"],
@@ -311,244 +294,411 @@
   display: none;
 }
 
-/* Shared record plate: number bar, 16:9 CG and readable copy. */
-.tracks-xiii-record-grid,
-.tracks-xiii-save-grid {
+/* ARTICLES — image-led reading records, not save data clones. */
+.tracks-xiii-record-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  grid-template-rows: repeat(3, minmax(0, 1fr));
-  gap: 1.45cqh clamp(9px, .9cqw, 17px);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: 1.25cqh 1.05cqw;
   width: 100%;
   height: 100%;
 }
 
-.tracks-xiii-record-slot,
-.tracks-xiii-save-slot {
+.tracks-xiii-record-slot {
   position: relative;
-  display: grid;
-  grid-template-columns: clamp(38px, 3.05cqw, 58px) clamp(108px, 10.6cqw, 202px) minmax(0, 1fr);
-  align-items: center;
+  display: block;
   min-width: 0;
   min-height: 0;
+  padding: 0;
   overflow: hidden;
-  padding: .85cqh clamp(10px, .8cqw, 15px) .85cqh 0;
-  border: 1.5px solid var(--xiii-frame);
-  color: var(--xiii-ink);
-  background:
-    linear-gradient(102deg, color-mix(in srgb, var(--v4-accent) 15%, transparent), transparent 27%),
-    var(--xiii-plate);
-  box-shadow: 0 .7cqh 1.6cqw var(--xiii-shadow);
-  clip-path: polygon(0 0, calc(100% - 17px) 0, 100% 17px, 100% 100%, 0 100%);
+  border: 0;
+  color: #eef3f4;
+  background: color-mix(in srgb, var(--v4-outer) 54%, #101820 46%);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--v4-ink) 24%, transparent),
+    0 .6cqh 1.15cqw color-mix(in srgb, var(--v4-shadow) 44%, transparent);
   text-align: left;
-  backdrop-filter: blur(7px) saturate(.86);
+  cursor: pointer;
   isolation: isolate;
 }
 
-button.tracks-xiii-record-slot,
-button.tracks-xiii-save-slot {
-  cursor: pointer;
-  transition: border-color 160ms ease, box-shadow 180ms ease, filter 180ms ease, transform 220ms cubic-bezier(.22, 1, .36, 1);
-}
-
-.tracks-xiii-record-slot::before,
-.tracks-xiii-save-slot::before {
+.tracks-xiii-record-slot::before {
   content: "";
   position: absolute;
-  z-index: -1;
+  z-index: 3;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: color-mix(in srgb, var(--v4-accent) 70%, white 8%);
+  opacity: .34;
+  transition: opacity 180ms ease;
+}
+
+.tracks-xiii-record-slot::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset: 30% 0 0;
+  background: linear-gradient(180deg, transparent, rgba(4, 10, 15, .58) 53%, rgba(4, 10, 15, .84));
+  pointer-events: none;
+}
+
+.tracks-xiii-slot-art {
+  position: absolute;
+  z-index: 0;
   inset: 0;
   background:
-    linear-gradient(100deg, var(--xiii-focus-wash), color-mix(in srgb, var(--v4-accent) 8%, transparent) 62%, transparent);
-  opacity: 0;
-  transform: scaleX(.78);
-  transform-origin: left;
-  transition: opacity 160ms ease, transform 220ms cubic-bezier(.22, 1, .36, 1);
+    linear-gradient(135deg, color-mix(in srgb, var(--v4-paper) 8%, transparent), transparent 48%),
+    var(--record-art, var(--v4-bg)) center / cover no-repeat;
+  filter: saturate(.78) contrast(.94);
+  transform: scale(1.001);
+  transition:
+    transform 260ms cubic-bezier(.22, 1, .36, 1),
+    filter 200ms ease;
 }
 
-.tracks-xiii-record-slot::after,
-.tracks-xiii-save-slot::after {
-  content: "";
+.tracks-xiii-slot-number {
   position: absolute;
-  z-index: 5;
-  top: 0;
-  right: 0;
-  width: 17px;
-  height: 17px;
-  background: linear-gradient(45deg, transparent 47%, var(--xiii-frame) 49% 54%, transparent 56%);
+  z-index: 3;
+  top: .9cqh;
+  right: .75cqw;
+  color: rgba(244, 248, 249, .84);
+  font: italic 400 clamp(17px, 1.34cqw, 25px) / 1 Baskerville, "Iowan Old Style", serif;
+  letter-spacing: .04em;
+  text-shadow: 0 1px .6cqw rgba(0, 0, 0, .52);
+}
+
+.tracks-xiii-slot-copy {
+  position: absolute;
+  z-index: 3;
+  right: 1cqw;
+  bottom: 1.25cqh;
+  left: 1cqw;
+  display: grid;
+  gap: .6cqh;
+}
+
+.tracks-xiii-slot-copy strong {
+  overflow: hidden;
+  color: #f4f6f5;
+  font: 500 clamp(13px, .95cqw, 18px) / 1.28 "Yu Mincho", "Hiragino Mincho ProN", serif;
+  letter-spacing: .025em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-shadow: 0 1px .7cqw rgba(0, 0, 0, .72);
+}
+
+.tracks-xiii-slot-copy time {
+  color: rgba(235, 242, 244, .72);
+  font: 600 clamp(10px, .61cqw, 12px) / 1 "Yu Gothic", sans-serif;
+  letter-spacing: .12em;
+  text-shadow: 0 1px .5cqw rgba(0, 0, 0, .68);
+}
+
+.tracks-xiii-slot-command {
+  position: absolute;
+  z-index: 4;
+  right: .9cqw;
+  bottom: .85cqh;
+  color: rgba(242, 247, 248, .86);
+  font: 600 clamp(9px, .54cqw, 11px) / 1 "Yu Gothic", sans-serif;
+  letter-spacing: .18em;
+  opacity: 0;
+  transform: translate3d(.4cqw, 0, 0);
+  transition:
+    opacity 180ms ease,
+    transform 220ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.tracks-xiii-record-slot:hover::before,
+.tracks-xiii-record-slot:focus-visible::before,
+.tracks-xiii-record-slot.is-kb-cursor::before {
   opacity: .88;
 }
 
-.tracks-xiii-slot-number,
-.tracks-xiii-save-number {
-  align-self: stretch;
-  display: grid;
-  place-items: center;
-  border-right: 1px solid var(--xiii-frame-soft);
-  color: var(--xiii-soft);
-  font: 400 clamp(18px, 1.25cqw, 24px)/1 "Times New Roman", serif;
-  letter-spacing: .04em;
+.tracks-xiii-record-slot:hover .tracks-xiii-slot-art,
+.tracks-xiii-record-slot:focus-visible .tracks-xiii-slot-art,
+.tracks-xiii-record-slot.is-kb-cursor .tracks-xiii-slot-art {
+  filter: saturate(.94) contrast(1);
+  transform: scale(1.025);
 }
 
-.tracks-xiii-slot-art,
-.tracks-xiii-save-art {
+.tracks-xiii-record-slot:hover .tracks-xiii-slot-command,
+.tracks-xiii-record-slot:focus-visible .tracks-xiii-slot-command,
+.tracks-xiii-record-slot.is-kb-cursor .tracks-xiii-slot-command {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+.tracks-xiii-record-slot:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--v4-accent) 70%, white 10%);
+  outline-offset: -2px;
+}
+
+.tracks-xiii-record-slot.is-empty {
+  cursor: default;
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--v4-paper) 12%, transparent), transparent 48%),
+    color-mix(in srgb, var(--v4-card) 48%, transparent);
+  box-shadow: inset 0 0 0 1px var(--xiii-edge-soft);
+}
+
+.tracks-xiii-record-slot.is-empty::after {
+  background:
+    linear-gradient(135deg, transparent 49.6%, var(--xiii-edge-soft) 50%, transparent 50.4%),
+    linear-gradient(45deg, transparent 49.6%, var(--xiii-edge-soft) 50%, transparent 50.4%);
+  opacity: .38;
+}
+
+.tracks-xiii-record-slot.is-empty .tracks-xiii-slot-art {
+  display: none;
+}
+
+.tracks-xiii-record-slot.is-empty .tracks-xiii-slot-copy {
+  top: 50%;
+  bottom: auto;
+  place-items: center;
+  transform: translateY(-50%);
+}
+
+.tracks-xiii-record-slot.is-empty .tracks-xiii-slot-copy strong {
+  color: var(--xiii-muted);
+  font-family: Baskerville, "Iowan Old Style", serif;
+  font-size: clamp(12px, .8cqw, 15px);
+  letter-spacing: .16em;
+  text-shadow: none;
+}
+
+.tracks-xiii-record-slot.is-page-hidden,
+.tracks-xiii-save-slot.is-page-hidden {
+  display: none !important;
+}
+
+/* SAVE DATA — traditional visual-novel save files. */
+.tracks-xiii-save-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: 1.25cqh 1.05cqw;
+  width: 100%;
+  height: 100%;
+}
+
+.tracks-xiii-save-slot {
   position: relative;
   display: grid;
-  place-items: center;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 16 / 9;
+  grid-template-rows: minmax(0, 1.6fr) minmax(0, 1fr);
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
   overflow: hidden;
-  border: 1px solid color-mix(in srgb, var(--v4-ink) 48%, transparent);
+  border: 0;
+  color: var(--xiii-ink);
   background:
-    linear-gradient(color-mix(in srgb, var(--v4-accent) 6%, transparent), color-mix(in srgb, var(--v4-outer) 14%, transparent)),
-    var(--record-art, var(--save-art)) center / cover;
+    linear-gradient(180deg, color-mix(in srgb, var(--v4-card) 88%, transparent), color-mix(in srgb, var(--v4-paper) 66%, transparent));
   box-shadow:
-    inset 0 0 0 2px color-mix(in srgb, var(--v4-paper) 22%, transparent),
-    0 .35cqh .7cqw color-mix(in srgb, var(--v4-shadow) 55%, transparent);
-  filter: var(--v4-cover-filter);
+    inset 0 0 0 1px var(--xiii-edge),
+    0 .55cqh 1.2cqw color-mix(in srgb, var(--v4-shadow) 46%, transparent);
+  text-align: left;
+  cursor: pointer;
+  isolation: isolate;
+}
+
+.tracks-xiii-save-slot::before {
+  content: "";
+  position: absolute;
+  z-index: 5;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: var(--xiii-focus);
+  opacity: .24;
+  transition: opacity 180ms ease;
 }
 
 .tracks-xiii-save-art {
-  background:
-    linear-gradient(color-mix(in srgb, var(--v4-accent) 5%, transparent), color-mix(in srgb, var(--v4-outer) 14%, transparent)),
-    var(--save-art) center / cover;
-}
-
-.tracks-xiii-slot-copy,
-.tracks-xiii-save-copy {
-  align-self: stretch;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-width: 0;
-  padding: .2cqh 0 .2cqh clamp(10px, .9cqw, 17px);
-}
-
-.tracks-xiii-slot-copy strong,
-.tracks-xiii-save-copy strong {
-  display: -webkit-box;
+  position: relative;
+  display: block;
+  min-height: 0;
   overflow: hidden;
-  color: var(--xiii-ink);
-  font: 550 clamp(15px, .92cqw, 18px)/1.36 "Yu Mincho", "Noto Serif CJK SC", serif;
-  letter-spacing: .025em;
-  text-wrap: balance;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, white 8%, transparent), transparent 48%),
+    var(--save-art, var(--v4-bg)) center / cover no-repeat;
+  filter: saturate(.73) contrast(.94);
+  transition:
+    filter 200ms ease,
+    transform 260ms cubic-bezier(.22, 1, .36, 1);
 }
 
-.tracks-xiii-slot-copy time,
-.tracks-xiii-save-copy time {
-  margin-top: 1.05cqh;
-  color: var(--xiii-soft);
-  font: 650 clamp(12px, .67cqw, 13px)/1 "Segoe UI Variable", "Segoe UI", sans-serif;
-  letter-spacing: .11em;
+.tracks-xiii-save-art::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 34%;
+  background: linear-gradient(transparent, color-mix(in srgb, var(--v4-card) 72%, transparent));
+}
+
+.tracks-xiii-save-number {
+  position: absolute;
+  z-index: 4;
+  top: .8cqh;
+  left: .7cqw;
+  min-width: 3.3cqw;
+  padding: .55cqh .55cqw .48cqh;
+  color: var(--xiii-ink);
+  background: color-mix(in srgb, var(--v4-paper) 86%, transparent);
+  box-shadow: 0 .25cqh .65cqw color-mix(in srgb, var(--v4-shadow) 38%, transparent);
+  font: 600 clamp(10px, .65cqw, 13px) / 1 Baskerville, "Iowan Old Style", serif;
+  letter-spacing: .1em;
+  text-align: center;
+}
+
+.tracks-xiii-save-number::before {
+  content: "DATA ";
+}
+
+.tracks-xiii-save-copy {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  align-content: center;
+  gap: .55cqh;
+  min-width: 0;
+  padding: .95cqh .85cqw 1.05cqh;
 }
 
 .tracks-xiii-save-copy small {
-  margin-bottom: .8cqh;
-  color: var(--xiii-soft);
-  font: 650 clamp(11px, .62cqw, 13px)/1.2 "Segoe UI Variable", "Segoe UI", sans-serif;
-  letter-spacing: .09em;
+  overflow: hidden;
+  color: var(--xiii-muted);
+  font: 600 clamp(10px, .62cqw, 12px) / 1 "Yu Gothic", sans-serif;
+  letter-spacing: .11em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.tracks-xiii-slot-command,
+.tracks-xiii-save-copy strong {
+  overflow: hidden;
+  color: var(--xiii-ink);
+  font: 500 clamp(13px, .86cqw, 17px) / 1.22 "Yu Mincho", "Hiragino Mincho ProN", serif;
+  letter-spacing: .02em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tracks-xiii-save-meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: .65cqw;
+  min-width: 0;
+  color: var(--xiii-soft);
+  font: 600 clamp(10px, .61cqw, 12px) / 1 "Yu Gothic", sans-serif;
+  letter-spacing: .06em;
+}
+
+.tracks-xiii-save-meta time {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tracks-xiii-save-meta b {
+  flex: 0 0 auto;
+  color: var(--xiii-ink);
+  font-weight: 600;
+  letter-spacing: .08em;
+}
+
 .tracks-xiii-save-command {
   position: absolute;
-  right: .8cqw;
-  bottom: .75cqh;
-  color: var(--xiii-soft);
-  font: 700 clamp(11px, .62cqw, 12px)/1 "Segoe UI Variable", "Segoe UI", sans-serif;
+  z-index: 6;
+  right: .7cqw;
+  top: .9cqh;
+  color: #eef4f6;
+  font: 600 clamp(9px, .54cqw, 11px) / 1 "Yu Gothic", sans-serif;
   letter-spacing: .16em;
+  text-shadow: 0 1px .5cqw rgba(0, 0, 0, .66);
   opacity: 0;
   transform: translate3d(.35cqw, 0, 0);
-  transition: opacity 160ms ease, transform 220ms cubic-bezier(.22, 1, .36, 1);
+  transition:
+    opacity 180ms ease,
+    transform 220ms cubic-bezier(.22, 1, .36, 1);
 }
 
-button.tracks-xiii-record-slot:hover,
-button.tracks-xiii-record-slot:focus-visible,
-button.tracks-xiii-record-slot.is-kb-cursor,
-button.tracks-xiii-save-slot:hover,
-button.tracks-xiii-save-slot:focus-visible,
-button.tracks-xiii-save-slot.is-kb-cursor,
-.tracks-xiii-save-slot[aria-pressed="true"] {
-  outline: 0;
-  border-color: var(--xiii-focus);
-  filter: brightness(1.045) saturate(1.03);
-  box-shadow:
-    0 0 0 1px color-mix(in srgb, var(--xiii-focus) 72%, transparent),
-    0 0 1.45cqw var(--xiii-glow),
-    0 .8cqh 1.7cqw var(--xiii-shadow);
-  transform: scale(1.012);
+.tracks-xiii-save-slot:hover::before,
+.tracks-xiii-save-slot:focus-visible::before,
+.tracks-xiii-save-slot.is-kb-cursor::before {
+  opacity: .86;
 }
 
-button.tracks-xiii-record-slot:hover::before,
-button.tracks-xiii-record-slot:focus-visible::before,
-button.tracks-xiii-record-slot.is-kb-cursor::before,
-button.tracks-xiii-save-slot:hover::before,
-button.tracks-xiii-save-slot:focus-visible::before,
-button.tracks-xiii-save-slot.is-kb-cursor::before,
-.tracks-xiii-save-slot[aria-pressed="true"]::before {
+.tracks-xiii-save-slot:hover .tracks-xiii-save-art,
+.tracks-xiii-save-slot:focus-visible .tracks-xiii-save-art,
+.tracks-xiii-save-slot.is-kb-cursor .tracks-xiii-save-art {
+  filter: saturate(.92) contrast(1);
+  transform: scale(1.018);
+}
+
+.tracks-xiii-save-slot:hover .tracks-xiii-save-command,
+.tracks-xiii-save-slot:focus-visible .tracks-xiii-save-command,
+.tracks-xiii-save-slot.is-kb-cursor .tracks-xiii-save-command {
   opacity: 1;
-  transform: scaleX(1);
+  transform: translate3d(0, 0, 0);
 }
 
-button.tracks-xiii-record-slot:hover .tracks-xiii-slot-command,
-button.tracks-xiii-record-slot:focus-visible .tracks-xiii-slot-command,
-button.tracks-xiii-record-slot.is-kb-cursor .tracks-xiii-slot-command,
-button.tracks-xiii-save-slot:hover .tracks-xiii-save-command,
-button.tracks-xiii-save-slot:focus-visible .tracks-xiii-save-command,
-button.tracks-xiii-save-slot.is-kb-cursor .tracks-xiii-save-command,
-.tracks-xiii-save-slot[aria-pressed="true"] .tracks-xiii-save-command {
-  opacity: 1;
-  transform: none;
+.tracks-xiii-save-slot:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--v4-accent) 72%, var(--v4-ink) 12%);
+  outline-offset: -2px;
 }
 
-.tracks-xiii-record-slot.is-empty,
 .tracks-xiii-save-slot.is-empty {
-  border-color: var(--xiii-frame-soft);
+  display: block;
+  cursor: default;
   background:
-    linear-gradient(102deg, color-mix(in srgb, var(--v4-accent) 7%, transparent), transparent 30%),
-    var(--xiii-plate-empty);
-  box-shadow: 0 .35cqh .9cqw color-mix(in srgb, var(--v4-shadow) 48%, transparent);
-  opacity: .72;
+    linear-gradient(145deg, color-mix(in srgb, var(--v4-paper) 8%, transparent), transparent 52%),
+    color-mix(in srgb, var(--v4-card) 44%, transparent);
+  box-shadow: inset 0 0 0 1px var(--xiii-edge-soft);
 }
 
-.tracks-xiii-record-slot.is-empty::before,
-.tracks-xiii-save-slot.is-empty::before {
-  opacity: 0;
+.tracks-xiii-save-slot.is-empty::after {
+  content: "";
+  position: absolute;
+  inset: 12% 9%;
+  background:
+    linear-gradient(135deg, transparent 49.7%, var(--xiii-edge-soft) 50%, transparent 50.3%),
+    linear-gradient(45deg, transparent 49.7%, var(--xiii-edge-soft) 50%, transparent 50.3%);
+  opacity: .34;
 }
 
-.tracks-xiii-record-slot.is-empty .tracks-xiii-slot-art,
+.tracks-xiii-save-slot.is-empty .tracks-xiii-save-number {
+  color: var(--xiii-muted);
+  background: transparent;
+  box-shadow: none;
+}
+
 .tracks-xiii-save-slot.is-empty .tracks-xiii-save-art {
-  background:
-    linear-gradient(135deg, transparent 48.7%, var(--xiii-frame-soft) 49% 51%, transparent 51.3%),
-    linear-gradient(45deg, transparent 48.7%, var(--xiii-frame-soft) 49% 51%, transparent 51.3%),
-    color-mix(in srgb, var(--v4-outer) 10%, transparent);
-  filter: none;
-}
-
-.tracks-xiii-slot-art > i,
-.tracks-xiii-save-art > i,
-.tracks-xiii-story-art > i {
   display: none;
 }
 
-.tracks-xiii-record-slot.is-empty .tracks-xiii-slot-copy strong,
+.tracks-xiii-save-slot.is-empty .tracks-xiii-save-copy {
+  position: absolute;
+  inset: 0;
+  place-items: center;
+  padding: 0;
+}
+
 .tracks-xiii-save-slot.is-empty .tracks-xiii-save-copy strong {
-  color: var(--xiii-soft);
-  font-family: "Segoe UI Variable", "Segoe UI", sans-serif;
-  font-size: clamp(13px, .75cqw, 15px);
-  font-weight: 600;
-  letter-spacing: .13em;
+  color: var(--xiii-muted);
+  font-family: Baskerville, "Iowan Old Style", serif;
+  font-size: clamp(12px, .78cqw, 15px);
+  letter-spacing: .16em;
 }
 
-.tracks-xiii-record-slot.is-page-hidden {
-  display: none;
-}
-
-/* Page controls belong to the data field, after the permanent index. */
+/* Content pagination belongs to the records, not to the page entrances. */
 .tracks-xiii-edge-turners {
   position: absolute;
-  z-index: 55;
+  z-index: 38;
   inset: 0;
   pointer-events: none;
 }
@@ -559,68 +709,61 @@ button.tracks-xiii-save-slot.is-kb-cursor .tracks-xiii-save-command,
 
 .tracks-xiii-edge-turners button {
   position: absolute;
-  top: 53.5%;
+  top: 50%;
   display: grid;
   place-items: center;
-  width: clamp(32px, 3cqw, 56px);
-  height: 12cqh;
+  width: 2.45cqw;
+  min-width: 34px;
+  height: 10cqh;
+  min-height: 58px;
   padding: 0;
   border: 0;
   color: var(--xiii-soft);
-  background: linear-gradient(90deg, var(--xiii-focus-wash), transparent);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--v4-accent) 7%, transparent), transparent);
+  font: 300 clamp(24px, 2cqw, 38px) / 1 Baskerville, serif;
+  opacity: .7;
   cursor: pointer;
-  opacity: .72;
   pointer-events: auto;
-  transform: translateY(-50%);
-  transition: color 160ms ease, opacity 160ms ease, transform 220ms cubic-bezier(.22, 1, .36, 1);
+  transition:
+    color 180ms ease,
+    opacity 180ms ease,
+    background-color 180ms ease;
 }
 
 .tracks-xiii-edge-turners button:first-child {
-  left: calc(5cqw + clamp(130px, 11.8cqw, 210px) + .4cqw);
+  left: 17.2cqw;
+  transform: translate(-100%, -50%);
 }
 
 .tracks-xiii-edge-turners button:last-child {
-  right: 1.2cqw;
-  background: linear-gradient(270deg, var(--xiii-focus-wash), transparent);
-}
-
-.tracks-xiii-edge-turners button span {
-  font: 400 clamp(34px, 2.5cqw, 48px)/1 "Times New Roman", serif;
+  right: 1.45cqw;
+  background: linear-gradient(270deg, color-mix(in srgb, var(--v4-accent) 7%, transparent), transparent);
+  transform: translateY(-50%);
 }
 
 .tracks-xiii-edge-turners button:hover,
 .tracks-xiii-edge-turners button:focus-visible {
-  outline: 0;
   color: var(--xiii-ink);
   opacity: 1;
-}
-
-.tracks-xiii-edge-turners button:first-child:hover,
-.tracks-xiii-edge-turners button:first-child:focus-visible {
-  transform: translate3d(-.2cqw, -50%, 0);
-}
-
-.tracks-xiii-edge-turners button:last-child:hover,
-.tracks-xiii-edge-turners button:last-child:focus-visible {
-  transform: translate3d(.2cqw, -50%, 0);
 }
 
 .tracks-xiii-edge-turners button:disabled {
   opacity: .18;
   cursor: default;
-  transform: translateY(-50%);
 }
 
 .tracks-xiii-page-nav {
   position: absolute;
-  z-index: 60;
-  bottom: 7.15cqh;
-  left: 50%;
+  z-index: 34;
+  right: 26cqw;
+  bottom: 5.15cqh;
+  left: 26cqw;
   display: flex;
   align-items: center;
-  gap: 1.2cqw;
-  min-height: 3.6cqh;
-  transform: translateX(-50%);
+  justify-content: center;
+  gap: 1.25cqw;
+  min-height: 3.5cqh;
+  color: var(--xiii-soft);
 }
 
 .tracks-xiii-page-nav[aria-hidden="true"] {
@@ -630,34 +773,30 @@ button.tracks-xiii-save-slot.is-kb-cursor .tracks-xiii-save-command,
 .tracks-xiii-page-markers {
   display: flex;
   align-items: center;
-  gap: .4cqw;
+  gap: .95cqw;
 }
 
 .tracks-xiii-page-markers button {
   position: relative;
-  min-width: 2.7cqw;
-  height: 3.6cqh;
-  padding: 0;
+  min-width: 1.25cqw;
+  padding: .45cqh 0;
   border: 0;
   color: var(--xiii-muted);
   background: transparent;
-  font: 650 clamp(12px, .69cqw, 14px)/1 "Segoe UI Variable", "Segoe UI", sans-serif;
+  font: 600 clamp(11px, .68cqw, 13px) / 1 "Yu Gothic", sans-serif;
+  letter-spacing: .04em;
   cursor: pointer;
 }
 
 .tracks-xiii-page-markers button::after {
   content: "";
   position: absolute;
-  right: .5cqw;
+  right: 5%;
   bottom: 0;
-  left: .5cqw;
+  left: 5%;
   height: 2px;
-  border-radius: 2px;
   background: var(--xiii-focus);
-  box-shadow: 0 0 .65cqw var(--xiii-glow);
   opacity: 0;
-  transform: scaleX(.45);
-  transition: opacity 160ms ease, transform 220ms cubic-bezier(.22, 1, .36, 1);
 }
 
 .tracks-xiii-page-markers button[aria-pressed="true"] {
@@ -665,202 +804,145 @@ button.tracks-xiii-save-slot.is-kb-cursor .tracks-xiii-save-command,
 }
 
 .tracks-xiii-page-markers button[aria-pressed="true"]::after {
-  opacity: .95;
-  transform: scaleX(1);
-}
-
-.tracks-xiii-page-markers button:hover,
-.tracks-xiii-page-markers button:focus-visible {
-  outline: 0;
-  color: var(--xiii-ink);
+  opacity: .72;
 }
 
 .tracks-xiii-page-nav > strong {
-  min-width: 9.8cqw;
   color: var(--xiii-soft);
-  font: 650 clamp(12px, .69cqw, 14px)/1 "Segoe UI Variable", "Segoe UI", sans-serif;
-  letter-spacing: .13em;
-}
-
-.tracks-xiii-hints {
-  position: absolute;
-  z-index: 64;
-  right: 14cqw;
-  bottom: 3.2cqh;
-  display: flex;
-  align-items: center;
-  gap: 1.15cqw;
-  margin: 0;
-  color: var(--xiii-soft);
-  font: 650 clamp(10px, .57cqw, 12px)/1 "Segoe UI Variable", "Segoe UI", sans-serif;
-  letter-spacing: .08em;
-}
-
-.tracks-xiii-hints span {
-  display: inline-flex;
-  align-items: center;
-  gap: .35cqw;
-}
-
-.tracks-xiii-hints b {
-  color: var(--xiii-ink);
-  font-size: clamp(13px, .78cqw, 16px);
-  font-weight: 500;
-}
-
-.tracks-xiii-canvas:not(.is-keyboard-cursor-enabled) [data-xiii-hint-cursor] {
-  display: none;
+  font: 600 clamp(11px, .68cqw, 13px) / 1 "Yu Gothic", sans-serif;
+  letter-spacing: .12em;
 }
 
 .tracks-xiii-reference-switcher {
   right: auto;
   bottom: 3.05cqh;
   left: 4.8cqw;
-  opacity: .58;
+  opacity: .42;
 }
 
 .tracks-xiii-reference-switcher:hover,
 .tracks-xiii-reference-switcher:focus-within {
-  opacity: 1;
+  opacity: .82;
 }
 
-/* FLOWCHART — compact route atlas that expands as the same physical object. */
+/* FLOWCHART — compact route object that expands in place. */
+.tracks-xiii-flow-view {
+  --flow-line: #6d9eb8;
+  --flow-active: #66c1e7;
+  --flow-label: rgba(218, 232, 238, .82);
+}
+
+.tracks-xiii-canvas[data-xiii-flow-theme="red"] .tracks-xiii-flow-view {
+  --flow-line: #9f6670;
+  --flow-active: #dc8d97;
+  --flow-label: rgba(239, 219, 222, .84);
+}
+
 .tracks-xiii-flow-shell {
-  --flow-ink: rgba(233, 243, 248, .96);
-  --flow-soft: rgba(207, 225, 234, .74);
-  --flow-line: rgba(100, 177, 216, .74);
   position: absolute;
   inset: 0;
   overflow: hidden;
-  border: 1.5px solid rgba(174, 211, 229, .34);
-  color: var(--flow-ink);
+  color: #edf4f6;
   background:
-    radial-gradient(ellipse at 72% 20%, rgba(70, 122, 151, .17), transparent 37%),
-    linear-gradient(108deg, rgba(5, 10, 16, .985), rgba(11, 24, 34, .97) 56%, rgba(17, 38, 50, .95));
+    radial-gradient(ellipse at 78% 18%, rgba(44, 104, 132, .18), transparent 40%),
+    linear-gradient(104deg, rgba(5, 9, 13, .96), rgba(12, 27, 36, .94));
   box-shadow:
-    inset 0 0 5cqw rgba(0, 4, 8, .58),
-    0 .8cqh 1.8cqw var(--xiii-shadow);
-  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%);
+    inset 0 0 0 1px rgba(160, 194, 209, .18),
+    0 .7cqh 1.6cqw color-mix(in srgb, var(--v4-shadow) 60%, transparent);
   isolation: isolate;
 }
 
-.tracks-xiii-flow-shell::before,
-.tracks-xiii-flow-shell::after {
-  content: "";
-  position: absolute;
-  z-index: 0;
-  inset: 0;
-  pointer-events: none;
+.tracks-xiii-canvas[data-xiii-flow-theme="red"] .tracks-xiii-flow-shell {
+  background:
+    radial-gradient(ellipse at 78% 18%, rgba(137, 65, 75, .17), transparent 40%),
+    linear-gradient(104deg, rgba(12, 6, 9, .97), rgba(36, 15, 23, .95));
 }
 
 .tracks-xiii-flow-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: .28;
   background:
-    linear-gradient(90deg, transparent, rgba(108, 164, 194, .06) 48%, transparent 82%),
-    radial-gradient(ellipse at 50% 115%, rgba(111, 155, 177, .18), transparent 42%);
-}
-
-.tracks-xiii-flow-shell::after {
-  opacity: .09;
-  background: repeating-linear-gradient(0deg, rgba(255, 255, 255, .08) 0 1px, transparent 1px 5px);
-  mix-blend-mode: soft-light;
-}
-
-.tracks-xiii-canvas[data-xiii-flow-theme="red"] .tracks-xiii-flow-shell {
-  --flow-line: rgba(208, 117, 122, .7);
-  background:
-    radial-gradient(ellipse at 35% 27%, rgba(151, 72, 80, .16), transparent 42%),
-    linear-gradient(108deg, rgba(20, 8, 15, .99), rgba(43, 20, 29, .97));
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, .018) 0 1px, transparent 1px 7cqw),
+    linear-gradient(180deg, rgba(255, 255, 255, .025), transparent 18%);
+  pointer-events: none;
 }
 
 .tracks-xiii-flow-tools {
   position: absolute;
-  z-index: 15;
-  top: 1.25cqh;
-  right: 1.1cqw;
-  left: 1.1cqw;
+  z-index: 12;
+  top: 1.35cqh;
+  right: 1.2cqw;
+  left: 1.2cqw;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  pointer-events: none;
 }
 
 .tracks-xiii-flow-themes {
   display: flex;
   align-items: center;
-  gap: .25cqw;
-  padding: .25cqh;
-  border: 1px solid rgba(174, 211, 229, .18);
-  background: rgba(2, 8, 14, .74);
-  pointer-events: auto;
+  gap: 1.15cqw;
 }
 
 .tracks-xiii-flow-themes button {
   position: relative;
-  min-width: clamp(54px, 5cqw, 94px);
-  height: 3.7cqh;
-  min-height: 28px;
-  padding: 0 .75cqw;
+  padding: .55cqh .1cqw;
   border: 0;
-  color: rgba(204, 224, 235, .64);
+  color: rgba(215, 228, 234, .54);
   background: transparent;
-  font: 700 clamp(11px, .63cqw, 13px)/1 "Segoe UI Variable", "Segoe UI", sans-serif;
-  letter-spacing: .15em;
+  font: 600 clamp(10px, .62cqw, 12px) / 1 "Yu Gothic", sans-serif;
+  letter-spacing: .16em;
   cursor: pointer;
 }
 
 .tracks-xiii-flow-themes button::after {
   content: "";
   position: absolute;
-  right: .65cqw;
+  right: 0;
   bottom: 0;
-  left: .65cqw;
+  left: 0;
   height: 2px;
-  background: var(--flow-line);
-  box-shadow: 0 0 .65cqw var(--flow-line);
+  background: var(--flow-active);
   opacity: 0;
-  transform: scaleX(.45);
-  transition: opacity 150ms ease, transform 220ms cubic-bezier(.22, 1, .36, 1);
 }
 
 .tracks-xiii-flow-themes button[aria-pressed="true"] {
-  color: var(--flow-ink);
+  color: #f1f6f7;
 }
 
 .tracks-xiii-flow-themes button[aria-pressed="true"]::after {
-  opacity: 1;
-  transform: scaleX(1);
-}
-
-.tracks-xiii-flow-themes button:focus-visible {
-  outline: 0;
-  color: #fff;
+  opacity: .78;
 }
 
 .tracks-xiii-flow-expand {
   position: relative;
   display: grid;
   place-items: center;
-  width: clamp(44px, 4.25cqw, 72px);
-  height: 5.4cqh;
-  min-height: 38px;
+  width: 3.35cqw;
+  min-width: 44px;
+  height: 5.8cqh;
+  min-height: 42px;
   padding: 0;
-  border: 1px solid rgba(175, 215, 233, .46);
-  color: rgba(224, 241, 249, .82);
-  background: linear-gradient(135deg, rgba(60, 112, 142, .44), rgba(7, 22, 32, .88));
-  box-shadow: 0 0 1.1cqw rgba(79, 161, 201, .18);
-  clip-path: polygon(0 0, calc(100% - 11px) 0, 100% 11px, 100% 100%, 0 100%);
+  border: 1px solid rgba(151, 195, 213, .24);
+  color: rgba(235, 244, 246, .86);
+  background:
+    linear-gradient(135deg, rgba(204, 231, 240, .08), transparent 48%),
+    rgba(137, 183, 202, .11);
   cursor: pointer;
-  pointer-events: auto;
-  transition: color 160ms ease, filter 160ms ease, transform 90ms ease;
+  transition:
+    color 180ms ease,
+    background-color 180ms ease;
 }
 
 .tracks-xiii-flow-expand svg {
-  width: clamp(20px, 1.55cqw, 28px);
+  position: absolute;
+  width: 1.7cqw;
+  min-width: 23px;
   fill: none;
   stroke: currentColor;
-  stroke-width: 1.7;
-  stroke-linecap: square;
-  stroke-linejoin: miter;
+  stroke-width: 1.35;
 }
 
 .tracks-xiii-flow-expand .is-collapse-icon {
@@ -877,34 +959,27 @@ button.tracks-xiii-save-slot.is-kb-cursor .tracks-xiii-save-command,
 
 .tracks-xiii-flow-expand:hover,
 .tracks-xiii-flow-expand:focus-visible {
-  outline: 0;
   color: #fff;
-  filter: brightness(1.2);
-}
-
-.tracks-xiii-flow-expand:active {
-  transform: scale(.96);
+  background: rgba(116, 188, 218, .18);
+  outline: 1px solid rgba(126, 199, 229, .42);
 }
 
 .tracks-xiii-flow-viewport {
   position: absolute;
   z-index: 3;
-  inset: 0;
+  top: 6.7cqh;
+  right: 1.45cqw;
+  bottom: 4.4cqh;
+  left: 1.45cqw;
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: none;
   cursor: grab;
-  touch-action: pan-y;
 }
 
 .tracks-xiii-flow-viewport::-webkit-scrollbar {
   display: none;
-}
-
-.tracks-xiii-flow-viewport:focus-visible {
-  outline: 0;
-  box-shadow: inset 0 0 0 2px rgba(146, 205, 232, .3);
 }
 
 .tracks-xiii-flow-viewport.is-dragging {
@@ -915,7 +990,7 @@ button.tracks-xiii-save-slot.is-kb-cursor .tracks-xiii-save-command,
 .tracks-xiii-flow-map {
   position: relative;
   width: 100%;
-  height: max(720px, 126cqh);
+  height: max(720px, 112cqh);
 }
 
 .tracks-xiii-flow-map[aria-hidden="true"] {
@@ -924,25 +999,27 @@ button.tracks-xiii-save-slot.is-kb-cursor .tracks-xiii-save-command,
 
 .tracks-xiii-flow-map > svg {
   position: absolute;
-  z-index: 1;
   inset: 0;
   width: 100%;
   height: 100%;
   overflow: visible;
 }
 
+.tracks-xiii-flow-boundary {
+  fill: none;
+  stroke: rgba(113, 158, 180, .2);
+  stroke-width: .22;
+  vector-effect: non-scaling-stroke;
+}
+
+.tracks-xiii-canvas[data-xiii-flow-theme="red"] .tracks-xiii-flow-boundary {
+  stroke: rgba(171, 100, 111, .22);
+}
+
 .tracks-xiii-flow-path {
   fill: none;
   stroke: var(--flow-line);
-  stroke-width: .22;
-  vector-effect: non-scaling-stroke;
-  filter: drop-shadow(0 0 5px rgba(79, 162, 208, .38));
-}
-
-.tracks-xiii-flow-boundary {
-  fill: none;
-  stroke: rgba(172, 211, 229, .24);
-  stroke-width: .15;
+  stroke-width: .42;
   vector-effect: non-scaling-stroke;
 }
 
@@ -950,21 +1027,14 @@ button.tracks-xiii-save-slot.is-kb-cursor .tracks-xiii-save-command,
   position: absolute;
   z-index: 2;
   top: var(--chapter-y);
-  left: 1.2cqw;
-  color: rgba(222, 237, 244, .72);
-  transform: translateY(-50%);
-}
-
-.tracks-xiii-flow-chapter:first-of-type {
-  top: 6.2cqh;
-  transform: none;
+  left: .45cqw;
+  color: var(--flow-label);
+  transform: translateY(.7cqh);
 }
 
 .tracks-xiii-flow-chapter b {
-  padding: .35cqh .65cqw;
-  background: rgba(1, 7, 12, .82);
-  font: 650 clamp(11px, .65cqw, 13px)/1 "Segoe UI Variable", "Segoe UI", sans-serif;
-  letter-spacing: .12em;
+  font: 500 clamp(10px, .68cqw, 13px) / 1 "Yu Mincho", serif;
+  letter-spacing: .08em;
 }
 
 .tracks-xiii-flow-node {
@@ -972,278 +1042,252 @@ button.tracks-xiii-save-slot.is-kb-cursor .tracks-xiii-save-command,
   z-index: 5;
   top: var(--flow-y);
   left: var(--flow-x);
-  display: block;
-  width: clamp(72px, 7.4cqw, 134px);
-  height: auto;
+  display: grid;
+  width: clamp(68px, 5.3cqw, 100px);
   aspect-ratio: 16 / 9;
   padding: 0;
-  border: 1px solid rgba(188, 218, 231, .58);
-  color: rgba(219, 240, 249, .8);
-  background: rgba(2, 9, 15, .96);
-  box-shadow: 0 .45cqh 1cqw rgba(0, 3, 7, .62);
+  overflow: visible;
+  border: 1px solid rgba(199, 211, 171, .6);
+  background: rgba(9, 14, 18, .88);
+  box-shadow: 0 .25cqh .65cqw rgba(0, 0, 0, .38);
   cursor: pointer;
   transform: translate(-50%, -50%);
-  transition: color 150ms ease, box-shadow 150ms ease, filter 160ms ease, transform 220ms cubic-bezier(.22, 1, .36, 1);
-}
-
-.tracks-xiii-flow-node::before {
-  content: "";
-  position: absolute;
-  z-index: 3;
-  inset: -4px;
-  border: 2px solid var(--flow-line);
-  opacity: 0;
-  transition: opacity 150ms ease;
 }
 
 .tracks-xiii-flow-node-art {
   position: absolute;
-  inset: 3px;
+  inset: 2px;
   background:
-    linear-gradient(rgba(18, 47, 64, .12), rgba(3, 12, 20, .28)),
-    var(--node-art) center / cover;
-  filter: saturate(.8) contrast(.98);
+    linear-gradient(rgba(9, 16, 20, .09), rgba(9, 16, 20, .09)),
+    var(--node-art, none) center / cover no-repeat;
+  filter: saturate(.72) contrast(.96);
 }
 
 .tracks-xiii-flow-node-number {
   position: absolute;
-  z-index: 4;
-  right: 3px;
-  bottom: 3px;
-  min-width: 25px;
-  padding: 3px 5px;
-  color: rgba(226, 243, 250, .9);
-  background: rgba(2, 10, 17, .82);
-  font: 700 clamp(10px, .58cqw, 12px)/1 "Segoe UI Variable", "Segoe UI", sans-serif;
-  letter-spacing: .08em;
+  z-index: 2;
+  right: .28cqw;
+  bottom: .35cqh;
+  color: rgba(244, 247, 235, .88);
+  font: 600 clamp(9px, .54cqw, 11px) / 1 "Yu Gothic", sans-serif;
+  text-shadow: 0 1px .4cqw #000;
 }
 
-.tracks-xiii-flow-node:hover,
-.tracks-xiii-flow-node:focus-visible,
-.tracks-xiii-flow-node.is-kb-cursor,
 .tracks-xiii-flow-node[aria-pressed="true"] {
-  outline: 0;
-  color: #fff;
+  border-color: var(--flow-active);
   box-shadow:
-    0 0 0 1px rgba(226, 242, 249, .85),
-    0 0 1.4cqw color-mix(in srgb, var(--flow-line) 64%, transparent);
-  filter: brightness(1.12);
-  transform: translate(-50%, -50%) scale(1.055);
+    0 0 0 2px color-mix(in srgb, var(--flow-active) 30%, transparent),
+    0 0 1cqw color-mix(in srgb, var(--flow-active) 35%, transparent);
 }
 
-.tracks-xiii-flow-node.is-kb-cursor::before,
-.tracks-xiii-flow-node[aria-pressed="true"]::before {
-  opacity: 1;
+.tracks-xiii-flow-node[aria-pressed="true"] .tracks-xiii-flow-node-art {
+  filter: saturate(.95) contrast(1.04);
 }
 
 .tracks-xiii-flow-node.is-locked {
+  border-color: rgba(181, 190, 163, .32);
   cursor: default;
-  opacity: .72;
-  background:
-    repeating-linear-gradient(135deg, rgba(255, 255, 255, .025) 0 7px, transparent 7px 14px),
-    rgba(3, 10, 17, .9);
-  box-shadow: 0 0 0 1px rgba(176, 202, 214, .26);
-  filter: none;
 }
 
 .tracks-xiii-flow-node.is-locked .tracks-xiii-flow-node-art {
   background:
-    linear-gradient(45deg, transparent calc(50% - 1px), rgba(184, 208, 219, .2) 50%, transparent calc(50% + 1px)),
-    linear-gradient(-45deg, transparent calc(50% - 1px), rgba(184, 208, 219, .2) 50%, transparent calc(50% + 1px));
+    radial-gradient(circle at 50% 45%, rgba(154, 177, 188, .12), transparent 44%),
+    rgba(8, 12, 15, .92);
+}
+
+.tracks-xiii-flow-node.is-locked .tracks-xiii-flow-node-number {
+  top: 50%;
+  right: auto;
+  bottom: auto;
+  left: 50%;
+  color: rgba(221, 230, 233, .42);
+  font: 400 clamp(15px, 1cqw, 19px) / 1 Baskerville, serif;
+  transform: translate(-50%, -50%);
 }
 
 .tracks-xiii-flow-caption {
   position: absolute;
-  z-index: 10;
-  right: 1.25cqw;
+  z-index: 8;
+  right: 4cqw;
   bottom: 1.25cqh;
-  left: 1.25cqw;
+  left: 1.45cqw;
   display: flex;
-  align-items: center;
-  gap: .9cqw;
-  min-height: 5.4cqh;
-  padding: .45cqh 5.4cqw .45cqh 1.15cqw;
-  border-left: 3px solid var(--flow-line);
-  background: linear-gradient(90deg, rgba(2, 10, 17, .95), rgba(10, 28, 40, .78) 72%, transparent);
-  pointer-events: none;
+  align-items: baseline;
+  gap: .75cqw;
+  color: rgba(222, 235, 240, .74);
 }
 
 .tracks-xiii-flow-caption > span {
-  color: rgba(189, 222, 237, .76);
-  font: 700 clamp(11px, .65cqw, 13px)/1 "Segoe UI Variable", "Segoe UI", sans-serif;
-  letter-spacing: .1em;
+  font: italic 400 clamp(14px, .9cqw, 18px) / 1 Baskerville, serif;
 }
 
 .tracks-xiii-flow-caption > strong {
-  color: var(--flow-ink);
-  font: 550 clamp(14px, .86cqw, 17px)/1 "Yu Mincho", serif;
-  letter-spacing: .06em;
+  overflow: hidden;
+  font: 500 clamp(11px, .7cqw, 14px) / 1 "Yu Mincho", serif;
+  letter-spacing: .05em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.tracks-xiii-flow-detail {
+.tracks-xiii-flow-detail,
+.tracks-xiii-flow-hints {
   display: none;
 }
 
 .tracks-xiii-flow-scroll-indicator {
   position: absolute;
-  z-index: 18;
-  top: 7.6cqh;
-  right: .48cqw;
-  bottom: 1.6cqh;
-  width: 3px;
-  background: rgba(178, 213, 228, .19);
-  pointer-events: none;
+  z-index: 10;
+  top: 6.8cqh;
+  right: .52cqw;
+  bottom: 4.5cqh;
+  width: 2px;
+  background: rgba(178, 203, 214, .16);
 }
 
 .tracks-xiii-flow-scroll-indicator > span {
   position: absolute;
   top: 0;
   left: 0;
-  width: 3px;
-  min-height: 34px;
-  background: var(--flow-line);
-  box-shadow: 0 0 .65cqw color-mix(in srgb, var(--flow-line) 50%, transparent);
+  width: 2px;
+  min-height: 30px;
+  background: rgba(161, 209, 229, .62);
 }
 
 .tracks-xiii-flow-shell.is-expanded {
   position: fixed;
   z-index: 220;
   inset: 0;
-  width: 100vw;
-  height: 100vh;
-  border: 0;
   background:
-    radial-gradient(ellipse at 78% 16%, rgba(74, 128, 158, .18), transparent 35%),
-    linear-gradient(106deg, #03070b, #0a1822 63%, #102a39);
+    radial-gradient(ellipse at 78% 17%, rgba(44, 104, 132, .18), transparent 38%),
+    linear-gradient(104deg, #05090d, #0b1b24 62%, #122c38);
   box-shadow: none;
-  clip-path: none;
 }
 
 .tracks-xiii-canvas[data-xiii-flow-theme="red"] .tracks-xiii-flow-shell.is-expanded {
   background:
-    radial-gradient(ellipse at 72% 17%, rgba(151, 72, 80, .17), transparent 36%),
-    linear-gradient(106deg, #0d0509, #28121c 63%, #371d27);
+    radial-gradient(ellipse at 78% 17%, rgba(143, 68, 79, .18), transparent 38%),
+    linear-gradient(104deg, #0d0609, #241018 62%, #351b25);
 }
 
 .tracks-xiii-flow-shell.is-expanded .tracks-xiii-flow-tools {
-  top: 2.4cqh;
-  right: 2.2cqw;
-  left: 2.2cqw;
+  top: 2.3cqh;
+  right: 2.15cqw;
+  left: 2.15cqw;
 }
 
 .tracks-xiii-flow-shell.is-expanded .tracks-xiii-flow-viewport {
+  top: 8.2cqh;
   right: 35cqw;
+  bottom: 5.5cqh;
+  left: 2.1cqw;
 }
 
 .tracks-xiii-flow-shell.is-expanded .tracks-xiii-flow-map {
-  height: max(980px, 140cqh);
+  height: max(960px, 142cqh);
 }
 
 .tracks-xiii-flow-shell.is-expanded .tracks-xiii-flow-node {
-  width: clamp(88px, 8.4cqw, 154px);
-}
-
-.tracks-xiii-flow-shell.is-expanded .tracks-xiii-flow-chapter:first-of-type {
-  top: 8.4cqh;
+  width: clamp(86px, 7.6cqw, 148px);
 }
 
 .tracks-xiii-flow-shell.is-expanded .tracks-xiii-flow-caption {
   right: 36.5cqw;
-  bottom: 5.9cqh;
-  left: 2.2cqw;
+  bottom: 2.5cqh;
+  left: 2.15cqw;
 }
 
 .tracks-xiii-flow-shell.is-expanded .tracks-xiii-flow-detail {
   position: absolute;
-  z-index: 9;
-  top: 15cqh;
-  right: 3.8cqw;
+  z-index: 14;
+  top: 14.5cqh;
+  right: 4.2cqw;
   display: block;
-  width: 27.5cqw;
+  width: 26.8cqw;
+  opacity: 0;
+  transform: translate3d(1.5cqw, 0, 0);
+  transition:
+    opacity 180ms ease,
+    transform 240ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.tracks-xiii-flow-shell.is-expanded.is-detail-visible .tracks-xiii-flow-detail {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
 }
 
 .tracks-xiii-flow-detail-paper {
   overflow: hidden;
-  border: 1px solid rgba(191, 224, 237, .58);
-  background: rgba(232, 240, 241, .97);
+  color: #152a36;
+  background: rgba(235, 240, 239, .97);
   box-shadow:
-    0 1.1cqh 3cqw rgba(0, 5, 10, .42),
-    0 0 2.8cqw rgba(69, 142, 177, .16);
-  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%);
+    0 1.5cqh 3cqw rgba(0, 0, 0, .34),
+    0 0 0 1px rgba(203, 223, 230, .36);
 }
 
 .tracks-xiii-flow-detail-art {
-  height: auto;
   aspect-ratio: 16 / 9;
   background:
-    linear-gradient(rgba(28, 70, 91, .08), rgba(5, 23, 35, .15)),
-    var(--detail-art) center / cover;
-  filter: saturate(.78) contrast(.96);
+    linear-gradient(rgba(238, 242, 241, .06), rgba(238, 242, 241, .06)),
+    var(--detail-art) center / cover no-repeat;
+  filter: saturate(.8) contrast(.97);
 }
 
 .tracks-xiii-flow-detail-copy {
   min-height: 17cqh;
-  padding: 2cqh 1.55cqw 2.2cqh;
-  color: #152b38;
-  border-top: .45cqh solid #34799e;
+  padding: 1.8cqh 1.45cqw 2.1cqh;
+  border-top: .45cqh solid #347c9e;
+}
+
+.tracks-xiii-canvas[data-xiii-flow-theme="red"] .tracks-xiii-flow-detail-copy {
+  border-top-color: #a34e5e;
 }
 
 .tracks-xiii-flow-detail-copy small {
-  color: rgba(21, 43, 56, .62);
-  font: 700 clamp(11px, .63cqw, 13px)/1 "Segoe UI Variable", "Segoe UI", sans-serif;
+  color: rgba(21, 42, 54, .56);
+  font: 700 clamp(10px, .62cqw, 12px) / 1 "Yu Gothic", sans-serif;
   letter-spacing: .14em;
 }
 
 .tracks-xiii-flow-detail-copy h3 {
-  margin: 1.15cqh 0 1.5cqh;
-  font: 550 clamp(21px, 1.45cqw, 29px)/1.25 "Yu Mincho", serif;
-  letter-spacing: .04em;
+  margin: 1.05cqh 0 1.35cqh;
+  font: 500 clamp(20px, 1.42cqw, 28px) / 1.22 "Yu Mincho", serif;
+  letter-spacing: .035em;
 }
 
 .tracks-xiii-flow-detail-copy p {
   margin: 0;
-  color: rgba(21, 43, 56, .8);
-  font: 400 clamp(13px, .76cqw, 15px)/1.8 "Yu Gothic", sans-serif;
+  color: rgba(21, 42, 54, .8);
+  font: 400 clamp(12px, .75cqw, 15px) / 1.75 "Yu Gothic", sans-serif;
 }
 
-.tracks-xiii-flow-hints {
+.tracks-xiii-flow-shell.is-expanded .tracks-xiii-flow-hints {
   position: absolute;
-  z-index: 22;
-  right: 3.5cqw;
-  bottom: 2.5cqh;
-  left: 3.5cqw;
-  display: none;
+  z-index: 15;
+  right: 4.2cqw;
+  bottom: 3.2cqh;
+  display: flex;
   align-items: center;
-  gap: 1.5cqw;
-  color: rgba(214, 230, 238, .72);
-  font: 650 clamp(10px, .6cqw, 12px)/1 "Segoe UI Variable", "Segoe UI", sans-serif;
+  gap: 1.15cqw;
+  color: rgba(219, 231, 236, .62);
+  font: 600 clamp(10px, .6cqw, 12px) / 1 "Yu Gothic", sans-serif;
   letter-spacing: .08em;
 }
 
 .tracks-xiii-flow-hints span {
   display: inline-flex;
   align-items: center;
-  gap: .38cqw;
+  gap: .35cqw;
 }
 
 .tracks-xiii-flow-hints b {
-  color: rgba(239, 248, 251, .94);
-  font-size: clamp(14px, .82cqw, 17px);
+  color: rgba(237, 244, 246, .86);
   font-weight: 500;
 }
 
-.tracks-xiii-flow-shell.is-expanded .tracks-xiii-flow-hints {
-  display: flex;
-}
-
 .tracks-xiii-flow-shell.is-expanded .tracks-xiii-flow-scroll-indicator {
-  top: 9cqh;
-  right: .7cqw;
-  bottom: 5.8cqh;
-}
-
-.tracks-xiii-canvas.is-flow-transitioning .tracks-xiii-flow-shell {
-  transform-origin: 0 0;
+  top: 8.2cqh;
+  right: .75cqw;
+  bottom: 5.5cqh;
 }
 
 .tracks-xiii-canvas.is-flow-transitioning .tracks-xiii-flow-viewport {
@@ -1253,564 +1297,6 @@ button.tracks-xiii-save-slot.is-kb-cursor .tracks-xiii-save-command,
 
 .tracks-xiii-canvas.is-flow-transitioning .tracks-xiii-flow-scroll-indicator {
   opacity: 0;
-}
-
-html.tracks-xiii-flow-open,
-html.tracks-xiii-flow-open body {
-  overflow: hidden;
-}
-
-/* STORY — a scrollable list of scene records, never another sidebar. */
-.tracks-xiii-story-view {
-  overflow: hidden;
-}
-
-.tracks-xiii-story-scroll {
-  position: absolute;
-  inset: 0 clamp(18px, 1.65cqw, 30px) 0 0;
-  overflow-x: hidden;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  scrollbar-width: none;
-}
-
-.tracks-xiii-story-scroll::-webkit-scrollbar {
-  display: none;
-}
-
-.tracks-xiii-story-scroll:focus-visible {
-  outline: 0;
-  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--v4-accent) 28%, transparent);
-}
-
-.tracks-xiii-story-list {
-  display: grid;
-  gap: 1.15cqh;
-  padding: 0 .55cqw 2cqh 0;
-}
-
-.tracks-xiii-story-slot {
-  position: relative;
-  display: grid;
-  grid-template-columns: clamp(44px, 3.7cqw, 70px) clamp(118px, 12.2cqw, 230px) minmax(0, 1fr) clamp(55px, 5.2cqw, 98px);
-  align-items: center;
-  min-height: 13.8cqh;
-  padding: .8cqh 1.15cqw .8cqh 0;
-  overflow: hidden;
-  border: 1.5px solid var(--xiii-frame);
-  color: var(--xiii-ink);
-  background:
-    linear-gradient(100deg, color-mix(in srgb, var(--v4-accent) 13%, transparent), transparent 34%),
-    var(--xiii-plate);
-  box-shadow: 0 .6cqh 1.35cqw var(--xiii-shadow);
-  clip-path: polygon(0 0, calc(100% - 17px) 0, 100% 17px, 100% 100%, 0 100%);
-  text-align: left;
-  backdrop-filter: blur(7px) saturate(.86);
-  isolation: isolate;
-}
-
-button.tracks-xiii-story-slot {
-  cursor: pointer;
-  transition: border-color 160ms ease, box-shadow 180ms ease, filter 160ms ease, transform 220ms cubic-bezier(.22, 1, .36, 1);
-}
-
-.tracks-xiii-story-slot::before {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  inset: 0;
-  background:
-    linear-gradient(100deg, var(--xiii-focus-wash), color-mix(in srgb, var(--v4-accent) 7%, transparent) 66%, transparent);
-  opacity: 0;
-  transform: scaleX(.78);
-  transform-origin: left;
-  transition: opacity 160ms ease, transform 220ms cubic-bezier(.22, 1, .36, 1);
-}
-
-.tracks-xiii-story-number {
-  align-self: stretch;
-  display: grid;
-  place-items: center;
-  border-right: 1px solid var(--xiii-frame-soft);
-  color: var(--xiii-soft);
-  font: 400 clamp(19px, 1.35cqw, 26px)/1 "Times New Roman", serif;
-}
-
-.tracks-xiii-story-art {
-  display: grid;
-  place-items: center;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 16 / 9;
-  border: 1px solid var(--xiii-frame-soft);
-  background:
-    linear-gradient(color-mix(in srgb, var(--v4-accent) 5%, transparent), color-mix(in srgb, var(--v4-outer) 14%, transparent)),
-    var(--story-art) center / cover;
-  filter: var(--v4-cover-filter);
-}
-
-.tracks-xiii-story-copy {
-  min-width: 0;
-  padding: 0 clamp(12px, 1.25cqw, 24px);
-}
-
-.tracks-xiii-story-copy strong {
-  display: block;
-  overflow: hidden;
-  font: 550 clamp(15px, .94cqw, 18px)/1.35 "Yu Mincho", serif;
-  letter-spacing: .045em;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.tracks-xiii-story-copy > span {
-  display: block;
-  overflow: hidden;
-  margin-top: .65cqh;
-  color: var(--xiii-soft);
-  font: 400 clamp(12px, .69cqw, 14px)/1.5 "Yu Gothic", sans-serif;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.tracks-xiii-story-command {
-  justify-self: center;
-  color: var(--xiii-soft);
-  font: 700 clamp(11px, .63cqw, 13px)/1 "Segoe UI Variable", "Segoe UI", sans-serif;
-  letter-spacing: .16em;
-  opacity: .6;
-}
-
-button.tracks-xiii-story-slot:hover,
-button.tracks-xiii-story-slot:focus-visible,
-button.tracks-xiii-story-slot.is-kb-cursor,
-.tracks-xiii-story-slot[aria-pressed="true"] {
-  outline: 0;
-  border-color: var(--xiii-focus);
-  box-shadow:
-    0 0 0 1px color-mix(in srgb, var(--xiii-focus) 70%, transparent),
-    0 0 1.35cqw var(--xiii-glow),
-    0 .75cqh 1.55cqw var(--xiii-shadow);
-  filter: brightness(1.04);
-  transform: scale(1.008);
-}
-
-button.tracks-xiii-story-slot:hover::before,
-button.tracks-xiii-story-slot:focus-visible::before,
-button.tracks-xiii-story-slot.is-kb-cursor::before,
-.tracks-xiii-story-slot[aria-pressed="true"]::before {
-  opacity: 1;
-  transform: scaleX(1);
-}
-
-button.tracks-xiii-story-slot:hover .tracks-xiii-story-command,
-button.tracks-xiii-story-slot:focus-visible .tracks-xiii-story-command,
-button.tracks-xiii-story-slot.is-kb-cursor .tracks-xiii-story-command,
-.tracks-xiii-story-slot[aria-pressed="true"] .tracks-xiii-story-command {
-  color: var(--xiii-ink);
-  opacity: 1;
-}
-
-.tracks-xiii-story-slot.is-locked {
-  border-color: var(--xiii-frame-soft);
-  color: var(--xiii-muted);
-  background: var(--xiii-plate-empty);
-  box-shadow: none;
-  opacity: .69;
-}
-
-.tracks-xiii-story-slot.is-locked .tracks-xiii-story-art {
-  background:
-    linear-gradient(135deg, transparent 48.7%, var(--xiii-frame-soft) 49% 51%, transparent 51.3%),
-    linear-gradient(45deg, transparent 48.7%, var(--xiii-frame-soft) 49% 51%, transparent 51.3%),
-    color-mix(in srgb, var(--v4-outer) 10%, transparent);
-  filter: none;
-}
-
-.tracks-xiii-story-rail {
-  position: absolute;
-  z-index: 12;
-  top: .5cqh;
-  right: 0;
-  bottom: .5cqh;
-  width: clamp(12px, .75cqw, 16px);
-  background: linear-gradient(90deg, transparent 44%, var(--xiii-frame-soft) 44% 56%, transparent 56%);
-  cursor: ns-resize;
-}
-
-.tracks-xiii-story-rail::before,
-.tracks-xiii-story-rail::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  width: 7px;
-  height: 7px;
-  border: solid var(--xiii-muted);
-  border-width: 1px 0 0 1px;
-}
-
-.tracks-xiii-story-rail::before {
-  top: 0;
-  transform: translateX(-50%) rotate(45deg);
-}
-
-.tracks-xiii-story-rail::after {
-  bottom: 0;
-  transform: translateX(-50%) rotate(225deg);
-}
-
-.tracks-xiii-story-rail > span {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  width: 4px;
-  min-height: 42px;
-  background: var(--xiii-focus);
-  box-shadow: 0 0 .75cqw var(--xiii-glow);
-  transform: translate3d(-50%, 0, 0);
-}
-
-.tracks-xiii-story-rail:focus-visible {
-  outline: 0;
-  filter: brightness(1.3);
-}
-
-.tracks-xiii-story-confirm {
-  position: absolute;
-  z-index: 180;
-  inset: 0;
-  display: grid;
-  place-items: center;
-}
-
-.tracks-xiii-story-confirm[aria-hidden="true"] {
-  display: none;
-}
-
-.tracks-xiii-story-confirm-shade {
-  position: absolute;
-  inset: 0;
-  background: color-mix(in srgb, var(--v4-outer) 58%, transparent);
-  backdrop-filter: blur(7px) saturate(.72);
-}
-
-.tracks-xiii-story-confirm-panel {
-  position: relative;
-  width: clamp(430px, 39cqw, 710px);
-  min-height: 28cqh;
-  padding: 4.2cqh 3.2cqw 3.4cqh;
-  overflow: hidden;
-  border: 1.5px solid var(--xiii-frame);
-  color: var(--xiii-ink);
-  background:
-    linear-gradient(135deg, color-mix(in srgb, var(--v4-card) 98%, transparent), color-mix(in srgb, var(--v4-paper) 91%, transparent));
-  box-shadow: 0 1.8cqh 5cqw var(--v4-shadow);
-  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%);
-}
-
-.tracks-xiii-story-confirm-panel > span {
-  display: block;
-  color: var(--xiii-soft);
-  font: 700 clamp(11px, .65cqw, 13px)/1 "Segoe UI Variable", "Segoe UI", sans-serif;
-  letter-spacing: .16em;
-}
-
-.tracks-xiii-story-confirm-panel h3 {
-  margin: 1.3cqh 0 1.1cqh;
-  font: 550 clamp(22px, 1.6cqw, 31px)/1.1 "Times New Roman", "Yu Mincho", serif;
-  letter-spacing: .08em;
-}
-
-.tracks-xiii-story-confirm-panel p {
-  margin: 0;
-  color: var(--xiii-soft);
-  font: 550 clamp(13px, .86cqw, 17px)/1.5 "Yu Mincho", serif;
-}
-
-.tracks-xiii-story-confirm-panel > div {
-  display: flex;
-  justify-content: flex-end;
-  gap: .7cqw;
-  margin-top: 4.2cqh;
-}
-
-.tracks-xiii-story-confirm-panel button {
-  min-width: 8.8cqw;
-  height: 4.8cqh;
-  padding: 0 1.25cqw;
-  border: 1px solid var(--xiii-frame-soft);
-  color: var(--xiii-soft);
-  background: color-mix(in srgb, var(--v4-accent) 9%, transparent);
-  font: 700 clamp(11px, .65cqw, 13px)/1 "Segoe UI Variable", "Segoe UI", sans-serif;
-  letter-spacing: .15em;
-  cursor: pointer;
-}
-
-.tracks-xiii-story-confirm-panel button:hover,
-.tracks-xiii-story-confirm-panel button:focus-visible {
-  outline: 0;
-  border-color: var(--xiii-focus);
-  color: var(--xiii-ink);
-  background: color-mix(in srgb, var(--v4-accent) 20%, transparent);
-  box-shadow: 0 0 .9cqw var(--xiii-glow);
-}
-
-/* DIARY — one year index, one month jacket per page. */
-.tracks-xiii-diary-month {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  grid-template-columns: minmax(240px, 27cqw) minmax(0, 1fr);
-  align-items: center;
-  column-gap: 3cqw;
-  padding: 1.1cqh 1.1cqw;
-  border: 1.5px solid var(--xiii-frame);
-  background:
-    linear-gradient(112deg, var(--xiii-plate), color-mix(in srgb, var(--v4-paper) 55%, transparent));
-  box-shadow: 0 .9cqh 2cqw var(--xiii-shadow);
-  clip-path: polygon(0 0, calc(100% - 19px) 0, 100% 19px, 100% 100%, 0 100%);
-  backdrop-filter: blur(8px) saturate(.86);
-}
-
-.tracks-xiii-diary-month[aria-hidden="true"] {
-  display: none;
-}
-
-.tracks-xiii-diary-copy {
-  position: relative;
-  align-self: stretch;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-width: 0;
-  padding: 2cqh .8cqw 2cqh 1.45cqw;
-}
-
-.tracks-xiii-diary-copy::before {
-  content: "";
-  position: absolute;
-  top: 13%;
-  bottom: 13%;
-  left: 0;
-  width: 3px;
-  background: linear-gradient(transparent, var(--v4-accent) 22%, var(--v4-accent) 76%, transparent);
-  box-shadow: 0 0 .9cqw var(--xiii-glow);
-}
-
-.tracks-xiii-diary-copy time {
-  color: var(--xiii-soft);
-  font: 700 clamp(12px, .7cqw, 14px)/1 "Segoe UI Variable", "Segoe UI", sans-serif;
-  letter-spacing: .16em;
-}
-
-.tracks-xiii-diary-number {
-  position: absolute;
-  z-index: -1;
-  top: 3cqh;
-  right: 1.1cqw;
-  color: color-mix(in srgb, var(--v4-accent) 13%, transparent);
-  font: 400 clamp(82px, 7.5cqw, 142px)/.8 "Times New Roman", serif;
-  letter-spacing: -.06em;
-}
-
-.tracks-xiii-diary-copy h3 {
-  margin: 2.8cqh 0 1.8cqh;
-  font: 550 clamp(25px, 1.95cqw, 37px)/1.2 "Yu Mincho", serif;
-  letter-spacing: .045em;
-  text-wrap: balance;
-}
-
-.tracks-xiii-diary-copy p {
-  max-width: 24cqw;
-  margin: 0;
-  color: var(--xiii-soft);
-  font: 400 clamp(13px, .78cqw, 15px)/1.85 "Yu Gothic", sans-serif;
-  letter-spacing: .02em;
-}
-
-.tracks-xiii-diary-cover {
-  position: relative;
-  display: block;
-  width: 100%;
-  height: 53cqh;
-  max-height: 100%;
-  padding: 0;
-  overflow: hidden;
-  border: 0;
-  color: #edf6f8;
-  background: transparent;
-  filter: drop-shadow(0 .9cqh 1.8cqw var(--xiii-shadow));
-  cursor: pointer;
-}
-
-.tracks-xiii-diary-triptych {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  grid-template-columns: .68fr 1.64fr .68fr;
-  gap: .55cqw;
-}
-
-.tracks-xiii-diary-triptych > i {
-  display: block;
-  background-image:
-    linear-gradient(180deg, color-mix(in srgb, var(--v4-accent) 6%, transparent), color-mix(in srgb, var(--v4-outer) 16%, transparent)),
-    var(--diary-art);
-  background-repeat: no-repeat;
-  background-size: 300% 100%;
-  box-shadow: inset 0 0 0 1px rgba(223, 237, 241, .38);
-  filter: var(--v4-cover-filter);
-  transition: filter 180ms ease, transform 280ms cubic-bezier(.22, 1, .36, 1);
-}
-
-.tracks-xiii-diary-triptych > i:nth-child(1) {
-  background-position: left center;
-  transform: translateY(2.2cqh);
-}
-
-.tracks-xiii-diary-triptych > i:nth-child(2) {
-  background-position: center;
-}
-
-.tracks-xiii-diary-triptych > i:nth-child(3) {
-  background-position: right center;
-  transform: translateY(-2.2cqh);
-}
-
-.tracks-xiii-diary-cover::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, transparent 47%, rgba(4, 14, 23, .56));
-  pointer-events: none;
-}
-
-.tracks-xiii-diary-open {
-  position: absolute;
-  z-index: 2;
-  right: 1.3cqw;
-  bottom: 1.55cqh;
-  left: 1.3cqw;
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  color: rgba(237, 248, 251, .92);
-  text-shadow: 0 1px .6cqw rgba(0, 8, 14, .7);
-}
-
-.tracks-xiii-diary-open b {
-  font: 550 clamp(17px, 1.25cqw, 24px)/1 "Times New Roman", serif;
-  letter-spacing: .12em;
-}
-
-.tracks-xiii-diary-open span {
-  font: 700 clamp(11px, .62cqw, 12px)/1 "Segoe UI Variable", "Segoe UI", sans-serif;
-  letter-spacing: .15em;
-}
-
-.tracks-xiii-diary-cover:hover,
-.tracks-xiii-diary-cover:focus-visible,
-.tracks-xiii-diary-cover.is-kb-cursor {
-  outline: 0;
-  filter:
-    drop-shadow(0 0 1.2cqw var(--xiii-glow))
-    drop-shadow(0 .9cqh 1.8cqw var(--xiii-shadow));
-}
-
-.tracks-xiii-diary-cover:hover .tracks-xiii-diary-triptych > i,
-.tracks-xiii-diary-cover:focus-visible .tracks-xiii-diary-triptych > i,
-.tracks-xiii-diary-cover.is-kb-cursor .tracks-xiii-diary-triptych > i {
-  filter: var(--v4-cover-hover-filter);
-}
-
-.tracks-xiii-diary-cover:hover .tracks-xiii-diary-triptych > i:nth-child(1),
-.tracks-xiii-diary-cover:focus-visible .tracks-xiii-diary-triptych > i:nth-child(1),
-.tracks-xiii-diary-cover.is-kb-cursor .tracks-xiii-diary-triptych > i:nth-child(1) {
-  transform: translateY(1.1cqh);
-}
-
-.tracks-xiii-diary-cover:hover .tracks-xiii-diary-triptych > i:nth-child(3),
-.tracks-xiii-diary-cover:focus-visible .tracks-xiii-diary-triptych > i:nth-child(3),
-.tracks-xiii-diary-cover.is-kb-cursor .tracks-xiii-diary-triptych > i:nth-child(3) {
-  transform: translateY(-1.1cqh);
-}
-
-.tracks-xiii-diary-reader {
-  position: fixed;
-  z-index: 230;
-  inset: 0;
-  overflow: hidden;
-  color: rgba(236, 244, 247, .92);
-  background: #0c1620;
-}
-
-.tracks-xiii-diary-reader[aria-hidden="true"] {
-  display: none;
-}
-
-.tracks-xiii-diary-reader-art {
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(90deg, rgba(5, 12, 19, .96) 0 39%, rgba(5, 12, 19, .72) 58%, rgba(5, 12, 19, .32)),
-    linear-gradient(180deg, rgba(5, 12, 19, .16), rgba(5, 12, 19, .62)),
-    var(--diary-reader-art) center / cover;
-  filter: saturate(.68) contrast(.95);
-}
-
-.tracks-xiii-diary-reader-copy {
-  position: absolute;
-  z-index: 2;
-  top: 19cqh;
-  left: 9cqw;
-  width: 41cqw;
-  text-shadow: 0 .2cqh .8cqw rgba(0, 0, 0, .74);
-}
-
-.tracks-xiii-diary-reader-copy time {
-  color: rgba(210, 226, 234, .68);
-  font: 700 clamp(12px, .7cqw, 14px)/1 "Segoe UI Variable", "Segoe UI", sans-serif;
-  letter-spacing: .18em;
-}
-
-.tracks-xiii-diary-reader-copy h3 {
-  margin: 3.4cqh 0 3cqh;
-  font: 550 clamp(29px, 2.65cqw, 50px)/1.25 "Yu Mincho", serif;
-  letter-spacing: .05em;
-}
-
-.tracks-xiii-diary-reader-copy p {
-  margin: 0;
-  font: 400 clamp(15px, 1.02cqw, 20px)/2.05 "Yu Mincho", serif;
-  letter-spacing: .04em;
-}
-
-.tracks-xiii-diary-reader-close {
-  position: absolute;
-  z-index: 3;
-  right: 6cqw;
-  bottom: 6cqh;
-  min-width: 9cqw;
-  height: 5cqh;
-  padding: 0 1.4cqw;
-  border: 1px solid rgba(188, 223, 239, .3);
-  color: rgba(223, 237, 243, .8);
-  background: rgba(18, 42, 58, .74);
-  font: 700 clamp(11px, .65cqw, 13px)/1 "Segoe UI Variable", "Segoe UI", sans-serif;
-  letter-spacing: .16em;
-  cursor: pointer;
-}
-
-.tracks-xiii-diary-reader-close:hover,
-.tracks-xiii-diary-reader-close:focus-visible {
-  outline: 0;
-  color: #fff;
-  background: rgba(37, 77, 99, .82);
-}
-
-html.tracks-xiii-diary-open,
-html.tracks-xiii-diary-open body {
-  overflow: hidden;
 }
 
 .tracks-xiii-canvas.has-expanded-flow > .load-safe-frame > :not(.tracks-xiii-stage),
@@ -1825,107 +1311,598 @@ html.tracks-xiii-diary-open body {
   z-index: 210;
 }
 
-@container (max-width: 980px) {
+html.tracks-xiii-flow-open,
+html.tracks-xiii-flow-open body,
+html.tracks-xiii-diary-open,
+html.tracks-xiii-diary-open body {
+  overflow: hidden;
+}
+
+/* STORY — the flowchart flattened into readable scene records. */
+.tracks-xiii-story-view {
+  padding-right: 2.15cqw;
+}
+
+.tracks-xiii-story-scroll {
+  position: absolute;
+  inset: 0 1.25cqw 0 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+
+.tracks-xiii-story-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.tracks-xiii-story-list {
+  display: grid;
+  gap: 1.05cqh;
+  padding: .1cqh .15cqw 2cqh 0;
+}
+
+.tracks-xiii-story-slot {
+  position: relative;
+  display: grid;
+  grid-template-columns: 3.5cqw 11.8cqw minmax(0, 1fr);
+  align-items: stretch;
+  min-width: 0;
+  min-height: 11.8cqh;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  color: var(--xiii-ink);
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--v4-card) 78%, transparent), color-mix(in srgb, var(--v4-paper) 44%, transparent));
+  box-shadow: 0 .35cqh .9cqw color-mix(in srgb, var(--v4-shadow) 24%, transparent);
+  text-align: left;
+  cursor: pointer;
+}
+
+.tracks-xiii-story-slot::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background: var(--xiii-focus);
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+
+.tracks-xiii-story-number {
+  display: grid;
+  place-items: center;
+  color: var(--xiii-soft);
+  background: color-mix(in srgb, var(--v4-accent) 9%, transparent);
+  font: italic 400 clamp(17px, 1.22cqw, 24px) / 1 Baskerville, serif;
+}
+
+.tracks-xiii-story-art {
+  background:
+    linear-gradient(rgba(10, 18, 24, .06), rgba(10, 18, 24, .06)),
+    var(--story-art, var(--v4-bg)) center / cover no-repeat;
+  filter: saturate(.75) contrast(.95);
+  transition:
+    filter 180ms ease,
+    transform 240ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.tracks-xiii-story-copy {
+  display: grid;
+  align-content: center;
+  gap: .75cqh;
+  min-width: 0;
+  padding: 1.15cqh 1.15cqw;
+}
+
+.tracks-xiii-story-copy strong {
+  overflow: hidden;
+  font: 500 clamp(14px, .96cqw, 18px) / 1.2 "Yu Mincho", serif;
+  letter-spacing: .035em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tracks-xiii-story-copy > span {
+  overflow: hidden;
+  color: var(--xiii-soft);
+  font: 400 clamp(11px, .69cqw, 13px) / 1.55 "Yu Gothic", sans-serif;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tracks-xiii-story-slot:hover::after,
+.tracks-xiii-story-slot:focus-visible::after,
+.tracks-xiii-story-slot.is-kb-cursor::after {
+  opacity: .72;
+}
+
+.tracks-xiii-story-slot:hover .tracks-xiii-story-art,
+.tracks-xiii-story-slot:focus-visible .tracks-xiii-story-art,
+.tracks-xiii-story-slot.is-kb-cursor .tracks-xiii-story-art {
+  filter: saturate(.94) contrast(1);
+  transform: scale(1.018);
+}
+
+.tracks-xiii-story-slot:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--v4-accent) 66%, transparent);
+  outline-offset: -2px;
+}
+
+.tracks-xiii-story-slot.is-locked {
+  cursor: default;
+  opacity: .6;
+  background: color-mix(in srgb, var(--v4-card) 38%, transparent);
+}
+
+.tracks-xiii-story-slot.is-locked .tracks-xiii-story-art {
+  background:
+    linear-gradient(135deg, transparent 49.7%, var(--xiii-edge-soft) 50%, transparent 50.3%),
+    linear-gradient(45deg, transparent 49.7%, var(--xiii-edge-soft) 50%, transparent 50.3%);
+}
+
+.tracks-xiii-story-slot.is-locked .tracks-xiii-story-copy strong {
+  color: var(--xiii-muted);
+  font-family: Baskerville, serif;
+  letter-spacing: .16em;
+}
+
+.tracks-xiii-story-rail {
+  position: absolute;
+  top: 0;
+  right: .15cqw;
+  bottom: 0;
+  width: .6cqw;
+  min-width: 8px;
+  cursor: pointer;
+}
+
+.tracks-xiii-story-rail::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  background: var(--xiii-edge-soft);
+  transform: translateX(-50%);
+}
+
+.tracks-xiii-story-rail > span {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 3px;
+  min-height: 42px;
+  background: color-mix(in srgb, var(--v4-accent) 66%, var(--v4-ink) 14%);
+  box-shadow: 0 0 .45cqw color-mix(in srgb, var(--v4-accent) 18%, transparent);
+  transform: translateX(-50%);
+}
+
+.tracks-xiii-story-confirm {
+  position: fixed;
+  z-index: 240;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+
+.tracks-xiii-story-confirm[aria-hidden="true"] {
+  display: none;
+}
+
+.tracks-xiii-story-confirm-shade {
+  position: absolute;
+  inset: 0;
+  background: rgba(4, 8, 12, .58);
+}
+
+.tracks-xiii-story-confirm-panel {
+  position: relative;
+  z-index: 1;
+  width: min(34cqw, 560px);
+  padding: 3.2cqh 3cqw;
+  color: var(--xiii-ink);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, white 6%, transparent), transparent 44%),
+    var(--xiii-surface-strong);
+  box-shadow:
+    0 2cqh 5cqw rgba(0, 0, 0, .3),
+    inset 0 0 0 1px var(--xiii-edge);
+}
+
+.tracks-xiii-story-confirm-panel > span {
+  color: var(--xiii-soft);
+  font: 600 clamp(10px, .64cqw, 12px) / 1 "Yu Gothic", sans-serif;
+  letter-spacing: .16em;
+}
+
+.tracks-xiii-story-confirm-panel h3 {
+  margin: 1.1cqh 0 .8cqh;
+  font: 400 clamp(22px, 1.8cqw, 34px) / 1 Baskerville, "Yu Mincho", serif;
+  letter-spacing: .06em;
+}
+
+.tracks-xiii-story-confirm-panel p {
+  margin: 0;
+  color: var(--xiii-soft);
+  font: 500 clamp(13px, .82cqw, 16px) / 1.5 "Yu Mincho", serif;
+}
+
+.tracks-xiii-story-confirm-panel > div {
+  display: flex;
+  justify-content: flex-end;
+  gap: .8cqw;
+  margin-top: 2.4cqh;
+}
+
+.tracks-xiii-story-confirm-panel button {
+  min-width: 7.5cqw;
+  min-height: 4.4cqh;
+  border: 1px solid var(--xiii-edge);
+  color: var(--xiii-soft);
+  background: color-mix(in srgb, var(--v4-card) 52%, transparent);
+  font: 600 clamp(10px, .64cqw, 12px) / 1 "Yu Gothic", sans-serif;
+  letter-spacing: .13em;
+  cursor: pointer;
+}
+
+.tracks-xiii-story-confirm-panel button:hover,
+.tracks-xiii-story-confirm-panel button:focus-visible {
+  color: var(--xiii-ink);
+  border-color: var(--xiii-focus);
+  background: color-mix(in srgb, var(--v4-accent) 17%, var(--v4-card) 56%);
+}
+
+/* DIARY — a single month as a full memory scene, unlike X/XI cards. */
+.tracks-xiii-diary-month {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--v4-outer) 35%, transparent);
+  box-shadow:
+    inset 0 0 0 1px var(--xiii-edge-soft),
+    0 .8cqh 1.8cqw color-mix(in srgb, var(--v4-shadow) 42%, transparent);
+}
+
+.tracks-xiii-diary-month[aria-hidden="true"] {
+  display: none;
+}
+
+.tracks-xiii-diary-cover {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  color: #f3f6f6;
+  background: transparent;
+  cursor: pointer;
+  isolation: isolate;
+}
+
+.tracks-xiii-diary-cover::before {
+  content: "";
+  position: absolute;
+  z-index: -2;
+  inset: 0;
+  background:
+    linear-gradient(rgba(8, 14, 18, .05), rgba(8, 14, 18, .05)),
+    var(--diary-art, var(--v4-bg)) center / cover no-repeat;
+  filter: saturate(.76) contrast(.95);
+  transform: scale(1.001);
+  transition:
+    filter 200ms ease,
+    transform 320ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.tracks-xiii-diary-cover::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(4, 10, 14, .76), rgba(4, 10, 14, .44) 37%, rgba(4, 10, 14, .08) 66%, rgba(4, 10, 14, .24)),
+    linear-gradient(180deg, rgba(0, 0, 0, .08), transparent 55%, rgba(0, 0, 0, .28));
+}
+
+.tracks-xiii-diary-triptych {
+  display: none;
+}
+
+.tracks-xiii-diary-copy {
+  position: absolute;
+  z-index: 4;
+  top: 50%;
+  left: 3.4cqw;
+  width: min(31cqw, 520px);
+  color: #f2f5f5;
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+.tracks-xiii-diary-copy time {
+  display: block;
+  margin-bottom: 2.4cqh;
+  color: rgba(232, 240, 242, .7);
+  font: 600 clamp(10px, .68cqw, 13px) / 1 "Yu Gothic", sans-serif;
+  letter-spacing: .2em;
+  text-shadow: 0 1px .7cqw rgba(0, 0, 0, .55);
+}
+
+.tracks-xiii-diary-number {
+  display: block;
+  margin-left: -.25cqw;
+  color: rgba(243, 247, 247, .9);
+  font: italic 400 clamp(64px, 7.2cqw, 132px) / .72 Baskerville, "Iowan Old Style", serif;
+  letter-spacing: -.04em;
+  text-shadow: 0 .35cqh 1.5cqw rgba(0, 0, 0, .46);
+}
+
+.tracks-xiii-diary-copy h3 {
+  margin: 2.4cqh 0 1.25cqh;
+  font: 500 clamp(20px, 1.6cqw, 31px) / 1.2 "Yu Mincho", serif;
+  letter-spacing: .06em;
+  text-shadow: 0 1px .9cqw rgba(0, 0, 0, .58);
+}
+
+.tracks-xiii-diary-copy p {
+  max-width: 30em;
+  margin: 0;
+  color: rgba(235, 241, 242, .8);
+  font: 400 clamp(12px, .76cqw, 15px) / 1.72 "Yu Gothic", sans-serif;
+  text-shadow: 0 1px .8cqw rgba(0, 0, 0, .68);
+}
+
+.tracks-xiii-diary-open {
+  position: absolute;
+  z-index: 5;
+  right: 2.4cqw;
+  bottom: 2.4cqh;
+  display: flex;
+  align-items: baseline;
+  gap: .75cqw;
+  color: rgba(239, 245, 246, .76);
+  text-shadow: 0 1px .7cqw rgba(0, 0, 0, .6);
+}
+
+.tracks-xiii-diary-open b {
+  font: 400 clamp(20px, 1.6cqw, 30px) / 1 Baskerville, serif;
+  letter-spacing: .08em;
+}
+
+.tracks-xiii-diary-open span {
+  font: 600 clamp(10px, .62cqw, 12px) / 1 "Yu Gothic", sans-serif;
+  letter-spacing: .16em;
+}
+
+.tracks-xiii-diary-cover:hover::before,
+.tracks-xiii-diary-cover:focus-visible::before,
+.tracks-xiii-diary-cover.is-kb-cursor::before {
+  filter: saturate(.94) contrast(1);
+  transform: scale(1.018);
+}
+
+.tracks-xiii-diary-cover:focus-visible {
+  outline: 2px solid rgba(224, 239, 244, .74);
+  outline-offset: -2px;
+}
+
+.tracks-xiii-diary-reader {
+  position: fixed;
+  z-index: 230;
+  inset: 0;
+  display: grid;
+  grid-template-columns: 56% minmax(0, 1fr);
+  color: #edf3f4;
+  background: #071018;
+}
+
+.tracks-xiii-diary-reader[aria-hidden="true"] {
+  display: none;
+}
+
+.tracks-xiii-diary-reader-art {
+  background:
+    linear-gradient(90deg, transparent 66%, #071018),
+    var(--diary-reader-art) center / cover no-repeat;
+  filter: saturate(.76) contrast(.96);
+}
+
+.tracks-xiii-diary-reader-copy {
+  align-self: center;
+  padding: 4cqh 6cqw 4cqh 1.5cqw;
+}
+
+.tracks-xiii-diary-reader-copy time {
+  color: rgba(211, 226, 232, .64);
+  font: 600 clamp(11px, .72cqw, 14px) / 1 "Yu Gothic", sans-serif;
+  letter-spacing: .18em;
+}
+
+.tracks-xiii-diary-reader-copy h3 {
+  margin: 2.2cqh 0 2.4cqh;
+  font: 400 clamp(30px, 2.6cqw, 50px) / 1.15 "Yu Mincho", serif;
+  letter-spacing: .06em;
+}
+
+.tracks-xiii-diary-reader-copy p {
+  margin: 0;
+  color: rgba(225, 235, 238, .78);
+  font: 400 clamp(14px, .9cqw, 18px) / 2 "Yu Mincho", serif;
+}
+
+.tracks-xiii-diary-reader-close {
+  position: absolute;
+  right: 4cqw;
+  bottom: 4cqh;
+  min-width: 8cqw;
+  min-height: 4.5cqh;
+  border: 1px solid rgba(201, 222, 230, .36);
+  color: rgba(225, 237, 241, .74);
+  background: rgba(27, 54, 67, .36);
+  font: 600 clamp(10px, .64cqw, 12px) / 1 "Yu Gothic", sans-serif;
+  letter-spacing: .16em;
+  cursor: pointer;
+}
+
+.tracks-xiii-diary-reader-close:hover,
+.tracks-xiii-diary-reader-close:focus-visible {
+  color: #fff;
+  border-color: rgba(187, 225, 239, .72);
+}
+
+/* Layered crossfades and content-only page movement. */
+.tracks-xiii-view-ghost {
+  position: absolute;
+  z-index: 40;
+  inset: 0 0 0 14.45cqw;
+  overflow: clip;
+  pointer-events: none;
+}
+
+.tracks-xiii-index-ghost {
+  position: absolute;
+  z-index: 20;
+  inset: 0;
+  pointer-events: none;
+}
+
+.tracks-xiii-view-ghost.is-incoming,
+.tracks-xiii-index-ghost.is-incoming {
+  z-index: 41;
+}
+
+.tracks-xiii-canvas.has-keyboard-cursor .is-kb-cursor {
+  outline: 2px solid color-mix(in srgb, var(--v4-accent) 70%, var(--v4-ink) 10%);
+  outline-offset: -2px;
+}
+
+.tracks-xiii-canvas:not(.is-keyboard-cursor-enabled) [data-xiii-hint-cursor] {
+  display: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .tracks-xiii-primary button:hover {
+    color: var(--xiii-ink);
+    border-color: color-mix(in srgb, var(--v4-accent) 56%, var(--v4-ink) 22%);
+  }
+
+  .tracks-xiii-index-group button:hover {
+    text-shadow: 0 0 .7cqw color-mix(in srgb, var(--v4-accent) 12%, transparent);
+  }
+}
+
+@container (max-width: 1050px) {
   .tracks-xiii-primary-shell {
-    left: calc(50% + 4.5cqw);
-    width: clamp(430px, 49cqw, 560px);
+    right: 3.8cqw;
+    left: 3.8cqw;
+  }
+
+  .tracks-xiii-primary {
+    gap: 1.45cqw;
   }
 
   .tracks-xiii-stage {
-    grid-template-columns: 128px minmax(0, 1fr);
-    column-gap: 17px;
+    right: 3.8cqw;
+    left: 3.8cqw;
+    grid-template-columns: 13.2cqw minmax(0, 1fr);
+    column-gap: 1.65cqw;
   }
 
   .tracks-xiii-view-ghost {
-    left: 145px;
+    inset: 0 0 0 14.85cqw;
   }
 
-  .tracks-xiii-record-slot,
-  .tracks-xiii-save-slot {
-    grid-template-columns: 38px 108px minmax(0, 1fr);
+  .tracks-xiii-story-slot {
+    grid-template-columns: 4.2cqw 13.4cqw minmax(0, 1fr);
   }
 
-  .tracks-xiii-edge-turners button:first-child {
-    left: calc(5cqw + 128px + 4px);
-  }
-
-  .tracks-xiii-hints {
-    display: none;
-  }
-
-  .tracks-xiii-diary-month {
-    grid-template-columns: 250px minmax(0, 1fr);
+  .tracks-xiii-save-copy {
+    gap: .35cqh;
   }
 }
 
 @container (max-width: 760px) {
-  .tracks-xiii-heading h2 {
-    font-size: 31px;
+  .tracks-xiii-heading {
+    left: 3.4cqw;
   }
 
   .tracks-xiii-primary-shell {
-    left: 57%;
-    width: 410px;
+    top: 11.2cqh;
+    right: 3.4cqw;
+    left: 3.4cqw;
   }
 
   .tracks-xiii-primary button {
-    font-size: 12px;
+    justify-content: center;
+    padding: 0 .7cqw;
+    text-align: center;
   }
 
   .tracks-xiii-stage {
-    left: 4cqw;
-    right: 3.7cqw;
-    grid-template-columns: 110px minmax(0, 1fr);
-    column-gap: 14px;
-  }
-
-  .tracks-xiii-view-ghost {
-    left: 124px;
+    right: 3.4cqw;
+    left: 3.4cqw;
+    grid-template-columns: 14.5cqw minmax(0, 1fr);
+    column-gap: 1.4cqw;
   }
 
   .tracks-xiii-index-group button {
-    min-height: 32px;
-    font-size: 12px;
+    padding-left: 1.8cqw;
   }
 
-  .tracks-xiii-record-slot,
-  .tracks-xiii-save-slot {
-    grid-template-columns: 34px 90px minmax(0, 1fr);
+  .tracks-xiii-record-grid,
+  .tracks-xiii-save-grid {
+    gap: 1cqh 1cqw;
   }
 
-  .tracks-xiii-edge-turners button:first-child {
-    left: calc(4cqw + 110px + 2px);
+  .tracks-xiii-slot-copy,
+  .tracks-xiii-save-copy {
+    padding-right: 1cqw;
+    padding-left: 1cqw;
   }
 
-  .tracks-xiii-slot-copy strong,
-  .tracks-xiii-save-copy strong {
-    font-size: 13px;
+  .tracks-xiii-save-meta time {
+    display: none;
   }
 
   .tracks-xiii-story-slot {
-    grid-template-columns: 38px 96px minmax(0, 1fr) 52px;
+    grid-template-columns: 5cqw 15.5cqw minmax(0, 1fr);
   }
 
-  .tracks-xiii-hints {
-    display: none;
+  .tracks-xiii-diary-copy {
+    left: 3.5cqw;
+    width: 46cqw;
+  }
+
+  .tracks-xiii-view-ghost {
+    inset: 0 0 0 15.9cqw;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .tracks-xiii-primary button,
-  .tracks-xiii-primary button::before,
-  .tracks-xiii-primary button::after,
   .tracks-xiii-index-group button,
-  .tracks-xiii-index-group button::before,
-  .tracks-xiii-record-slot,
-  .tracks-xiii-save-slot,
-  .tracks-xiii-record-slot::before,
-  .tracks-xiii-save-slot::before,
-  .tracks-xiii-flow-node,
-  .tracks-xiii-diary-triptych > i,
-  .tracks-xiii-story-slot,
-  .tracks-xiii-story-slot::before,
-  .tracks-xiii-page-markers button::after {
+  .tracks-xiii-slot-art,
+  .tracks-xiii-slot-command,
+  .tracks-xiii-save-art,
+  .tracks-xiii-save-command,
+  .tracks-xiii-story-art,
+  .tracks-xiii-diary-cover::before,
+  .tracks-xiii-flow-shell.is-expanded .tracks-xiii-flow-detail {
     transition: none;
+  }
+
+  .tracks-xiii-record-slot:hover .tracks-xiii-slot-art,
+  .tracks-xiii-save-slot:hover .tracks-xiii-save-art,
+  .tracks-xiii-story-slot:hover .tracks-xiii-story-art,
+  .tracks-xiii-diary-cover:hover::before {
+    transform: none;
   }
 }
