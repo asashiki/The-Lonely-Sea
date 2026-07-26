@@ -1908,8 +1908,7 @@ html.tracks-xiii-diary-open body {
   }
 }
 
-/* XIII direct rebuild — soft visual-novel selections instead of web outlines.
-   Flow paths remain lines because they carry route meaning; public controls do not. */
+/* XIII correction — preserve the accepted shell and use explicit game controls. */
 .tracks-xiii-canvas {
   --xiii-wash-rest: color-mix(in srgb, var(--v4-card) 62%, transparent);
   --xiii-wash-active: color-mix(in srgb, var(--v4-accent) 22%, var(--v4-card) 64%);
@@ -1917,44 +1916,38 @@ html.tracks-xiii-diary-open body {
 }
 
 .tracks-xiii-canvas .system-back {
-  min-width: 7.8cqw;
-  min-height: 4.8cqh;
-  padding-left: 2.55cqw;
+  min-width: 7.4cqw;
+  min-height: 4.2cqh;
+  padding-left: 2.3cqw;
   border: 0;
   outline: 0;
   color: var(--xiii-soft);
-  background:
-    radial-gradient(ellipse at 58% 50%, color-mix(in srgb, var(--v4-card) 52%, transparent), transparent 73%);
+  background: transparent;
   box-shadow: none;
-  opacity: .9;
+  opacity: .84;
   transition:
     color 180ms ease,
-    opacity 180ms ease,
-    transform 220ms cubic-bezier(.22, 1, .36, 1),
-    filter 180ms ease;
+    opacity 180ms ease;
 }
 
 .tracks-xiii-canvas .system-back::before {
-  width: 2cqw;
-  min-width: 27px;
-  height: 3.55cqh;
-  min-height: 25px;
-  border: 0;
-  border-radius: 50%;
+  width: 1.85cqw;
+  min-width: 25px;
+  height: 3.3cqh;
+  min-height: 24px;
+  border: 2px solid var(--xiii-edge);
+  border-radius: 0;
   color: var(--xiii-ink);
-  background:
-    radial-gradient(circle at 44% 40%, color-mix(in srgb, white 17%, transparent), transparent 43%),
-    color-mix(in srgb, var(--v4-accent) 18%, var(--v4-card) 68%);
-  box-shadow:
-    0 .25cqh .75cqw color-mix(in srgb, var(--v4-shadow) 40%, transparent),
-    0 0 1cqw color-mix(in srgb, var(--v4-accent) 12%, transparent);
+  background: var(--xiii-surface-strong);
+  box-shadow: 0 .35cqh .85cqw color-mix(in srgb, var(--v4-shadow) 40%, transparent);
 }
 
 .tracks-xiii-canvas .system-back:hover,
 .tracks-xiii-canvas .system-back:focus-visible {
   outline: 0;
-  filter: drop-shadow(0 0 .8cqw color-mix(in srgb, var(--v4-accent) 24%, transparent));
-  transform: scale(1.035);
+  filter: none;
+  transform: none;
+  opacity: 1;
 }
 
 .tracks-xiii-heading {
@@ -1965,12 +1958,12 @@ html.tracks-xiii-diary-open body {
   font-size: clamp(34px, 3cqw, 56px);
 }
 
-/* Three independent entrances. The selected page is a broad light wash, not a tab frame. */
+/* Three independent VN page entrances: compact, solid, and visibly pressable. */
 .tracks-xiii-primary-shell {
-  top: 7.65cqh;
-  right: 9cqw;
-  left: 25cqw;
-  height: 7.8cqh;
+  top: 7.8cqh;
+  right: 8.2cqw;
+  left: 26cqw;
+  height: 7cqh;
   filter: none;
 }
 
@@ -1978,491 +1971,524 @@ html.tracks-xiii-diary-open body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: clamp(24px, 4.5cqw, 76px);
+  gap: clamp(18px, 2.5cqw, 42px);
   height: 100%;
 }
 
 .tracks-xiii-primary button {
-  flex: 0 1 clamp(142px, 12.5cqw, 210px);
+  position: relative;
+  flex: 0 1 clamp(148px, 13.2cqw, 210px);
   justify-content: center;
-  height: 6.2cqh;
-  min-height: 42px;
-  padding: 0 1.2cqw;
-  overflow: visible;
+  height: 5.8cqh;
+  min-height: 40px;
+  padding: 0 1.1cqw;
+  overflow: hidden;
   border: 0;
   outline: 0;
+  clip-path: polygon(0 0, calc(100% - .75cqw) 0, 100% 1.15cqh, 100% 100%, .75cqw 100%, 0 calc(100% - 1.15cqh));
   color: var(--xiii-soft);
-  background: transparent;
-  box-shadow: none;
-  font-size: clamp(14px, 1.02cqw, 19px);
-  letter-spacing: .18em;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, white 12%, transparent), transparent 38%),
+    linear-gradient(100deg, color-mix(in srgb, var(--v4-card) 94%, var(--v4-outer) 6%), color-mix(in srgb, var(--v4-card) 76%, transparent));
+  box-shadow:
+    inset .42cqw 0 0 color-mix(in srgb, var(--v4-accent) 28%, var(--v4-card)),
+    inset 0 .42cqh 0 color-mix(in srgb, white 7%, transparent),
+    inset 0 -.52cqh 0 color-mix(in srgb, var(--v4-shadow) 24%, transparent);
+  font-size: clamp(13px, .92cqw, 17px);
+  letter-spacing: .16em;
   text-align: center;
   transform-origin: 50% 50%;
   transition:
-    color 180ms ease,
-    text-shadow 180ms ease,
-    transform 240ms cubic-bezier(.22, 1, .36, 1),
-    filter 180ms ease;
+    color 170ms ease,
+    background-color 170ms ease,
+    box-shadow 170ms ease,
+    filter 170ms ease,
+    transform 90ms ease;
+}
+
+.tracks-xiii-primary button span {
+  position: relative;
+  z-index: 2;
 }
 
 .tracks-xiii-primary button::before {
-  z-index: -1;
-  inset: -.45cqh -1.3cqw;
-  border-radius: 50%;
-  opacity: .25;
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  opacity: 0;
   background:
-    radial-gradient(ellipse at 50% 50%,
-      color-mix(in srgb, var(--v4-card) 78%, transparent) 0 18%,
-      color-mix(in srgb, var(--v4-accent) 13%, var(--v4-card) 34%) 48%,
-      transparent 76%);
-  filter: blur(.2cqw);
+    linear-gradient(100deg, rgba(var(--v4-accent-rgb), .3), rgba(var(--v4-accent-rgb), .08) 62%, transparent);
+  filter: none;
   mix-blend-mode: normal;
-  transform: scale(.82, .72);
-  transition:
-    opacity 180ms ease,
-    transform 260ms cubic-bezier(.22, 1, .36, 1),
-    filter 180ms ease;
+  transform: none;
+  transition: opacity 170ms ease;
 }
 
 .tracks-xiii-primary button::after {
-  inset: .25cqh -.5cqw;
-  width: auto;
-  height: auto;
-  border-radius: 50%;
-  opacity: 0;
-  background:
-    radial-gradient(ellipse at 50% 50%,
-      color-mix(in srgb, var(--v4-accent) 29%, var(--v4-card) 56%) 0 24%,
-      color-mix(in srgb, var(--v4-accent) 15%, transparent) 52%,
-      transparent 75%);
-  filter: blur(.22cqw);
-  pointer-events: none;
-  transition:
-    opacity 180ms ease,
-    transform 260ms cubic-bezier(.22, 1, .36, 1);
+  display: none;
 }
 
 .tracks-xiii-primary button[aria-current="page"] {
-  border: 0;
   color: var(--xiii-ink);
-  background: transparent;
-  box-shadow: none;
-  text-shadow:
-    0 0 .75cqw color-mix(in srgb, var(--v4-accent) 27%, transparent),
-    0 .15cqh .45cqw color-mix(in srgb, var(--v4-shadow) 24%, transparent);
-  transform: scale(1.08);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, white 17%, transparent), transparent 40%),
+    color-mix(in srgb, var(--v4-accent) 23%, var(--v4-card) 77%);
+  box-shadow:
+    inset .55cqw 0 0 color-mix(in srgb, var(--v4-accent) 86%, var(--v4-ink) 14%),
+    inset 0 .48cqh 0 color-mix(in srgb, white 10%, transparent),
+    inset 0 -.58cqh 0 color-mix(in srgb, var(--v4-shadow) 28%, transparent),
+    0 0 1.25cqw color-mix(in srgb, var(--v4-accent) 17%, transparent);
+  text-shadow: none;
+  transform: none;
 }
 
 .tracks-xiii-primary button[aria-current="page"]::before {
-  opacity: .86;
-  filter: blur(.12cqw);
-  transform: scale(1, .9);
-}
-
-.tracks-xiii-primary button[aria-current="page"]::after {
-  opacity: .94;
-  background:
-    radial-gradient(ellipse at 50% 50%,
-      rgba(var(--v4-accent-rgb), .34) 0 20%,
-      rgba(var(--v4-accent-rgb), .19) 48%,
-      transparent 76%);
-  transform: scale(.88, .72);
+  opacity: .72;
 }
 
 .tracks-xiii-primary button:hover,
 .tracks-xiii-primary button:focus-visible {
-  border: 0;
   outline: 0;
   color: var(--xiii-ink);
-  background: transparent;
-  box-shadow: none;
-  filter: drop-shadow(0 0 .65cqw color-mix(in srgb, var(--v4-accent) 22%, transparent));
-  transform: scale(1.055);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, white 14%, transparent), transparent 40%),
+    color-mix(in srgb, var(--v4-accent) 15%, var(--v4-card) 85%);
+  box-shadow:
+    inset .55cqw 0 0 color-mix(in srgb, var(--v4-accent) 70%, var(--v4-ink) 12%),
+    inset 0 .45cqh 0 color-mix(in srgb, white 9%, transparent),
+    inset 0 -.55cqh 0 color-mix(in srgb, var(--v4-shadow) 26%, transparent);
+  filter: brightness(1.04);
+  transform: none;
 }
 
 .tracks-xiii-primary button:hover::before,
 .tracks-xiii-primary button:focus-visible::before {
-  opacity: .68;
-  transform: scale(.96, .86);
+  opacity: .56;
 }
 
 .tracks-xiii-primary button:active {
-  transform: scale(.98);
+  filter: brightness(.94);
+  transform: scale(.985);
 }
 
 /* Shared composition: more room for records and a readable text index. */
 .tracks-xiii-stage {
-  top: 17.6cqh;
+  top: 17.2cqh;
   right: 4.8cqw;
-  bottom: 13cqh;
+  bottom: 12.2cqh;
   left: 4.8cqw;
-  grid-template-columns: 11.35cqw minmax(0, 1fr);
-  column-gap: 1.8cqw;
+  grid-template-columns: 10.8cqw minmax(0, 1fr);
+  column-gap: 2.25cqw;
 }
 
 .tracks-xiii-index-spine {
-  display: none;
+  display: block;
+  top: 2cqh;
+  bottom: 2cqh;
+  left: .65cqw;
+  width: 1px;
+  background: linear-gradient(transparent, var(--xiii-edge-soft) 8%, var(--xiii-edge-soft) 90%, transparent);
+  box-shadow: 0 0 .7cqw color-mix(in srgb, var(--v4-accent) 12%, transparent);
 }
 
 .tracks-xiii-index-group {
   right: 0;
-  gap: .55cqh;
+  gap: .75cqh;
 }
 
 .tracks-xiii-index-group button {
-  height: 6.35cqh;
-  min-height: 40px;
-  padding: 0 .65cqw;
-  overflow: visible;
+  height: 5.35cqh;
+  min-height: 36px;
+  padding: 0 .65cqw 0 1.45cqw;
+  overflow: hidden;
   border: 0;
   outline: 0;
-  color: color-mix(in srgb, var(--xiii-soft) 93%, var(--xiii-ink) 7%);
+  color: var(--xiii-muted);
   background: transparent;
-  font-size: clamp(13px, .9cqw, 17px);
-  letter-spacing: .13em;
-  text-shadow: 0 .12cqh .5cqw color-mix(in srgb, var(--v4-shadow) 22%, transparent);
-  transform-origin: 0 50%;
+  font-size: clamp(12px, .8cqw, 16px);
+  letter-spacing: .11em;
+  text-shadow: none;
+  transform: none;
   transition:
     color 180ms ease,
-    text-shadow 180ms ease,
-    transform 240ms cubic-bezier(.22, 1, .36, 1);
+    background-color 180ms ease,
+    padding-left 220ms cubic-bezier(.22, 1, .36, 1);
 }
 
 .tracks-xiii-index-group button::before {
-  z-index: -1;
-  top: .25cqh;
-  right: -.35cqw;
-  bottom: .25cqh;
-  left: -.7cqw;
-  width: auto;
-  border-radius: 48%;
-  opacity: 0;
-  background:
-    linear-gradient(90deg,
-      rgba(var(--v4-accent-rgb), .31),
-      rgba(var(--v4-accent-rgb), .13) 68%,
-      transparent);
-  filter: blur(.12cqw);
-  transform: scale(.76, .78);
-  transform-origin: 0 50%;
-  transition:
-    opacity 180ms ease,
-    transform 260ms cubic-bezier(.22, 1, .36, 1);
+  display: none;
 }
 
 .tracks-xiii-index-group button span {
   position: relative;
   z-index: 1;
-  transition: transform 240ms cubic-bezier(.22, 1, .36, 1);
+  transition: none;
 }
 
 .tracks-xiii-index-group button[aria-selected="true"] {
   color: var(--xiii-ink);
   font-weight: 600;
-  text-shadow: 0 0 .8cqw color-mix(in srgb, var(--v4-accent) 26%, transparent);
-  transform: scale(1.055);
-}
-
-.tracks-xiii-index-group button[aria-selected="true"]::before {
-  opacity: .86;
-  transform: scale(1, 1);
+  background: linear-gradient(90deg, rgba(var(--v4-accent-rgb), .19), transparent 88%);
+  text-shadow: 0 0 .65cqw color-mix(in srgb, var(--v4-accent) 20%, transparent);
+  transform: none;
 }
 
 .tracks-xiii-index-group button[aria-selected="true"] span {
-  transform: translate3d(.42cqw, 0, 0);
+  transform: none;
 }
 
 .tracks-xiii-index-group button:hover,
 .tracks-xiii-index-group button:focus-visible {
   outline: 0;
   color: var(--xiii-ink);
-  text-shadow: 0 0 .75cqw color-mix(in srgb, var(--v4-accent) 22%, transparent);
-  transform: scale(1.045);
-}
-
-.tracks-xiii-index-group button:hover::before,
-.tracks-xiii-index-group button:focus-visible::before {
-  opacity: .56;
-  transform: scale(.94, .92);
+  background: linear-gradient(90deg, rgba(var(--v4-accent-rgb), .12), transparent 88%);
+  text-shadow: none;
+  transform: none;
 }
 
 .tracks-xiii-year-index button {
-  font-size: clamp(17px, 1.25cqw, 24px);
+  font-size: clamp(16px, 1.15cqw, 22px);
 }
 
-/* Reading records: cinematic plates with a full selection veil. */
+/* Article records and player saves share the shell, but keep different information hierarchy. */
 .tracks-xiii-record-grid,
 .tracks-xiii-save-grid {
-  gap: 1.35cqh 1.05cqw;
+  grid-template-columns: repeat(auto-fit, minmax(28cqw, 1fr));
+  grid-template-rows: none;
+  grid-auto-rows: minmax(0, 1fr);
+  gap: 1.35cqh 1.1cqw;
+}
+
+.tracks-xiii-record-slot,
+.tracks-xiii-save-slot {
+  position: relative;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  align-items: center;
+  min-width: 0;
+  min-height: 0;
+  padding: .9cqh 1cqw .9cqh .7cqw;
+  overflow: hidden;
+  border: 0;
+  outline: 0;
+  clip-path: polygon(0 0, calc(100% - 1.05cqw) 0, 100% 1.45cqh, 100% 100%, 1.05cqw 100%, 0 calc(100% - 1.45cqh));
+  color: var(--xiii-ink);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, white 8%, transparent), transparent 34%),
+    linear-gradient(105deg, color-mix(in srgb, var(--v4-card) 96%, var(--v4-paper) 4%) 0 64%, color-mix(in srgb, var(--v4-card) 74%, transparent));
+  box-shadow:
+    inset 0 .48cqh 0 color-mix(in srgb, white 7%, transparent),
+    inset 0 -.62cqh 0 color-mix(in srgb, var(--v4-shadow) 25%, transparent),
+    inset .42cqw 0 0 color-mix(in srgb, var(--v4-accent) 26%, var(--v4-card));
+  transition:
+    background-color 180ms ease,
+    box-shadow 180ms ease,
+    filter 180ms ease,
+    transform 90ms ease;
 }
 
 .tracks-xiii-record-slot {
-  border: 0;
-  outline: 0;
-  background: color-mix(in srgb, var(--v4-outer) 62%, #0b131a 38%);
-  box-shadow: 0 .7cqh 1.45cqw color-mix(in srgb, var(--v4-shadow) 54%, transparent);
-  transition:
-    box-shadow 200ms ease,
-    transform 240ms cubic-bezier(.22, 1, .36, 1),
-    filter 180ms ease;
+  grid-template-columns: 3cqw 14.8cqw minmax(0, 1fr);
 }
 
-.tracks-xiii-record-slot::before {
-  z-index: 2;
+.tracks-xiii-save-slot {
+  grid-template-columns: 3.25cqw 11.2cqw minmax(0, 1fr);
+}
+
+.tracks-xiii-record-slot::before,
+.tracks-xiii-save-slot::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
   inset: 0;
   width: auto;
   height: auto;
   opacity: 0;
-  background:
-    radial-gradient(ellipse at 18% 18%, rgba(255, 255, 255, .2), transparent 36%),
-    linear-gradient(112deg, color-mix(in srgb, var(--v4-accent) 22%, transparent), transparent 58%);
-  mix-blend-mode: screen;
+  background: linear-gradient(105deg, rgba(var(--v4-accent-rgb), .28), rgba(var(--v4-accent-rgb), .07) 62%, transparent);
+  mix-blend-mode: normal;
   transition: opacity 180ms ease;
 }
 
-.tracks-xiii-record-slot::after {
-  z-index: 1;
-  inset: 24% 0 0;
-  height: auto;
-  background: linear-gradient(180deg, transparent, rgba(4, 10, 15, .56) 48%, rgba(4, 10, 15, .9));
+.tracks-xiii-record-slot::after,
+.tracks-xiii-save-slot::after {
+  content: "";
+  position: absolute;
+  z-index: 3;
+  top: 0;
+  right: 0;
+  display: block;
+  width: 1.25cqw;
+  height: 2.1cqh;
+  opacity: .32;
+  clip-path: polygon(100% 0, 100% 100%, 0 0);
+  background: color-mix(in srgb, var(--v4-accent) 62%, var(--v4-ink) 38%);
+  transition: opacity 180ms ease;
+  pointer-events: none;
 }
 
 .tracks-xiii-slot-number,
-.tracks-xiii-slot-copy {
-  z-index: 4;
+.tracks-xiii-save-number,
+.tracks-xiii-slot-art,
+.tracks-xiii-save-art,
+.tracks-xiii-slot-copy,
+.tracks-xiii-save-copy {
+  position: relative;
+  z-index: 2;
 }
 
-.tracks-xiii-slot-command {
-  z-index: 5;
-  font-size: clamp(10px, .6cqw, 12px);
-}
-
-.tracks-xiii-record-slot:hover,
-.tracks-xiii-record-slot:focus-visible,
-.tracks-xiii-record-slot.is-kb-cursor {
-  outline: 0;
-  box-shadow:
-    0 .9cqh 1.8cqw color-mix(in srgb, var(--v4-shadow) 68%, transparent),
-    0 0 1.25cqw color-mix(in srgb, var(--v4-accent) 18%, transparent);
-  transform: scale(1.012);
-}
-
-.tracks-xiii-record-slot:hover::before,
-.tracks-xiii-record-slot:focus-visible::before,
-.tracks-xiii-record-slot.is-kb-cursor::before {
-  opacity: .78;
-}
-
-.tracks-xiii-record-slot:active {
-  transform: scale(.992);
-}
-
-.tracks-xiii-record-slot.is-empty {
-  border: 0;
-  background:
-    radial-gradient(ellipse at 50% 48%, color-mix(in srgb, var(--v4-accent) 12%, var(--v4-card) 42%), transparent 72%),
-    color-mix(in srgb, var(--v4-card) 42%, transparent);
-  box-shadow: 0 .5cqh 1cqw color-mix(in srgb, var(--v4-shadow) 28%, transparent);
-}
-
-.tracks-xiii-record-slot.is-empty::before {
-  display: none;
-}
-
-.tracks-xiii-record-slot.is-empty::after {
-  inset: 0;
-  background:
-    radial-gradient(ellipse at 50% 50%, color-mix(in srgb, var(--v4-paper) 52%, transparent), transparent 68%);
-  opacity: .6;
-}
-
-.tracks-xiii-record-slot.is-empty .tracks-xiii-slot-number {
-  color: var(--xiii-muted);
-  text-shadow: none;
-}
-
-/* Save data: full-bleed CG, a broad information veil and a large slot number. */
-.tracks-xiii-save-slot {
-  display: block;
-  border: 0;
-  outline: 0;
-  color: #f3f6f7;
-  background: #0a1118;
-  box-shadow: 0 .7cqh 1.45cqw color-mix(in srgb, var(--v4-shadow) 62%, transparent);
-  transition:
-    box-shadow 200ms ease,
-    transform 240ms cubic-bezier(.22, 1, .36, 1);
-}
-
-.tracks-xiii-save-slot::before {
-  z-index: 3;
-  inset: 0;
-  width: auto;
-  height: auto;
-  opacity: .08;
-  background:
-    radial-gradient(ellipse at 17% 17%, rgba(255, 255, 255, .18), transparent 34%),
-    linear-gradient(112deg, color-mix(in srgb, var(--v4-accent) 28%, transparent), transparent 62%);
-  mix-blend-mode: screen;
-  transition: opacity 180ms ease;
-}
-
-.tracks-xiii-save-art {
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, .07), transparent 44%),
-    var(--save-art, var(--v4-bg)) center / cover no-repeat;
-  filter: saturate(.73) brightness(.87) contrast(.96);
-  transform: scale(1.002);
-}
-
-.tracks-xiii-save-art::after {
-  inset: 34% 0 0;
-  height: auto;
-  background:
-    linear-gradient(180deg, transparent, rgba(4, 9, 14, .5) 42%, rgba(4, 9, 14, .93));
-}
-
+.tracks-xiii-slot-number,
 .tracks-xiii-save-number {
-  top: .85cqh;
-  left: .8cqw;
+  inset: auto;
+  align-self: stretch;
+  display: grid;
+  place-items: center;
   min-width: 0;
   padding: 0;
-  color: rgba(247, 249, 249, .88);
-  background: transparent;
-  box-shadow: none;
-  font: italic 400 clamp(22px, 1.6cqw, 31px) / 1 Baskerville, "Iowan Old Style", serif;
-  letter-spacing: .04em;
-  text-align: left;
-  text-shadow: 0 .15cqh .7cqw rgba(0, 0, 0, .72);
+  color: var(--xiii-ink);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, white 6%, transparent), transparent 42%),
+    color-mix(in srgb, var(--v4-outer) 28%, transparent);
+  box-shadow: inset 0 -.45cqh 0 color-mix(in srgb, var(--v4-shadow) 18%, transparent);
+  font: italic 400 clamp(18px, 1.28cqw, 25px) / 1 Baskerville, "Iowan Old Style", serif;
+  letter-spacing: .03em;
+  text-align: center;
+  text-shadow: 0 .12cqh .3cqw color-mix(in srgb, var(--v4-shadow) 32%, transparent);
 }
 
 .tracks-xiii-save-number::before {
   content: none;
 }
 
-.tracks-xiii-save-copy {
-  position: absolute;
-  z-index: 5;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  align-content: end;
-  gap: .55cqh;
-  min-height: 43%;
-  padding: 2.5cqh 1cqw 1.05cqh;
-  color: #eef3f4;
-  background: linear-gradient(180deg, transparent, rgba(5, 11, 16, .74) 52%, rgba(5, 11, 16, .9));
-}
-
-.tracks-xiii-save-copy small {
-  color: rgba(229, 238, 241, .76);
-  font-size: clamp(10px, .66cqw, 13px);
-  text-shadow: 0 .12cqh .45cqw rgba(0, 0, 0, .74);
-}
-
-.tracks-xiii-save-copy strong {
-  color: #f5f7f7;
-  font-size: clamp(14px, .94cqw, 18px);
-  text-shadow: 0 .14cqh .55cqw rgba(0, 0, 0, .78);
-}
-
-.tracks-xiii-save-meta {
-  color: rgba(229, 237, 240, .74);
-  font-size: clamp(10px, .64cqw, 12px);
-  text-shadow: 0 .12cqh .45cqw rgba(0, 0, 0, .72);
-}
-
-.tracks-xiii-save-meta b {
-  color: #f1f5f6;
-}
-
-.tracks-xiii-save-command {
-  top: 1.05cqh;
-  right: .85cqw;
-  font-size: clamp(10px, .6cqw, 12px);
-  opacity: .5;
-}
-
-.tracks-xiii-save-slot:hover,
-.tracks-xiii-save-slot:focus-visible,
-.tracks-xiii-save-slot.is-kb-cursor {
-  outline: 0;
+.tracks-xiii-slot-art,
+.tracks-xiii-save-art {
+  inset: auto;
+  width: 100%;
+  min-height: 66px;
+  clip-path: polygon(0 0, calc(100% - .5cqw) 0, 100% .7cqh, 100% 100%, 0 100%);
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
   box-shadow:
-    0 .95cqh 1.9cqw color-mix(in srgb, var(--v4-shadow) 72%, transparent),
-    0 0 1.35cqw color-mix(in srgb, var(--v4-accent) 24%, transparent);
-  transform: scale(1.013);
+    inset 0 .35cqh 0 color-mix(in srgb, white 9%, transparent),
+    inset 0 -.45cqh 0 color-mix(in srgb, var(--v4-shadow) 28%, transparent),
+    0 .32cqh .6cqw color-mix(in srgb, var(--v4-shadow) 32%, transparent);
+  transition: filter 180ms ease;
 }
 
-.tracks-xiii-save-slot:hover::before,
-.tracks-xiii-save-slot:focus-visible::before,
-.tracks-xiii-save-slot.is-kb-cursor::before {
-  opacity: .8;
+.tracks-xiii-slot-art {
+  height: 13.2cqh;
+  background-image:
+    linear-gradient(rgba(6, 13, 18, .04), rgba(6, 13, 18, .13)),
+    var(--record-art, var(--v4-bg));
 }
 
-.tracks-xiii-save-slot:active {
-  transform: scale(.992);
+.tracks-xiii-save-art {
+  height: 10.7cqh;
+  background-image:
+    linear-gradient(rgba(6, 13, 18, .04), rgba(6, 13, 18, .13)),
+    var(--save-art, var(--v4-bg));
+  filter: var(--v4-cover-filter);
+  transform: none;
 }
 
-.tracks-xiii-save-slot.is-empty {
-  display: block;
-  border: 0;
-  background:
-    radial-gradient(ellipse at 50% 46%, color-mix(in srgb, var(--v4-accent) 15%, var(--v4-card) 34%), transparent 70%),
-    color-mix(in srgb, var(--v4-outer) 66%, #091017 34%);
-  box-shadow: 0 .55cqh 1.1cqw color-mix(in srgb, var(--v4-shadow) 38%, transparent);
+.tracks-xiii-save-art::after {
+  display: none;
 }
 
-.tracks-xiii-save-slot.is-empty::before {
-  opacity: .2;
-  mix-blend-mode: normal;
-}
-
-.tracks-xiii-save-slot.is-empty::after {
-  inset: 0;
-  background:
-    radial-gradient(ellipse at 50% 48%, color-mix(in srgb, var(--v4-card) 38%, transparent), transparent 67%);
-  opacity: .74;
-}
-
-.tracks-xiii-save-slot.is-empty .tracks-xiii-save-number {
-  z-index: 4;
-  color: color-mix(in srgb, var(--xiii-soft) 82%, transparent);
-  text-shadow: none;
-}
-
-.tracks-xiii-save-slot.is-empty .tracks-xiii-save-copy {
-  z-index: 5;
-  min-height: 100%;
-  padding: 0;
-  color: var(--xiii-soft);
+.tracks-xiii-slot-copy,
+.tracks-xiii-save-copy {
+  inset: auto;
+  align-content: center;
+  gap: .58cqh;
+  min-width: 0;
+  min-height: 0;
+  padding: .35cqh .55cqw .35cqh 1.05cqw;
+  color: var(--xiii-ink);
   background: transparent;
 }
 
-.tracks-xiii-save-slot.is-empty .tracks-xiii-save-copy strong {
-  color: var(--xiii-soft);
-  font-size: clamp(13px, .88cqw, 17px);
+.tracks-xiii-slot-copy strong,
+.tracks-xiii-save-copy strong {
+  color: var(--xiii-ink);
+  font-size: clamp(14px, .9cqw, 18px);
+  line-height: 1.3;
   text-shadow: none;
 }
 
-/* Pagination reads as game state, not an underlined web control. */
-.tracks-xiii-edge-turners button {
-  width: 3cqw;
-  min-width: 40px;
-  height: 11cqh;
-  min-height: 64px;
-  border: 0;
+.tracks-xiii-slot-copy time,
+.tracks-xiii-save-copy small,
+.tracks-xiii-save-meta {
+  color: var(--xiii-soft);
+  font-size: clamp(11px, .64cqw, 13px);
+  line-height: 1.25;
+  text-shadow: none;
+}
+
+.tracks-xiii-save-meta {
+  gap: .7cqw;
+}
+
+.tracks-xiii-save-meta b {
+  color: var(--xiii-ink);
+  font-weight: 500;
+}
+
+.tracks-xiii-slot-command,
+.tracks-xiii-save-command {
+  display: none;
+}
+
+.tracks-xiii-record-slot:hover,
+.tracks-xiii-record-slot:focus-visible,
+.tracks-xiii-record-slot.is-kb-cursor,
+.tracks-xiii-save-slot:hover,
+.tracks-xiii-save-slot:focus-visible,
+.tracks-xiii-save-slot.is-kb-cursor,
+.tracks-xiii-save-slot[aria-pressed="true"] {
   outline: 0;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, white 11%, transparent), transparent 36%),
+    linear-gradient(105deg, color-mix(in srgb, var(--v4-accent) 28%, var(--v4-card) 72%) 0 66%, color-mix(in srgb, var(--v4-card) 78%, transparent));
+  box-shadow:
+    inset 0 .5cqh 0 color-mix(in srgb, white 9%, transparent),
+    inset 0 -.65cqh 0 color-mix(in srgb, var(--v4-shadow) 28%, transparent),
+    inset .62cqw 0 0 color-mix(in srgb, var(--v4-accent) 82%, var(--v4-ink) 18%),
+    0 0 1.2cqw color-mix(in srgb, var(--v4-accent) 13%, transparent);
+  filter: brightness(1.04);
+  transform: none;
+}
+
+.tracks-xiii-record-slot:hover::before,
+.tracks-xiii-record-slot:focus-visible::before,
+.tracks-xiii-record-slot.is-kb-cursor::before,
+.tracks-xiii-save-slot:hover::before,
+.tracks-xiii-save-slot:focus-visible::before,
+.tracks-xiii-save-slot.is-kb-cursor::before,
+.tracks-xiii-save-slot[aria-pressed="true"]::before {
+  opacity: .7;
+}
+
+.tracks-xiii-record-slot:hover::after,
+.tracks-xiii-record-slot:focus-visible::after,
+.tracks-xiii-record-slot.is-kb-cursor::after,
+.tracks-xiii-save-slot:hover::after,
+.tracks-xiii-save-slot:focus-visible::after,
+.tracks-xiii-save-slot.is-kb-cursor::after,
+.tracks-xiii-save-slot[aria-pressed="true"]::after {
+  opacity: .92;
+}
+
+.tracks-xiii-record-slot:hover .tracks-xiii-slot-art,
+.tracks-xiii-record-slot:focus-visible .tracks-xiii-slot-art,
+.tracks-xiii-save-slot:hover .tracks-xiii-save-art,
+.tracks-xiii-save-slot:focus-visible .tracks-xiii-save-art,
+.tracks-xiii-save-slot[aria-pressed="true"] .tracks-xiii-save-art {
+  filter: brightness(1.09) saturate(1.03);
+}
+
+.tracks-xiii-record-slot:active,
+.tracks-xiii-save-slot:active {
+  filter: brightness(.94);
+  transform: scale(.988);
+}
+
+.tracks-xiii-record-slot.is-empty,
+.tracks-xiii-save-slot.is-empty {
+  display: grid;
   color: var(--xiii-soft);
   background:
-    radial-gradient(ellipse at 35% 50%, color-mix(in srgb, var(--v4-accent) 17%, var(--v4-card) 24%), transparent 68%);
+    linear-gradient(180deg, color-mix(in srgb, white 5%, transparent), transparent 36%),
+    linear-gradient(105deg, color-mix(in srgb, var(--v4-card) 77%, var(--v4-outer) 23%), color-mix(in srgb, var(--v4-card) 58%, transparent));
+  box-shadow:
+    inset 0 .44cqh 0 color-mix(in srgb, white 5%, transparent),
+    inset 0 -.58cqh 0 color-mix(in srgb, var(--v4-shadow) 22%, transparent),
+    inset .42cqw 0 0 color-mix(in srgb, var(--v4-accent) 15%, var(--v4-card));
+  filter: none;
   opacity: .78;
+}
+
+.tracks-xiii-record-slot.is-empty::before,
+.tracks-xiii-save-slot.is-empty::before {
+  display: block;
+  opacity: 0;
+}
+
+.tracks-xiii-record-slot.is-empty::after,
+.tracks-xiii-save-slot.is-empty::after {
+  display: block;
+  opacity: .16;
+}
+
+.tracks-xiii-record-slot.is-empty .tracks-xiii-slot-number,
+.tracks-xiii-save-slot.is-empty .tracks-xiii-save-number {
+  color: var(--xiii-soft);
+  background: color-mix(in srgb, var(--v4-outer) 20%, transparent);
+  text-shadow: none;
+}
+
+.tracks-xiii-record-slot.is-empty .tracks-xiii-slot-art,
+.tracks-xiii-save-slot.is-empty .tracks-xiii-save-art {
+  display: grid;
+  place-items: center;
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--v4-outer) 28%, transparent), transparent 58%),
+    color-mix(in srgb, var(--v4-card) 54%, transparent);
+  box-shadow:
+    inset 0 .32cqh 0 color-mix(in srgb, white 4%, transparent),
+    inset 0 -.4cqh 0 color-mix(in srgb, var(--v4-shadow) 18%, transparent);
+}
+
+.tracks-xiii-record-slot.is-empty .tracks-xiii-slot-art > i,
+.tracks-xiii-save-slot.is-empty .tracks-xiii-save-art > i {
+  display: none;
+}
+
+.tracks-xiii-record-slot.is-empty .tracks-xiii-slot-copy,
+.tracks-xiii-save-slot.is-empty .tracks-xiii-save-copy {
+  position: relative;
+  inset: auto;
+  z-index: 2;
+  place-items: start;
+  min-height: 0;
+  padding: .35cqh .55cqw .35cqh 1.05cqw;
+  color: var(--xiii-soft);
+  background: transparent;
+  transform: none;
+}
+
+.tracks-xiii-record-slot.is-empty .tracks-xiii-slot-copy strong,
+.tracks-xiii-save-slot.is-empty .tracks-xiii-save-copy strong {
+  color: var(--xiii-soft);
+  font-size: clamp(13px, .82cqw, 16px);
+  letter-spacing: .1em;
+  text-shadow: none;
+}
+
+/* Pagination belongs to the slot bank and never collapses with a filter. */
+.tracks-xiii-edge-turners button {
+  width: 2.8cqw;
+  min-width: 40px;
+  height: 8.8cqh;
+  min-height: 58px;
+  border: 0;
+  outline: 0;
+  clip-path: polygon(0 0, calc(100% - .45cqw) 0, 100% .7cqh, 100% calc(100% - .7cqh), calc(100% - .45cqw) 100%, 0 100%);
+  color: var(--xiii-soft);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, white 8%, transparent), transparent 38%),
+    color-mix(in srgb, var(--v4-card) 84%, transparent);
+  box-shadow:
+    inset .35cqw 0 0 color-mix(in srgb, var(--v4-accent) 25%, var(--v4-card)),
+    inset 0 -.5cqh 0 color-mix(in srgb, var(--v4-shadow) 22%, transparent);
+  opacity: .9;
   transition:
-    color 180ms ease,
-    opacity 180ms ease,
-    transform 240ms cubic-bezier(.22, 1, .36, 1),
-    filter 180ms ease;
+    color 170ms ease,
+    background-color 170ms ease,
+    box-shadow 170ms ease,
+    opacity 170ms ease,
+    filter 170ms ease,
+    transform 90ms ease;
 }
 
 .tracks-xiii-edge-turners button:first-child {
@@ -2472,53 +2498,61 @@ html.tracks-xiii-diary-open body {
 
 .tracks-xiii-edge-turners button:last-child {
   right: 1.2cqw;
-  background:
-    radial-gradient(ellipse at 65% 50%, color-mix(in srgb, var(--v4-accent) 17%, var(--v4-card) 24%), transparent 68%);
-  transform: translateY(-50%);
+  transform: translateY(-50%) scaleX(-1);
 }
 
 .tracks-xiii-edge-turners button:hover,
 .tracks-xiii-edge-turners button:focus-visible {
   outline: 0;
-  filter: drop-shadow(0 0 .8cqw color-mix(in srgb, var(--v4-accent) 26%, transparent));
+  color: var(--xiii-ink);
+  background: color-mix(in srgb, var(--v4-accent) 19%, var(--v4-card) 81%);
+  box-shadow:
+    inset .48cqw 0 0 color-mix(in srgb, var(--v4-accent) 78%, var(--v4-ink) 22%),
+    inset 0 -.52cqh 0 color-mix(in srgb, var(--v4-shadow) 25%, transparent);
+  filter: brightness(1.05);
 }
 
 .tracks-xiii-edge-turners button:first-child:hover,
 .tracks-xiii-edge-turners button:first-child:focus-visible {
-  transform: translate(-100%, -50%) scale(1.08);
+  transform: translate(-100%, -50%);
 }
 
 .tracks-xiii-edge-turners button:last-child:hover,
 .tracks-xiii-edge-turners button:last-child:focus-visible {
-  transform: translateY(-50%) scale(1.08);
+  transform: translateY(-50%) scaleX(-1);
+}
+
+.tracks-xiii-edge-turners button:disabled {
+  opacity: .28;
 }
 
 .tracks-xiii-page-nav {
   right: 25cqw;
-  bottom: 4.75cqh;
+  bottom: 4.65cqh;
   left: 25cqw;
-  gap: 1.15cqw;
+  gap: .7cqw;
 }
 
 .tracks-xiii-page-markers {
-  gap: .55cqw;
+  gap: .32cqw;
 }
 
 .tracks-xiii-page-markers button {
-  min-width: 2.1cqw;
-  min-height: 2.8cqh;
-  padding: .4cqh .35cqw;
+  min-width: 2.25cqw;
+  min-height: 3.15cqh;
+  padding: .32cqh .34cqw;
   border: 0;
-  border-radius: 48%;
   outline: 0;
+  clip-path: polygon(0 0, calc(100% - .28cqw) 0, 100% .42cqh, 100% 100%, 0 100%);
   color: var(--xiii-muted);
-  background: transparent;
+  background: color-mix(in srgb, var(--v4-card) 68%, transparent);
+  box-shadow: inset 0 -.34cqh 0 color-mix(in srgb, var(--v4-shadow) 18%, transparent);
   font-size: clamp(11px, .7cqw, 13px);
   transition:
-    color 180ms ease,
-    background-color 180ms ease,
-    transform 220ms cubic-bezier(.22, 1, .36, 1),
-    box-shadow 180ms ease;
+    color 170ms ease,
+    background-color 170ms ease,
+    box-shadow 170ms ease,
+    filter 170ms ease;
 }
 
 .tracks-xiii-page-markers button::after {
@@ -2527,429 +2561,35 @@ html.tracks-xiii-diary-open body {
 
 .tracks-xiii-page-markers button[aria-pressed="true"] {
   color: var(--xiii-ink);
-  background: rgba(var(--v4-accent-rgb), .24);
-  box-shadow: 0 0 .9cqw color-mix(in srgb, var(--v4-accent) 16%, transparent);
-  transform: scale(1.12);
+  background: color-mix(in srgb, var(--v4-accent) 28%, var(--v4-card) 72%);
+  box-shadow:
+    inset .32cqw 0 0 color-mix(in srgb, var(--v4-accent) 82%, var(--v4-ink) 18%),
+    inset 0 -.36cqh 0 color-mix(in srgb, var(--v4-shadow) 20%, transparent),
+    0 0 .75cqw color-mix(in srgb, var(--v4-accent) 13%, transparent);
+  transform: none;
 }
 
 .tracks-xiii-page-markers button:hover,
 .tracks-xiii-page-markers button:focus-visible {
   outline: 0;
   color: var(--xiii-ink);
-  background: color-mix(in srgb, var(--v4-accent) 13%, var(--v4-card) 38%);
-  transform: scale(1.08);
+  background: color-mix(in srgb, var(--v4-accent) 18%, var(--v4-card) 82%);
+  filter: brightness(1.04);
+  transform: none;
 }
 
 .tracks-xiii-page-nav > strong {
-  font-size: clamp(11px, .72cqw, 14px);
-  letter-spacing: .1em;
+  font-size: clamp(12px, .74cqw, 14px);
+  letter-spacing: .08em;
 }
 
 .tracks-xiii-reference-switcher {
   opacity: .52;
 }
 
-/* Flowchart: atmospheric route field; only route connectors use lines. */
-.tracks-xiii-flow-shell {
-  border: 0;
-  background:
-    radial-gradient(ellipse at 74% 20%, rgba(65, 139, 170, .22), transparent 43%),
-    radial-gradient(ellipse at 18% 82%, rgba(31, 76, 98, .16), transparent 52%),
-    linear-gradient(108deg, rgba(4, 8, 12, .98), rgba(11, 28, 38, .96));
-  box-shadow:
-    0 1.1cqh 2.2cqw color-mix(in srgb, var(--v4-shadow) 72%, transparent),
-    0 0 2.4cqw rgba(78, 145, 174, .08);
-}
-
-.tracks-xiii-flow-shell::before {
-  opacity: .65;
-  background:
-    radial-gradient(circle at 24% 31%, rgba(182, 221, 236, .055), transparent 22%),
-    radial-gradient(circle at 76% 66%, rgba(109, 188, 220, .05), transparent 29%);
-}
-
-.tracks-xiii-flow-themes {
-  gap: .65cqw;
-}
-
-.tracks-xiii-flow-themes button {
-  min-width: 4.4cqw;
-  min-height: 3.6cqh;
-  padding: .45cqh .65cqw;
-  border: 0;
-  border-radius: 48%;
-  outline: 0;
-  color: rgba(215, 228, 234, .68);
-  background: transparent;
-  font-size: clamp(10px, .65cqw, 13px);
-  transition:
-    color 180ms ease,
-    background-color 180ms ease,
-    transform 220ms cubic-bezier(.22, 1, .36, 1),
-    box-shadow 180ms ease;
-}
-
-.tracks-xiii-flow-themes button::after {
-  display: none;
-}
-
-.tracks-xiii-flow-themes button[aria-pressed="true"] {
-  color: #f5f8f8;
-  background: color-mix(in srgb, var(--flow-active) 20%, rgba(13, 28, 37, .7));
-  box-shadow: 0 0 1cqw color-mix(in srgb, var(--flow-active) 18%, transparent);
-  transform: scale(1.06);
-}
-
-.tracks-xiii-flow-themes button:hover,
-.tracks-xiii-flow-themes button:focus-visible {
-  outline: 0;
-  color: #fff;
-  background: color-mix(in srgb, var(--flow-active) 13%, rgba(13, 28, 37, .56));
-}
-
-.tracks-xiii-flow-expand {
-  width: 3.55cqw;
-  min-width: 46px;
-  height: 6.3cqh;
-  min-height: 44px;
-  border: 0;
-  border-radius: 50%;
-  outline: 0;
-  color: rgba(239, 247, 249, .92);
-  background:
-    radial-gradient(circle at 38% 32%, rgba(255, 255, 255, .18), transparent 34%),
-    color-mix(in srgb, var(--flow-active) 20%, rgba(18, 42, 54, .8));
-  box-shadow:
-    0 .45cqh 1.1cqw rgba(0, 0, 0, .36),
-    0 0 1.2cqw color-mix(in srgb, var(--flow-active) 20%, transparent);
-  transition:
-    color 180ms ease,
-    background-color 180ms ease,
-    transform 240ms cubic-bezier(.22, 1, .36, 1),
-    box-shadow 180ms ease;
-}
-
-.tracks-xiii-flow-expand:hover,
-.tracks-xiii-flow-expand:focus-visible {
-  outline: 0;
-  color: #fff;
-  background: color-mix(in srgb, var(--flow-active) 31%, rgba(18, 42, 54, .78));
-  box-shadow:
-    0 .55cqh 1.3cqw rgba(0, 0, 0, .4),
-    0 0 1.7cqw color-mix(in srgb, var(--flow-active) 34%, transparent);
-  transform: scale(1.08);
-}
-
-.tracks-xiii-flow-map {
-  height: max(760px, 116cqh);
-}
-
-.tracks-xiii-flow-boundary {
-  stroke: color-mix(in srgb, var(--flow-line) 29%, transparent);
-  stroke-width: 1;
-}
-
-.tracks-xiii-flow-path {
-  stroke-width: 1.2;
-  filter: drop-shadow(0 0 2px color-mix(in srgb, var(--flow-active) 28%, transparent));
-}
-
-.tracks-xiii-flow-chapter {
-  left: .65cqw;
-}
-
-.tracks-xiii-flow-chapter b {
-  font-size: clamp(11px, .72cqw, 14px);
-}
-
-.tracks-xiii-flow-node {
-  width: clamp(94px, 7.25cqw, 134px);
-  border: 0;
-  outline: 0;
-  background: rgba(7, 12, 16, .94);
-  box-shadow:
-    0 .45cqh 1cqw rgba(0, 0, 0, .5),
-    0 0 .75cqw rgba(115, 178, 202, .13);
-  transition:
-    box-shadow 180ms ease,
-    transform 240ms cubic-bezier(.22, 1, .36, 1),
-    filter 180ms ease;
-}
-
-.tracks-xiii-flow-node-art {
-  inset: 0;
-  filter: saturate(.78) brightness(.9) contrast(.98);
-}
-
-.tracks-xiii-flow-node:hover,
-.tracks-xiii-flow-node:focus-visible,
-.tracks-xiii-flow-node[aria-pressed="true"] {
-  border: 0;
-  outline: 0;
-  box-shadow:
-    0 .6cqh 1.25cqw rgba(0, 0, 0, .55),
-    0 0 1.4cqw color-mix(in srgb, var(--flow-active) 55%, transparent);
-  transform: translate(-50%, -50%) scale(1.08);
-}
-
-.tracks-xiii-flow-node[aria-pressed="true"] .tracks-xiii-flow-node-art {
-  filter: saturate(1) brightness(1.02) contrast(1.02);
-}
-
-.tracks-xiii-flow-node.is-locked {
-  border: 0;
-  background:
-    radial-gradient(ellipse at 50% 48%, rgba(116, 170, 191, .14), transparent 68%),
-    rgba(6, 11, 15, .95);
-  box-shadow: 0 .35cqh .8cqw rgba(0, 0, 0, .44);
-}
-
-.tracks-xiii-flow-caption {
-  gap: .85cqw;
-}
-
-.tracks-xiii-flow-caption > span {
-  font-size: clamp(16px, 1.05cqw, 21px);
-}
-
-.tracks-xiii-flow-caption > strong {
-  font-size: clamp(12px, .76cqw, 15px);
-}
-
-.tracks-xiii-flow-scroll-indicator {
-  right: .4cqw;
-  width: 7px;
-  border-radius: 8px;
-  background: rgba(178, 203, 214, .12);
-}
-
-.tracks-xiii-flow-scroll-indicator > span {
-  left: 1px;
-  width: 5px;
-  border-radius: 8px;
-  background: rgba(161, 209, 229, .7);
-  box-shadow: 0 0 .65cqw rgba(102, 193, 231, .24);
-}
-
-.tracks-xiii-flow-detail-paper {
-  border: 0;
-  box-shadow:
-    0 1.7cqh 3.4cqw rgba(0, 0, 0, .42),
-    0 0 2cqw color-mix(in srgb, var(--flow-active) 12%, transparent);
-}
-
-.tracks-xiii-flow-detail-copy {
-  border-top: 0;
-  background:
-    linear-gradient(180deg, color-mix(in srgb, var(--flow-active) 12%, transparent), transparent 35%);
-}
-
-.tracks-xiii-flow-hints {
-  font-size: clamp(11px, .64cqw, 13px);
-}
-
-/* Story: scene rows are separated by mass and rhythm, never separator lines. */
-.tracks-xiii-story-view {
-  padding-right: 2cqw;
-}
-
-.tracks-xiii-story-list {
-  gap: 1.25cqh;
-  padding-right: .25cqw;
-}
-
-.tracks-xiii-story-slot {
-  grid-template-columns: 4.2cqw 13.4cqw minmax(0, 1fr);
-  min-height: 12.4cqh;
-  border: 0;
-  outline: 0;
-  color: var(--xiii-ink);
-  background:
-    linear-gradient(90deg,
-      color-mix(in srgb, var(--v4-card) 91%, var(--v4-ink) 9%),
-      color-mix(in srgb, var(--v4-paper) 74%, transparent) 78%,
-      transparent 100%);
-  box-shadow: 0 .5cqh 1.15cqw color-mix(in srgb, var(--v4-shadow) 34%, transparent);
-  transform-origin: 0 50%;
-  transition:
-    box-shadow 180ms ease,
-    transform 240ms cubic-bezier(.22, 1, .36, 1),
-    filter 180ms ease;
-}
-
-.tracks-xiii-story-slot::after {
-  z-index: 0;
-  inset: 0;
-  width: auto;
-  height: auto;
-  opacity: 0;
-  background:
-    linear-gradient(90deg,
-      color-mix(in srgb, var(--v4-accent) 24%, transparent),
-      color-mix(in srgb, var(--v4-accent) 8%, transparent) 68%,
-      transparent);
-  transition: opacity 180ms ease;
-}
-
-.tracks-xiii-story-number,
-.tracks-xiii-story-art,
-.tracks-xiii-story-copy {
-  position: relative;
-  z-index: 1;
-}
-
-.tracks-xiii-story-number {
-  color: color-mix(in srgb, var(--v4-accent) 52%, var(--xiii-soft));
-  background: transparent;
-  font-size: clamp(20px, 1.45cqw, 28px);
-  text-shadow: 0 0 .7cqw color-mix(in srgb, var(--v4-accent) 13%, transparent);
-}
-
-.tracks-xiii-story-copy {
-  gap: .85cqh;
-  padding: 1.2cqh 1.25cqw;
-}
-
-.tracks-xiii-story-copy strong {
-  font-size: clamp(15px, 1cqw, 19px);
-}
-
-.tracks-xiii-story-copy > span {
-  color: color-mix(in srgb, var(--xiii-soft) 92%, var(--xiii-ink) 8%);
-  font-size: clamp(11px, .73cqw, 14px);
-}
-
-.tracks-xiii-story-slot:hover,
-.tracks-xiii-story-slot:focus-visible,
-.tracks-xiii-story-slot.is-kb-cursor {
-  outline: 0;
-  box-shadow:
-    0 .7cqh 1.45cqw color-mix(in srgb, var(--v4-shadow) 48%, transparent),
-    0 0 1.2cqw color-mix(in srgb, var(--v4-accent) 15%, transparent);
-  transform: scale(1.012);
-}
-
-.tracks-xiii-story-slot:hover::after,
-.tracks-xiii-story-slot:focus-visible::after,
-.tracks-xiii-story-slot.is-kb-cursor::after {
-  opacity: .78;
-}
-
-.tracks-xiii-story-slot:active {
-  transform: scale(.993);
-}
-
-.tracks-xiii-story-slot.is-locked {
-  opacity: .68;
-  background:
-    radial-gradient(ellipse at 25% 50%, color-mix(in srgb, var(--v4-accent) 10%, var(--v4-card) 36%), transparent 64%),
-    color-mix(in srgb, var(--v4-card) 34%, transparent);
-  box-shadow: 0 .35cqh .8cqw color-mix(in srgb, var(--v4-shadow) 24%, transparent);
-}
-
-.tracks-xiii-story-slot.is-locked .tracks-xiii-story-art {
-  background:
-    radial-gradient(ellipse at 50% 48%, color-mix(in srgb, var(--v4-accent) 14%, var(--v4-card) 28%), transparent 70%);
-}
-
-.tracks-xiii-story-rail {
-  width: 10px;
-  min-width: 10px;
-}
-
-.tracks-xiii-story-rail::before {
-  top: 1cqh;
-  bottom: 1cqh;
-  width: 8px;
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--v4-card) 22%, transparent);
-}
-
-.tracks-xiii-story-rail > span {
-  width: 6px;
-  min-height: 46px;
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--v4-accent) 68%, var(--v4-card) 20%);
-  box-shadow: 0 0 .7cqw color-mix(in srgb, var(--v4-accent) 24%, transparent);
-}
-
-.tracks-xiii-story-confirm-panel {
-  border: 0;
-  background:
-    radial-gradient(ellipse at 18% 10%, color-mix(in srgb, var(--v4-accent) 18%, transparent), transparent 44%),
-    var(--xiii-surface-strong);
-  box-shadow:
-    0 2.2cqh 5.4cqw rgba(0, 0, 0, .4),
-    0 0 2.2cqw color-mix(in srgb, var(--v4-accent) 12%, transparent);
-}
-
-.tracks-xiii-story-confirm-panel button {
-  min-height: 4.8cqh;
-  border: 0;
-  outline: 0;
-  color: var(--xiii-soft);
-  background:
-    radial-gradient(ellipse at 50% 50%, color-mix(in srgb, var(--v4-card) 78%, transparent), transparent 78%);
-  transition:
-    color 180ms ease,
-    background-color 180ms ease,
-    transform 220ms cubic-bezier(.22, 1, .36, 1),
-    filter 180ms ease;
-}
-
-.tracks-xiii-story-confirm-panel button:hover,
-.tracks-xiii-story-confirm-panel button:focus-visible {
-  border: 0;
-  outline: 0;
-  color: var(--xiii-ink);
-  background:
-    radial-gradient(ellipse at 50% 50%, color-mix(in srgb, var(--v4-accent) 24%, var(--v4-card) 62%), transparent 78%);
-  filter: drop-shadow(0 0 .8cqw color-mix(in srgb, var(--v4-accent) 23%, transparent));
-  transform: scale(1.055);
-}
-
-/* Diary keeps its image-led composition but joins the shared control language. */
-.tracks-xiii-diary-month {
-  border: 0;
-  box-shadow: 0 .9cqh 1.9cqw color-mix(in srgb, var(--v4-shadow) 55%, transparent);
-}
-
-.tracks-xiii-diary-cover:focus-visible {
-  outline: 0;
-  filter: drop-shadow(0 0 1.1cqw color-mix(in srgb, var(--v4-accent) 28%, transparent));
-}
-
-.tracks-xiii-diary-reader-close {
-  min-width: 9cqw;
-  min-height: 5cqh;
-  border: 0;
-  border-radius: 48%;
-  outline: 0;
-  color: rgba(235, 244, 247, .84);
-  background:
-    radial-gradient(ellipse at 50% 50%, rgba(75, 130, 153, .48), rgba(21, 47, 59, .34) 58%, transparent 78%);
-  transition:
-    color 180ms ease,
-    transform 220ms cubic-bezier(.22, 1, .36, 1),
-    filter 180ms ease;
-}
-
-.tracks-xiii-diary-reader-close:hover,
-.tracks-xiii-diary-reader-close:focus-visible {
-  border: 0;
-  outline: 0;
-  color: #fff;
-  filter: drop-shadow(0 0 1cqw rgba(126, 193, 219, .28));
-  transform: scale(1.06);
-}
-
+/* Keep the record bank readable without changing its slot logic. */
 .tracks-xiii-view-ghost {
-  left: 13.15cqw;
-}
-
-.tracks-xiii-canvas.has-keyboard-cursor .is-kb-cursor {
-  outline: 0;
-  filter: drop-shadow(0 0 1cqw color-mix(in srgb, var(--v4-accent) 34%, transparent));
+  left: 13.05cqw;
 }
 
 @container (max-width: 1050px) {
@@ -2959,94 +2599,97 @@ html.tracks-xiii-diary-open body {
   }
 
   .tracks-xiii-primary {
-    gap: 3.4cqw;
+    gap: 2cqw;
   }
 
   .tracks-xiii-stage {
     right: 3.8cqw;
     left: 3.8cqw;
-    grid-template-columns: 12.8cqw minmax(0, 1fr);
-    column-gap: 1.45cqw;
+    grid-template-columns: 12.6cqw minmax(0, 1fr);
+    column-gap: 1.55cqw;
   }
 
-  .tracks-xiii-index-group button {
-    font-size: clamp(12px, 1.15cqw, 16px);
+  .tracks-xiii-view-ghost {
+    left: 14.15cqw;
   }
 
-  .tracks-xiii-story-slot {
-    grid-template-columns: 4.8cqw 14.5cqw minmax(0, 1fr);
+  .tracks-xiii-record-slot {
+    grid-template-columns: 3.3cqw 14.4cqw minmax(0, 1fr);
+  }
+
+  .tracks-xiii-save-slot {
+    grid-template-columns: 3.5cqw 13.2cqw minmax(0, 1fr);
+  }
+
+  .tracks-xiii-slot-copy strong,
+  .tracks-xiii-save-copy strong {
+    font-size: clamp(13px, 1.05cqw, 18px);
   }
 }
 
 @container (max-width: 760px) {
   .tracks-xiii-primary-shell {
-    top: 8.2cqh;
-    right: 3.4cqw;
+    top: 10.6cqh;
+    right: 4.5cqw;
     left: 19cqw;
   }
 
   .tracks-xiii-primary {
-    gap: 1.2cqw;
+    gap: 1.35cqw;
   }
 
   .tracks-xiii-primary button {
-    flex-basis: 24cqw;
-    padding: 0 .4cqw;
-    font-size: clamp(11px, 1.8cqw, 15px);
+    min-height: 4.8cqh;
+    padding-inline: 1.5cqw;
   }
 
   .tracks-xiii-stage {
-    top: 17.7cqh;
-    right: 3.4cqw;
-    left: 3.4cqw;
-    grid-template-columns: 15.4cqw minmax(0, 1fr);
+    top: 17.2cqh;
+    right: 2.8cqw;
+    bottom: 9.6cqh;
+    left: 2.8cqw;
+    grid-template-columns: 14.5cqw minmax(0, 1fr);
     column-gap: 1.2cqw;
   }
 
-  .tracks-xiii-index-group button {
-    padding-left: .35cqw;
-    letter-spacing: .08em;
+  .tracks-xiii-view-ghost {
+    left: 15.7cqw;
+  }
+
+  .tracks-xiii-index button {
+    padding-left: 1.3cqw;
   }
 
   .tracks-xiii-record-grid,
   .tracks-xiii-save-grid {
-    gap: 1cqh .8cqw;
+    gap: .8cqw;
   }
 
-  .tracks-xiii-story-slot {
-    grid-template-columns: 5.5cqw 16.5cqw minmax(0, 1fr);
+  .tracks-xiii-record-slot {
+    grid-template-columns: 3.9cqw 16.2cqw minmax(0, 1fr);
+  }
+
+  .tracks-xiii-save-slot {
+    grid-template-columns: 4.2cqw 14.8cqw minmax(0, 1fr);
+  }
+
+  .tracks-xiii-slot-copy,
+  .tracks-xiii-save-copy {
+    padding-inline: 1.1cqw;
+  }
+
+  .tracks-xiii-page-nav {
+    left: 20cqw;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .tracks-xiii-primary button,
-  .tracks-xiii-primary button::before,
-  .tracks-xiii-primary button::after,
-  .tracks-xiii-index-group button,
-  .tracks-xiii-index-group button::before,
-  .tracks-xiii-index-group button span,
+  .tracks-xiii-index button,
   .tracks-xiii-record-slot,
   .tracks-xiii-save-slot,
-  .tracks-xiii-edge-turners button,
-  .tracks-xiii-page-markers button,
-  .tracks-xiii-flow-themes button,
-  .tracks-xiii-flow-expand,
-  .tracks-xiii-flow-node,
-  .tracks-xiii-story-slot,
-  .tracks-xiii-story-confirm-panel button,
-  .tracks-xiii-diary-reader-close {
+  .tracks-xiii-page-nav button,
+  .tracks-xiii-page-markers button {
     transition: none;
-  }
-
-  .tracks-xiii-primary button:hover,
-  .tracks-xiii-index-group button:hover,
-  .tracks-xiii-record-slot:hover,
-  .tracks-xiii-save-slot:hover,
-  .tracks-xiii-page-markers button:hover,
-  .tracks-xiii-flow-expand:hover,
-  .tracks-xiii-story-slot:hover,
-  .tracks-xiii-story-confirm-panel button:hover,
-  .tracks-xiii-diary-reader-close:hover {
-    transform: none;
   }
 }

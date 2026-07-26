@@ -212,7 +212,7 @@ const flowAtlases = [
 
 const initialFlowNode = flowAtlases[0]?.nodes.find((node) => node.unlocked);
 const articleEmptySlots = Array.from(
-  { length: Math.max(0, LOAD_SLOT_CAPACITY - records.length) },
+  { length: LOAD_SLOT_CAPACITY },
   (_, index) => index,
 );
 const saveEmptySlots = Array.from(
@@ -253,6 +253,7 @@ const lockedStorySlots = Array.from({ length: 7 }, (_, index) => index);
 
     <div class="tracks-xiii-stage">
       <aside class="tracks-xiii-index" aria-label="二级分类">
+        <span class="tracks-xiii-index-spine" aria-hidden="true"></span>
         <div class="tracks-xiii-index-stack">
           <div class="tracks-xiii-index-group" data-xiii-index-group="articles" role="tablist" aria-label="文章分类" aria-hidden="false">
             {articleCategories.map((category, index) => (
@@ -305,9 +306,9 @@ const lockedStorySlots = Array.from({ length: 7 }, (_, index) => index);
             ))}
             {articleEmptySlots.map((index) => (
               <div class="tracks-xiii-record-slot is-empty" data-xiii-article-empty aria-hidden="true">
-                <span class="tracks-xiii-slot-number">{String(records.length + index + 1).padStart(2, "0")}</span>
+                <span class="tracks-xiii-slot-number">{String(index + 1).padStart(2, "0")}</span>
                 <span class="tracks-xiii-slot-art" aria-hidden="true"><i></i></span>
-                <span class="tracks-xiii-slot-copy"><strong>NO RECORD</strong></span>
+                <span class="tracks-xiii-slot-copy"><strong>NO DATA</strong></span>
               </div>
             ))}
           </div>

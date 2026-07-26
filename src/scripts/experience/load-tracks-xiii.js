@@ -278,10 +278,9 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
     const matched = filter === "all"
       ? articleSlots
       : articleSlots.filter((slot) => slot.dataset.category === filter);
-    const capacity = filter === "all" ? ARTICLE_SLOT_CAPACITY : PAGE_CAPACITY;
     return [
       ...matched,
-      ...articleEmptySlots.slice(0, Math.max(0, capacity - matched.length)),
+      ...articleEmptySlots.slice(0, Math.max(0, ARTICLE_SLOT_CAPACITY - matched.length)),
     ];
   }
 
@@ -301,6 +300,10 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
     articlePage = Math.max(0, Math.min(articlePage, total - 1));
     const start = articlePage * PAGE_CAPACITY;
     const shown = new Set(items.slice(start, start + PAGE_CAPACITY));
+    items.forEach((slot, index) => {
+      const number = slot.querySelector(".tracks-xiii-slot-number");
+      if (number) number.textContent = String(index + 1).padStart(2, "0");
+    });
     articleSlots.forEach((slot) => setPagedSlotVisible(slot, shown.has(slot)));
     articleEmptySlots.forEach((slot) => setPagedSlotVisible(slot, shown.has(slot)));
   }
@@ -382,6 +385,10 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
     pageControls.setAttribute("aria-hidden", String(!visible));
     pageNav.setAttribute("aria-hidden", String(!visible));
     pageMarkers.textContent = "";
+    pageStatus.hidden = model.mode !== "diary" || !visible;
+    pageStatus.textContent = model.mode === "diary"
+      ? (activeDiaryEntry()?.dataset.diaryLabel || "")
+      : "";
 
     if (!visible) return;
 
@@ -402,10 +409,6 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
       });
       pageMarkers.appendChild(button);
     });
-
-    pageStatus.textContent = model.mode === "diary"
-      ? (activeDiaryEntry()?.dataset.diaryLabel || "")
-      : "PAGE " + String(model.active + 1).padStart(2, "0") + " / " + String(total).padStart(2, "0");
 
     pageButtons.forEach((button) => {
       const direction = Number(button.dataset.xiiiPageDirection);
