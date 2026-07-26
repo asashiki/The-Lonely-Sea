@@ -253,7 +253,6 @@ const lockedStorySlots = Array.from({ length: 7 }, (_, index) => index);
 
     <div class="tracks-xiii-stage">
       <aside class="tracks-xiii-index" aria-label="二级分类">
-        <span class="tracks-xiii-index-spine" aria-hidden="true"></span>
         <div class="tracks-xiii-index-stack">
           <div class="tracks-xiii-index-group" data-xiii-index-group="articles" role="tablist" aria-label="文章分类" aria-hidden="false">
             {articleCategories.map((category, index) => (
@@ -308,7 +307,7 @@ const lockedStorySlots = Array.from({ length: 7 }, (_, index) => index);
               <div class="tracks-xiii-record-slot is-empty" data-xiii-article-empty aria-hidden="true">
                 <span class="tracks-xiii-slot-number">{String(records.length + index + 1).padStart(2, "0")}</span>
                 <span class="tracks-xiii-slot-art" aria-hidden="true"><i></i></span>
-                <span class="tracks-xiii-slot-copy"><strong>EMPTY DATA</strong></span>
+                <span class="tracks-xiii-slot-copy"><strong>NO RECORD</strong></span>
               </div>
             ))}
           </div>
@@ -348,7 +347,7 @@ const lockedStorySlots = Array.from({ length: 7 }, (_, index) => index);
                 <div class="tracks-xiii-save-slot is-empty" data-xiii-save-empty aria-label="空存档槽位">
                   <span class="tracks-xiii-save-number">{String(index + demoSaves.length + 1).padStart(2, "0")}</span>
                   <span class="tracks-xiii-save-art" aria-hidden="true"><i></i></span>
-                  <span class="tracks-xiii-save-copy"><strong>EMPTY DATA</strong></span>
+                  <span class="tracks-xiii-save-copy"><strong>NO DATA</strong></span>
                 </div>
               ))}
             </div>

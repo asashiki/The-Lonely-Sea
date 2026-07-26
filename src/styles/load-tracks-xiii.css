@@ -675,6 +675,7 @@
   color: var(--xiii-muted);
   background: transparent;
   box-shadow: none;
+  font-weight: 600;
 }
 
 .tracks-xiii-save-slot.is-empty .tracks-xiii-save-art {
@@ -1903,6 +1904,1149 @@ html.tracks-xiii-diary-open body {
   .tracks-xiii-save-slot:hover .tracks-xiii-save-art,
   .tracks-xiii-story-slot:hover .tracks-xiii-story-art,
   .tracks-xiii-diary-cover:hover::before {
+    transform: none;
+  }
+}
+
+/* XIII direct rebuild — soft visual-novel selections instead of web outlines.
+   Flow paths remain lines because they carry route meaning; public controls do not. */
+.tracks-xiii-canvas {
+  --xiii-wash-rest: color-mix(in srgb, var(--v4-card) 62%, transparent);
+  --xiii-wash-active: color-mix(in srgb, var(--v4-accent) 22%, var(--v4-card) 64%);
+  --xiii-wash-deep: color-mix(in srgb, var(--v4-accent) 28%, var(--v4-paper) 68%);
+}
+
+.tracks-xiii-canvas .system-back {
+  min-width: 7.8cqw;
+  min-height: 4.8cqh;
+  padding-left: 2.55cqw;
+  border: 0;
+  outline: 0;
+  color: var(--xiii-soft);
+  background:
+    radial-gradient(ellipse at 58% 50%, color-mix(in srgb, var(--v4-card) 52%, transparent), transparent 73%);
+  box-shadow: none;
+  opacity: .9;
+  transition:
+    color 180ms ease,
+    opacity 180ms ease,
+    transform 220ms cubic-bezier(.22, 1, .36, 1),
+    filter 180ms ease;
+}
+
+.tracks-xiii-canvas .system-back::before {
+  width: 2cqw;
+  min-width: 27px;
+  height: 3.55cqh;
+  min-height: 25px;
+  border: 0;
+  border-radius: 50%;
+  color: var(--xiii-ink);
+  background:
+    radial-gradient(circle at 44% 40%, color-mix(in srgb, white 17%, transparent), transparent 43%),
+    color-mix(in srgb, var(--v4-accent) 18%, var(--v4-card) 68%);
+  box-shadow:
+    0 .25cqh .75cqw color-mix(in srgb, var(--v4-shadow) 40%, transparent),
+    0 0 1cqw color-mix(in srgb, var(--v4-accent) 12%, transparent);
+}
+
+.tracks-xiii-canvas .system-back:hover,
+.tracks-xiii-canvas .system-back:focus-visible {
+  outline: 0;
+  filter: drop-shadow(0 0 .8cqw color-mix(in srgb, var(--v4-accent) 24%, transparent));
+  transform: scale(1.035);
+}
+
+.tracks-xiii-heading {
+  top: 4.25cqh;
+}
+
+.tracks-xiii-heading h2 {
+  font-size: clamp(34px, 3cqw, 56px);
+}
+
+/* Three independent entrances. The selected page is a broad light wash, not a tab frame. */
+.tracks-xiii-primary-shell {
+  top: 7.65cqh;
+  right: 9cqw;
+  left: 25cqw;
+  height: 7.8cqh;
+  filter: none;
+}
+
+.tracks-xiii-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(24px, 4.5cqw, 76px);
+  height: 100%;
+}
+
+.tracks-xiii-primary button {
+  flex: 0 1 clamp(142px, 12.5cqw, 210px);
+  justify-content: center;
+  height: 6.2cqh;
+  min-height: 42px;
+  padding: 0 1.2cqw;
+  overflow: visible;
+  border: 0;
+  outline: 0;
+  color: var(--xiii-soft);
+  background: transparent;
+  box-shadow: none;
+  font-size: clamp(14px, 1.02cqw, 19px);
+  letter-spacing: .18em;
+  text-align: center;
+  transform-origin: 50% 50%;
+  transition:
+    color 180ms ease,
+    text-shadow 180ms ease,
+    transform 240ms cubic-bezier(.22, 1, .36, 1),
+    filter 180ms ease;
+}
+
+.tracks-xiii-primary button::before {
+  z-index: -1;
+  inset: -.45cqh -1.3cqw;
+  border-radius: 50%;
+  opacity: .25;
+  background:
+    radial-gradient(ellipse at 50% 50%,
+      color-mix(in srgb, var(--v4-card) 78%, transparent) 0 18%,
+      color-mix(in srgb, var(--v4-accent) 13%, var(--v4-card) 34%) 48%,
+      transparent 76%);
+  filter: blur(.2cqw);
+  mix-blend-mode: normal;
+  transform: scale(.82, .72);
+  transition:
+    opacity 180ms ease,
+    transform 260ms cubic-bezier(.22, 1, .36, 1),
+    filter 180ms ease;
+}
+
+.tracks-xiii-primary button::after {
+  inset: .25cqh -.5cqw;
+  width: auto;
+  height: auto;
+  border-radius: 50%;
+  opacity: 0;
+  background:
+    radial-gradient(ellipse at 50% 50%,
+      color-mix(in srgb, var(--v4-accent) 29%, var(--v4-card) 56%) 0 24%,
+      color-mix(in srgb, var(--v4-accent) 15%, transparent) 52%,
+      transparent 75%);
+  filter: blur(.22cqw);
+  pointer-events: none;
+  transition:
+    opacity 180ms ease,
+    transform 260ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.tracks-xiii-primary button[aria-current="page"] {
+  border: 0;
+  color: var(--xiii-ink);
+  background: transparent;
+  box-shadow: none;
+  text-shadow:
+    0 0 .75cqw color-mix(in srgb, var(--v4-accent) 27%, transparent),
+    0 .15cqh .45cqw color-mix(in srgb, var(--v4-shadow) 24%, transparent);
+  transform: scale(1.08);
+}
+
+.tracks-xiii-primary button[aria-current="page"]::before {
+  opacity: .86;
+  filter: blur(.12cqw);
+  transform: scale(1, .9);
+}
+
+.tracks-xiii-primary button[aria-current="page"]::after {
+  opacity: .94;
+  background:
+    radial-gradient(ellipse at 50% 50%,
+      rgba(var(--v4-accent-rgb), .34) 0 20%,
+      rgba(var(--v4-accent-rgb), .19) 48%,
+      transparent 76%);
+  transform: scale(.88, .72);
+}
+
+.tracks-xiii-primary button:hover,
+.tracks-xiii-primary button:focus-visible {
+  border: 0;
+  outline: 0;
+  color: var(--xiii-ink);
+  background: transparent;
+  box-shadow: none;
+  filter: drop-shadow(0 0 .65cqw color-mix(in srgb, var(--v4-accent) 22%, transparent));
+  transform: scale(1.055);
+}
+
+.tracks-xiii-primary button:hover::before,
+.tracks-xiii-primary button:focus-visible::before {
+  opacity: .68;
+  transform: scale(.96, .86);
+}
+
+.tracks-xiii-primary button:active {
+  transform: scale(.98);
+}
+
+/* Shared composition: more room for records and a readable text index. */
+.tracks-xiii-stage {
+  top: 17.6cqh;
+  right: 4.8cqw;
+  bottom: 13cqh;
+  left: 4.8cqw;
+  grid-template-columns: 11.35cqw minmax(0, 1fr);
+  column-gap: 1.8cqw;
+}
+
+.tracks-xiii-index-spine {
+  display: none;
+}
+
+.tracks-xiii-index-group {
+  right: 0;
+  gap: .55cqh;
+}
+
+.tracks-xiii-index-group button {
+  height: 6.35cqh;
+  min-height: 40px;
+  padding: 0 .65cqw;
+  overflow: visible;
+  border: 0;
+  outline: 0;
+  color: color-mix(in srgb, var(--xiii-soft) 93%, var(--xiii-ink) 7%);
+  background: transparent;
+  font-size: clamp(13px, .9cqw, 17px);
+  letter-spacing: .13em;
+  text-shadow: 0 .12cqh .5cqw color-mix(in srgb, var(--v4-shadow) 22%, transparent);
+  transform-origin: 0 50%;
+  transition:
+    color 180ms ease,
+    text-shadow 180ms ease,
+    transform 240ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.tracks-xiii-index-group button::before {
+  z-index: -1;
+  top: .25cqh;
+  right: -.35cqw;
+  bottom: .25cqh;
+  left: -.7cqw;
+  width: auto;
+  border-radius: 48%;
+  opacity: 0;
+  background:
+    linear-gradient(90deg,
+      rgba(var(--v4-accent-rgb), .31),
+      rgba(var(--v4-accent-rgb), .13) 68%,
+      transparent);
+  filter: blur(.12cqw);
+  transform: scale(.76, .78);
+  transform-origin: 0 50%;
+  transition:
+    opacity 180ms ease,
+    transform 260ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.tracks-xiii-index-group button span {
+  position: relative;
+  z-index: 1;
+  transition: transform 240ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.tracks-xiii-index-group button[aria-selected="true"] {
+  color: var(--xiii-ink);
+  font-weight: 600;
+  text-shadow: 0 0 .8cqw color-mix(in srgb, var(--v4-accent) 26%, transparent);
+  transform: scale(1.055);
+}
+
+.tracks-xiii-index-group button[aria-selected="true"]::before {
+  opacity: .86;
+  transform: scale(1, 1);
+}
+
+.tracks-xiii-index-group button[aria-selected="true"] span {
+  transform: translate3d(.42cqw, 0, 0);
+}
+
+.tracks-xiii-index-group button:hover,
+.tracks-xiii-index-group button:focus-visible {
+  outline: 0;
+  color: var(--xiii-ink);
+  text-shadow: 0 0 .75cqw color-mix(in srgb, var(--v4-accent) 22%, transparent);
+  transform: scale(1.045);
+}
+
+.tracks-xiii-index-group button:hover::before,
+.tracks-xiii-index-group button:focus-visible::before {
+  opacity: .56;
+  transform: scale(.94, .92);
+}
+
+.tracks-xiii-year-index button {
+  font-size: clamp(17px, 1.25cqw, 24px);
+}
+
+/* Reading records: cinematic plates with a full selection veil. */
+.tracks-xiii-record-grid,
+.tracks-xiii-save-grid {
+  gap: 1.35cqh 1.05cqw;
+}
+
+.tracks-xiii-record-slot {
+  border: 0;
+  outline: 0;
+  background: color-mix(in srgb, var(--v4-outer) 62%, #0b131a 38%);
+  box-shadow: 0 .7cqh 1.45cqw color-mix(in srgb, var(--v4-shadow) 54%, transparent);
+  transition:
+    box-shadow 200ms ease,
+    transform 240ms cubic-bezier(.22, 1, .36, 1),
+    filter 180ms ease;
+}
+
+.tracks-xiii-record-slot::before {
+  z-index: 2;
+  inset: 0;
+  width: auto;
+  height: auto;
+  opacity: 0;
+  background:
+    radial-gradient(ellipse at 18% 18%, rgba(255, 255, 255, .2), transparent 36%),
+    linear-gradient(112deg, color-mix(in srgb, var(--v4-accent) 22%, transparent), transparent 58%);
+  mix-blend-mode: screen;
+  transition: opacity 180ms ease;
+}
+
+.tracks-xiii-record-slot::after {
+  z-index: 1;
+  inset: 24% 0 0;
+  height: auto;
+  background: linear-gradient(180deg, transparent, rgba(4, 10, 15, .56) 48%, rgba(4, 10, 15, .9));
+}
+
+.tracks-xiii-slot-number,
+.tracks-xiii-slot-copy {
+  z-index: 4;
+}
+
+.tracks-xiii-slot-command {
+  z-index: 5;
+  font-size: clamp(10px, .6cqw, 12px);
+}
+
+.tracks-xiii-record-slot:hover,
+.tracks-xiii-record-slot:focus-visible,
+.tracks-xiii-record-slot.is-kb-cursor {
+  outline: 0;
+  box-shadow:
+    0 .9cqh 1.8cqw color-mix(in srgb, var(--v4-shadow) 68%, transparent),
+    0 0 1.25cqw color-mix(in srgb, var(--v4-accent) 18%, transparent);
+  transform: scale(1.012);
+}
+
+.tracks-xiii-record-slot:hover::before,
+.tracks-xiii-record-slot:focus-visible::before,
+.tracks-xiii-record-slot.is-kb-cursor::before {
+  opacity: .78;
+}
+
+.tracks-xiii-record-slot:active {
+  transform: scale(.992);
+}
+
+.tracks-xiii-record-slot.is-empty {
+  border: 0;
+  background:
+    radial-gradient(ellipse at 50% 48%, color-mix(in srgb, var(--v4-accent) 12%, var(--v4-card) 42%), transparent 72%),
+    color-mix(in srgb, var(--v4-card) 42%, transparent);
+  box-shadow: 0 .5cqh 1cqw color-mix(in srgb, var(--v4-shadow) 28%, transparent);
+}
+
+.tracks-xiii-record-slot.is-empty::before {
+  display: none;
+}
+
+.tracks-xiii-record-slot.is-empty::after {
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 50% 50%, color-mix(in srgb, var(--v4-paper) 52%, transparent), transparent 68%);
+  opacity: .6;
+}
+
+.tracks-xiii-record-slot.is-empty .tracks-xiii-slot-number {
+  color: var(--xiii-muted);
+  text-shadow: none;
+}
+
+/* Save data: full-bleed CG, a broad information veil and a large slot number. */
+.tracks-xiii-save-slot {
+  display: block;
+  border: 0;
+  outline: 0;
+  color: #f3f6f7;
+  background: #0a1118;
+  box-shadow: 0 .7cqh 1.45cqw color-mix(in srgb, var(--v4-shadow) 62%, transparent);
+  transition:
+    box-shadow 200ms ease,
+    transform 240ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.tracks-xiii-save-slot::before {
+  z-index: 3;
+  inset: 0;
+  width: auto;
+  height: auto;
+  opacity: .08;
+  background:
+    radial-gradient(ellipse at 17% 17%, rgba(255, 255, 255, .18), transparent 34%),
+    linear-gradient(112deg, color-mix(in srgb, var(--v4-accent) 28%, transparent), transparent 62%);
+  mix-blend-mode: screen;
+  transition: opacity 180ms ease;
+}
+
+.tracks-xiii-save-art {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, .07), transparent 44%),
+    var(--save-art, var(--v4-bg)) center / cover no-repeat;
+  filter: saturate(.73) brightness(.87) contrast(.96);
+  transform: scale(1.002);
+}
+
+.tracks-xiii-save-art::after {
+  inset: 34% 0 0;
+  height: auto;
+  background:
+    linear-gradient(180deg, transparent, rgba(4, 9, 14, .5) 42%, rgba(4, 9, 14, .93));
+}
+
+.tracks-xiii-save-number {
+  top: .85cqh;
+  left: .8cqw;
+  min-width: 0;
+  padding: 0;
+  color: rgba(247, 249, 249, .88);
+  background: transparent;
+  box-shadow: none;
+  font: italic 400 clamp(22px, 1.6cqw, 31px) / 1 Baskerville, "Iowan Old Style", serif;
+  letter-spacing: .04em;
+  text-align: left;
+  text-shadow: 0 .15cqh .7cqw rgba(0, 0, 0, .72);
+}
+
+.tracks-xiii-save-number::before {
+  content: none;
+}
+
+.tracks-xiii-save-copy {
+  position: absolute;
+  z-index: 5;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  align-content: end;
+  gap: .55cqh;
+  min-height: 43%;
+  padding: 2.5cqh 1cqw 1.05cqh;
+  color: #eef3f4;
+  background: linear-gradient(180deg, transparent, rgba(5, 11, 16, .74) 52%, rgba(5, 11, 16, .9));
+}
+
+.tracks-xiii-save-copy small {
+  color: rgba(229, 238, 241, .76);
+  font-size: clamp(10px, .66cqw, 13px);
+  text-shadow: 0 .12cqh .45cqw rgba(0, 0, 0, .74);
+}
+
+.tracks-xiii-save-copy strong {
+  color: #f5f7f7;
+  font-size: clamp(14px, .94cqw, 18px);
+  text-shadow: 0 .14cqh .55cqw rgba(0, 0, 0, .78);
+}
+
+.tracks-xiii-save-meta {
+  color: rgba(229, 237, 240, .74);
+  font-size: clamp(10px, .64cqw, 12px);
+  text-shadow: 0 .12cqh .45cqw rgba(0, 0, 0, .72);
+}
+
+.tracks-xiii-save-meta b {
+  color: #f1f5f6;
+}
+
+.tracks-xiii-save-command {
+  top: 1.05cqh;
+  right: .85cqw;
+  font-size: clamp(10px, .6cqw, 12px);
+  opacity: .5;
+}
+
+.tracks-xiii-save-slot:hover,
+.tracks-xiii-save-slot:focus-visible,
+.tracks-xiii-save-slot.is-kb-cursor {
+  outline: 0;
+  box-shadow:
+    0 .95cqh 1.9cqw color-mix(in srgb, var(--v4-shadow) 72%, transparent),
+    0 0 1.35cqw color-mix(in srgb, var(--v4-accent) 24%, transparent);
+  transform: scale(1.013);
+}
+
+.tracks-xiii-save-slot:hover::before,
+.tracks-xiii-save-slot:focus-visible::before,
+.tracks-xiii-save-slot.is-kb-cursor::before {
+  opacity: .8;
+}
+
+.tracks-xiii-save-slot:active {
+  transform: scale(.992);
+}
+
+.tracks-xiii-save-slot.is-empty {
+  display: block;
+  border: 0;
+  background:
+    radial-gradient(ellipse at 50% 46%, color-mix(in srgb, var(--v4-accent) 15%, var(--v4-card) 34%), transparent 70%),
+    color-mix(in srgb, var(--v4-outer) 66%, #091017 34%);
+  box-shadow: 0 .55cqh 1.1cqw color-mix(in srgb, var(--v4-shadow) 38%, transparent);
+}
+
+.tracks-xiii-save-slot.is-empty::before {
+  opacity: .2;
+  mix-blend-mode: normal;
+}
+
+.tracks-xiii-save-slot.is-empty::after {
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 50% 48%, color-mix(in srgb, var(--v4-card) 38%, transparent), transparent 67%);
+  opacity: .74;
+}
+
+.tracks-xiii-save-slot.is-empty .tracks-xiii-save-number {
+  z-index: 4;
+  color: color-mix(in srgb, var(--xiii-soft) 82%, transparent);
+  text-shadow: none;
+}
+
+.tracks-xiii-save-slot.is-empty .tracks-xiii-save-copy {
+  z-index: 5;
+  min-height: 100%;
+  padding: 0;
+  color: var(--xiii-soft);
+  background: transparent;
+}
+
+.tracks-xiii-save-slot.is-empty .tracks-xiii-save-copy strong {
+  color: var(--xiii-soft);
+  font-size: clamp(13px, .88cqw, 17px);
+  text-shadow: none;
+}
+
+/* Pagination reads as game state, not an underlined web control. */
+.tracks-xiii-edge-turners button {
+  width: 3cqw;
+  min-width: 40px;
+  height: 11cqh;
+  min-height: 64px;
+  border: 0;
+  outline: 0;
+  color: var(--xiii-soft);
+  background:
+    radial-gradient(ellipse at 35% 50%, color-mix(in srgb, var(--v4-accent) 17%, var(--v4-card) 24%), transparent 68%);
+  opacity: .78;
+  transition:
+    color 180ms ease,
+    opacity 180ms ease,
+    transform 240ms cubic-bezier(.22, 1, .36, 1),
+    filter 180ms ease;
+}
+
+.tracks-xiii-edge-turners button:first-child {
+  left: 17.15cqw;
+  transform: translate(-100%, -50%);
+}
+
+.tracks-xiii-edge-turners button:last-child {
+  right: 1.2cqw;
+  background:
+    radial-gradient(ellipse at 65% 50%, color-mix(in srgb, var(--v4-accent) 17%, var(--v4-card) 24%), transparent 68%);
+  transform: translateY(-50%);
+}
+
+.tracks-xiii-edge-turners button:hover,
+.tracks-xiii-edge-turners button:focus-visible {
+  outline: 0;
+  filter: drop-shadow(0 0 .8cqw color-mix(in srgb, var(--v4-accent) 26%, transparent));
+}
+
+.tracks-xiii-edge-turners button:first-child:hover,
+.tracks-xiii-edge-turners button:first-child:focus-visible {
+  transform: translate(-100%, -50%) scale(1.08);
+}
+
+.tracks-xiii-edge-turners button:last-child:hover,
+.tracks-xiii-edge-turners button:last-child:focus-visible {
+  transform: translateY(-50%) scale(1.08);
+}
+
+.tracks-xiii-page-nav {
+  right: 25cqw;
+  bottom: 4.75cqh;
+  left: 25cqw;
+  gap: 1.15cqw;
+}
+
+.tracks-xiii-page-markers {
+  gap: .55cqw;
+}
+
+.tracks-xiii-page-markers button {
+  min-width: 2.1cqw;
+  min-height: 2.8cqh;
+  padding: .4cqh .35cqw;
+  border: 0;
+  border-radius: 48%;
+  outline: 0;
+  color: var(--xiii-muted);
+  background: transparent;
+  font-size: clamp(11px, .7cqw, 13px);
+  transition:
+    color 180ms ease,
+    background-color 180ms ease,
+    transform 220ms cubic-bezier(.22, 1, .36, 1),
+    box-shadow 180ms ease;
+}
+
+.tracks-xiii-page-markers button::after {
+  display: none;
+}
+
+.tracks-xiii-page-markers button[aria-pressed="true"] {
+  color: var(--xiii-ink);
+  background: rgba(var(--v4-accent-rgb), .24);
+  box-shadow: 0 0 .9cqw color-mix(in srgb, var(--v4-accent) 16%, transparent);
+  transform: scale(1.12);
+}
+
+.tracks-xiii-page-markers button:hover,
+.tracks-xiii-page-markers button:focus-visible {
+  outline: 0;
+  color: var(--xiii-ink);
+  background: color-mix(in srgb, var(--v4-accent) 13%, var(--v4-card) 38%);
+  transform: scale(1.08);
+}
+
+.tracks-xiii-page-nav > strong {
+  font-size: clamp(11px, .72cqw, 14px);
+  letter-spacing: .1em;
+}
+
+.tracks-xiii-reference-switcher {
+  opacity: .52;
+}
+
+/* Flowchart: atmospheric route field; only route connectors use lines. */
+.tracks-xiii-flow-shell {
+  border: 0;
+  background:
+    radial-gradient(ellipse at 74% 20%, rgba(65, 139, 170, .22), transparent 43%),
+    radial-gradient(ellipse at 18% 82%, rgba(31, 76, 98, .16), transparent 52%),
+    linear-gradient(108deg, rgba(4, 8, 12, .98), rgba(11, 28, 38, .96));
+  box-shadow:
+    0 1.1cqh 2.2cqw color-mix(in srgb, var(--v4-shadow) 72%, transparent),
+    0 0 2.4cqw rgba(78, 145, 174, .08);
+}
+
+.tracks-xiii-flow-shell::before {
+  opacity: .65;
+  background:
+    radial-gradient(circle at 24% 31%, rgba(182, 221, 236, .055), transparent 22%),
+    radial-gradient(circle at 76% 66%, rgba(109, 188, 220, .05), transparent 29%);
+}
+
+.tracks-xiii-flow-themes {
+  gap: .65cqw;
+}
+
+.tracks-xiii-flow-themes button {
+  min-width: 4.4cqw;
+  min-height: 3.6cqh;
+  padding: .45cqh .65cqw;
+  border: 0;
+  border-radius: 48%;
+  outline: 0;
+  color: rgba(215, 228, 234, .68);
+  background: transparent;
+  font-size: clamp(10px, .65cqw, 13px);
+  transition:
+    color 180ms ease,
+    background-color 180ms ease,
+    transform 220ms cubic-bezier(.22, 1, .36, 1),
+    box-shadow 180ms ease;
+}
+
+.tracks-xiii-flow-themes button::after {
+  display: none;
+}
+
+.tracks-xiii-flow-themes button[aria-pressed="true"] {
+  color: #f5f8f8;
+  background: color-mix(in srgb, var(--flow-active) 20%, rgba(13, 28, 37, .7));
+  box-shadow: 0 0 1cqw color-mix(in srgb, var(--flow-active) 18%, transparent);
+  transform: scale(1.06);
+}
+
+.tracks-xiii-flow-themes button:hover,
+.tracks-xiii-flow-themes button:focus-visible {
+  outline: 0;
+  color: #fff;
+  background: color-mix(in srgb, var(--flow-active) 13%, rgba(13, 28, 37, .56));
+}
+
+.tracks-xiii-flow-expand {
+  width: 3.55cqw;
+  min-width: 46px;
+  height: 6.3cqh;
+  min-height: 44px;
+  border: 0;
+  border-radius: 50%;
+  outline: 0;
+  color: rgba(239, 247, 249, .92);
+  background:
+    radial-gradient(circle at 38% 32%, rgba(255, 255, 255, .18), transparent 34%),
+    color-mix(in srgb, var(--flow-active) 20%, rgba(18, 42, 54, .8));
+  box-shadow:
+    0 .45cqh 1.1cqw rgba(0, 0, 0, .36),
+    0 0 1.2cqw color-mix(in srgb, var(--flow-active) 20%, transparent);
+  transition:
+    color 180ms ease,
+    background-color 180ms ease,
+    transform 240ms cubic-bezier(.22, 1, .36, 1),
+    box-shadow 180ms ease;
+}
+
+.tracks-xiii-flow-expand:hover,
+.tracks-xiii-flow-expand:focus-visible {
+  outline: 0;
+  color: #fff;
+  background: color-mix(in srgb, var(--flow-active) 31%, rgba(18, 42, 54, .78));
+  box-shadow:
+    0 .55cqh 1.3cqw rgba(0, 0, 0, .4),
+    0 0 1.7cqw color-mix(in srgb, var(--flow-active) 34%, transparent);
+  transform: scale(1.08);
+}
+
+.tracks-xiii-flow-map {
+  height: max(760px, 116cqh);
+}
+
+.tracks-xiii-flow-boundary {
+  stroke: color-mix(in srgb, var(--flow-line) 29%, transparent);
+  stroke-width: 1;
+}
+
+.tracks-xiii-flow-path {
+  stroke-width: 1.2;
+  filter: drop-shadow(0 0 2px color-mix(in srgb, var(--flow-active) 28%, transparent));
+}
+
+.tracks-xiii-flow-chapter {
+  left: .65cqw;
+}
+
+.tracks-xiii-flow-chapter b {
+  font-size: clamp(11px, .72cqw, 14px);
+}
+
+.tracks-xiii-flow-node {
+  width: clamp(94px, 7.25cqw, 134px);
+  border: 0;
+  outline: 0;
+  background: rgba(7, 12, 16, .94);
+  box-shadow:
+    0 .45cqh 1cqw rgba(0, 0, 0, .5),
+    0 0 .75cqw rgba(115, 178, 202, .13);
+  transition:
+    box-shadow 180ms ease,
+    transform 240ms cubic-bezier(.22, 1, .36, 1),
+    filter 180ms ease;
+}
+
+.tracks-xiii-flow-node-art {
+  inset: 0;
+  filter: saturate(.78) brightness(.9) contrast(.98);
+}
+
+.tracks-xiii-flow-node:hover,
+.tracks-xiii-flow-node:focus-visible,
+.tracks-xiii-flow-node[aria-pressed="true"] {
+  border: 0;
+  outline: 0;
+  box-shadow:
+    0 .6cqh 1.25cqw rgba(0, 0, 0, .55),
+    0 0 1.4cqw color-mix(in srgb, var(--flow-active) 55%, transparent);
+  transform: translate(-50%, -50%) scale(1.08);
+}
+
+.tracks-xiii-flow-node[aria-pressed="true"] .tracks-xiii-flow-node-art {
+  filter: saturate(1) brightness(1.02) contrast(1.02);
+}
+
+.tracks-xiii-flow-node.is-locked {
+  border: 0;
+  background:
+    radial-gradient(ellipse at 50% 48%, rgba(116, 170, 191, .14), transparent 68%),
+    rgba(6, 11, 15, .95);
+  box-shadow: 0 .35cqh .8cqw rgba(0, 0, 0, .44);
+}
+
+.tracks-xiii-flow-caption {
+  gap: .85cqw;
+}
+
+.tracks-xiii-flow-caption > span {
+  font-size: clamp(16px, 1.05cqw, 21px);
+}
+
+.tracks-xiii-flow-caption > strong {
+  font-size: clamp(12px, .76cqw, 15px);
+}
+
+.tracks-xiii-flow-scroll-indicator {
+  right: .4cqw;
+  width: 7px;
+  border-radius: 8px;
+  background: rgba(178, 203, 214, .12);
+}
+
+.tracks-xiii-flow-scroll-indicator > span {
+  left: 1px;
+  width: 5px;
+  border-radius: 8px;
+  background: rgba(161, 209, 229, .7);
+  box-shadow: 0 0 .65cqw rgba(102, 193, 231, .24);
+}
+
+.tracks-xiii-flow-detail-paper {
+  border: 0;
+  box-shadow:
+    0 1.7cqh 3.4cqw rgba(0, 0, 0, .42),
+    0 0 2cqw color-mix(in srgb, var(--flow-active) 12%, transparent);
+}
+
+.tracks-xiii-flow-detail-copy {
+  border-top: 0;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--flow-active) 12%, transparent), transparent 35%);
+}
+
+.tracks-xiii-flow-hints {
+  font-size: clamp(11px, .64cqw, 13px);
+}
+
+/* Story: scene rows are separated by mass and rhythm, never separator lines. */
+.tracks-xiii-story-view {
+  padding-right: 2cqw;
+}
+
+.tracks-xiii-story-list {
+  gap: 1.25cqh;
+  padding-right: .25cqw;
+}
+
+.tracks-xiii-story-slot {
+  grid-template-columns: 4.2cqw 13.4cqw minmax(0, 1fr);
+  min-height: 12.4cqh;
+  border: 0;
+  outline: 0;
+  color: var(--xiii-ink);
+  background:
+    linear-gradient(90deg,
+      color-mix(in srgb, var(--v4-card) 91%, var(--v4-ink) 9%),
+      color-mix(in srgb, var(--v4-paper) 74%, transparent) 78%,
+      transparent 100%);
+  box-shadow: 0 .5cqh 1.15cqw color-mix(in srgb, var(--v4-shadow) 34%, transparent);
+  transform-origin: 0 50%;
+  transition:
+    box-shadow 180ms ease,
+    transform 240ms cubic-bezier(.22, 1, .36, 1),
+    filter 180ms ease;
+}
+
+.tracks-xiii-story-slot::after {
+  z-index: 0;
+  inset: 0;
+  width: auto;
+  height: auto;
+  opacity: 0;
+  background:
+    linear-gradient(90deg,
+      color-mix(in srgb, var(--v4-accent) 24%, transparent),
+      color-mix(in srgb, var(--v4-accent) 8%, transparent) 68%,
+      transparent);
+  transition: opacity 180ms ease;
+}
+
+.tracks-xiii-story-number,
+.tracks-xiii-story-art,
+.tracks-xiii-story-copy {
+  position: relative;
+  z-index: 1;
+}
+
+.tracks-xiii-story-number {
+  color: color-mix(in srgb, var(--v4-accent) 52%, var(--xiii-soft));
+  background: transparent;
+  font-size: clamp(20px, 1.45cqw, 28px);
+  text-shadow: 0 0 .7cqw color-mix(in srgb, var(--v4-accent) 13%, transparent);
+}
+
+.tracks-xiii-story-copy {
+  gap: .85cqh;
+  padding: 1.2cqh 1.25cqw;
+}
+
+.tracks-xiii-story-copy strong {
+  font-size: clamp(15px, 1cqw, 19px);
+}
+
+.tracks-xiii-story-copy > span {
+  color: color-mix(in srgb, var(--xiii-soft) 92%, var(--xiii-ink) 8%);
+  font-size: clamp(11px, .73cqw, 14px);
+}
+
+.tracks-xiii-story-slot:hover,
+.tracks-xiii-story-slot:focus-visible,
+.tracks-xiii-story-slot.is-kb-cursor {
+  outline: 0;
+  box-shadow:
+    0 .7cqh 1.45cqw color-mix(in srgb, var(--v4-shadow) 48%, transparent),
+    0 0 1.2cqw color-mix(in srgb, var(--v4-accent) 15%, transparent);
+  transform: scale(1.012);
+}
+
+.tracks-xiii-story-slot:hover::after,
+.tracks-xiii-story-slot:focus-visible::after,
+.tracks-xiii-story-slot.is-kb-cursor::after {
+  opacity: .78;
+}
+
+.tracks-xiii-story-slot:active {
+  transform: scale(.993);
+}
+
+.tracks-xiii-story-slot.is-locked {
+  opacity: .68;
+  background:
+    radial-gradient(ellipse at 25% 50%, color-mix(in srgb, var(--v4-accent) 10%, var(--v4-card) 36%), transparent 64%),
+    color-mix(in srgb, var(--v4-card) 34%, transparent);
+  box-shadow: 0 .35cqh .8cqw color-mix(in srgb, var(--v4-shadow) 24%, transparent);
+}
+
+.tracks-xiii-story-slot.is-locked .tracks-xiii-story-art {
+  background:
+    radial-gradient(ellipse at 50% 48%, color-mix(in srgb, var(--v4-accent) 14%, var(--v4-card) 28%), transparent 70%);
+}
+
+.tracks-xiii-story-rail {
+  width: 10px;
+  min-width: 10px;
+}
+
+.tracks-xiii-story-rail::before {
+  top: 1cqh;
+  bottom: 1cqh;
+  width: 8px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--v4-card) 22%, transparent);
+}
+
+.tracks-xiii-story-rail > span {
+  width: 6px;
+  min-height: 46px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--v4-accent) 68%, var(--v4-card) 20%);
+  box-shadow: 0 0 .7cqw color-mix(in srgb, var(--v4-accent) 24%, transparent);
+}
+
+.tracks-xiii-story-confirm-panel {
+  border: 0;
+  background:
+    radial-gradient(ellipse at 18% 10%, color-mix(in srgb, var(--v4-accent) 18%, transparent), transparent 44%),
+    var(--xiii-surface-strong);
+  box-shadow:
+    0 2.2cqh 5.4cqw rgba(0, 0, 0, .4),
+    0 0 2.2cqw color-mix(in srgb, var(--v4-accent) 12%, transparent);
+}
+
+.tracks-xiii-story-confirm-panel button {
+  min-height: 4.8cqh;
+  border: 0;
+  outline: 0;
+  color: var(--xiii-soft);
+  background:
+    radial-gradient(ellipse at 50% 50%, color-mix(in srgb, var(--v4-card) 78%, transparent), transparent 78%);
+  transition:
+    color 180ms ease,
+    background-color 180ms ease,
+    transform 220ms cubic-bezier(.22, 1, .36, 1),
+    filter 180ms ease;
+}
+
+.tracks-xiii-story-confirm-panel button:hover,
+.tracks-xiii-story-confirm-panel button:focus-visible {
+  border: 0;
+  outline: 0;
+  color: var(--xiii-ink);
+  background:
+    radial-gradient(ellipse at 50% 50%, color-mix(in srgb, var(--v4-accent) 24%, var(--v4-card) 62%), transparent 78%);
+  filter: drop-shadow(0 0 .8cqw color-mix(in srgb, var(--v4-accent) 23%, transparent));
+  transform: scale(1.055);
+}
+
+/* Diary keeps its image-led composition but joins the shared control language. */
+.tracks-xiii-diary-month {
+  border: 0;
+  box-shadow: 0 .9cqh 1.9cqw color-mix(in srgb, var(--v4-shadow) 55%, transparent);
+}
+
+.tracks-xiii-diary-cover:focus-visible {
+  outline: 0;
+  filter: drop-shadow(0 0 1.1cqw color-mix(in srgb, var(--v4-accent) 28%, transparent));
+}
+
+.tracks-xiii-diary-reader-close {
+  min-width: 9cqw;
+  min-height: 5cqh;
+  border: 0;
+  border-radius: 48%;
+  outline: 0;
+  color: rgba(235, 244, 247, .84);
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(75, 130, 153, .48), rgba(21, 47, 59, .34) 58%, transparent 78%);
+  transition:
+    color 180ms ease,
+    transform 220ms cubic-bezier(.22, 1, .36, 1),
+    filter 180ms ease;
+}
+
+.tracks-xiii-diary-reader-close:hover,
+.tracks-xiii-diary-reader-close:focus-visible {
+  border: 0;
+  outline: 0;
+  color: #fff;
+  filter: drop-shadow(0 0 1cqw rgba(126, 193, 219, .28));
+  transform: scale(1.06);
+}
+
+.tracks-xiii-view-ghost {
+  left: 13.15cqw;
+}
+
+.tracks-xiii-canvas.has-keyboard-cursor .is-kb-cursor {
+  outline: 0;
+  filter: drop-shadow(0 0 1cqw color-mix(in srgb, var(--v4-accent) 34%, transparent));
+}
+
+@container (max-width: 1050px) {
+  .tracks-xiii-primary-shell {
+    right: 6cqw;
+    left: 22cqw;
+  }
+
+  .tracks-xiii-primary {
+    gap: 3.4cqw;
+  }
+
+  .tracks-xiii-stage {
+    right: 3.8cqw;
+    left: 3.8cqw;
+    grid-template-columns: 12.8cqw minmax(0, 1fr);
+    column-gap: 1.45cqw;
+  }
+
+  .tracks-xiii-index-group button {
+    font-size: clamp(12px, 1.15cqw, 16px);
+  }
+
+  .tracks-xiii-story-slot {
+    grid-template-columns: 4.8cqw 14.5cqw minmax(0, 1fr);
+  }
+}
+
+@container (max-width: 760px) {
+  .tracks-xiii-primary-shell {
+    top: 8.2cqh;
+    right: 3.4cqw;
+    left: 19cqw;
+  }
+
+  .tracks-xiii-primary {
+    gap: 1.2cqw;
+  }
+
+  .tracks-xiii-primary button {
+    flex-basis: 24cqw;
+    padding: 0 .4cqw;
+    font-size: clamp(11px, 1.8cqw, 15px);
+  }
+
+  .tracks-xiii-stage {
+    top: 17.7cqh;
+    right: 3.4cqw;
+    left: 3.4cqw;
+    grid-template-columns: 15.4cqw minmax(0, 1fr);
+    column-gap: 1.2cqw;
+  }
+
+  .tracks-xiii-index-group button {
+    padding-left: .35cqw;
+    letter-spacing: .08em;
+  }
+
+  .tracks-xiii-record-grid,
+  .tracks-xiii-save-grid {
+    gap: 1cqh .8cqw;
+  }
+
+  .tracks-xiii-story-slot {
+    grid-template-columns: 5.5cqw 16.5cqw minmax(0, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tracks-xiii-primary button,
+  .tracks-xiii-primary button::before,
+  .tracks-xiii-primary button::after,
+  .tracks-xiii-index-group button,
+  .tracks-xiii-index-group button::before,
+  .tracks-xiii-index-group button span,
+  .tracks-xiii-record-slot,
+  .tracks-xiii-save-slot,
+  .tracks-xiii-edge-turners button,
+  .tracks-xiii-page-markers button,
+  .tracks-xiii-flow-themes button,
+  .tracks-xiii-flow-expand,
+  .tracks-xiii-flow-node,
+  .tracks-xiii-story-slot,
+  .tracks-xiii-story-confirm-panel button,
+  .tracks-xiii-diary-reader-close {
+    transition: none;
+  }
+
+  .tracks-xiii-primary button:hover,
+  .tracks-xiii-index-group button:hover,
+  .tracks-xiii-record-slot:hover,
+  .tracks-xiii-save-slot:hover,
+  .tracks-xiii-page-markers button:hover,
+  .tracks-xiii-flow-expand:hover,
+  .tracks-xiii-story-slot:hover,
+  .tracks-xiii-story-confirm-panel button:hover,
+  .tracks-xiii-diary-reader-close:hover {
     transform: none;
   }
 }
