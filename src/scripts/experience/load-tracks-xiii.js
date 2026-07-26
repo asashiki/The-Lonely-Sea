@@ -34,6 +34,8 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
   const articleEmptySlots = all("[data-xiii-article-empty]");
   const saveSlots = all("[data-xiii-save-slot]");
   const saveEmptySlots = all("[data-xiii-save-empty]");
+  const articleGrid = required("[data-xiii-article-grid]");
+  const saveGrid = required(".tracks-xiii-save-grid");
   const stage = required(".tracks-xiii-stage");
   const index = required(".tracks-xiii-index");
   const indexStack = required(".tracks-xiii-index-stack");
@@ -1076,6 +1078,13 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
     return best;
   }
 
+  function archiveColumnCount(grid) {
+    const columns = getComputedStyle(grid).gridTemplateColumns
+      .split(/\s+/)
+      .filter(Boolean).length;
+    return Math.max(1, columns);
+  }
+
   function pageFromKeyboard(direction) {
     const model = paginationModel();
     const nextPage = model.active + direction;
@@ -1139,7 +1148,9 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
 
     let next = null;
     if (activePage === "articles" || (activePage === "game" && activeFilter.game === "save")) {
-      const columns = 3;
+      const columns = activePage === "articles"
+        ? archiveColumnCount(articleGrid)
+        : archiveColumnCount(saveGrid);
       const index = targets.indexOf(current);
       const offsets = {
         ArrowLeft: -1,

@@ -1908,62 +1908,26 @@ html.tracks-xiii-diary-open body {
   }
 }
 
-/* XIII correction — preserve the accepted shell and use explicit game controls. */
+/* XIII repair — XII's proportions, XI's image emphasis, without the cyber-panel language. */
 .tracks-xiii-canvas {
-  --xiii-wash-rest: color-mix(in srgb, var(--v4-card) 62%, transparent);
-  --xiii-wash-active: color-mix(in srgb, var(--v4-accent) 22%, var(--v4-card) 64%);
-  --xiii-wash-deep: color-mix(in srgb, var(--v4-accent) 28%, var(--v4-paper) 68%);
+  --xiii-control-rest: color-mix(in srgb, var(--v4-card) 78%, transparent);
+  --xiii-control-hover: color-mix(in srgb, var(--v4-accent) 16%, var(--v4-card) 76%);
+  --xiii-control-active: color-mix(in srgb, var(--v4-accent) 24%, var(--v4-card) 74%);
+  --xiii-slot-rest: color-mix(in srgb, var(--v4-card) 82%, transparent);
+  --xiii-slot-shadow: color-mix(in srgb, var(--v4-shadow) 58%, transparent);
+  --xiii-stage-inline: 4.8cqw;
+  --xiii-index-width: 10.8cqw;
+  --xiii-stage-gap: 2.25cqw;
+  --xiii-content-offset: calc(var(--xiii-index-width) + var(--xiii-stage-gap));
+  --xiii-turner-left: calc(var(--xiii-stage-inline) + var(--xiii-content-offset) - .7cqw);
 }
 
-.tracks-xiii-canvas .system-back {
-  min-width: 7.4cqw;
-  min-height: 4.2cqh;
-  padding-left: 2.3cqw;
-  border: 0;
-  outline: 0;
-  color: var(--xiii-soft);
-  background: transparent;
-  box-shadow: none;
-  opacity: .84;
-  transition:
-    color 180ms ease,
-    opacity 180ms ease;
-}
-
-.tracks-xiii-canvas .system-back::before {
-  width: 1.85cqw;
-  min-width: 25px;
-  height: 3.3cqh;
-  min-height: 24px;
-  border: 2px solid var(--xiii-edge);
-  border-radius: 0;
-  color: var(--xiii-ink);
-  background: var(--xiii-surface-strong);
-  box-shadow: 0 .35cqh .85cqw color-mix(in srgb, var(--v4-shadow) 40%, transparent);
-}
-
-.tracks-xiii-canvas .system-back:hover,
-.tracks-xiii-canvas .system-back:focus-visible {
-  outline: 0;
-  filter: none;
-  transform: none;
-  opacity: 1;
-}
-
-.tracks-xiii-heading {
-  top: 4.25cqh;
-}
-
-.tracks-xiii-heading h2 {
-  font-size: clamp(34px, 3cqw, 56px);
-}
-
-/* Three independent VN page entrances: compact, solid, and visibly pressable. */
+/* Three distinct page entrances. The silhouette is a broad VN plaque, not a web tab frame. */
 .tracks-xiii-primary-shell {
-  top: 7.8cqh;
-  right: 8.2cqw;
-  left: 26cqw;
-  height: 7cqh;
+  top: 7.25cqh;
+  right: 8cqw;
+  left: 25cqw;
+  height: 7.2cqh;
   filter: none;
 }
 
@@ -1971,39 +1935,30 @@ html.tracks-xiii-diary-open body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: clamp(18px, 2.5cqw, 42px);
+  gap: clamp(18px, 2.75cqw, 46px);
   height: 100%;
 }
 
 .tracks-xiii-primary button {
   position: relative;
-  flex: 0 1 clamp(148px, 13.2cqw, 210px);
+  flex: 0 1 clamp(142px, 12.4cqw, 196px);
   justify-content: center;
-  height: 5.8cqh;
-  min-height: 40px;
-  padding: 0 1.1cqw;
-  overflow: hidden;
+  height: 5.45cqh;
+  min-height: 39px;
+  padding: 0 1.15cqw;
+  overflow: visible;
   border: 0;
-  outline: 0;
-  clip-path: polygon(0 0, calc(100% - .75cqw) 0, 100% 1.15cqh, 100% 100%, .75cqw 100%, 0 calc(100% - 1.15cqh));
+  border-radius: 0;
+  clip-path: none;
   color: var(--xiii-soft);
-  background:
-    linear-gradient(180deg, color-mix(in srgb, white 12%, transparent), transparent 38%),
-    linear-gradient(100deg, color-mix(in srgb, var(--v4-card) 94%, var(--v4-outer) 6%), color-mix(in srgb, var(--v4-card) 76%, transparent));
-  box-shadow:
-    inset .42cqw 0 0 color-mix(in srgb, var(--v4-accent) 28%, var(--v4-card)),
-    inset 0 .42cqh 0 color-mix(in srgb, white 7%, transparent),
-    inset 0 -.52cqh 0 color-mix(in srgb, var(--v4-shadow) 24%, transparent);
-  font-size: clamp(13px, .92cqw, 17px);
+  background: transparent;
+  box-shadow: none;
+  font: 600 clamp(12px, .82cqw, 16px) / 1 "Segoe UI", "Yu Gothic", sans-serif;
   letter-spacing: .16em;
   text-align: center;
-  transform-origin: 50% 50%;
-  transition:
-    color 170ms ease,
-    background-color 170ms ease,
-    box-shadow 170ms ease,
-    filter 170ms ease,
-    transform 90ms ease;
+  text-shadow: 0 1px .5cqw color-mix(in srgb, var(--v4-shadow) 35%, transparent);
+  transform: none;
+  transition: color 170ms ease, filter 170ms ease, transform 90ms ease;
 }
 
 .tracks-xiii-primary button span {
@@ -2014,72 +1969,113 @@ html.tracks-xiii-diary-open body {
 .tracks-xiii-primary button::before {
   content: "";
   position: absolute;
-  z-index: 1;
+  z-index: 0;
   inset: 0;
-  opacity: 0;
+  opacity: .76;
   background:
-    linear-gradient(100deg, rgba(var(--v4-accent-rgb), .3), rgba(var(--v4-accent-rgb), .08) 62%, transparent);
+    linear-gradient(105deg, color-mix(in srgb, white 8%, transparent), transparent 44%),
+    var(--xiii-control-rest);
+  box-shadow:
+    inset 0 0 0 2px color-mix(in srgb, var(--v4-ink) 24%, transparent),
+    0 .5cqh 1.1cqw color-mix(in srgb, var(--v4-shadow) 34%, transparent),
+    inset 0 .42cqh .9cqw color-mix(in srgb, white 6%, transparent);
   filter: none;
   mix-blend-mode: normal;
-  transform: none;
-  transition: opacity 170ms ease;
+  transform: skewX(-8deg) scaleX(.96);
+  transition:
+    opacity 170ms ease,
+    background-color 170ms ease,
+    box-shadow 190ms ease,
+    transform 220ms cubic-bezier(.22, 1, .36, 1);
 }
 
 .tracks-xiii-primary button::after {
-  display: none;
+  content: "";
+  position: absolute;
+  z-index: 1;
+  top: 17%;
+  bottom: 17%;
+  left: .2cqw;
+  display: block;
+  width: .42cqw;
+  min-width: 5px;
+  height: auto;
+  opacity: .18;
+  background: var(--v4-accent);
+  box-shadow: 0 0 1cqw color-mix(in srgb, var(--v4-accent) 24%, transparent);
+  transform: skewX(-8deg) scaleY(.55);
+  transition: opacity 170ms ease, transform 220ms cubic-bezier(.22, 1, .36, 1);
 }
 
 .tracks-xiii-primary button[aria-current="page"] {
   color: var(--xiii-ink);
-  background:
-    linear-gradient(180deg, color-mix(in srgb, white 17%, transparent), transparent 40%),
-    color-mix(in srgb, var(--v4-accent) 23%, var(--v4-card) 77%);
-  box-shadow:
-    inset .55cqw 0 0 color-mix(in srgb, var(--v4-accent) 86%, var(--v4-ink) 14%),
-    inset 0 .48cqh 0 color-mix(in srgb, white 10%, transparent),
-    inset 0 -.58cqh 0 color-mix(in srgb, var(--v4-shadow) 28%, transparent),
-    0 0 1.25cqw color-mix(in srgb, var(--v4-accent) 17%, transparent);
-  text-shadow: none;
+  background: transparent;
+  box-shadow: none;
+  text-shadow: 0 0 .8cqw color-mix(in srgb, var(--v4-accent) 18%, transparent);
   transform: none;
 }
 
 .tracks-xiii-primary button[aria-current="page"]::before {
-  opacity: .72;
+  opacity: 1;
+  background:
+    linear-gradient(105deg, color-mix(in srgb, white 11%, transparent), transparent 44%),
+    var(--xiii-control-active);
+  box-shadow:
+    inset 0 0 0 2px color-mix(in srgb, var(--v4-accent) 52%, var(--v4-ink) 18%),
+    0 .55cqh 1.25cqw color-mix(in srgb, var(--v4-shadow) 42%, transparent),
+    inset 0 .45cqh 1cqw color-mix(in srgb, white 8%, transparent),
+    0 0 1.2cqw color-mix(in srgb, var(--v4-accent) 12%, transparent);
+  transform: skewX(-8deg) scaleX(1);
+}
+
+.tracks-xiii-primary button[aria-current="page"]::after {
+  display: block;
+  opacity: .92;
+  transform: skewX(-8deg) scaleY(1);
 }
 
 .tracks-xiii-primary button:hover,
 .tracks-xiii-primary button:focus-visible {
   outline: 0;
   color: var(--xiii-ink);
-  background:
-    linear-gradient(180deg, color-mix(in srgb, white 14%, transparent), transparent 40%),
-    color-mix(in srgb, var(--v4-accent) 15%, var(--v4-card) 85%);
-  box-shadow:
-    inset .55cqw 0 0 color-mix(in srgb, var(--v4-accent) 70%, var(--v4-ink) 12%),
-    inset 0 .45cqh 0 color-mix(in srgb, white 9%, transparent),
-    inset 0 -.55cqh 0 color-mix(in srgb, var(--v4-shadow) 26%, transparent);
+  background: transparent;
+  box-shadow: none;
   filter: brightness(1.04);
   transform: none;
 }
 
 .tracks-xiii-primary button:hover::before,
 .tracks-xiii-primary button:focus-visible::before {
-  opacity: .56;
+  opacity: 1;
+  background:
+    linear-gradient(105deg, color-mix(in srgb, white 10%, transparent), transparent 44%),
+    var(--xiii-control-hover);
+  box-shadow:
+    inset 0 0 0 2px color-mix(in srgb, var(--v4-accent) 38%, var(--v4-ink) 16%),
+    0 .55cqh 1.2cqw color-mix(in srgb, var(--v4-shadow) 38%, transparent),
+    inset 0 .42cqh .95cqw color-mix(in srgb, white 7%, transparent);
+  transform: skewX(-8deg) scaleX(1);
+}
+
+.tracks-xiii-primary button:hover::after,
+.tracks-xiii-primary button:focus-visible::after {
+  opacity: .72;
+  transform: skewX(-8deg) scaleY(.86);
 }
 
 .tracks-xiii-primary button:active {
-  filter: brightness(.94);
+  filter: brightness(.93);
   transform: scale(.985);
 }
 
-/* Shared composition: more room for records and a readable text index. */
+/* XII's compact left index, with its rejected marker removed. */
 .tracks-xiii-stage {
   top: 17.2cqh;
-  right: 4.8cqw;
+  right: var(--xiii-stage-inline);
   bottom: 12.2cqh;
-  left: 4.8cqw;
-  grid-template-columns: 10.8cqw minmax(0, 1fr);
-  column-gap: 2.25cqw;
+  left: var(--xiii-stage-inline);
+  grid-template-columns: var(--xiii-index-width) minmax(0, 1fr);
+  column-gap: var(--xiii-stage-gap);
 }
 
 .tracks-xiii-index-spine {
@@ -2089,7 +2085,7 @@ html.tracks-xiii-diary-open body {
   left: .65cqw;
   width: 1px;
   background: linear-gradient(transparent, var(--xiii-edge-soft) 8%, var(--xiii-edge-soft) 90%, transparent);
-  box-shadow: 0 0 .7cqw color-mix(in srgb, var(--v4-accent) 12%, transparent);
+  box-shadow: 0 0 .7cqw color-mix(in srgb, var(--v4-accent) 11%, transparent);
 }
 
 .tracks-xiii-index-group {
@@ -2100,19 +2096,19 @@ html.tracks-xiii-diary-open body {
 .tracks-xiii-index-group button {
   height: 5.35cqh;
   min-height: 36px;
-  padding: 0 .65cqw 0 1.45cqw;
+  padding: 0 .65cqw 0 1.55cqw;
   overflow: hidden;
   border: 0;
   outline: 0;
-  color: var(--xiii-muted);
+  color: color-mix(in srgb, var(--v4-ink) 66%, transparent);
   background: transparent;
-  font-size: clamp(12px, .8cqw, 16px);
-  letter-spacing: .11em;
+  font: 600 clamp(12px, .8cqw, 16px) / 1 "Segoe UI", "Yu Gothic", sans-serif;
+  letter-spacing: .1em;
   text-shadow: none;
   transform: none;
   transition:
-    color 180ms ease,
-    background-color 180ms ease,
+    color 170ms ease,
+    background-color 170ms ease,
     padding-left 220ms cubic-bezier(.22, 1, .36, 1);
 }
 
@@ -2127,10 +2123,11 @@ html.tracks-xiii-diary-open body {
 }
 
 .tracks-xiii-index-group button[aria-selected="true"] {
+  padding-left: 1.85cqw;
   color: var(--xiii-ink);
   font-weight: 600;
-  background: linear-gradient(90deg, rgba(var(--v4-accent-rgb), .19), transparent 88%);
-  text-shadow: 0 0 .65cqw color-mix(in srgb, var(--v4-accent) 20%, transparent);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--v4-accent) 20%, transparent), transparent 88%);
+  text-shadow: 0 0 .75cqw color-mix(in srgb, var(--v4-accent) 22%, transparent);
   transform: none;
 }
 
@@ -2142,61 +2139,290 @@ html.tracks-xiii-diary-open body {
 .tracks-xiii-index-group button:focus-visible {
   outline: 0;
   color: var(--xiii-ink);
-  background: linear-gradient(90deg, rgba(var(--v4-accent-rgb), .12), transparent 88%);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--v4-accent) 12%, transparent), transparent 88%);
   text-shadow: none;
   transform: none;
 }
 
 .tracks-xiii-year-index button {
-  font-size: clamp(16px, 1.15cqw, 22px);
+  font-size: clamp(16px, 1.12cqw, 22px);
 }
 
-/* Article records and player saves share the shell, but keep different information hierarchy. */
-.tracks-xiii-record-grid,
+/* ARTICLES: six image-led reading records, borrowing XI's clarity instead of a save-data clone. */
+.tracks-xiii-record-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: 1.55cqh 1.05cqw;
+  width: 100%;
+  height: 100%;
+}
+
+.tracks-xiii-record-slot {
+  position: relative;
+  display: block;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  outline: 0;
+  clip-path: none;
+  color: #f4f7f7;
+  background: color-mix(in srgb, var(--v4-outer) 66%, #10171d 34%);
+  box-shadow: 0 .65cqh 1.25cqw var(--xiii-slot-shadow);
+  text-align: left;
+  isolation: isolate;
+  transform: none;
+  transition: box-shadow 190ms ease, filter 190ms ease, transform 90ms ease;
+}
+
+.tracks-xiii-record-slot::before {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  width: auto;
+  height: auto;
+  opacity: 0;
+  background: linear-gradient(105deg, color-mix(in srgb, var(--v4-accent) 36%, transparent), transparent 58%);
+  mix-blend-mode: soft-light;
+  transform: scaleX(.72);
+  transform-origin: left center;
+  transition: opacity 180ms ease, transform 260ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.tracks-xiii-record-slot::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset: 36% 0 0;
+  display: block;
+  width: auto;
+  height: auto;
+  opacity: 1;
+  clip-path: none;
+  background: linear-gradient(180deg, transparent, rgba(5, 10, 14, .62) 52%, rgba(5, 10, 14, .9));
+  pointer-events: none;
+}
+
+.tracks-xiii-slot-art {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  display: block;
+  width: auto;
+  height: auto;
+  min-height: 0;
+  clip-path: none;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, .04), transparent 44%),
+    var(--record-art, var(--v4-bg)) center / cover no-repeat;
+  box-shadow: none;
+  filter: saturate(.78) contrast(.94);
+  transform: scale(1.002);
+  transition: filter 200ms ease, transform 280ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.tracks-xiii-slot-number {
+  position: absolute;
+  z-index: 4;
+  top: 1cqh;
+  right: .85cqw;
+  inset-block-end: auto;
+  display: block;
+  min-width: 0;
+  padding: 0;
+  color: rgba(247, 250, 250, .9);
+  background: transparent;
+  box-shadow: none;
+  font: italic 400 clamp(18px, 1.38cqw, 27px) / 1 Baskerville, "Iowan Old Style", serif;
+  letter-spacing: .03em;
+  text-align: right;
+  text-shadow: 0 1px .65cqw rgba(0, 0, 0, .68);
+}
+
+.tracks-xiii-slot-copy {
+  position: absolute;
+  z-index: 4;
+  right: 1cqw;
+  bottom: 1.25cqh;
+  left: 1cqw;
+  display: grid;
+  align-content: end;
+  gap: .55cqh;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  color: #f4f7f7;
+  background: transparent;
+}
+
+.tracks-xiii-slot-copy strong {
+  overflow: hidden;
+  color: #f6f8f8;
+  font: 500 clamp(14px, .94cqw, 18px) / 1.32 "Yu Mincho", "Noto Serif CJK SC", serif;
+  letter-spacing: .025em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-shadow: 0 1px .75cqw rgba(0, 0, 0, .82);
+}
+
+.tracks-xiii-slot-copy time {
+  margin: 0;
+  color: rgba(239, 244, 245, .78);
+  font: 600 clamp(11px, .64cqw, 13px) / 1 "Segoe UI", "Yu Gothic", sans-serif;
+  letter-spacing: .1em;
+  text-shadow: 0 1px .55cqw rgba(0, 0, 0, .78);
+}
+
+.tracks-xiii-slot-command {
+  display: none;
+}
+
+.tracks-xiii-record-slot:hover,
+.tracks-xiii-record-slot:focus-visible,
+.tracks-xiii-record-slot.is-kb-cursor {
+  outline: 0;
+  background: color-mix(in srgb, var(--v4-outer) 66%, #10171d 34%);
+  box-shadow:
+    0 .7cqh 1.45cqw var(--xiii-slot-shadow),
+    0 0 1.25cqw color-mix(in srgb, var(--v4-accent) 18%, transparent);
+  filter: brightness(1.04);
+  transform: none;
+}
+
+.tracks-xiii-record-slot:hover::before,
+.tracks-xiii-record-slot:focus-visible::before,
+.tracks-xiii-record-slot.is-kb-cursor::before {
+  opacity: .88;
+  transform: scaleX(1);
+}
+
+.tracks-xiii-record-slot:hover::after,
+.tracks-xiii-record-slot:focus-visible::after,
+.tracks-xiii-record-slot.is-kb-cursor::after {
+  opacity: 1;
+}
+
+.tracks-xiii-record-slot:hover .tracks-xiii-slot-art,
+.tracks-xiii-record-slot:focus-visible .tracks-xiii-slot-art,
+.tracks-xiii-record-slot.is-kb-cursor .tracks-xiii-slot-art {
+  filter: saturate(.94) contrast(1);
+  transform: scale(1.022);
+}
+
+.tracks-xiii-record-slot:active {
+  filter: brightness(.93);
+  transform: scale(.99);
+}
+
+.tracks-xiii-record-slot.is-empty {
+  display: block;
+  color: var(--xiii-soft);
+  background:
+    linear-gradient(145deg, color-mix(in srgb, white 4%, transparent), transparent 48%),
+    color-mix(in srgb, var(--v4-card) 66%, transparent);
+  box-shadow:
+    inset 0 0 2.2cqw color-mix(in srgb, var(--v4-outer) 14%, transparent),
+    0 .45cqh 1cqw color-mix(in srgb, var(--v4-shadow) 30%, transparent);
+  filter: none;
+  opacity: .82;
+}
+
+.tracks-xiii-record-slot.is-empty::before {
+  display: block;
+  opacity: 0;
+}
+
+.tracks-xiii-record-slot.is-empty::after {
+  inset: 0;
+  display: block;
+  opacity: 1;
+  background:
+    radial-gradient(ellipse at 50% 38%, color-mix(in srgb, var(--v4-accent) 7%, transparent), transparent 58%),
+    linear-gradient(180deg, transparent 54%, color-mix(in srgb, var(--v4-outer) 14%, transparent));
+}
+
+.tracks-xiii-record-slot.is-empty .tracks-xiii-slot-number {
+  color: var(--xiii-soft);
+  text-shadow: none;
+}
+
+.tracks-xiii-record-slot.is-empty .tracks-xiii-slot-art {
+  position: absolute;
+  inset: 2.2cqh 1.1cqw 7.2cqh;
+  display: grid;
+  width: auto;
+  height: auto;
+  min-height: 0;
+  place-items: center;
+  background: color-mix(in srgb, var(--v4-ink) 8%, var(--v4-card) 72%);
+  box-shadow: inset 0 0 1.7cqw color-mix(in srgb, var(--v4-shadow) 30%, transparent);
+  filter: none;
+  transform: none;
+}
+
+.tracks-xiii-record-slot.is-empty .tracks-xiii-slot-art > i {
+  display: none;
+}
+
+.tracks-xiii-record-slot.is-empty .tracks-xiii-slot-copy {
+  position: absolute;
+  inset: auto 1cqw 1.2cqh;
+  z-index: 4;
+  display: grid;
+  place-items: start;
+  min-height: 0;
+  padding: 0;
+  color: var(--xiii-soft);
+  background: transparent;
+  transform: none;
+}
+
+.tracks-xiii-record-slot.is-empty .tracks-xiii-slot-copy strong {
+  color: var(--xiii-soft);
+  font: 500 clamp(12px, .75cqw, 15px) / 1 "Segoe UI", "Yu Gothic", sans-serif;
+  letter-spacing: .14em;
+  text-shadow: none;
+}
+
+/* SAVE DATA: traditional horizontal VN files, with real empty slots and readable metadata. */
 .tracks-xiii-save-grid {
-  grid-template-columns: repeat(auto-fit, minmax(28cqw, 1fr));
-  grid-template-rows: none;
-  grid-auto-rows: minmax(0, 1fr);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(3, minmax(0, 1fr));
   gap: 1.35cqh 1.1cqw;
+  width: 100%;
+  height: 100%;
 }
 
-.tracks-xiii-record-slot,
 .tracks-xiii-save-slot {
   position: relative;
   display: grid;
+  grid-template-columns: 3.15cqw 11.7cqw minmax(0, 1fr);
   grid-template-rows: minmax(0, 1fr);
   align-items: center;
   min-width: 0;
   min-height: 0;
-  padding: .9cqh 1cqw .9cqh .7cqw;
+  padding: .85cqh 1cqw .85cqh .3cqw;
   overflow: hidden;
   border: 0;
   outline: 0;
-  clip-path: polygon(0 0, calc(100% - 1.05cqw) 0, 100% 1.45cqh, 100% 100%, 1.05cqw 100%, 0 calc(100% - 1.45cqh));
+  clip-path: none;
   color: var(--xiii-ink);
   background:
-    linear-gradient(180deg, color-mix(in srgb, white 8%, transparent), transparent 34%),
-    linear-gradient(105deg, color-mix(in srgb, var(--v4-card) 96%, var(--v4-paper) 4%) 0 64%, color-mix(in srgb, var(--v4-card) 74%, transparent));
+    linear-gradient(105deg, color-mix(in srgb, white 6%, transparent), transparent 42%),
+    linear-gradient(90deg, var(--xiii-slot-rest), color-mix(in srgb, var(--v4-paper) 62%, transparent));
   box-shadow:
-    inset 0 .48cqh 0 color-mix(in srgb, white 7%, transparent),
-    inset 0 -.62cqh 0 color-mix(in srgb, var(--v4-shadow) 25%, transparent),
-    inset .42cqw 0 0 color-mix(in srgb, var(--v4-accent) 26%, var(--v4-card));
-  transition:
-    background-color 180ms ease,
-    box-shadow 180ms ease,
-    filter 180ms ease,
-    transform 90ms ease;
+    inset 0 .45cqh 1.1cqw color-mix(in srgb, white 5%, transparent),
+    0 .55cqh 1.1cqw var(--xiii-slot-shadow);
+  text-align: left;
+  isolation: isolate;
+  transform: none;
+  transition: box-shadow 190ms ease, filter 190ms ease, transform 90ms ease;
 }
 
-.tracks-xiii-record-slot {
-  grid-template-columns: 3cqw 14.8cqw minmax(0, 1fr);
-}
-
-.tracks-xiii-save-slot {
-  grid-template-columns: 3.25cqw 11.2cqw minmax(0, 1fr);
-}
-
-.tracks-xiii-record-slot::before,
 .tracks-xiii-save-slot::before {
   content: "";
   position: absolute;
@@ -2205,39 +2431,24 @@ html.tracks-xiii-diary-open body {
   width: auto;
   height: auto;
   opacity: 0;
-  background: linear-gradient(105deg, rgba(var(--v4-accent-rgb), .28), rgba(var(--v4-accent-rgb), .07) 62%, transparent);
+  background: linear-gradient(100deg, color-mix(in srgb, var(--v4-accent) 30%, transparent), transparent 64%);
   mix-blend-mode: normal;
-  transition: opacity 180ms ease;
+  transform: scaleX(.74);
+  transform-origin: left center;
+  transition: opacity 180ms ease, transform 260ms cubic-bezier(.22, 1, .36, 1);
 }
 
-.tracks-xiii-record-slot::after,
 .tracks-xiii-save-slot::after {
-  content: "";
-  position: absolute;
-  z-index: 3;
-  top: 0;
-  right: 0;
-  display: block;
-  width: 1.25cqw;
-  height: 2.1cqh;
-  opacity: .32;
-  clip-path: polygon(100% 0, 100% 100%, 0 0);
-  background: color-mix(in srgb, var(--v4-accent) 62%, var(--v4-ink) 38%);
-  transition: opacity 180ms ease;
-  pointer-events: none;
+  display: none;
 }
 
-.tracks-xiii-slot-number,
 .tracks-xiii-save-number,
-.tracks-xiii-slot-art,
 .tracks-xiii-save-art,
-.tracks-xiii-slot-copy,
 .tracks-xiii-save-copy {
   position: relative;
   z-index: 2;
 }
 
-.tracks-xiii-slot-number,
 .tracks-xiii-save-number {
   inset: auto;
   align-self: stretch;
@@ -2245,271 +2456,267 @@ html.tracks-xiii-diary-open body {
   place-items: center;
   min-width: 0;
   padding: 0;
-  color: var(--xiii-ink);
-  background:
-    linear-gradient(180deg, color-mix(in srgb, white 6%, transparent), transparent 42%),
-    color-mix(in srgb, var(--v4-outer) 28%, transparent);
-  box-shadow: inset 0 -.45cqh 0 color-mix(in srgb, var(--v4-shadow) 18%, transparent);
-  font: italic 400 clamp(18px, 1.28cqw, 25px) / 1 Baskerville, "Iowan Old Style", serif;
-  letter-spacing: .03em;
+  color: var(--xiii-soft);
+  background: transparent;
+  box-shadow: none;
+  font: 400 clamp(18px, 1.36cqw, 26px) / 1 Baskerville, "Iowan Old Style", serif;
+  letter-spacing: .02em;
   text-align: center;
-  text-shadow: 0 .12cqh .3cqw color-mix(in srgb, var(--v4-shadow) 32%, transparent);
+  text-shadow: none;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
 }
 
 .tracks-xiii-save-number::before {
   content: none;
 }
 
-.tracks-xiii-slot-art,
 .tracks-xiii-save-art {
   inset: auto;
+  display: block;
   width: 100%;
-  min-height: 66px;
-  clip-path: polygon(0 0, calc(100% - .5cqw) 0, 100% .7cqh, 100% 100%, 0 100%);
-  background-position: center;
-  background-size: cover;
-  background-repeat: no-repeat;
-  box-shadow:
-    inset 0 .35cqh 0 color-mix(in srgb, white 9%, transparent),
-    inset 0 -.45cqh 0 color-mix(in srgb, var(--v4-shadow) 28%, transparent),
-    0 .32cqh .6cqw color-mix(in srgb, var(--v4-shadow) 32%, transparent);
-  transition: filter 180ms ease;
-}
-
-.tracks-xiii-slot-art {
-  height: 13.2cqh;
-  background-image:
-    linear-gradient(rgba(6, 13, 18, .04), rgba(6, 13, 18, .13)),
-    var(--record-art, var(--v4-bg));
-}
-
-.tracks-xiii-save-art {
-  height: 10.7cqh;
-  background-image:
-    linear-gradient(rgba(6, 13, 18, .04), rgba(6, 13, 18, .13)),
-    var(--save-art, var(--v4-bg));
+  height: 11.5cqh;
+  min-height: 70px;
+  overflow: hidden;
+  clip-path: none;
+  background:
+    linear-gradient(rgba(6, 13, 18, .03), rgba(6, 13, 18, .12)),
+    var(--save-art, var(--v4-bg)) center / cover no-repeat;
+  box-shadow: 0 .3cqh .75cqw color-mix(in srgb, var(--v4-shadow) 34%, transparent);
   filter: var(--v4-cover-filter);
   transform: none;
+  transition: filter 200ms ease, transform 260ms cubic-bezier(.22, 1, .36, 1);
 }
 
 .tracks-xiii-save-art::after {
   display: none;
 }
 
-.tracks-xiii-slot-copy,
 .tracks-xiii-save-copy {
   inset: auto;
+  align-self: stretch;
+  display: grid;
   align-content: center;
-  gap: .58cqh;
+  gap: .62cqh;
   min-width: 0;
   min-height: 0;
-  padding: .35cqh .55cqw .35cqh 1.05cqw;
+  padding: .35cqh .25cqw .35cqh 1.05cqw;
   color: var(--xiii-ink);
   background: transparent;
 }
 
-.tracks-xiii-slot-copy strong,
-.tracks-xiii-save-copy strong {
-  color: var(--xiii-ink);
-  font-size: clamp(14px, .9cqw, 18px);
-  line-height: 1.3;
-  text-shadow: none;
-}
-
-.tracks-xiii-slot-copy time,
-.tracks-xiii-save-copy small,
-.tracks-xiii-save-meta {
+.tracks-xiii-save-copy small {
+  margin: 0;
+  overflow: hidden;
   color: var(--xiii-soft);
-  font-size: clamp(11px, .64cqw, 13px);
-  line-height: 1.25;
+  font: 600 clamp(11px, .66cqw, 13px) / 1.2 "Segoe UI", "Yu Gothic", sans-serif;
+  letter-spacing: .1em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tracks-xiii-save-copy strong {
+  overflow: hidden;
+  color: var(--xiii-ink);
+  font: 500 clamp(14px, .91cqw, 18px) / 1.32 "Yu Mincho", "Noto Serif CJK SC", serif;
+  letter-spacing: .025em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   text-shadow: none;
 }
 
 .tracks-xiii-save-meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
   gap: .7cqw;
+  min-width: 0;
+  color: var(--xiii-soft);
+  font: 600 clamp(11px, .66cqw, 13px) / 1.2 "Segoe UI", "Yu Gothic", sans-serif;
+  letter-spacing: .055em;
+  text-shadow: none;
+}
+
+.tracks-xiii-save-meta time {
+  overflow: hidden;
+  color: inherit;
+  font: inherit;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .tracks-xiii-save-meta b {
+  flex: 0 0 auto;
   color: var(--xiii-ink);
-  font-weight: 500;
+  font-weight: 600;
 }
 
-.tracks-xiii-slot-command,
 .tracks-xiii-save-command {
-  display: none;
+  position: absolute;
+  z-index: 4;
+  top: auto;
+  right: 1cqw;
+  bottom: .8cqh;
+  display: block;
+  color: var(--xiii-ink);
+  font: 700 clamp(10px, .58cqw, 12px) / 1 "Segoe UI", "Yu Gothic", sans-serif;
+  letter-spacing: .15em;
+  text-shadow: none;
+  opacity: 0;
+  transform: translateX(.4cqw);
+  transition: opacity 170ms ease, transform 220ms cubic-bezier(.22, 1, .36, 1);
 }
 
-.tracks-xiii-record-slot:hover,
-.tracks-xiii-record-slot:focus-visible,
-.tracks-xiii-record-slot.is-kb-cursor,
 .tracks-xiii-save-slot:hover,
 .tracks-xiii-save-slot:focus-visible,
 .tracks-xiii-save-slot.is-kb-cursor,
 .tracks-xiii-save-slot[aria-pressed="true"] {
   outline: 0;
   background:
-    linear-gradient(180deg, color-mix(in srgb, white 11%, transparent), transparent 36%),
-    linear-gradient(105deg, color-mix(in srgb, var(--v4-accent) 28%, var(--v4-card) 72%) 0 66%, color-mix(in srgb, var(--v4-card) 78%, transparent));
+    linear-gradient(105deg, color-mix(in srgb, white 7%, transparent), transparent 42%),
+    linear-gradient(90deg, var(--xiii-slot-rest), color-mix(in srgb, var(--v4-paper) 62%, transparent));
   box-shadow:
-    inset 0 .5cqh 0 color-mix(in srgb, white 9%, transparent),
-    inset 0 -.65cqh 0 color-mix(in srgb, var(--v4-shadow) 28%, transparent),
-    inset .62cqw 0 0 color-mix(in srgb, var(--v4-accent) 82%, var(--v4-ink) 18%),
-    0 0 1.2cqw color-mix(in srgb, var(--v4-accent) 13%, transparent);
-  filter: brightness(1.04);
+    inset 0 .45cqh 1.1cqw color-mix(in srgb, white 6%, transparent),
+    0 .6cqh 1.3cqw var(--xiii-slot-shadow),
+    0 0 1.15cqw color-mix(in srgb, var(--v4-accent) 16%, transparent);
+  filter: brightness(1.035);
   transform: none;
 }
 
-.tracks-xiii-record-slot:hover::before,
-.tracks-xiii-record-slot:focus-visible::before,
-.tracks-xiii-record-slot.is-kb-cursor::before,
 .tracks-xiii-save-slot:hover::before,
 .tracks-xiii-save-slot:focus-visible::before,
 .tracks-xiii-save-slot.is-kb-cursor::before,
 .tracks-xiii-save-slot[aria-pressed="true"]::before {
-  opacity: .7;
+  opacity: .82;
+  transform: scaleX(1);
 }
 
-.tracks-xiii-record-slot:hover::after,
-.tracks-xiii-record-slot:focus-visible::after,
-.tracks-xiii-record-slot.is-kb-cursor::after,
-.tracks-xiii-save-slot:hover::after,
-.tracks-xiii-save-slot:focus-visible::after,
-.tracks-xiii-save-slot.is-kb-cursor::after,
-.tracks-xiii-save-slot[aria-pressed="true"]::after {
-  opacity: .92;
-}
-
-.tracks-xiii-record-slot:hover .tracks-xiii-slot-art,
-.tracks-xiii-record-slot:focus-visible .tracks-xiii-slot-art,
 .tracks-xiii-save-slot:hover .tracks-xiii-save-art,
 .tracks-xiii-save-slot:focus-visible .tracks-xiii-save-art,
+.tracks-xiii-save-slot.is-kb-cursor .tracks-xiii-save-art,
 .tracks-xiii-save-slot[aria-pressed="true"] .tracks-xiii-save-art {
-  filter: brightness(1.09) saturate(1.03);
+  filter: brightness(1.08) saturate(1.02);
+  transform: none;
 }
 
-.tracks-xiii-record-slot:active,
+.tracks-xiii-save-slot:hover .tracks-xiii-save-command,
+.tracks-xiii-save-slot:focus-visible .tracks-xiii-save-command,
+.tracks-xiii-save-slot.is-kb-cursor .tracks-xiii-save-command,
+.tracks-xiii-save-slot[aria-pressed="true"] .tracks-xiii-save-command {
+  opacity: .9;
+  transform: translateX(0);
+}
+
 .tracks-xiii-save-slot:active {
-  filter: brightness(.94);
-  transform: scale(.988);
+  filter: brightness(.93);
+  transform: scale(.99);
 }
 
-.tracks-xiii-record-slot.is-empty,
 .tracks-xiii-save-slot.is-empty {
   display: grid;
   color: var(--xiii-soft);
   background:
-    linear-gradient(180deg, color-mix(in srgb, white 5%, transparent), transparent 36%),
-    linear-gradient(105deg, color-mix(in srgb, var(--v4-card) 77%, var(--v4-outer) 23%), color-mix(in srgb, var(--v4-card) 58%, transparent));
+    linear-gradient(105deg, color-mix(in srgb, white 3%, transparent), transparent 44%),
+    color-mix(in srgb, var(--v4-card) 70%, transparent);
   box-shadow:
-    inset 0 .44cqh 0 color-mix(in srgb, white 5%, transparent),
-    inset 0 -.58cqh 0 color-mix(in srgb, var(--v4-shadow) 22%, transparent),
-    inset .42cqw 0 0 color-mix(in srgb, var(--v4-accent) 15%, var(--v4-card));
+    inset 0 0 2cqw color-mix(in srgb, var(--v4-outer) 12%, transparent),
+    0 .4cqh .9cqw color-mix(in srgb, var(--v4-shadow) 28%, transparent);
   filter: none;
-  opacity: .78;
+  opacity: .8;
 }
 
-.tracks-xiii-record-slot.is-empty::before,
 .tracks-xiii-save-slot.is-empty::before {
   display: block;
   opacity: 0;
 }
 
-.tracks-xiii-record-slot.is-empty::after,
 .tracks-xiii-save-slot.is-empty::after {
-  display: block;
-  opacity: .16;
+  display: none;
 }
 
-.tracks-xiii-record-slot.is-empty .tracks-xiii-slot-number,
 .tracks-xiii-save-slot.is-empty .tracks-xiii-save-number {
   color: var(--xiii-soft);
-  background: color-mix(in srgb, var(--v4-outer) 20%, transparent);
+  background: transparent;
   text-shadow: none;
 }
 
-.tracks-xiii-record-slot.is-empty .tracks-xiii-slot-art,
 .tracks-xiii-save-slot.is-empty .tracks-xiii-save-art {
+  position: relative;
+  inset: auto;
   display: grid;
+  width: 100%;
+  height: 11.5cqh;
+  min-height: 70px;
   place-items: center;
   background:
-    linear-gradient(145deg, color-mix(in srgb, var(--v4-outer) 28%, transparent), transparent 58%),
-    color-mix(in srgb, var(--v4-card) 54%, transparent);
-  box-shadow:
-    inset 0 .32cqh 0 color-mix(in srgb, white 4%, transparent),
-    inset 0 -.4cqh 0 color-mix(in srgb, var(--v4-shadow) 18%, transparent);
+    radial-gradient(ellipse at 50% 48%, color-mix(in srgb, var(--v4-accent) 7%, transparent), transparent 64%),
+    color-mix(in srgb, var(--v4-ink) 8%, var(--v4-card) 72%);
+  box-shadow: inset 0 0 1.7cqw color-mix(in srgb, var(--v4-shadow) 30%, transparent);
+  filter: none;
 }
 
-.tracks-xiii-record-slot.is-empty .tracks-xiii-slot-art > i,
 .tracks-xiii-save-slot.is-empty .tracks-xiii-save-art > i {
   display: none;
 }
 
-.tracks-xiii-record-slot.is-empty .tracks-xiii-slot-copy,
 .tracks-xiii-save-slot.is-empty .tracks-xiii-save-copy {
   position: relative;
   inset: auto;
   z-index: 2;
+  display: grid;
+  align-content: center;
   place-items: start;
   min-height: 0;
-  padding: .35cqh .55cqw .35cqh 1.05cqw;
+  padding: .35cqh .25cqw .35cqh 1.05cqw;
   color: var(--xiii-soft);
   background: transparent;
   transform: none;
 }
 
-.tracks-xiii-record-slot.is-empty .tracks-xiii-slot-copy strong,
 .tracks-xiii-save-slot.is-empty .tracks-xiii-save-copy strong {
   color: var(--xiii-soft);
-  font-size: clamp(13px, .82cqw, 16px);
-  letter-spacing: .1em;
+  font: 500 clamp(12px, .76cqw, 15px) / 1 "Segoe UI", "Yu Gothic", sans-serif;
+  letter-spacing: .14em;
   text-shadow: none;
 }
 
-/* Pagination belongs to the slot bank and never collapses with a filter. */
+/* Page turning stays attached to the record bank and remains legible without another box UI. */
 .tracks-xiii-edge-turners button {
-  width: 2.8cqw;
-  min-width: 40px;
-  height: 8.8cqh;
-  min-height: 58px;
+  width: 2.6cqw;
+  min-width: 36px;
+  height: 10cqh;
+  min-height: 64px;
   border: 0;
   outline: 0;
-  clip-path: polygon(0 0, calc(100% - .45cqw) 0, 100% .7cqh, 100% calc(100% - .7cqh), calc(100% - .45cqw) 100%, 0 100%);
+  clip-path: none;
   color: var(--xiii-soft);
-  background:
-    linear-gradient(180deg, color-mix(in srgb, white 8%, transparent), transparent 38%),
-    color-mix(in srgb, var(--v4-card) 84%, transparent);
-  box-shadow:
-    inset .35cqw 0 0 color-mix(in srgb, var(--v4-accent) 25%, var(--v4-card)),
-    inset 0 -.5cqh 0 color-mix(in srgb, var(--v4-shadow) 22%, transparent);
-  opacity: .9;
-  transition:
-    color 170ms ease,
-    background-color 170ms ease,
-    box-shadow 170ms ease,
-    opacity 170ms ease,
-    filter 170ms ease,
-    transform 90ms ease;
+  background: transparent;
+  box-shadow: none;
+  font: 300 clamp(30px, 2.25cqw, 42px) / 1 Baskerville, serif;
+  text-shadow: 0 0 .85cqw color-mix(in srgb, var(--v4-shadow) 42%, transparent);
+  opacity: .76;
+  transition: color 170ms ease, opacity 170ms ease, filter 170ms ease;
 }
 
 .tracks-xiii-edge-turners button:first-child {
-  left: 17.15cqw;
+  left: var(--xiii-turner-left);
   transform: translate(-100%, -50%);
 }
 
 .tracks-xiii-edge-turners button:last-child {
-  right: 1.2cqw;
-  transform: translateY(-50%) scaleX(-1);
+  right: 1.15cqw;
+  background: transparent;
+  transform: translateY(-50%);
 }
 
 .tracks-xiii-edge-turners button:hover,
 .tracks-xiii-edge-turners button:focus-visible {
   outline: 0;
   color: var(--xiii-ink);
-  background: color-mix(in srgb, var(--v4-accent) 19%, var(--v4-card) 81%);
-  box-shadow:
-    inset .48cqw 0 0 color-mix(in srgb, var(--v4-accent) 78%, var(--v4-ink) 22%),
-    inset 0 -.52cqh 0 color-mix(in srgb, var(--v4-shadow) 25%, transparent);
-  filter: brightness(1.05);
+  background: transparent;
+  box-shadow: none;
+  filter: drop-shadow(0 0 .65cqw color-mix(in srgb, var(--v4-accent) 34%, transparent));
+  opacity: 1;
 }
 
 .tracks-xiii-edge-turners button:first-child:hover,
@@ -2519,40 +2726,38 @@ html.tracks-xiii-diary-open body {
 
 .tracks-xiii-edge-turners button:last-child:hover,
 .tracks-xiii-edge-turners button:last-child:focus-visible {
-  transform: translateY(-50%) scaleX(-1);
+  transform: translateY(-50%);
 }
 
 .tracks-xiii-edge-turners button:disabled {
-  opacity: .28;
+  opacity: .2;
 }
 
 .tracks-xiii-page-nav {
   right: 25cqw;
-  bottom: 4.65cqh;
+  bottom: 4.45cqh;
   left: 25cqw;
-  gap: .7cqw;
+  gap: .65cqw;
 }
 
 .tracks-xiii-page-markers {
-  gap: .32cqw;
+  gap: .4cqw;
 }
 
 .tracks-xiii-page-markers button {
-  min-width: 2.25cqw;
-  min-height: 3.15cqh;
-  padding: .32cqh .34cqw;
+  display: grid;
+  place-items: center;
+  min-width: 2.35cqw;
+  min-height: 3.35cqh;
+  padding: .28cqh .35cqw;
   border: 0;
   outline: 0;
-  clip-path: polygon(0 0, calc(100% - .28cqw) 0, 100% .42cqh, 100% 100%, 0 100%);
-  color: var(--xiii-muted);
-  background: color-mix(in srgb, var(--v4-card) 68%, transparent);
-  box-shadow: inset 0 -.34cqh 0 color-mix(in srgb, var(--v4-shadow) 18%, transparent);
-  font-size: clamp(11px, .7cqw, 13px);
-  transition:
-    color 170ms ease,
-    background-color 170ms ease,
-    box-shadow 170ms ease,
-    filter 170ms ease;
+  clip-path: none;
+  color: var(--xiii-soft);
+  background: transparent;
+  box-shadow: none;
+  font: 600 clamp(12px, .74cqw, 14px) / 1 "Segoe UI", "Yu Gothic", sans-serif;
+  transition: color 170ms ease, background-color 170ms ease, box-shadow 170ms ease;
 }
 
 .tracks-xiii-page-markers button::after {
@@ -2561,11 +2766,8 @@ html.tracks-xiii-diary-open body {
 
 .tracks-xiii-page-markers button[aria-pressed="true"] {
   color: var(--xiii-ink);
-  background: color-mix(in srgb, var(--v4-accent) 28%, var(--v4-card) 72%);
-  box-shadow:
-    inset .32cqw 0 0 color-mix(in srgb, var(--v4-accent) 82%, var(--v4-ink) 18%),
-    inset 0 -.36cqh 0 color-mix(in srgb, var(--v4-shadow) 20%, transparent),
-    0 0 .75cqw color-mix(in srgb, var(--v4-accent) 13%, transparent);
+  background: color-mix(in srgb, var(--v4-accent) 22%, var(--v4-card) 66%);
+  box-shadow: 0 0 .8cqw color-mix(in srgb, var(--v4-accent) 13%, transparent);
   transform: none;
 }
 
@@ -2573,26 +2775,28 @@ html.tracks-xiii-diary-open body {
 .tracks-xiii-page-markers button:focus-visible {
   outline: 0;
   color: var(--xiii-ink);
-  background: color-mix(in srgb, var(--v4-accent) 18%, var(--v4-card) 82%);
-  filter: brightness(1.04);
+  background: color-mix(in srgb, var(--v4-accent) 13%, var(--v4-card) 58%);
+  filter: none;
   transform: none;
 }
 
 .tracks-xiii-page-nav > strong {
+  color: var(--xiii-soft);
   font-size: clamp(12px, .74cqw, 14px);
   letter-spacing: .08em;
 }
 
-.tracks-xiii-reference-switcher {
-  opacity: .52;
-}
-
-/* Keep the record bank readable without changing its slot logic. */
 .tracks-xiii-view-ghost {
-  left: 13.05cqw;
+  left: var(--xiii-content-offset);
 }
 
-@container (max-width: 1050px) {
+@media (max-width: 1100px) {
+  .tracks-xiii-canvas {
+    --xiii-stage-inline: 3.8cqw;
+    --xiii-index-width: 12.6cqw;
+    --xiii-stage-gap: 1.55cqw;
+  }
+
   .tracks-xiii-primary-shell {
     right: 6cqw;
     left: 22cqw;
@@ -2603,79 +2807,94 @@ html.tracks-xiii-diary-open body {
   }
 
   .tracks-xiii-stage {
-    right: 3.8cqw;
-    left: 3.8cqw;
-    grid-template-columns: 12.6cqw minmax(0, 1fr);
-    column-gap: 1.55cqw;
-  }
-
-  .tracks-xiii-view-ghost {
-    left: 14.15cqw;
-  }
-
-  .tracks-xiii-record-slot {
-    grid-template-columns: 3.3cqw 14.4cqw minmax(0, 1fr);
+    right: var(--xiii-stage-inline);
+    left: var(--xiii-stage-inline);
+    grid-template-columns: var(--xiii-index-width) minmax(0, 1fr);
+    column-gap: var(--xiii-stage-gap);
   }
 
   .tracks-xiii-save-slot {
-    grid-template-columns: 3.5cqw 13.2cqw minmax(0, 1fr);
+    grid-template-columns: 3.4cqw 12.8cqw minmax(0, 1fr);
   }
 
   .tracks-xiii-slot-copy strong,
   .tracks-xiii-save-copy strong {
-    font-size: clamp(13px, 1.05cqw, 18px);
+    font-size: clamp(13px, 1.02cqw, 18px);
   }
 }
 
-@container (max-width: 760px) {
+@media (max-width: 800px) {
+  .tracks-xiii-canvas {
+    --xiii-stage-inline: 2.8cqw;
+    --xiii-index-width: 16.5cqw;
+    --xiii-stage-gap: 1cqw;
+  }
+
   .tracks-xiii-primary-shell {
-    top: 10.6cqh;
+    top: 7.5cqh;
     right: 4.5cqw;
     left: 19cqw;
   }
 
   .tracks-xiii-primary {
-    gap: 1.35cqw;
+    gap: 1.2cqw;
   }
 
   .tracks-xiii-primary button {
-    min-height: 4.8cqh;
-    padding-inline: 1.5cqw;
+    flex-basis: auto;
+    min-height: 38px;
+    padding-inline: 1.25cqw;
   }
 
   .tracks-xiii-stage {
     top: 17.2cqh;
-    right: 2.8cqw;
+    right: var(--xiii-stage-inline);
     bottom: 9.6cqh;
-    left: 2.8cqw;
-    grid-template-columns: 14.5cqw minmax(0, 1fr);
-    column-gap: 1.2cqw;
-  }
-
-  .tracks-xiii-view-ghost {
-    left: 15.7cqw;
+    left: var(--xiii-stage-inline);
+    grid-template-columns: var(--xiii-index-width) minmax(0, 1fr);
+    column-gap: var(--xiii-stage-gap);
   }
 
   .tracks-xiii-index button {
     padding-left: 1.3cqw;
   }
 
-  .tracks-xiii-record-grid,
+  .tracks-xiii-record-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(3, minmax(0, 1fr));
+    gap: .8cqw;
+  }
+
   .tracks-xiii-save-grid {
     gap: .8cqw;
   }
 
-  .tracks-xiii-record-slot {
-    grid-template-columns: 3.9cqw 16.2cqw minmax(0, 1fr);
-  }
-
   .tracks-xiii-save-slot {
-    grid-template-columns: 4.2cqw 14.8cqw minmax(0, 1fr);
+    grid-template-columns: 3.8cqw 13.5cqw minmax(0, 1fr);
   }
 
-  .tracks-xiii-slot-copy,
+  .tracks-xiii-save-art,
+  .tracks-xiii-save-slot.is-empty .tracks-xiii-save-art {
+    height: 10.8cqh;
+    min-height: 0;
+  }
+
   .tracks-xiii-save-copy {
-    padding-inline: 1.1cqw;
+    padding-inline: 1cqw;
+  }
+
+  .tracks-xiii-save-meta {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: .18cqh;
+  }
+
+  .tracks-xiii-save-meta b {
+    justify-self: start;
+  }
+
+  .tracks-xiii-save-meta time {
+    display: block;
   }
 
   .tracks-xiii-page-nav {
@@ -2685,9 +2904,15 @@ html.tracks-xiii-diary-open body {
 
 @media (prefers-reduced-motion: reduce) {
   .tracks-xiii-primary button,
+  .tracks-xiii-primary button::before,
+  .tracks-xiii-primary button::after,
   .tracks-xiii-index button,
   .tracks-xiii-record-slot,
+  .tracks-xiii-record-slot::before,
+  .tracks-xiii-slot-art,
   .tracks-xiii-save-slot,
+  .tracks-xiii-save-slot::before,
+  .tracks-xiii-save-art,
   .tracks-xiii-page-nav button,
   .tracks-xiii-page-markers button {
     transition: none;
