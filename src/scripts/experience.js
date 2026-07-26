@@ -6,6 +6,7 @@ import { initLoadScreen } from "./experience/load.js";
 import { initLoadTracksConcept } from "./experience/load-tracks.js";
 import { initLoadTracksXiConcept } from "./experience/load-tracks-xi.js";
 import { initLoadTracksXiiConcept } from "./experience/load-tracks-xii.js";
+import { initLoadTracksXiiiConcept } from "./experience/load-tracks-xiii.js";
 import { initOptions } from "./experience/options.js";
 import { createWeatherController } from "./experience/weather.js";
 
@@ -191,10 +192,12 @@ const loadScreen = initLoadScreen({ reduceMotion });
 const loadTracksConcept = initLoadTracksConcept({ reduceMotion });
 const loadTracksXiConcept = initLoadTracksXiConcept({ reduceMotion });
 const loadTracksXiiConcept = initLoadTracksXiiConcept({ reduceMotion });
+const loadTracksXiiiConcept = initLoadTracksXiiiConcept({ reduceMotion });
 loadScreen.registerReferenceControllers({
   tracks: loadTracksConcept,
   "tracks-xi": loadTracksXiConcept,
   "tracks-xii": loadTracksXiiConcept,
+  "tracks-xiii": loadTracksXiiiConcept,
 });
 const extraScreen = initExtraScreen();
 const optionScreen = initOptions({

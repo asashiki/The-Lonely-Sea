@@ -1,0 +1,39 @@
+---
+interface Props {
+  active: string;
+  class?: string;
+}
+
+const variants = [
+  { id: "memory", label: "Ⅰ", title: "Kimi 方案一" },
+  { id: "list", label: "Ⅱ", title: "Kimi 方案二" },
+  { id: "editorial", label: "Ⅲ", title: "Kimi 方案三" },
+  { id: "moon", label: "Ⅳ", title: "月白" },
+  { id: "dossier", label: "Ⅴ", title: "残卷" },
+  { id: "tide", label: "Ⅵ", title: "潮汐" },
+  { id: "vnclassic", label: "Ⅶ", title: "传统 Galgame" },
+  { id: "tsukihime", label: "Ⅷ", title: "月姬 Remake 参考" },
+  { id: "cartagra", label: "Ⅸ", title: "恋狱月狂病 Remake 参考" },
+  { id: "tracks", label: "Ⅹ", title: "三轨记录" },
+  { id: "tracks-xi", label: "Ⅺ", title: "月潮图谱" },
+  { id: "tracks-xii", label: "Ⅻ", title: "月海存档" },
+  { id: "tracks-xiii", label: "ⅩⅢ", title: "记录铭牌" },
+];
+
+const { active, class: className } = Astro.props;
+---
+
+<div class:list={["load-variant-switcher", className]} aria-label="布局方案切换（临时调试）">
+  {
+    variants.map((variant) => (
+      <button
+        type="button"
+        data-load-variant-option={variant.id}
+        aria-pressed={variant.id === active}
+        title={variant.title}
+      >
+        {variant.label}
+      </button>
+    ))
+  }
+</div>

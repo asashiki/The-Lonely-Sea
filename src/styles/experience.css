@@ -4891,11 +4891,13 @@ body[data-scene="crimson"] .exit-dialog { --modal-accent: 214,125,107; --modal-c
 
 .load-tracks-canvas,
 .load-tracks-xi-canvas,
-.load-tracks-xii-canvas { display: none; }
-.load-screen:is([data-load-reference="tracks"],[data-load-reference="tracks-xi"],[data-load-reference="tracks-xii"]) .load-legacy-canvas { display: none; }
+.load-tracks-xii-canvas,
+.load-tracks-xiii-canvas { display: none; }
+.load-screen:is([data-load-reference="tracks"],[data-load-reference="tracks-xi"],[data-load-reference="tracks-xii"],[data-load-reference="tracks-xiii"]) .load-legacy-canvas { display: none; }
 .load-screen[data-load-reference="tracks"] .load-tracks-canvas { display: grid; }
 .load-screen[data-load-reference="tracks-xi"] .load-tracks-xi-canvas { display: grid; }
 .load-screen[data-load-reference="tracks-xii"] .load-tracks-xii-canvas { display: grid; }
+.load-screen[data-load-reference="tracks-xiii"] .load-tracks-xiii-canvas { display: grid; }
 .load-tracks-reference-switcher {
   right: auto;
   bottom: 3.2cqh;

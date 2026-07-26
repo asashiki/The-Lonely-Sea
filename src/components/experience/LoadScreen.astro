@@ -4,6 +4,8 @@ import { LOAD_SLOT_CAPACITY } from "../../lib/experience-records";
 import LoadTracksConcept from "./LoadTracksConcept.astro";
 import LoadTracksXiConcept from "./LoadTracksXiConcept.astro";
 import LoadTracksXiiConcept from "./LoadTracksXiiConcept.astro";
+import LoadTracksXiiiConcept from "./LoadTracksXiiiConcept.astro";
+import LoadVariantSwitcher from "./LoadVariantSwitcher.astro";
 
 interface Props {
   records: ExperienceRecord[];
@@ -134,20 +136,7 @@ const emptyNumbers = Array.from(
         <button type="button" data-load-page-direction="1"><b>›</b><span>NEXT</span></button>
       </nav>
       <p class="load-control-hints" aria-hidden="true"><span><b>○</b> DECIDE</span><span><b>×</b> BACK</span><span><b>L1</b><b>R1</b> PAGE</span></p>
-      <div class="load-variant-switcher" aria-label="布局方案切换（临时调试）">
-        <button type="button" data-load-variant-option="memory" aria-pressed="false" title="Kimi 方案一">Ⅰ</button>
-        <button type="button" data-load-variant-option="list" aria-pressed="false" title="Kimi 方案二">Ⅱ</button>
-        <button type="button" data-load-variant-option="editorial" aria-pressed="false" title="Kimi 方案三">Ⅲ</button>
-        <button type="button" data-load-variant-option="moon" aria-pressed="true" title="月白">Ⅳ</button>
-        <button type="button" data-load-variant-option="dossier" aria-pressed="false" title="残卷">Ⅴ</button>
-        <button type="button" data-load-variant-option="tide" aria-pressed="false" title="潮汐">Ⅵ</button>
-        <button type="button" data-load-variant-option="vnclassic" aria-pressed="false" title="传统 Galgame">Ⅶ</button>
-        <button type="button" data-load-variant-option="tsukihime" aria-pressed="false" title="月姬 Remake 参考">Ⅷ</button>
-        <button type="button" data-load-variant-option="cartagra" aria-pressed="false" title="恋狱月狂病 Remake 参考">Ⅸ</button>
-        <button type="button" data-load-variant-option="tracks" aria-pressed="false" title="三轨记录实验">Ⅹ</button>
-        <button type="button" data-load-variant-option="tracks-xi" aria-pressed="false" title="月潮图谱">Ⅺ</button>
-        <button type="button" data-load-variant-option="tracks-xii" aria-pressed="false" title="月海存档">Ⅻ</button>
-      </div>
+      <LoadVariantSwitcher active="moon" />
       <section class="article-launch" id="article-launch" aria-hidden="true" aria-label="文章页面占位预览">
         <div class="article-launch-art" id="article-launch-art"></div>
         <div class="article-launch-shade"></div>
@@ -164,4 +153,5 @@ const emptyNumbers = Array.from(
   <LoadTracksConcept records={records} />
   <LoadTracksXiConcept records={records} />
   <LoadTracksXiiConcept records={records} />
+  <LoadTracksXiiiConcept records={records} />
 </section>

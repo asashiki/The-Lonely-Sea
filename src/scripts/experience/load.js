@@ -16,6 +16,7 @@ const VARIANTS = new Set([
   "tracks",
   "tracks-xi",
   "tracks-xii",
+  "tracks-xiii",
 ]);
 const GAME_VARIANTS = new Set(["moon", "dossier", "tide", "vnclassic", "tsukihime", "cartagra"]);
 const SLOT_CAPACITY = 24;
@@ -30,6 +31,7 @@ export function initLoadScreen({ reduceMotion }) {
   const tracksCanvas = required(".load-tracks-canvas");
   const tracksXiCanvas = required(".load-tracks-xi-canvas");
   const tracksXiiCanvas = required(".load-tracks-xii-canvas");
+  const tracksXiiiCanvas = required(".load-tracks-xiii-canvas");
   const loadSurface = required(".load-view-surface");
   const loadPageLabel = required("#load-page-label");
   const loadPageProgress = required("#load-page-progress");
@@ -62,9 +64,9 @@ export function initLoadScreen({ reduceMotion }) {
   function readVariant() {
     try {
       const stored = localStorage.getItem(VARIANT_STORAGE_KEY);
-      return VARIANTS.has(stored) ? stored : "tracks-xii";
+      return VARIANTS.has(stored) ? stored : "tracks-xiii";
     } catch {
-      return "tracks-xii";
+      return "tracks-xiii";
     }
   }
 
@@ -311,6 +313,7 @@ export function initLoadScreen({ reduceMotion }) {
         tracks: "tracks",
         "tracks-xi": "tracks-xi",
         "tracks-xii": "tracks-xii",
+        "tracks-xiii": "tracks-xiii",
       }[next] ?? "legacy";
       referenceControllers[previousReference]?.deactivate?.();
       loadScreenRoot.dataset.loadReference = nextReference;
@@ -318,6 +321,7 @@ export function initLoadScreen({ reduceMotion }) {
       tracksCanvas.setAttribute("aria-hidden", String(nextReference !== "tracks"));
       tracksXiCanvas.setAttribute("aria-hidden", String(nextReference !== "tracks-xi"));
       tracksXiiCanvas.setAttribute("aria-hidden", String(nextReference !== "tracks-xii"));
+      tracksXiiiCanvas.setAttribute("aria-hidden", String(nextReference !== "tracks-xiii"));
       updatePressed("[data-load-variant-option]", next, "loadVariantOption");
       loadPage = 0;
       activeSlot = null;
@@ -329,6 +333,7 @@ export function initLoadScreen({ reduceMotion }) {
           tracks: tracksCanvas,
           "tracks-xi": tracksXiCanvas,
           "tracks-xii": tracksXiiCanvas,
+          "tracks-xiii": tracksXiiiCanvas,
         }[nextReference];
         const matchingVariantOption = [...targetCanvas.querySelectorAll("[data-load-variant-option]")]
           .find((button) => button.dataset.loadVariantOption === next);
@@ -437,6 +442,7 @@ export function initLoadScreen({ reduceMotion }) {
       0: "tracks",
       "-": "tracks-xi",
       "=": "tracks-xii",
+      "]": "tracks-xiii",
     }[event.key];
     if (variantByKey) {
       event.preventDefault();

@@ -1,5 +1,7 @@
 import { all, required } from "./dom.js";
 
+const KEYBOARD_CURSOR_STORAGE_KEY = "lonely-sea-load-keyboard-cursor";
+
 export function initOptions({ onReplayOpening, onResetExperience }) {
   const optionTabs = all("[data-option-tab]");
   const optionPanels = all("[data-option-panel]");
@@ -55,6 +57,24 @@ export function initOptions({ onReplayOpening, onResetExperience }) {
     });
   });
 
+  const keyboardCursorToggle = required("[data-kb-cursor-toggle]");
+  const keyboardCursorOutput = required("output", keyboardCursorToggle.closest(".setting-row"));
+  let keyboardCursorEnabled = true;
+  try {
+    keyboardCursorEnabled = localStorage.getItem(KEYBOARD_CURSOR_STORAGE_KEY) !== "false";
+  } catch {}
+  keyboardCursorToggle.setAttribute("aria-pressed", String(keyboardCursorEnabled));
+  keyboardCursorOutput.textContent = keyboardCursorEnabled ? "ON" : "OFF";
+  keyboardCursorToggle.addEventListener("click", () => {
+    const enabled = keyboardCursorToggle.getAttribute("aria-pressed") === "true";
+    try {
+      localStorage.setItem(KEYBOARD_CURSOR_STORAGE_KEY, String(enabled));
+    } catch {}
+    window.dispatchEvent(new CustomEvent("lonely-sea:keyboard-cursor-change", {
+      detail: { enabled },
+    }));
+  });
+
   all("[data-setting-segment-group]").forEach((group) => {
     const buttons = all(".setting-segment", group);
     const output = required("output", group.closest(".setting-row"));
@@ -90,6 +110,12 @@ export function initOptions({ onReplayOpening, onResetExperience }) {
       });
       required("output", group.closest(".setting-row")).textContent = required("output", group.closest(".setting-row")).dataset.defaultValue;
     });
+    try {
+      localStorage.setItem(KEYBOARD_CURSOR_STORAGE_KEY, "true");
+    } catch {}
+    window.dispatchEvent(new CustomEvent("lonely-sea:keyboard-cursor-change", {
+      detail: { enabled: true },
+    }));
     onResetExperience();
   });
 

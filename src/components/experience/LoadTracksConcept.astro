@@ -2,6 +2,7 @@
 import type { ExperienceRecord } from "../../lib/experience-records";
 import { LOAD_SLOT_CAPACITY } from "../../lib/experience-records";
 import "../../styles/load-tracks-x.css";
+import LoadVariantSwitcher from "./LoadVariantSwitcher.astro";
 
 interface Props {
   records: ExperienceRecord[];
@@ -541,19 +542,6 @@ const lockedStorySlots = Array.from({ length: 7 }, (_, index) => index);
       <strong data-x-page-status></strong>
     </nav>
 
-    <div class="load-variant-switcher tracks-x-reference-switcher" aria-label="布局方案切换（临时调试）">
-      <button type="button" data-load-variant-option="memory" aria-pressed="false" title="Kimi 方案一">Ⅰ</button>
-      <button type="button" data-load-variant-option="list" aria-pressed="false" title="Kimi 方案二">Ⅱ</button>
-      <button type="button" data-load-variant-option="editorial" aria-pressed="false" title="Kimi 方案三">Ⅲ</button>
-      <button type="button" data-load-variant-option="moon" aria-pressed="false" title="月白">Ⅳ</button>
-      <button type="button" data-load-variant-option="dossier" aria-pressed="false" title="残卷">Ⅴ</button>
-      <button type="button" data-load-variant-option="tide" aria-pressed="false" title="潮汐">Ⅵ</button>
-      <button type="button" data-load-variant-option="vnclassic" aria-pressed="false" title="传统 Galgame">Ⅶ</button>
-      <button type="button" data-load-variant-option="tsukihime" aria-pressed="false" title="月姬 Remake 参考">Ⅷ</button>
-      <button type="button" data-load-variant-option="cartagra" aria-pressed="false" title="恋狱月狂病 Remake 参考">Ⅸ</button>
-      <button type="button" data-load-variant-option="tracks" aria-pressed="true" title="三轨记录">Ⅹ</button>
-      <button type="button" data-load-variant-option="tracks-xi" aria-pressed="false" title="月潮图谱">Ⅺ</button>
-      <button type="button" data-load-variant-option="tracks-xii" aria-pressed="false" title="月海存档">Ⅻ</button>
-    </div>
+    <LoadVariantSwitcher active="tracks" class="tracks-x-reference-switcher" />
   </div>
 </div>

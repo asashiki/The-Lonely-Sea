@@ -1,7 +1,7 @@
 ---
 import type { ExperienceRecord } from "../../lib/experience-records";
 import { LOAD_SLOT_CAPACITY } from "../../lib/experience-records";
-import "../../styles/load-tracks-xii.css";
+import "../../styles/load-tracks-xiii.css";
 import LoadVariantSwitcher from "./LoadVariantSwitcher.astro";
 
 interface Props {
@@ -210,58 +210,57 @@ const lockedStorySlots = Array.from({ length: 7 }, (_, index) => index);
 ---
 
 <div
-  class="system-canvas load-canvas load-tracks-xii-canvas tracks-xii-canvas"
+  class="system-canvas load-canvas load-tracks-xiii-canvas tracks-xiii-canvas"
   aria-hidden="true"
-  data-xii-kind="articles"
-  data-xii-section="all"
-  data-xii-page-mode="articles"
-  data-xii-flow-theme="blue"
+  data-xiii-kind="articles"
+  data-xiii-section="all"
+  data-xiii-page-mode="articles"
+  data-xiii-flow-theme="blue"
 >
   <div class="load-safe-frame">
     <button class="system-back" type="button" data-back>BACK</button>
 
-    <header class="tracks-xii-heading">
+    <header class="tracks-xiii-heading">
       <h2>LOAD</h2>
-      <p>MEMORY ARCHIVE</p>
     </header>
 
-    <div class="tracks-xii-primary-shell">
-      <nav class="tracks-xii-primary" role="tablist" aria-label="可读取内容">
-        <button type="button" role="tab" data-xii-kind-tab="articles" aria-selected="true" aria-controls="tracks-xii-panel-articles">
+    <div class="tracks-xiii-primary-shell">
+      <nav class="tracks-xiii-primary" role="tablist" aria-label="可读取内容">
+        <button type="button" role="tab" data-xiii-kind-tab="articles" aria-selected="true" aria-controls="tracks-xiii-panel-articles">
           <i aria-hidden="true"></i><span>ARTICLES</span>
         </button>
-        <button type="button" role="tab" data-xii-kind-tab="game" aria-selected="false" aria-controls="tracks-xii-panel-game">
+        <button type="button" role="tab" data-xiii-kind-tab="game" aria-selected="false" aria-controls="tracks-xiii-panel-game">
           <i aria-hidden="true"></i><span>GAME DATA</span>
         </button>
-        <button type="button" role="tab" data-xii-kind-tab="diary" aria-selected="false" aria-controls="tracks-xii-panel-diary">
+        <button type="button" role="tab" data-xiii-kind-tab="diary" aria-selected="false" aria-controls="tracks-xiii-panel-diary">
           <i aria-hidden="true"></i><span>DIARY</span>
         </button>
       </nav>
     </div>
 
-    <div class="tracks-xii-stage">
-      <aside class="tracks-xii-index" aria-label="二级分类">
-        <span class="tracks-xii-index-spine" aria-hidden="true"></span>
-        <div class="tracks-xii-index-stack">
-          <div class="tracks-xii-index-group" data-xii-index-group="articles" role="tablist" aria-label="文章分类" aria-hidden="false">
+    <div class="tracks-xiii-stage">
+      <aside class="tracks-xiii-index" aria-label="二级分类">
+        <span class="tracks-xiii-index-spine" aria-hidden="true"></span>
+        <div class="tracks-xiii-index-stack">
+          <div class="tracks-xiii-index-group" data-xiii-index-group="articles" role="tablist" aria-label="文章分类" aria-hidden="false">
             {articleCategories.map((category, index) => (
-              <button type="button" role="tab" data-xii-filter={category.id} aria-selected={index === 0}>
+              <button type="button" role="tab" data-xiii-filter={category.id} aria-selected={index === 0}>
                 <i aria-hidden="true"></i><span>{category.label}</span>
               </button>
             ))}
           </div>
 
-          <div class="tracks-xii-index-group" data-xii-index-group="game" role="tablist" aria-label="游戏记录分类" aria-hidden="true">
+          <div class="tracks-xiii-index-group" data-xiii-index-group="game" role="tablist" aria-label="游戏记录分类" aria-hidden="true">
             {gameSections.map((section) => (
-              <button type="button" role="tab" data-xii-filter={section.id} aria-selected={section.id === "save"}>
+              <button type="button" role="tab" data-xiii-filter={section.id} aria-selected={section.id === "save"}>
                 <i aria-hidden="true"></i><span>{section.label}</span>
               </button>
             ))}
           </div>
 
-          <div class="tracks-xii-index-group tracks-xii-year-index" data-xii-index-group="diary" role="tablist" aria-label="日记年份" aria-hidden="true">
+          <div class="tracks-xiii-index-group tracks-xiii-year-index" data-xiii-index-group="diary" role="tablist" aria-label="日记年份" aria-hidden="true">
             {diaryYears.map((year, index) => (
-              <button type="button" role="tab" data-xii-filter={year} aria-selected={index === 0}>
+              <button type="button" role="tab" data-xiii-filter={year} aria-selected={index === 0}>
                 <i aria-hidden="true"></i><span>{year}</span>
               </button>
             ))}
@@ -269,47 +268,47 @@ const lockedStorySlots = Array.from({ length: 7 }, (_, index) => index);
         </div>
       </aside>
 
-      <div class="tracks-xii-view" data-xii-view-transition>
-        <section class="tracks-xii-panel tracks-xii-articles" id="tracks-xii-panel-articles" data-xii-panel="articles" role="tabpanel" aria-hidden="false">
-          <div class="tracks-xii-record-grid" data-xii-article-grid>
+      <div class="tracks-xiii-view" data-xiii-view-transition>
+        <section class="tracks-xiii-panel tracks-xiii-articles" id="tracks-xiii-panel-articles" data-xiii-panel="articles" role="tabpanel" aria-hidden="false">
+          <div class="tracks-xiii-record-grid" data-xiii-article-grid>
             {records.map((record) => (
               <button
-                class="tracks-xii-record-slot"
+                class="tracks-xiii-record-slot"
                 type="button"
-                data-xii-article-slot
+                data-xiii-article-slot
                 data-category={record.archiveCategory}
                 data-href={record.url}
                 data-cover={record.coverUrl}
                 aria-label={"读取文章：" + record.title}
                 style={`--record-art:url('${record.coverUrl}')`}
               >
-                <span class="tracks-xii-slot-number" aria-hidden="true">{record.number}</span>
-                <span class="tracks-xii-slot-art" aria-hidden="true"></span>
-                <span class="tracks-xii-slot-copy">
+                <span class="tracks-xiii-slot-number" aria-hidden="true">{record.number}</span>
+                <span class="tracks-xiii-slot-art" aria-hidden="true"></span>
+                <span class="tracks-xiii-slot-copy">
                   <strong>{record.title}</strong>
                   <time datetime={record.date.replaceAll(".", "-")}>{record.date}</time>
                 </span>
-                <span class="tracks-xii-slot-command" aria-hidden="true">LOAD</span>
+                <span class="tracks-xiii-slot-command" aria-hidden="true">LOAD</span>
               </button>
             ))}
             {articleEmptySlots.map((index) => (
-              <div class="tracks-xii-record-slot is-empty" data-xii-article-empty aria-hidden="true">
-                <span class="tracks-xii-slot-number">{String(records.length + index + 1).padStart(2, "0")}</span>
-                <span class="tracks-xii-slot-art" aria-hidden="true"><i></i></span>
-                <span class="tracks-xii-slot-copy"><strong>EMPTY DATA</strong><span>NO RECORD</span></span>
+              <div class="tracks-xiii-record-slot is-empty" data-xiii-article-empty aria-hidden="true">
+                <span class="tracks-xiii-slot-number">{String(records.length + index + 1).padStart(2, "0")}</span>
+                <span class="tracks-xiii-slot-art" aria-hidden="true"><i></i></span>
+                <span class="tracks-xiii-slot-copy"><strong>EMPTY DATA</strong></span>
               </div>
             ))}
           </div>
         </section>
 
-        <section class="tracks-xii-panel tracks-xii-game" id="tracks-xii-panel-game" data-xii-panel="game" role="tabpanel" aria-hidden="true">
-          <div class="tracks-xii-game-view tracks-xii-save-view" data-xii-game-view="save" aria-hidden="false">
-            <div class="tracks-xii-save-grid">
+        <section class="tracks-xiii-panel tracks-xiii-game" id="tracks-xiii-panel-game" data-xiii-panel="game" role="tabpanel" aria-hidden="true">
+          <div class="tracks-xiii-game-view tracks-xiii-save-view" data-xiii-game-view="save" aria-hidden="false">
+            <div class="tracks-xiii-save-grid">
               {demoSaves.map((save) => (
                 <button
-                  class="tracks-xii-save-slot"
+                  class="tracks-xiii-save-slot"
                   type="button"
-                  data-xii-save-slot
+                  data-xiii-save-slot
                   data-save-number={save.number}
                   data-save-title={save.title}
                   data-save-chapter={save.chapter}
@@ -318,35 +317,35 @@ const lockedStorySlots = Array.from({ length: 7 }, (_, index) => index);
                   aria-pressed="false"
                   style={`--save-art:url('${save.art}')`}
                 >
-                  <span class="tracks-xii-save-number" aria-hidden="true">{save.number}</span>
-                  <span class="tracks-xii-save-art" aria-hidden="true"></span>
-                  <span class="tracks-xii-save-copy">
+                  <span class="tracks-xiii-save-number" aria-hidden="true">{save.number}</span>
+                  <span class="tracks-xiii-save-art" aria-hidden="true"></span>
+                  <span class="tracks-xiii-save-copy">
                     <small>{save.chapter}</small>
                     <strong>{save.title}</strong>
                     <time>{save.progress}</time>
                   </span>
-                  <span class="tracks-xii-save-command" aria-hidden="true">LOAD</span>
+                  <span class="tracks-xiii-save-command" aria-hidden="true">LOAD</span>
                 </button>
               ))}
               {saveEmptySlots.map((index) => (
-                <div class="tracks-xii-save-slot is-empty" aria-label="空存档槽位">
-                  <span class="tracks-xii-save-number">{String(index + demoSaves.length + 1).padStart(2, "0")}</span>
-                  <span class="tracks-xii-save-art" aria-hidden="true"><i></i></span>
-                  <span class="tracks-xii-save-copy"><small>UNRECORDED MEMORY</small><strong>EMPTY DATA</strong><span>NO PLAY DATA</span></span>
+                <div class="tracks-xiii-save-slot is-empty" aria-label="空存档槽位">
+                  <span class="tracks-xiii-save-number">{String(index + demoSaves.length + 1).padStart(2, "0")}</span>
+                  <span class="tracks-xiii-save-art" aria-hidden="true"><i></i></span>
+                  <span class="tracks-xiii-save-copy"><strong>EMPTY DATA</strong></span>
                 </div>
               ))}
             </div>
           </div>
 
-          <div class="tracks-xii-game-view tracks-xii-flow-view" data-xii-game-view="flow" aria-hidden="true">
-            <section class="tracks-xii-flow-shell" data-xii-flow-shell aria-label="故事流程图">
-              <div class="tracks-xii-flow-tools">
-                <div class="tracks-xii-flow-themes" role="group" aria-label="切换流程图">
+          <div class="tracks-xiii-game-view tracks-xiii-flow-view" data-xiii-game-view="flow" aria-hidden="true">
+            <section class="tracks-xiii-flow-shell" data-xiii-flow-shell aria-label="故事流程图">
+              <div class="tracks-xiii-flow-tools">
+                <div class="tracks-xiii-flow-themes" role="group" aria-label="切换流程图">
                   {flowAtlases.map((atlas, index) => (
-                    <button type="button" data-xii-flow-theme-option={atlas.id} aria-pressed={index === 0}>{atlas.label}</button>
+                    <button type="button" data-xiii-flow-theme-option={atlas.id} aria-pressed={index === 0}>{atlas.label}</button>
                   ))}
                 </div>
-                <button class="tracks-xii-flow-expand" type="button" data-xii-flow-expand aria-label="放大流程图" aria-expanded="false">
+                <button class="tracks-xiii-flow-expand" type="button" data-xiii-flow-expand aria-label="放大流程图" aria-expanded="false">
                   <svg class="is-expand-icon" viewBox="0 0 32 32" aria-hidden="true">
                     <path d="M13 5H5v8M5 5l9 9M19 27h8v-8M27 27l-9-9"></path>
                   </svg>
@@ -356,25 +355,25 @@ const lockedStorySlots = Array.from({ length: 7 }, (_, index) => index);
                 </button>
               </div>
 
-              <div class="tracks-xii-flow-viewport" data-xii-flow-viewport tabindex="0" aria-label="可拖动的故事流程">
+              <div class="tracks-xiii-flow-viewport" data-xiii-flow-viewport tabindex="0" aria-label="可拖动的故事流程">
                 {flowAtlases.map((atlas, atlasIndex) => (
-                  <div class="tracks-xii-flow-map" data-xii-flow-map={atlas.id} aria-hidden={atlasIndex !== 0}>
+                  <div class="tracks-xiii-flow-map" data-xiii-flow-map={atlas.id} aria-hidden={atlasIndex !== 0}>
                     <svg viewBox="0 0 100 136" preserveAspectRatio="none" aria-hidden="true">
                       {atlas.chapters.map((chapter) => (
-                        <path class="tracks-xii-flow-boundary" d={`M4 ${chapter.y} H96`}></path>
+                        <path class="tracks-xiii-flow-boundary" d={`M4 ${chapter.y} H96`}></path>
                       ))}
-                      {atlas.paths.map((path) => <path class="tracks-xii-flow-path" d={path}></path>)}
+                      {atlas.paths.map((path) => <path class="tracks-xiii-flow-path" d={path}></path>)}
                     </svg>
                     {atlas.chapters.map((chapter) => (
-                      <span class="tracks-xii-flow-chapter" style={`--chapter-y:${(chapter.y / 136) * 100}%`}>
+                      <span class="tracks-xiii-flow-chapter" style={`--chapter-y:${(chapter.y / 136) * 100}%`}>
                         <b>{chapter.label}</b>
                       </span>
                     ))}
                     {atlas.nodes.map((node, nodeIndex) => (
                       <button
-                        class:list={["tracks-xii-flow-node", { "is-locked": !node.unlocked }]}
+                        class:list={["tracks-xiii-flow-node", { "is-locked": !node.unlocked }]}
                         type="button"
-                        data-xii-flow-node={node.unlocked ? node.id : undefined}
+                        data-xiii-flow-node={node.unlocked ? node.id : undefined}
                         data-flow-theme={atlas.id}
                         data-flow-number={node.number}
                         data-flow-title={node.title}
@@ -385,78 +384,82 @@ const lockedStorySlots = Array.from({ length: 7 }, (_, index) => index);
                         disabled={!node.unlocked}
                         style={`--flow-x:${node.x}%;--flow-y:${(node.y / 136) * 100}%;--node-art:${node.art ? `url('${node.art}')` : "none"}`}
                       >
-                        <span class="tracks-xii-flow-node-art" aria-hidden="true"></span>
-                        <span class="tracks-xii-flow-node-number" aria-hidden="true">{node.number}</span>
+                        <span class="tracks-xiii-flow-node-art" aria-hidden="true"></span>
+                        <span class="tracks-xiii-flow-node-number" aria-hidden="true">{node.unlocked ? node.number : "?"}</span>
                       </button>
                     ))}
                   </div>
                 ))}
               </div>
 
-              <div class="tracks-xii-flow-caption" aria-live="polite">
-                <span data-xii-flow-caption-number>{initialFlowNode?.number}</span>
-                <strong data-xii-flow-caption-title>{initialFlowNode?.title}</strong>
+              <div class="tracks-xiii-flow-caption" aria-live="polite">
+                <span data-xiii-flow-caption-number>{initialFlowNode?.number}</span>
+                <strong data-xiii-flow-caption-title>{initialFlowNode?.title}</strong>
               </div>
 
-              <aside class="tracks-xii-flow-detail" aria-live="polite">
-                <div class="tracks-xii-flow-detail-paper">
-                  <div class="tracks-xii-flow-detail-art" data-xii-flow-detail-art style={`--detail-art:url('${initialFlowNode?.art}')`}></div>
-                  <div class="tracks-xii-flow-detail-copy">
-                    <small data-xii-flow-detail-number>SCENE {initialFlowNode?.number}</small>
-                    <h3 data-xii-flow-detail-title>{initialFlowNode?.title}</h3>
-                    <p data-xii-flow-detail-summary>{initialFlowNode?.summary}</p>
+              <aside class="tracks-xiii-flow-detail" aria-live="polite">
+                <div class="tracks-xiii-flow-detail-paper">
+                  <div class="tracks-xiii-flow-detail-art" data-xiii-flow-detail-art style={`--detail-art:url('${initialFlowNode?.art}')`}></div>
+                  <div class="tracks-xiii-flow-detail-copy">
+                    <small data-xiii-flow-detail-number>SCENE {initialFlowNode?.number}</small>
+                    <h3 data-xiii-flow-detail-title>{initialFlowNode?.title}</h3>
+                    <p data-xiii-flow-detail-summary>{initialFlowNode?.summary}</p>
                   </div>
                 </div>
               </aside>
 
-              <div class="tracks-xii-flow-scroll-indicator" data-xii-flow-scroll-indicator aria-hidden="true">
-                <span data-xii-flow-scroll-thumb></span>
+              <div class="tracks-xiii-flow-hints" aria-hidden="true">
+                <span><b>○</b> DECIDE</span><span><b>×</b> BACK</span><span><b>✚</b> MOVE</span><span><b>↕</b> SCROLL</span>
+              </div>
+
+              <div class="tracks-xiii-flow-scroll-indicator" data-xiii-flow-scroll-indicator aria-hidden="true">
+                <span data-xiii-flow-scroll-thumb></span>
               </div>
             </section>
           </div>
 
-          <div class="tracks-xii-game-view tracks-xii-story-view" data-xii-game-view="story" aria-hidden="true">
-            <div class="tracks-xii-story-scroll" id="tracks-xii-story-scroll" data-xii-story-scroll tabindex="0" aria-label="可读取故事场景">
-              <div class="tracks-xii-story-list">
+          <div class="tracks-xiii-game-view tracks-xiii-story-view" data-xiii-game-view="story" aria-hidden="true">
+            <div class="tracks-xiii-story-scroll" id="tracks-xiii-story-scroll" data-xiii-story-scroll tabindex="0" aria-label="可读取故事场景">
+              <div class="tracks-xiii-story-list">
                 {storyScenes.map((scene) => (
                   <button
-                    class="tracks-xii-story-slot"
+                    class="tracks-xiii-story-slot"
                     type="button"
-                    data-xii-story-slot
+                    data-xiii-story-slot
                     data-story-number={scene.number}
                     data-story-title={scene.title}
                     aria-pressed="false"
                     style={`--story-art:url('${scene.art}')`}
                   >
-                    <span class="tracks-xii-story-number">{scene.number}</span>
-                    <span class="tracks-xii-story-art" aria-hidden="true"></span>
-                    <span class="tracks-xii-story-copy">
+                    <span class="tracks-xiii-story-number">{scene.number}</span>
+                    <span class="tracks-xiii-story-art" aria-hidden="true"></span>
+                    <span class="tracks-xiii-story-copy">
                       <strong>{scene.title}</strong>
                       <span>{scene.summary}</span>
                     </span>
-                    <span class="tracks-xii-story-command" aria-hidden="true">ENTER</span>
+                    <span class="tracks-xiii-story-command" aria-hidden="true">ENTER</span>
                   </button>
                 ))}
                 {lockedStorySlots.map((_, index) => (
-                  <div class="tracks-xii-story-slot is-locked" aria-label="未解锁故事场景">
-                    <span class="tracks-xii-story-number">{String(index + storyScenes.length + 1).padStart(2, "0")}</span>
-                    <span class="tracks-xii-story-art" aria-hidden="true"><i></i></span>
-                    <span class="tracks-xii-story-copy"><strong>LOCKED</strong><span>STORY RECORD IS NOT YET AVAILABLE</span></span>
+                  <div class="tracks-xiii-story-slot is-locked" aria-label="未解锁故事场景">
+                    <span class="tracks-xiii-story-number">{String(index + storyScenes.length + 1).padStart(2, "0")}</span>
+                    <span class="tracks-xiii-story-art" aria-hidden="true"><i></i></span>
+                    <span class="tracks-xiii-story-copy"><strong>LOCKED</strong></span>
                   </div>
                 ))}
               </div>
             </div>
-            <div class="tracks-xii-story-rail" data-xii-story-rail role="scrollbar" aria-controls="tracks-xii-story-scroll" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
-              <span data-xii-story-thumb></span>
+            <div class="tracks-xiii-story-rail" data-xiii-story-rail role="scrollbar" aria-controls="tracks-xiii-story-scroll" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
+              <span data-xiii-story-thumb></span>
             </div>
           </div>
         </section>
 
-        <section class="tracks-xii-panel tracks-xii-diary" id="tracks-xii-panel-diary" data-xii-panel="diary" role="tabpanel" aria-hidden="true">
+        <section class="tracks-xiii-panel tracks-xiii-diary" id="tracks-xiii-panel-diary" data-xiii-panel="diary" role="tabpanel" aria-hidden="true">
           {diaryMonths.map((entry, index) => (
             <article
-              class="tracks-xii-diary-month"
-              data-xii-diary-month={entry.id}
+              class="tracks-xiii-diary-month"
+              data-xiii-diary-month={entry.id}
               data-diary-year={entry.year}
               data-diary-date={entry.dateLabel}
               data-diary-label={`${entry.month} / ${entry.year}`}
@@ -465,64 +468,66 @@ const lockedStorySlots = Array.from({ length: 7 }, (_, index) => index);
               data-diary-art={entry.art}
               aria-hidden={index !== 0}
             >
-              <div class="tracks-xii-diary-copy">
+              <div class="tracks-xiii-diary-copy">
                 <time>{entry.dateLabel}</time>
-                <span class="tracks-xii-diary-number" aria-hidden="true">{entry.monthNumber}</span>
+                <span class="tracks-xiii-diary-number" aria-hidden="true">{entry.monthNumber}</span>
                 <h3>{entry.title}</h3>
                 <p>{entry.summary}</p>
               </div>
-              <button class="tracks-xii-diary-cover" type="button" data-xii-diary-entry aria-label={`读取 ${entry.dateLabel} 日记`} aria-pressed="false" style={`--diary-art:url('${entry.art}')`}>
-                <span class="tracks-xii-diary-triptych" aria-hidden="true">
+              <button class="tracks-xiii-diary-cover" type="button" data-xiii-diary-entry aria-label={`读取 ${entry.dateLabel} 日记`} aria-pressed="false" style={`--diary-art:url('${entry.art}')`}>
+                <span class="tracks-xiii-diary-triptych" aria-hidden="true">
                   <i></i><i></i><i></i>
                 </span>
-                <span class="tracks-xii-diary-open"><b>{entry.month}</b><span>OPEN MONTH</span></span>
+                <span class="tracks-xiii-diary-open"><b>{entry.month}</b><span>OPEN MONTH</span></span>
               </button>
             </article>
           ))}
 
           <section
-            class="tracks-xii-diary-reader"
-            data-xii-diary-reader
+            class="tracks-xiii-diary-reader"
+            data-xiii-diary-reader
             role="dialog"
             aria-modal="true"
             aria-hidden="true"
             aria-label="日记阅读预览"
           >
-            <div class="tracks-xii-diary-reader-art" data-xii-diary-reader-art style={`--diary-reader-art:url('${diaryMonths[0]?.art}')`} aria-hidden="true"></div>
-            <div class="tracks-xii-diary-reader-copy">
-              <time data-xii-diary-reader-date>{diaryMonths[0]?.dateLabel}</time>
-              <h3 data-xii-diary-reader-title>{diaryMonths[0]?.title}</h3>
-              <p data-xii-diary-reader-summary>{diaryMonths[0]?.summary}</p>
+            <div class="tracks-xiii-diary-reader-art" data-xiii-diary-reader-art style={`--diary-reader-art:url('${diaryMonths[0]?.art}')`} aria-hidden="true"></div>
+            <div class="tracks-xiii-diary-reader-copy">
+              <time data-xiii-diary-reader-date>{diaryMonths[0]?.dateLabel}</time>
+              <h3 data-xiii-diary-reader-title>{diaryMonths[0]?.title}</h3>
+              <p data-xiii-diary-reader-summary>{diaryMonths[0]?.summary}</p>
             </div>
-            <button class="tracks-xii-diary-reader-close" type="button" data-xii-diary-reader-close>RETURN</button>
+            <button class="tracks-xiii-diary-reader-close" type="button" data-xiii-diary-reader-close>RETURN</button>
           </section>
         </section>
       </div>
     </div>
 
-    <div class="tracks-xii-edge-turners" data-xii-page-controls aria-label="内容翻页">
-      <button type="button" data-xii-page-direction="-1" aria-label="上一页"><span>‹</span></button>
-      <button type="button" data-xii-page-direction="1" aria-label="下一页"><span>›</span></button>
+    <p class="tracks-xiii-hints" aria-hidden="true"><span><b>○</b> DECIDE</span><span><b>×</b> BACK</span><span><b>← →</b> PAGE</span><span data-xiii-hint-cursor><b>↑ ↓</b> CURSOR</span></p>
+
+    <div class="tracks-xiii-edge-turners" data-xiii-page-controls aria-label="内容翻页">
+      <button type="button" data-xiii-page-direction="-1" aria-label="上一页"><span>‹</span></button>
+      <button type="button" data-xiii-page-direction="1" aria-label="下一页"><span>›</span></button>
     </div>
 
-    <nav class="tracks-xii-page-nav" data-xii-page-nav aria-label="当前内容页码">
-      <div class="tracks-xii-page-markers" data-xii-page-markers></div>
-      <strong data-xii-page-status></strong>
+    <nav class="tracks-xiii-page-nav" data-xiii-page-nav aria-label="当前内容页码">
+      <div class="tracks-xiii-page-markers" data-xiii-page-markers></div>
+      <strong data-xiii-page-status></strong>
     </nav>
 
-    <section class="tracks-xii-story-confirm" data-xii-story-confirm role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="tracks-xii-story-confirm-title">
-      <div class="tracks-xii-story-confirm-shade" aria-hidden="true"></div>
-      <div class="tracks-xii-story-confirm-panel">
-        <span data-xii-story-confirm-number>SCENE 01</span>
-        <h3 id="tracks-xii-story-confirm-title">ENTER THIS STORY?</h3>
-        <p data-xii-story-confirm-title>初次见面</p>
+    <section class="tracks-xiii-story-confirm" data-xiii-story-confirm role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="tracks-xiii-story-confirm-title">
+      <div class="tracks-xiii-story-confirm-shade" aria-hidden="true"></div>
+      <div class="tracks-xiii-story-confirm-panel">
+        <span data-xiii-story-confirm-number>SCENE 01</span>
+        <h3 id="tracks-xiii-story-confirm-title">ENTER THIS STORY?</h3>
+        <p data-xiii-story-confirm-title>初次见面</p>
         <div>
-          <button type="button" data-xii-story-enter>ENTER</button>
-          <button type="button" data-xii-story-cancel>CANCEL</button>
+          <button type="button" data-xiii-story-enter>ENTER</button>
+          <button type="button" data-xiii-story-cancel>CANCEL</button>
         </div>
       </div>
     </section>
 
-    <LoadVariantSwitcher active="tracks-xii" class="tracks-xii-reference-switcher" />
+    <LoadVariantSwitcher active="tracks-xiii" class="tracks-xiii-reference-switcher" />
   </div>
 </div>
