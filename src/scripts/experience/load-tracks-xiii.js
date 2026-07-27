@@ -126,8 +126,6 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
   let transitionIncomingGhost = null;
   let transitionIndexGhost = null;
   let transitionIncomingIndexGhost = null;
-  let transitionPageGhost = null;
-  let transitionIncomingPageGhost = null;
   let transitionAnimations = [];
   let keyboardCursorEnabled = true;
   let keyboardCursorItem = null;
@@ -154,13 +152,8 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
     transitionIndexGhost = null;
     transitionIncomingIndexGhost?.remove();
     transitionIncomingIndexGhost = null;
-    transitionPageGhost?.remove();
-    transitionPageGhost = null;
-    transitionIncomingPageGhost?.remove();
-    transitionIncomingPageGhost = null;
     view.style.removeProperty("visibility");
     indexStack.style.removeProperty("visibility");
-    pageNav.style.removeProperty("visibility");
     articleGrid.classList.remove("is-flipping");
   }
 
@@ -206,14 +199,6 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
       all("[id]", indexGhost).forEach((node) => node.removeAttribute("id"));
       index.appendChild(indexGhost);
       transitionIndexGhost = indexGhost;
-    } else {
-      const pageGhost = pageNav.cloneNode(true);
-      pageGhost.classList.add("tracks-xiii-page-nav-ghost");
-      pageGhost.setAttribute("aria-hidden", "true");
-      pageGhost.inert = true;
-      all("[id]", pageGhost).forEach((node) => node.removeAttribute("id"));
-      loadCanvas.appendChild(pageGhost);
-      transitionPageGhost = pageGhost;
     }
     commit();
 
@@ -235,16 +220,6 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
       index.appendChild(incomingIndexGhost);
       transitionIncomingIndexGhost = incomingIndexGhost;
       indexStack.style.visibility = "hidden";
-    }
-    if (transitionPageGhost) {
-      const incomingPageGhost = pageNav.cloneNode(true);
-      incomingPageGhost.classList.add("tracks-xiii-page-nav-ghost", "is-incoming");
-      incomingPageGhost.setAttribute("aria-hidden", "true");
-      incomingPageGhost.inert = true;
-      all("[id]", incomingPageGhost).forEach((node) => node.removeAttribute("id"));
-      loadCanvas.appendChild(incomingPageGhost);
-      transitionIncomingPageGhost = incomingPageGhost;
-      pageNav.style.visibility = "hidden";
     }
 
     const duration = direction === 0 ? VIEW_DURATION : PAGE_DURATION;
@@ -296,33 +271,13 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
         ),
       );
     }
-    if (transitionPageGhost && transitionIncomingPageGhost) {
-      const pageTravel = direction * 3.4;
-      transitionAnimations.push(
-        transitionPageGhost.animate(
-          [
-            { opacity: 1, transform: "translate3d(0,0,0)" },
-            { opacity: 0, transform: `translate3d(${-pageTravel}vw,0,0)` },
-          ],
-          { duration, easing, fill: "both" },
-        ),
-        transitionIncomingPageGhost.animate(
-          [
-            { opacity: 0, transform: `translate3d(${pageTravel}vw,0,0)` },
-            { opacity: 1, transform: "translate3d(0,0,0)" },
-          ],
-          { duration, easing, fill: "both" },
-        ),
-      );
-    }
-
     Promise.allSettled(transitionAnimations.map((animation) => animation.finished))
       .then(() => {
         if (serial === transitionSerial) clearTransition();
       });
   }
 
-  function runArticleFilterTransition(commit, { animate = true } = {}) {
+  function runArticleFilterTransition(commit, { animate = true, direction = 1 } = {}) {
     const serial = ++transitionSerial;
     if (!animate || reduceMotion.matches) {
       clearTransition();
@@ -332,17 +287,22 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
 
     clearTransition();
     articleGrid.classList.add("is-flipping");
+    const visibleSlots = all(
+      ".tracks-xiii-record-slot:not(.is-page-hidden)",
+      articleGrid,
+    );
+    const travel = Math.max(96, (visibleSlots[0]?.getBoundingClientRect().height || 160) * .92);
     const visibleSlotContent = () => all(
       ".tracks-xiii-record-slot:not(.is-page-hidden) > *",
       articleGrid,
     );
     const outgoing = visibleSlotContent().map((node) => node.animate(
       [
-        { opacity: 1, transform: "perspective(48vw) rotateX(0deg)" },
-        { opacity: 0, transform: "perspective(48vw) rotateX(68deg)" },
+        { opacity: 1, transform: "translate3d(0,0,0)" },
+        { opacity: .08, transform: `translate3d(0, ${-direction * travel}px, 0)` },
       ],
       {
-        duration: 180,
+        duration: 220,
         easing: "cubic-bezier(0.25, 1, 0.5, 1)",
         fill: "both",
       },
@@ -358,11 +318,11 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
 
         const incoming = visibleSlotContent().map((node) => node.animate(
           [
-            { opacity: 0, transform: "perspective(48vw) rotateX(-68deg)" },
-            { opacity: 1, transform: "perspective(48vw) rotateX(0deg)" },
+            { opacity: .08, transform: `translate3d(0, ${direction * travel}px, 0)` },
+            { opacity: 1, transform: "translate3d(0,0,0)" },
           ],
           {
-            duration: 240,
+            duration: 260,
             easing: "cubic-bezier(0.22, 1, 0.36, 1)",
             fill: "both",
           },
@@ -491,6 +451,7 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
     pageStatus.textContent = model.mode === "diary"
       ? (activeDiaryEntry()?.dataset.diaryLabel || "")
       : "";
+    pageMarkers.style.setProperty("--xiii-page-index", String(model.active));
 
     if (!visible) return;
 
@@ -590,6 +551,14 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
     if (nextFilter === activeFilter[activePage]) return;
 
     dispatchCue("select", { target: nextFilter });
+    const filterButtons = all("[data-xiii-filter]", group);
+    const currentFilterIndex = filterButtons.findIndex(
+      (button) => button.dataset.xiiiFilter === activeFilter[activePage],
+    );
+    const nextFilterIndex = filterButtons.findIndex(
+      (button) => button.dataset.xiiiFilter === nextFilter,
+    );
+    const filterDirection = nextFilterIndex >= currentFilterIndex ? 1 : -1;
     const commit = () => {
       activeFilter[activePage] = nextFilter;
       if (activePage === "articles") articlePage = 0;
@@ -601,7 +570,7 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
     };
 
     if (activePage === "articles") {
-      runArticleFilterTransition(commit, { animate });
+      runArticleFilterTransition(commit, { animate, direction: filterDirection });
     } else {
       runTransition(commit, { animate });
     }
@@ -1360,6 +1329,7 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
           number: slot.dataset.saveNumber || "",
           title: slot.dataset.saveTitle || "",
           chapter: slot.dataset.saveChapter || "",
+          section: slot.dataset.saveSection || "",
           progress: slot.dataset.saveProgress || "",
           savedAt: slot.dataset.saveSavedAt || "",
         },

@@ -28,7 +28,8 @@ const demoSaves = [
   {
     number: "01",
     title: "来到孤独之海",
-    chapter: "PROLOGUE",
+    chapter: "CHAPTER 00",
+    section: "SECTION 01",
     progress: "00:18:42",
     savedAt: "2026.07.26 23:14",
     art: "/assets/lonely-sea/mist.png",
@@ -37,6 +38,7 @@ const demoSaves = [
     number: "02",
     title: "关于我",
     chapter: "CHAPTER 01",
+    section: "SECTION 02",
     progress: "01:06:17",
     savedAt: "2026.07.27 00:02",
     art: "/assets/lonely-sea/day.png",
@@ -45,6 +47,7 @@ const demoSaves = [
     number: "03",
     title: "潮声留下的记录",
     chapter: "CHAPTER 02",
+    section: "SECTION 03",
     progress: "01:48:05",
     savedAt: "2026.07.27 00:44",
     art: "/assets/lonely-sea/night.png",
@@ -307,7 +310,7 @@ const lockedStorySlots = Array.from({ length: 7 }, (_, index) => index);
             {articleEmptySlots.map((index) => (
               <div class="tracks-xiii-record-slot is-empty" data-xiii-article-empty aria-hidden="true">
                 <span class="tracks-xiii-slot-number">{String(index + 1).padStart(2, "0")}</span>
-                <span class="tracks-xiii-slot-art" aria-hidden="true"><i></i></span>
+                <span class="tracks-xiii-slot-art" aria-hidden="true"></span>
                 <span class="tracks-xiii-slot-copy"><strong>NO RECORD</strong></span>
               </div>
             ))}
@@ -325,6 +328,7 @@ const lockedStorySlots = Array.from({ length: 7 }, (_, index) => index);
                   data-save-number={save.number}
                   data-save-title={save.title}
                   data-save-chapter={save.chapter}
+                  data-save-section={save.section}
                   data-save-progress={save.progress}
                   data-save-saved-at={save.savedAt}
                   aria-label={`读取游戏存档 ${save.number}：${save.title}`}
@@ -333,19 +337,22 @@ const lockedStorySlots = Array.from({ length: 7 }, (_, index) => index);
                 >
                   <span class="tracks-xiii-save-number" aria-hidden="true">{save.number}</span>
                   <span class="tracks-xiii-save-art" aria-hidden="true"></span>
-                <span class="tracks-xiii-save-copy">
-                  <small>{save.chapter}</small>
-                  <strong>{save.title}</strong>
-                  <time>{save.progress}</time>
-                </span>
+                  <span class="tracks-xiii-save-copy">
+                    <small><span>{save.chapter}</span><span>{save.section}</span></small>
+                    <strong>{save.title}</strong>
+                    <span class="tracks-xiii-save-meta">
+                      <time><b>SAVE</b>{save.savedAt}</time>
+                      <span><b>TIME</b>{save.progress}</span>
+                    </span>
+                  </span>
                   <span class="tracks-xiii-save-command" aria-hidden="true">LOAD</span>
                 </button>
               ))}
               {saveEmptySlots.map((index) => (
                 <div class="tracks-xiii-save-slot is-empty" data-xiii-save-empty aria-label="空存档槽位">
                   <span class="tracks-xiii-save-number">{String(index + demoSaves.length + 1).padStart(2, "0")}</span>
-                  <span class="tracks-xiii-save-art" aria-hidden="true"><i></i></span>
-                  <span class="tracks-xiii-save-copy"><small>UNRECORDED MEMORY</small><strong>EMPTY DATA</strong><span>NO PLAY DATA</span></span>
+                  <span class="tracks-xiii-save-art" aria-hidden="true"></span>
+                  <span class="tracks-xiii-save-copy"><small><span>NO SAVE DATA</span></small><strong>EMPTY SLOT</strong></span>
                 </div>
               ))}
             </div>

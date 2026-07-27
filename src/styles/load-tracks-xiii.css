@@ -2433,10 +2433,8 @@ html.tracks-xiii-diary-open body {
 .tracks-xiii-record-slot.is-empty::after {
   inset: .72cqh .62cqw 7.1cqh;
   display: block;
-  opacity: 1;
-  background:
-    radial-gradient(ellipse at 50% 38%, color-mix(in srgb, var(--v4-accent) 7%, transparent), transparent 58%),
-    linear-gradient(180deg, transparent 54%, color-mix(in srgb, var(--v4-outer) 14%, transparent));
+  opacity: 0;
+  background: none;
 }
 
 .tracks-xiii-record-slot.is-empty .tracks-xiii-slot-number {
@@ -2452,24 +2450,14 @@ html.tracks-xiii-diary-open body {
   height: 100%;
   min-height: 0;
   place-items: center;
-  background:
-    radial-gradient(ellipse at 50% 45%, color-mix(in srgb, var(--v4-accent) 9%, transparent), transparent 56%),
-    linear-gradient(150deg, color-mix(in srgb, white 6%, transparent), transparent 52%),
-    color-mix(in srgb, var(--v4-outer) 10%, var(--v4-card) 78%);
-  box-shadow:
-    inset 0 0 1.7cqw color-mix(in srgb, var(--v4-shadow) 24%, transparent),
-    inset 0 0 0 1px color-mix(in srgb, var(--v4-ink) 12%, transparent);
+  background: transparent;
+  box-shadow: none;
   filter: none;
   transform: none;
 }
 
 .tracks-xiii-record-slot.is-empty .tracks-xiii-slot-art > i {
-  display: block;
-  width: 2.6cqw;
-  height: 1px;
-  padding: 0;
-  background: color-mix(in srgb, var(--v4-ink) 24%, transparent);
-  transform: rotate(-18deg);
+  display: none;
 }
 
 .tracks-xiii-record-slot.is-empty .tracks-xiii-slot-art > i::before {
@@ -2863,14 +2851,40 @@ html.tracks-xiii-diary-open body {
 }
 
 .tracks-xiii-page-markers {
-  gap: .4cqw;
+  --xiii-page-marker-size: clamp(30px, 2.35cqw, 36px);
+  --xiii-page-marker-height: clamp(24px, 3.35cqh, 28px);
+  --xiii-page-marker-gap: .4cqw;
+  position: relative;
+  gap: var(--xiii-page-marker-gap);
+  isolation: isolate;
+}
+
+.tracks-xiii-page-markers::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  left: 0;
+  width: var(--xiii-page-marker-size);
+  height: var(--xiii-page-marker-height);
+  background: color-mix(in srgb, var(--v4-accent) 22%, var(--v4-card) 66%);
+  box-shadow: 0 0 .8cqw color-mix(in srgb, var(--v4-accent) 13%, transparent);
+  transform: translate3d(
+    calc(var(--xiii-page-index, 0) * (var(--xiii-page-marker-size) + var(--xiii-page-marker-gap))),
+    0,
+    0
+  );
+  transition: transform 420ms cubic-bezier(.25, 1, .5, 1);
 }
 
 .tracks-xiii-page-markers button {
+  position: relative;
+  z-index: 1;
   display: grid;
   place-items: center;
-  min-width: 2.35cqw;
-  min-height: 3.35cqh;
+  width: var(--xiii-page-marker-size);
+  min-width: 0;
+  min-height: var(--xiii-page-marker-height);
   padding: .28cqh .35cqw;
   border: 0;
   outline: 0;
@@ -2888,8 +2902,8 @@ html.tracks-xiii-diary-open body {
 
 .tracks-xiii-page-markers button[aria-pressed="true"] {
   color: var(--xiii-ink);
-  background: color-mix(in srgb, var(--v4-accent) 22%, var(--v4-card) 66%);
-  box-shadow: 0 0 .8cqw color-mix(in srgb, var(--v4-accent) 13%, transparent);
+  background: transparent;
+  box-shadow: none;
   transform: none;
 }
 
@@ -2902,21 +2916,15 @@ html.tracks-xiii-diary-open body {
   transform: none;
 }
 
+.tracks-xiii-page-markers button[aria-pressed="true"]:hover,
+.tracks-xiii-page-markers button[aria-pressed="true"]:focus-visible {
+  background: transparent;
+}
+
 .tracks-xiii-page-nav > strong {
   color: var(--xiii-soft);
   font-size: clamp(12px, .74cqw, 14px);
   letter-spacing: .08em;
-}
-
-.tracks-xiii-page-nav-ghost,
-.tracks-xiii-page-nav-ghost[aria-hidden="true"] {
-  z-index: 60;
-  display: flex;
-  pointer-events: none;
-}
-
-.tracks-xiii-page-nav-ghost.is-incoming {
-  z-index: 61;
 }
 
 .tracks-xiii-view-ghost {
@@ -2930,15 +2938,15 @@ html.tracks-xiii-diary-open body {
 
 .tracks-xiii-save-slot {
   display: grid;
-  grid-template-columns: 3cqw 15.1cqw minmax(0, 1fr);
+  grid-template-columns: 13.8cqw minmax(0, 1fr);
   align-items: center;
-  padding: .78cqh 1.15cqw .78cqh .1cqw;
+  padding: .72cqh .95cqw;
   overflow: hidden;
-  border: 0;
+  border: 1px solid color-mix(in srgb, var(--v4-ink) 30%, transparent);
   color: var(--xiii-ink);
   background:
-    linear-gradient(102deg, color-mix(in srgb, var(--v4-accent) 17%, transparent), transparent 31%),
-    linear-gradient(90deg, color-mix(in srgb, var(--v4-card) 88%, transparent), color-mix(in srgb, var(--v4-paper) 58%, transparent));
+    linear-gradient(110deg, color-mix(in srgb, white 7%, transparent), transparent 44%),
+    color-mix(in srgb, var(--v4-card) 82%, var(--v4-paper) 8%);
   box-shadow:
     inset 0 1px color-mix(in srgb, white 10%, transparent),
     0 .52cqh 1.2cqw color-mix(in srgb, var(--xiii-slot-shadow) 76%, transparent);
@@ -2954,18 +2962,18 @@ html.tracks-xiii-diary-open body {
   content: "";
   position: absolute;
   z-index: 0;
-  inset: 0 auto 0 0;
+  inset: 0;
   display: block;
-  width: .78cqw;
-  min-width: 8px;
+  width: auto;
+  min-width: 0;
   height: auto;
-  opacity: .24;
-  background: linear-gradient(180deg, transparent 4%, var(--v4-accent) 42% 60%, transparent 96%);
-  box-shadow: 0 0 1.1cqw color-mix(in srgb, var(--v4-accent) 28%, transparent);
-  clip-path: polygon(0 12%, 100% 0, 64% 50%, 100% 100%, 0 88%);
+  opacity: 0;
+  background: linear-gradient(100deg, color-mix(in srgb, var(--v4-accent) 18%, transparent), transparent 52%);
+  box-shadow: none;
+  clip-path: none;
   mix-blend-mode: normal;
-  transform: scaleY(.5);
-  transform-origin: center;
+  transform: translate3d(-12%, 0, 0);
+  transform-origin: left center;
   transition: opacity 160ms ease, transform 220ms cubic-bezier(.22, 1, .36, 1);
 }
 
@@ -2974,26 +2982,25 @@ html.tracks-xiii-diary-open body {
 }
 
 .tracks-xiii-save-number {
-  position: relative;
-  z-index: 2;
-  inset: auto;
-  align-self: stretch;
-  display: grid;
-  place-items: center;
+  position: absolute;
+  z-index: 4;
+  top: 1.05cqh;
+  left: 1.15cqw;
+  display: block;
   width: auto;
   min-width: 0;
   height: auto;
   min-height: 0;
   padding: 0;
-  color: var(--xiii-soft);
+  color: rgba(245, 249, 250, .9);
   background: transparent;
   box-shadow: none;
-  font: 400 clamp(18px, 1.42cqw, 27px) / 1 "Times New Roman", serif;
+  font: italic 400 clamp(17px, 1.32cqw, 25px) / 1 Baskerville, "Iowan Old Style", "Yu Mincho", serif;
   letter-spacing: .03em;
-  text-align: center;
-  text-shadow: none;
-  writing-mode: vertical-rl;
-  transform: rotate(180deg);
+  text-align: left;
+  text-shadow: 0 1px .55cqw rgba(4, 10, 15, .65);
+  writing-mode: horizontal-tb;
+  transform: none;
 }
 
 .tracks-xiii-save-art,
@@ -3003,18 +3010,18 @@ html.tracks-xiii-diary-open body {
   inset: auto;
   display: grid;
   place-items: center;
-  width: 14.55cqw;
-  height: 11.7cqh;
+  width: 12.85cqw;
+  height: 11.65cqh;
   min-height: 0;
   overflow: hidden;
-  border: 0;
+  border: 1px solid color-mix(in srgb, var(--v4-ink) 28%, transparent);
   background:
-    linear-gradient(90deg, color-mix(in srgb, var(--v4-accent) 4%, transparent), transparent 68%, color-mix(in srgb, var(--v4-outer) 24%, transparent)),
+    linear-gradient(90deg, transparent 68%, color-mix(in srgb, var(--v4-outer) 16%, transparent)),
     var(--save-art, var(--v4-bg)) center / cover no-repeat;
   box-shadow:
     inset 0 0 0 1px color-mix(in srgb, white 9%, transparent),
     0 .28cqh .75cqw color-mix(in srgb, var(--v4-shadow) 34%, transparent);
-  clip-path: polygon(0 0, 92% 0, 100% 50%, 92% 100%, 0 100%);
+  clip-path: none;
   filter: var(--v4-cover-filter);
   aspect-ratio: auto;
   transform: none;
@@ -3033,18 +3040,20 @@ html.tracks-xiii-diary-open body {
   gap: 0;
   min-width: 0;
   min-height: 0;
-  padding: .25cqh .15cqw .2cqh 1.25cqw;
+  padding: .2cqh .15cqw .2cqh 1.15cqw;
   color: var(--xiii-ink);
   background: transparent;
   transform: none;
 }
 
 .tracks-xiii-save-copy small {
-  margin: 0 0 .8cqh;
+  display: flex;
+  gap: .85cqw;
+  margin: 0 0 .72cqh;
   overflow: hidden;
   color: var(--xiii-soft);
-  font: 600 clamp(10px, .59cqw, 12px) / 1.2 "Segoe UI", "Yu Gothic", sans-serif;
-  letter-spacing: .11em;
+  font: 500 clamp(10px, .61cqw, 12px) / 1.2 Baskerville, "Iowan Old Style", "Yu Mincho", serif;
+  letter-spacing: .12em;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -3054,7 +3063,7 @@ html.tracks-xiii-diary-open body {
   display: -webkit-box;
   overflow: hidden;
   color: var(--xiii-ink);
-  font: 500 clamp(15px, 1.02cqw, 20px) / 1.38 "Yu Mincho", "Noto Serif CJK SC", serif;
+  font: 500 clamp(15px, 1.02cqw, 20px) / 1.32 "Yu Mincho", "Noto Serif CJK SC", serif;
   letter-spacing: .035em;
   text-wrap: balance;
   text-overflow: clip;
@@ -3063,19 +3072,31 @@ html.tracks-xiii-diary-open body {
   -webkit-line-clamp: 2;
 }
 
-.tracks-xiii-save-copy time,
-.tracks-xiii-save-copy > span {
-  margin-top: 1.25cqh;
+.tracks-xiii-save-meta {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: .42cqh;
+  margin-top: 1.05cqh;
   color: var(--xiii-soft);
-  font: 600 clamp(11px, .66cqw, 13px) / 1 "Segoe UI", "Yu Gothic", sans-serif;
-  letter-spacing: .13em;
+  font: 500 clamp(9px, .57cqw, 11px) / 1 Baskerville, "Iowan Old Style", "Yu Mincho", serif;
+  letter-spacing: .1em;
 }
 
-.tracks-xiii-save-copy time::before {
-  content: "PLAY  ";
+.tracks-xiii-save-meta time,
+.tracks-xiii-save-meta > span {
+  margin: 0;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+}
+
+.tracks-xiii-save-meta b {
+  display: inline-block;
+  min-width: 3.15em;
+  margin-right: .45cqw;
   color: var(--xiii-muted);
-  font-size: .82em;
-  letter-spacing: .16em;
+  font-weight: 500;
+  letter-spacing: .13em;
 }
 
 .tracks-xiii-save-command {
@@ -3095,13 +3116,13 @@ html.tracks-xiii-diary-open body {
 .tracks-xiii-save-slot[aria-pressed="true"] {
   border-color: transparent;
   background:
-    linear-gradient(102deg, color-mix(in srgb, var(--v4-accent) 24%, transparent), transparent 36%),
-    linear-gradient(90deg, color-mix(in srgb, var(--v4-card) 94%, transparent), color-mix(in srgb, var(--v4-paper) 66%, transparent));
+    linear-gradient(110deg, color-mix(in srgb, var(--v4-accent) 15%, transparent), transparent 48%),
+    color-mix(in srgb, var(--v4-card) 90%, var(--v4-paper) 8%);
   box-shadow:
     inset 0 1px color-mix(in srgb, white 13%, transparent),
     0 .72cqh 1.45cqw var(--xiii-slot-shadow);
   filter: brightness(1.035);
-  transform: translate3d(.26cqw, 0, 0);
+  transform: translate3d(.18cqw, 0, 0);
 }
 
 .tracks-xiii-save-slot:hover::before,
@@ -3109,7 +3130,7 @@ html.tracks-xiii-diary-open body {
 .tracks-xiii-save-slot.is-kb-cursor::before,
 .tracks-xiii-save-slot[aria-pressed="true"]::before {
   opacity: .96;
-  transform: scaleY(1);
+  transform: translate3d(0, 0, 0);
 }
 
 .tracks-xiii-save-slot:hover::after,
@@ -3130,8 +3151,8 @@ html.tracks-xiii-diary-open body {
 .tracks-xiii-save-slot.is-empty {
   color: var(--xiii-muted);
   background:
-    linear-gradient(102deg, color-mix(in srgb, var(--v4-accent) 7%, transparent), transparent 34%),
-    color-mix(in srgb, var(--v4-paper) 58%, transparent);
+    linear-gradient(110deg, color-mix(in srgb, white 4%, transparent), transparent 44%),
+    color-mix(in srgb, var(--v4-card) 72%, var(--v4-paper) 8%);
   box-shadow: inset 0 1px color-mix(in srgb, white 7%, transparent);
   filter: none;
   opacity: .78;
@@ -3147,24 +3168,21 @@ html.tracks-xiii-diary-open body {
 }
 
 .tracks-xiii-save-slot.is-empty .tracks-xiii-save-number {
-  color: var(--xiii-muted);
+  color: color-mix(in srgb, var(--xiii-soft) 64%, transparent);
   background: transparent;
+  text-shadow: none;
 }
 
 .tracks-xiii-save-slot.is-empty .tracks-xiii-save-art {
   background:
-    radial-gradient(ellipse at center, color-mix(in srgb, var(--v4-accent) 7%, transparent), transparent 64%),
-    linear-gradient(90deg, color-mix(in srgb, var(--v4-outer) 11%, transparent), color-mix(in srgb, var(--v4-card) 42%, transparent));
+    linear-gradient(135deg, color-mix(in srgb, white 3%, transparent), transparent 55%),
+    color-mix(in srgb, var(--v4-card) 56%, transparent);
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--v4-ink) 12%, transparent);
   filter: none;
 }
 
 .tracks-xiii-save-slot.is-empty .tracks-xiii-save-art > i {
-  display: block;
-  width: 2.4cqw;
-  height: 1px;
-  background: var(--xiii-edge-soft);
-  transform: rotate(-18deg);
+  display: none;
 }
 
 .tracks-xiii-save-slot.is-empty .tracks-xiii-save-copy {
@@ -3596,12 +3614,12 @@ html.tracks-xiii-diary-open body {
   }
 
   .tracks-xiii-save-slot {
-    grid-template-columns: 3.2cqw 15.6cqw minmax(0, 1fr);
+    grid-template-columns: 14.6cqw minmax(0, 1fr);
   }
 
   .tracks-xiii-save-art,
   .tracks-xiii-save-slot.is-empty .tracks-xiii-save-art {
-    width: 15cqw;
+    width: 13.6cqw;
     height: 11.2cqh;
   }
 
@@ -3658,12 +3676,12 @@ html.tracks-xiii-diary-open body {
   }
 
   .tracks-xiii-save-slot {
-    grid-template-columns: 3.8cqw 16.5cqw minmax(0, 1fr);
+    grid-template-columns: 17.5cqw minmax(0, 1fr);
   }
 
   .tracks-xiii-save-art,
   .tracks-xiii-save-slot.is-empty .tracks-xiii-save-art {
-    width: 15.8cqw;
+    width: 16.4cqw;
     height: 10.8cqh;
     min-height: 0;
   }
@@ -3698,6 +3716,7 @@ html.tracks-xiii-diary-open body {
   .tracks-xiii-save-slot::before,
   .tracks-xiii-save-art,
   .tracks-xiii-page-nav button,
+  .tracks-xiii-page-markers::before,
   .tracks-xiii-page-markers button {
     transition: none;
   }
