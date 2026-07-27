@@ -127,6 +127,7 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
   let transitionIndexGhost = null;
   let transitionIncomingIndexGhost = null;
   let transitionAnimations = [];
+  let saveFeedbackTimer = 0;
   let keyboardCursorEnabled = true;
   let keyboardCursorItem = null;
 
@@ -1317,23 +1318,55 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
   articleSlots.forEach((slot) => {
     slot.addEventListener("click", () => openArticle(slot));
   });
-  all("[data-xiii-save-slot]").forEach((slot) => {
-    slot.addEventListener("click", () => {
-      all("[data-xiii-save-slot]").forEach((candidate) => {
-        candidate.setAttribute("aria-pressed", String(candidate === slot));
-      });
-      dispatchCue("select", { target: "save-data" });
-      window.dispatchEvent(new CustomEvent("lonely-sea:save-select", {
-        detail: {
-          source: "load-xiii",
-          number: slot.dataset.saveNumber || "",
-          title: slot.dataset.saveTitle || "",
-          chapter: slot.dataset.saveChapter || "",
-          section: slot.dataset.saveSection || "",
-          progress: slot.dataset.saveProgress || "",
-          savedAt: slot.dataset.saveSavedAt || "",
-        },
-      }));
+
+  function activateSaveSlot(slot, { animate = true } = {}) {
+    window.clearTimeout(saveFeedbackTimer);
+    saveSlots.forEach((candidate) => {
+      candidate.classList.remove("is-load-feedback");
+      if (candidate !== slot) candidate.classList.remove("is-load-acknowledged");
+    });
+    slot.classList.add("is-load-acknowledged");
+
+    if (animate && !reduceMotion.matches) {
+      slot.classList.add("is-load-feedback");
+      saveFeedbackTimer = window.setTimeout(() => {
+        slot.classList.remove("is-load-feedback");
+        saveFeedbackTimer = 0;
+      }, 240);
+
+      slot.animate(
+        [
+          { transform: "scale(1)" },
+          { transform: "scale(.986)", offset: .42 },
+          { transform: "scale(1)" },
+        ],
+        { duration: 210, easing: "cubic-bezier(.22, 1, .36, 1)" },
+      );
+    }
+
+    dispatchCue("select", { target: "save-data" });
+    window.dispatchEvent(new CustomEvent("lonely-sea:save-select", {
+      detail: {
+        source: "load-xiii",
+        number: slot.dataset.saveNumber || "",
+        title: slot.dataset.saveTitle || "",
+        chapter: slot.dataset.saveChapter || "",
+        section: slot.dataset.saveSection || "",
+        progress: slot.dataset.saveProgress || "",
+        savedAt: slot.dataset.saveSavedAt || "",
+      },
+    }));
+  }
+
+  saveSlots.forEach((slot) => {
+    slot.addEventListener("click", (event) => {
+      activateSaveSlot(slot, { animate: event.detail > 0 });
+    });
+    slot.addEventListener("pointerleave", () => {
+      slot.classList.remove("is-load-acknowledged");
+    });
+    slot.addEventListener("blur", () => {
+      slot.classList.remove("is-load-acknowledged");
     });
   });
   storySlots.forEach((slot) => {
@@ -1422,6 +1455,12 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
 
   function deactivate() {
     clearKeyboardCursor({ forget: true });
+    window.clearTimeout(saveFeedbackTimer);
+    saveFeedbackTimer = 0;
+    saveSlots.forEach((slot) => {
+      slot.classList.remove("is-load-feedback");
+      slot.classList.remove("is-load-acknowledged");
+    });
     closeStoryConfirm({ restoreFocus: false });
     closeDiaryReader();
     if (flowExpanded) setFlowExpanded(false, { animate: false });

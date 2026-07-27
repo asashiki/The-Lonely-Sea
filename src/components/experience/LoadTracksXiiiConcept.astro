@@ -332,7 +332,6 @@ const lockedStorySlots = Array.from({ length: 7 }, (_, index) => index);
                   data-save-progress={save.progress}
                   data-save-saved-at={save.savedAt}
                   aria-label={`读取游戏存档 ${save.number}：${save.title}`}
-                  aria-pressed="false"
                   style={`--save-art:url('${save.art}')`}
                 >
                   <span class="tracks-xiii-save-number" aria-hidden="true">{save.number}</span>
