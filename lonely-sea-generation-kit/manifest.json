@@ -1,0 +1,65 @@
+{
+  "title": "孤独之海",
+  "archiveVersion": 1,
+  "generatedAt": "2026-07-17T23:49:00+09:00",
+  "toolMode": "Codex built-in image_gen",
+  "sessionId": "019f7038-a00e-7652-a099-c9ffa604f302",
+  "reproducibility": {
+    "seedAvailable": false,
+    "stableModelVersionAvailable": false,
+    "pixelExactReproductionExpected": false,
+    "methodAndStyleReproductionExpected": true
+  },
+  "workflow": [
+    {
+      "id": "mist-master",
+      "operation": "generate",
+      "prompt": "04-prompts/01-mist-master.txt",
+      "inputs": [
+        "02-reference-images/used/01-primary-grey-watercolor__0d1f74e5-f1ea-435e-a801-c7a87823fbc1.png",
+        "02-reference-images/used/02-wide-negative-space__8fb6cc05-6f0d-445c-813b-e5f22bc73b2a.png",
+        "02-reference-images/used/03-quiet-shoreline__3879517842980862.png"
+      ],
+      "output": "01-final-images/01-mist.png",
+      "alsoUsedAsIntermediate": "03-intermediate-images/01-master-mist-used-for-edits.png",
+      "originalGeneratedFilename": "exec-cb55d8b4-fa05-44ae-a705-9e35c04d69d1.png",
+      "sha256": "3C9B7E2F6CE1CE1C41ACCB66C2DDED87CA2CE3F324D9CAFE6E143E1DC016412C"
+    },
+    {
+      "id": "day",
+      "operation": "edit",
+      "prompt": "04-prompts/02-day-edit.txt",
+      "inputs": [
+        "03-intermediate-images/01-master-mist-used-for-edits.png",
+        "02-reference-images/used/04-sunny-palette__74d0f069-029f-4ecb-b927-2aeb91ff9088.png"
+      ],
+      "output": "01-final-images/02-day.png",
+      "originalGeneratedFilename": "exec-3dc1126e-42ae-4b15-a646-109d611db860.png",
+      "sha256": "DD87D5CDCA9AB11F82D01CC6C702018A0A5FCC3FAF2C85B54AD658B4513EC219"
+    },
+    {
+      "id": "night",
+      "operation": "edit",
+      "prompt": "04-prompts/03-night-edit.txt",
+      "inputs": [
+        "03-intermediate-images/01-master-mist-used-for-edits.png",
+        "02-reference-images/used/05-night-palette__8343117842981502.png"
+      ],
+      "output": "01-final-images/03-night.png",
+      "originalGeneratedFilename": "exec-d9c0a1ab-ef0d-496c-b09f-5ea0db59ec19.png",
+      "sha256": "4935576939168C9D1B58F7F8761B6A410D496714ED79E39D82722433CC0E0632"
+    },
+    {
+      "id": "crimson",
+      "operation": "edit",
+      "prompt": "04-prompts/04-crimson-edit.txt",
+      "inputs": [
+        "03-intermediate-images/01-master-mist-used-for-edits.png",
+        "02-reference-images/used/06-crimson-palette__6834217842981182.png"
+      ],
+      "output": "01-final-images/04-crimson.png",
+      "originalGeneratedFilename": "exec-184c7239-6ee2-4fc2-818d-31ab36ed26c0.png",
+      "sha256": "13ADA62D5BE86AF56BD9CC98AFD5BED7A4950A76DC95B7017038543C6F05BD9C"
+    }
+  ]
+}

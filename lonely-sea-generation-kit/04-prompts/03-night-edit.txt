@@ -1,0 +1,10 @@
+Use case: lighting-weather edit
+Asset type: full-screen visual-novel website background
+
+Edit the first input image into the DARK NIGHT state of the same “孤独之海” location. Preserve the exact camera position, coastline geometry, horizon height, wave placement, wide 16:9 composition, empty left stage, and calm right-side menu space from input 1. Use input 2 only as reference for its muted indigo night palette, low-contrast sea, and melancholic visual-novel atmosphere; do not copy its girl, rock pose, text, lyrics, logo, or watermark.
+
+Change only atmosphere, light, sky, and color: deep desaturated indigo sky, nearly black navy ocean, dim blue-grey wet sand, thin cold highlights along a few waves, heavy night haze at the horizon, subtle diffuse glow behind clouds with no visible moon. Keep most values quiet and dark enough for pale UI text on the right, but retain readable layers in the sea and beach.
+
+Maintain the hand-painted 2D late-2000s to early-2010s Japanese visual-novel background style: soft watercolor washes, restrained ink-like structure, paper grain, simplified detail, authored illustration. No photorealism, no 3D, no glossy AI concept-art finish, no hyper-detail.
+
+Hard constraints: no people, no girl, no silhouette, no umbrella, no birds, no starscape, no text, no logo, no watermark, no UI, no border, no foreground particle overlay.
