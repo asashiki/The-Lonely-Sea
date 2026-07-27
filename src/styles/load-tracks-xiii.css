@@ -2908,6 +2908,17 @@ html.tracks-xiii-diary-open body {
   letter-spacing: .08em;
 }
 
+.tracks-xiii-page-nav-ghost,
+.tracks-xiii-page-nav-ghost[aria-hidden="true"] {
+  z-index: 60;
+  display: flex;
+  pointer-events: none;
+}
+
+.tracks-xiii-page-nav-ghost.is-incoming {
+  z-index: 61;
+}
+
 .tracks-xiii-view-ghost {
   left: var(--xiii-content-offset);
 }
@@ -2919,17 +2930,18 @@ html.tracks-xiii-diary-open body {
 
 .tracks-xiii-save-slot {
   display: grid;
-  grid-template-columns: 3.35cqw 12.1cqw minmax(0, 1fr);
+  grid-template-columns: 3cqw 15.1cqw minmax(0, 1fr);
   align-items: center;
-  padding: 1.05cqh 1.05cqw .9cqh .15cqw;
+  padding: .78cqh 1.15cqw .78cqh .1cqw;
   overflow: hidden;
   border: 0;
-  border-block: 1px solid color-mix(in srgb, var(--v4-ink) 25%, transparent);
   color: var(--xiii-ink);
   background:
-    linear-gradient(90deg, color-mix(in srgb, var(--v4-accent) 16%, transparent), transparent 18%),
-    linear-gradient(90deg, var(--xiii-surface-strong), color-mix(in srgb, var(--v4-paper) 66%, transparent));
-  box-shadow: 0 .65cqh 1.35cqw var(--xiii-slot-shadow);
+    linear-gradient(102deg, color-mix(in srgb, var(--v4-accent) 17%, transparent), transparent 31%),
+    linear-gradient(90deg, color-mix(in srgb, var(--v4-card) 88%, transparent), color-mix(in srgb, var(--v4-paper) 58%, transparent));
+  box-shadow:
+    inset 0 1px color-mix(in srgb, white 10%, transparent),
+    0 .52cqh 1.2cqw color-mix(in srgb, var(--xiii-slot-shadow) 76%, transparent);
   filter: none;
   transform: translate3d(0, 0, 0);
   transition:
@@ -2944,12 +2956,13 @@ html.tracks-xiii-diary-open body {
   z-index: 0;
   inset: 0 auto 0 0;
   display: block;
-  width: .38cqw;
-  min-width: 4px;
+  width: .78cqw;
+  min-width: 8px;
   height: auto;
-  opacity: .32;
-  background: var(--v4-accent);
+  opacity: .24;
+  background: linear-gradient(180deg, transparent 4%, var(--v4-accent) 42% 60%, transparent 96%);
   box-shadow: 0 0 1.1cqw color-mix(in srgb, var(--v4-accent) 28%, transparent);
+  clip-path: polygon(0 12%, 100% 0, 64% 50%, 100% 100%, 0 88%);
   mix-blend-mode: normal;
   transform: scaleY(.5);
   transform-origin: center;
@@ -2957,17 +2970,7 @@ html.tracks-xiii-diary-open body {
 }
 
 .tracks-xiii-save-slot::after {
-  content: "";
-  position: absolute;
-  z-index: 5;
-  right: 0;
-  bottom: 0;
-  display: block;
-  width: 2.25cqw;
-  height: 1px;
-  background: color-mix(in srgb, var(--v4-accent) 42%, var(--v4-ink) 18%);
-  transform-origin: right;
-  transition: width 220ms cubic-bezier(.22, 1, .36, 1);
+  display: none;
 }
 
 .tracks-xiii-save-number {
@@ -3000,15 +3003,18 @@ html.tracks-xiii-diary-open body {
   inset: auto;
   display: grid;
   place-items: center;
-  width: 11.35cqw;
-  height: 11.35cqh;
+  width: 14.55cqw;
+  height: 11.7cqh;
   min-height: 0;
   overflow: hidden;
-  border: 1px solid color-mix(in srgb, var(--v4-ink) 38%, transparent);
+  border: 0;
   background:
-    linear-gradient(color-mix(in srgb, var(--v4-accent) 5%, transparent), color-mix(in srgb, var(--v4-outer) 14%, transparent)),
+    linear-gradient(90deg, color-mix(in srgb, var(--v4-accent) 4%, transparent), transparent 68%, color-mix(in srgb, var(--v4-outer) 24%, transparent)),
     var(--save-art, var(--v4-bg)) center / cover no-repeat;
-  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--v4-paper) 24%, transparent);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, white 9%, transparent),
+    0 .28cqh .75cqw color-mix(in srgb, var(--v4-shadow) 34%, transparent);
+  clip-path: polygon(0 0, 92% 0, 100% 50%, 92% 100%, 0 100%);
   filter: var(--v4-cover-filter);
   aspect-ratio: auto;
   transform: none;
@@ -3027,7 +3033,7 @@ html.tracks-xiii-diary-open body {
   gap: 0;
   min-width: 0;
   min-height: 0;
-  padding: .4cqh 0 .35cqh 1.15cqw;
+  padding: .25cqh .15cqw .2cqh 1.25cqw;
   color: var(--xiii-ink);
   background: transparent;
   transform: none;
@@ -3048,7 +3054,7 @@ html.tracks-xiii-diary-open body {
   display: -webkit-box;
   overflow: hidden;
   color: var(--xiii-ink);
-  font: 500 clamp(14px, .94cqw, 18px) / 1.45 "Yu Mincho", "Noto Serif CJK SC", serif;
+  font: 500 clamp(15px, 1.02cqw, 20px) / 1.38 "Yu Mincho", "Noto Serif CJK SC", serif;
   letter-spacing: .035em;
   text-wrap: balance;
   text-overflow: clip;
@@ -3063,6 +3069,13 @@ html.tracks-xiii-diary-open body {
   color: var(--xiii-soft);
   font: 600 clamp(11px, .66cqw, 13px) / 1 "Segoe UI", "Yu Gothic", sans-serif;
   letter-spacing: .13em;
+}
+
+.tracks-xiii-save-copy time::before {
+  content: "PLAY  ";
+  color: var(--xiii-muted);
+  font-size: .82em;
+  letter-spacing: .16em;
 }
 
 .tracks-xiii-save-command {
@@ -3082,9 +3095,11 @@ html.tracks-xiii-diary-open body {
 .tracks-xiii-save-slot[aria-pressed="true"] {
   border-color: transparent;
   background:
-    linear-gradient(90deg, color-mix(in srgb, var(--v4-accent) 16%, transparent), transparent 18%),
-    linear-gradient(90deg, var(--xiii-surface-strong), color-mix(in srgb, var(--v4-paper) 66%, transparent));
-  box-shadow: 0 .65cqh 1.35cqw var(--xiii-slot-shadow);
+    linear-gradient(102deg, color-mix(in srgb, var(--v4-accent) 24%, transparent), transparent 36%),
+    linear-gradient(90deg, color-mix(in srgb, var(--v4-card) 94%, transparent), color-mix(in srgb, var(--v4-paper) 66%, transparent));
+  box-shadow:
+    inset 0 1px color-mix(in srgb, white 13%, transparent),
+    0 .72cqh 1.45cqw var(--xiii-slot-shadow);
   filter: brightness(1.035);
   transform: translate3d(.26cqw, 0, 0);
 }
@@ -3101,23 +3116,23 @@ html.tracks-xiii-diary-open body {
 .tracks-xiii-save-slot:focus-visible::after,
 .tracks-xiii-save-slot.is-kb-cursor::after,
 .tracks-xiii-save-slot[aria-pressed="true"]::after {
-  width: 6.2cqw;
+  display: none;
 }
 
 .tracks-xiii-save-slot:hover .tracks-xiii-save-art,
 .tracks-xiii-save-slot:focus-visible .tracks-xiii-save-art,
 .tracks-xiii-save-slot.is-kb-cursor .tracks-xiii-save-art,
 .tracks-xiii-save-slot[aria-pressed="true"] .tracks-xiii-save-art {
-  filter: saturate(.9) contrast(1);
-  transform: none;
+  filter: saturate(.96) contrast(1);
+  transform: scale(1.018);
 }
 
 .tracks-xiii-save-slot.is-empty {
   color: var(--xiii-muted);
   background:
-    repeating-linear-gradient(135deg, transparent 0 8px, color-mix(in srgb, var(--v4-accent) 4%, transparent) 8px 9px),
-    color-mix(in srgb, var(--v4-paper) 48%, transparent);
-  box-shadow: none;
+    linear-gradient(102deg, color-mix(in srgb, var(--v4-accent) 7%, transparent), transparent 34%),
+    color-mix(in srgb, var(--v4-paper) 58%, transparent);
+  box-shadow: inset 0 1px color-mix(in srgb, white 7%, transparent);
   filter: none;
   opacity: .78;
 }
@@ -3128,7 +3143,7 @@ html.tracks-xiii-diary-open body {
 }
 
 .tracks-xiii-save-slot.is-empty::after {
-  display: block;
+  display: none;
 }
 
 .tracks-xiii-save-slot.is-empty .tracks-xiii-save-number {
@@ -3137,11 +3152,10 @@ html.tracks-xiii-diary-open body {
 }
 
 .tracks-xiii-save-slot.is-empty .tracks-xiii-save-art {
-  border-color: var(--xiii-edge-soft);
   background:
     radial-gradient(ellipse at center, color-mix(in srgb, var(--v4-accent) 7%, transparent), transparent 64%),
-    color-mix(in srgb, var(--v4-outer) 9%, transparent);
-  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--v4-paper) 14%, transparent);
+    linear-gradient(90deg, color-mix(in srgb, var(--v4-outer) 11%, transparent), color-mix(in srgb, var(--v4-card) 42%, transparent));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--v4-ink) 12%, transparent);
   filter: none;
 }
 
@@ -3166,6 +3180,8 @@ html.tracks-xiii-diary-open body {
 
 /* XIII reconstruction: STORY deliberately restores XI's scene-record rail. */
 .tracks-xiii-story-view {
+  --xiii-story-art-width: clamp(118px, 10.4cqw, 164px);
+  --xiii-story-number-width: clamp(46px, 3.25cqw, 58px);
   inset: 0 0 0 1.1cqw;
   padding-right: 0;
 }
@@ -3199,7 +3215,8 @@ html.tracks-xiii-diary-open body {
 }
 
 .tracks-xiii-story-slot {
-  grid-template-columns: 10.4cqw 2.4cqw minmax(0, 1fr);
+  grid-template-columns: var(--xiii-story-art-width) var(--xiii-story-number-width) minmax(0, 1fr);
+  column-gap: .45cqw;
   min-height: 10.9cqh;
   padding: .65cqh .6cqw .65cqh 1cqw;
   background: transparent;
@@ -3215,7 +3232,7 @@ html.tracks-xiii-diary-open body {
   position: absolute;
   right: 6%;
   bottom: 0;
-  left: 13.8cqw;
+  left: calc(var(--xiii-story-art-width) + var(--xiii-story-number-width) + 1.45cqw);
   display: block;
   height: 1px;
   opacity: .28;
@@ -3242,7 +3259,7 @@ html.tracks-xiii-diary-open body {
 }
 
 .tracks-xiii-story-art {
-  width: 10.4cqw;
+  width: var(--xiii-story-art-width);
   height: 8.1cqh;
   background:
     linear-gradient(90deg, transparent 58%, rgba(14, 29, 40, .24)),
@@ -3256,6 +3273,7 @@ html.tracks-xiii-diary-open body {
 
 .tracks-xiii-story-number {
   justify-self: center;
+  min-width: var(--xiii-story-number-width);
   color: color-mix(in srgb, var(--xiii-ink) 76%, transparent);
   background: transparent;
   font: italic 400 clamp(18px, 1.4cqw, 26px) / 1 Baskerville, serif;
@@ -3282,16 +3300,14 @@ html.tracks-xiii-diary-open body {
 
 .tracks-xiii-story-slot:hover::after,
 .tracks-xiii-story-slot:focus-visible::after,
-.tracks-xiii-story-slot.is-kb-cursor::after,
-.tracks-xiii-story-slot[aria-pressed="true"]::after {
+.tracks-xiii-story-slot.is-kb-cursor::after {
   opacity: .85;
   transform: scaleX(1);
 }
 
 .tracks-xiii-story-slot:hover .tracks-xiii-story-node,
 .tracks-xiii-story-slot:focus-visible .tracks-xiii-story-node,
-.tracks-xiii-story-slot.is-kb-cursor .tracks-xiii-story-node,
-.tracks-xiii-story-slot[aria-pressed="true"] .tracks-xiii-story-node {
+.tracks-xiii-story-slot.is-kb-cursor .tracks-xiii-story-node {
   background: var(--v4-accent);
   box-shadow: 0 0 .8cqw color-mix(in srgb, var(--v4-accent) 72%, transparent);
   transform: translate(-50%, -50%) rotate(45deg) scale(1);
@@ -3299,8 +3315,7 @@ html.tracks-xiii-diary-open body {
 
 .tracks-xiii-story-slot:hover .tracks-xiii-story-art,
 .tracks-xiii-story-slot:focus-visible .tracks-xiii-story-art,
-.tracks-xiii-story-slot.is-kb-cursor .tracks-xiii-story-art,
-.tracks-xiii-story-slot[aria-pressed="true"] .tracks-xiii-story-art {
+.tracks-xiii-story-slot.is-kb-cursor .tracks-xiii-story-art {
   filter: saturate(1);
   opacity: 1;
   transform: translateX(.35cqw);
@@ -3308,13 +3323,12 @@ html.tracks-xiii-diary-open body {
 
 .tracks-xiii-story-slot:hover .tracks-xiii-story-copy strong,
 .tracks-xiii-story-slot:focus-visible .tracks-xiii-story-copy strong,
-.tracks-xiii-story-slot.is-kb-cursor .tracks-xiii-story-copy strong,
-.tracks-xiii-story-slot[aria-pressed="true"] .tracks-xiii-story-copy strong {
+.tracks-xiii-story-slot.is-kb-cursor .tracks-xiii-story-copy strong {
   transform: scale(1.03);
 }
 
 .tracks-xiii-story-slot.is-locked {
-  grid-template-columns: 10.4cqw 2.4cqw minmax(0, 1fr);
+  grid-template-columns: var(--xiii-story-art-width) var(--xiii-story-number-width) minmax(0, 1fr);
   min-height: 9.4cqh;
   opacity: .4;
 }
@@ -3353,7 +3367,7 @@ html.tracks-xiii-diary-open body {
 
 .tracks-xiii-story-rail > span {
   top: 0;
-  left: -.55cqw;
+  left: 50%;
   width: 1.1cqw;
   min-height: 0;
   height: 4.1cqh;
@@ -3582,13 +3596,13 @@ html.tracks-xiii-diary-open body {
   }
 
   .tracks-xiii-save-slot {
-    grid-template-columns: 3.6cqw 13cqw minmax(0, 1fr);
+    grid-template-columns: 3.2cqw 15.6cqw minmax(0, 1fr);
   }
 
   .tracks-xiii-save-art,
   .tracks-xiii-save-slot.is-empty .tracks-xiii-save-art {
-    width: 12.4cqw;
-    height: 11cqh;
+    width: 15cqw;
+    height: 11.2cqh;
   }
 
   .tracks-xiii-slot-copy strong,
@@ -3644,12 +3658,12 @@ html.tracks-xiii-diary-open body {
   }
 
   .tracks-xiii-save-slot {
-    grid-template-columns: 4cqw 14cqw minmax(0, 1fr);
+    grid-template-columns: 3.8cqw 16.5cqw minmax(0, 1fr);
   }
 
   .tracks-xiii-save-art,
   .tracks-xiii-save-slot.is-empty .tracks-xiii-save-art {
-    width: 13.2cqw;
+    width: 15.8cqw;
     height: 10.8cqh;
     min-height: 0;
   }

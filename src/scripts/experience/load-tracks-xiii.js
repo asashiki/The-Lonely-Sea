@@ -126,6 +126,8 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
   let transitionIncomingGhost = null;
   let transitionIndexGhost = null;
   let transitionIncomingIndexGhost = null;
+  let transitionPageGhost = null;
+  let transitionIncomingPageGhost = null;
   let transitionAnimations = [];
   let keyboardCursorEnabled = true;
   let keyboardCursorItem = null;
@@ -152,8 +154,13 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
     transitionIndexGhost = null;
     transitionIncomingIndexGhost?.remove();
     transitionIncomingIndexGhost = null;
+    transitionPageGhost?.remove();
+    transitionPageGhost = null;
+    transitionIncomingPageGhost?.remove();
+    transitionIncomingPageGhost = null;
     view.style.removeProperty("visibility");
     indexStack.style.removeProperty("visibility");
+    pageNav.style.removeProperty("visibility");
     articleGrid.classList.remove("is-flipping");
   }
 
@@ -199,6 +206,14 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
       all("[id]", indexGhost).forEach((node) => node.removeAttribute("id"));
       index.appendChild(indexGhost);
       transitionIndexGhost = indexGhost;
+    } else {
+      const pageGhost = pageNav.cloneNode(true);
+      pageGhost.classList.add("tracks-xiii-page-nav-ghost");
+      pageGhost.setAttribute("aria-hidden", "true");
+      pageGhost.inert = true;
+      all("[id]", pageGhost).forEach((node) => node.removeAttribute("id"));
+      loadCanvas.appendChild(pageGhost);
+      transitionPageGhost = pageGhost;
     }
     commit();
 
@@ -221,9 +236,19 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
       transitionIncomingIndexGhost = incomingIndexGhost;
       indexStack.style.visibility = "hidden";
     }
+    if (transitionPageGhost) {
+      const incomingPageGhost = pageNav.cloneNode(true);
+      incomingPageGhost.classList.add("tracks-xiii-page-nav-ghost", "is-incoming");
+      incomingPageGhost.setAttribute("aria-hidden", "true");
+      incomingPageGhost.inert = true;
+      all("[id]", incomingPageGhost).forEach((node) => node.removeAttribute("id"));
+      loadCanvas.appendChild(incomingPageGhost);
+      transitionIncomingPageGhost = incomingPageGhost;
+      pageNav.style.visibility = "hidden";
+    }
 
     const duration = direction === 0 ? VIEW_DURATION : PAGE_DURATION;
-    const travel = direction === 0 ? 0 : direction * 4.6;
+    const travel = direction === 0 ? 0 : direction * 12;
     const easing = direction === 0
       ? "cubic-bezier(0.22, 1, 0.36, 1)"
       : "cubic-bezier(0.25, 1, 0.5, 1)";
@@ -271,6 +296,25 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
         ),
       );
     }
+    if (transitionPageGhost && transitionIncomingPageGhost) {
+      const pageTravel = direction * 3.4;
+      transitionAnimations.push(
+        transitionPageGhost.animate(
+          [
+            { opacity: 1, transform: "translate3d(0,0,0)" },
+            { opacity: 0, transform: `translate3d(${-pageTravel}vw,0,0)` },
+          ],
+          { duration, easing, fill: "both" },
+        ),
+        transitionIncomingPageGhost.animate(
+          [
+            { opacity: 0, transform: `translate3d(${pageTravel}vw,0,0)` },
+            { opacity: 1, transform: "translate3d(0,0,0)" },
+          ],
+          { duration, easing, fill: "both" },
+        ),
+      );
+    }
 
     Promise.allSettled(transitionAnimations.map((animation) => animation.finished))
       .then(() => {
@@ -294,8 +338,8 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
     );
     const outgoing = visibleSlotContent().map((node) => node.animate(
       [
-        { opacity: 1, transform: "perspective(48vw) rotateY(0deg)" },
-        { opacity: 0, transform: "perspective(48vw) rotateY(-68deg)" },
+        { opacity: 1, transform: "perspective(48vw) rotateX(0deg)" },
+        { opacity: 0, transform: "perspective(48vw) rotateX(68deg)" },
       ],
       {
         duration: 180,
@@ -314,8 +358,8 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
 
         const incoming = visibleSlotContent().map((node) => node.animate(
           [
-            { opacity: 0, transform: "perspective(48vw) rotateY(68deg)" },
-            { opacity: 1, transform: "perspective(48vw) rotateY(0deg)" },
+            { opacity: 0, transform: "perspective(48vw) rotateX(-68deg)" },
+            { opacity: 1, transform: "perspective(48vw) rotateX(0deg)" },
           ],
           {
             duration: 240,
@@ -878,9 +922,6 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
 
   function openStoryConfirm(slot, { animate = true } = {}) {
     storyTrigger = slot;
-    storySlots.forEach((candidate) => {
-      candidate.setAttribute("aria-pressed", String(candidate === slot));
-    });
     storyConfirmNumber.textContent = "SCENE " + (slot.dataset.storyNumber || "--");
     storyConfirmTitle.textContent = slot.dataset.storyTitle || "";
     storyConfirm.setAttribute("aria-hidden", "false");
@@ -900,11 +941,14 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
 
   function closeStoryConfirm({ restoreFocus = true, cue = true } = {}) {
     if (storyConfirm.getAttribute("aria-hidden") === "true") return false;
+    const trigger = storyTrigger;
     storyConfirm.setAttribute("aria-hidden", "true");
     setInterfaceInert(false);
     storyScroll.inert = false;
     storyRail.inert = false;
-    if (restoreFocus) storyTrigger?.focus({ preventScroll: true });
+    storySlots.forEach((candidate) => candidate.removeAttribute("aria-pressed"));
+    storyTrigger = null;
+    if (restoreFocus) trigger?.focus({ preventScroll: true });
     if (cue) dispatchCue("back", { target: "story" });
     return true;
   }
