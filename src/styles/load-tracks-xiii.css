@@ -38,6 +38,9 @@
   border-color: var(--xiii-edge);
   color: var(--xiii-ink);
   background: var(--xiii-surface-soft);
+  padding: 0 0 .08em .02em;
+  line-height: 1;
+  text-indent: 0;
 }
 
 .tracks-xiii-canvas .system-back:hover,
@@ -1319,9 +1322,9 @@ html.tracks-xiii-diary-open body {
   overflow: hidden;
 }
 
-/* STORY — the flowchart flattened into readable scene records. */
+/* STORY — XI's scene-strip rhythm, made clearer and without its node/rail ornament. */
 .tracks-xiii-story-view {
-  padding-right: 2.15cqw;
+  padding-right: 2.4cqw;
 }
 
 .tracks-xiii-story-scroll {
@@ -1339,70 +1342,81 @@ html.tracks-xiii-diary-open body {
 
 .tracks-xiii-story-list {
   display: grid;
-  gap: 1.05cqh;
-  padding: .1cqh .15cqw 2cqh 0;
+  gap: .78cqh;
+  padding: .35cqh .2cqw 3cqh .25cqw;
 }
 
 .tracks-xiii-story-slot {
   position: relative;
   display: grid;
-  grid-template-columns: 3.5cqw 11.8cqw minmax(0, 1fr);
-  align-items: stretch;
+  grid-template-columns: 3.6cqw 15.2cqw minmax(0, 1fr);
+  align-items: center;
   min-width: 0;
-  min-height: 11.8cqh;
-  padding: 0;
-  overflow: hidden;
+  min-height: 11.6cqh;
+  padding: .62cqh .7cqw .62cqh .35cqw;
+  overflow: visible;
   border: 0;
   color: var(--xiii-ink);
-  background:
-    linear-gradient(90deg, color-mix(in srgb, var(--v4-card) 78%, transparent), color-mix(in srgb, var(--v4-paper) 44%, transparent));
-  box-shadow: 0 .35cqh .9cqw color-mix(in srgb, var(--v4-shadow) 24%, transparent);
+  background: transparent;
+  box-shadow: none;
   text-align: left;
   cursor: pointer;
+  isolation: isolate;
+  transition: color 180ms ease, transform 220ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.tracks-xiii-story-slot::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: .35cqh 0;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--v4-accent) 13%, transparent), color-mix(in srgb, var(--v4-card) 52%, transparent) 46%, transparent 94%);
+  opacity: .42;
+  transform: scaleX(.96);
+  transform-origin: left center;
+  transition: opacity 180ms ease, transform 240ms cubic-bezier(.22, 1, .36, 1);
 }
 
 .tracks-xiii-story-slot::after {
-  content: "";
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  height: 2px;
-  background: var(--xiii-focus);
-  opacity: 0;
-  transition: opacity 180ms ease;
+  display: none;
 }
 
 .tracks-xiii-story-number {
   display: grid;
   place-items: center;
   color: var(--xiii-soft);
-  background: color-mix(in srgb, var(--v4-accent) 9%, transparent);
-  font: italic 400 clamp(17px, 1.22cqw, 24px) / 1 Baskerville, serif;
+  background: transparent;
+  font: italic 400 clamp(18px, 1.3cqw, 25px) / 1 Baskerville, "Iowan Old Style", serif;
 }
 
 .tracks-xiii-story-art {
+  width: 15.2cqw;
+  height: 8.9cqh;
   background:
-    linear-gradient(rgba(10, 18, 24, .06), rgba(10, 18, 24, .06)),
+    linear-gradient(90deg, transparent 62%, color-mix(in srgb, var(--v4-outer) 24%, transparent)),
     var(--story-art, var(--v4-bg)) center / cover no-repeat;
+  clip-path: polygon(0 0, 94% 0, 100% 50%, 94% 100%, 0 100%);
+  box-shadow: 0 .25cqh .68cqw color-mix(in srgb, var(--v4-shadow) 28%, transparent);
   filter: saturate(.75) contrast(.95);
+  opacity: .82;
   transition:
     filter 180ms ease,
+    opacity 180ms ease,
     transform 240ms cubic-bezier(.22, 1, .36, 1);
 }
 
 .tracks-xiii-story-copy {
   display: grid;
   align-content: center;
-  gap: .75cqh;
+  gap: .72cqh;
   min-width: 0;
-  padding: 1.15cqh 1.15cqw;
+  padding: .7cqh 1.3cqw;
 }
 
 .tracks-xiii-story-copy strong {
   overflow: hidden;
-  font: 500 clamp(14px, .96cqw, 18px) / 1.2 "Yu Mincho", serif;
-  letter-spacing: .035em;
+  font: 500 clamp(15px, 1.08cqw, 20px) / 1.2 "Noto Serif CJK SC", "Yu Mincho", serif;
+  letter-spacing: .055em;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -1410,39 +1424,41 @@ html.tracks-xiii-diary-open body {
 .tracks-xiii-story-copy > span {
   overflow: hidden;
   color: var(--xiii-soft);
-  font: 400 clamp(11px, .69cqw, 13px) / 1.55 "Yu Gothic", sans-serif;
+  font: 400 clamp(11px, .7cqw, 13px) / 1.55 "Noto Serif CJK SC", "Yu Mincho", serif;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.tracks-xiii-story-slot:hover::after,
-.tracks-xiii-story-slot:focus-visible::after,
-.tracks-xiii-story-slot.is-kb-cursor::after {
-  opacity: .72;
+.tracks-xiii-story-slot:hover::before,
+.tracks-xiii-story-slot:focus-visible::before,
+.tracks-xiii-story-slot.is-kb-cursor::before {
+  opacity: 1;
+  transform: scaleX(1);
 }
 
 .tracks-xiii-story-slot:hover .tracks-xiii-story-art,
 .tracks-xiii-story-slot:focus-visible .tracks-xiii-story-art,
 .tracks-xiii-story-slot.is-kb-cursor .tracks-xiii-story-art {
   filter: saturate(.94) contrast(1);
-  transform: scale(1.018);
+  opacity: 1;
+  transform: translateX(.32cqw);
 }
 
 .tracks-xiii-story-slot:focus-visible {
-  outline: 2px solid color-mix(in srgb, var(--v4-accent) 66%, transparent);
-  outline-offset: -2px;
+  outline: 0;
 }
 
 .tracks-xiii-story-slot.is-locked {
   cursor: default;
-  opacity: .6;
-  background: color-mix(in srgb, var(--v4-card) 38%, transparent);
+  opacity: .48;
+  background: transparent;
 }
 
 .tracks-xiii-story-slot.is-locked .tracks-xiii-story-art {
   background:
-    linear-gradient(135deg, transparent 49.7%, var(--xiii-edge-soft) 50%, transparent 50.3%),
-    linear-gradient(45deg, transparent 49.7%, var(--xiii-edge-soft) 50%, transparent 50.3%);
+    radial-gradient(ellipse at 50% 50%, color-mix(in srgb, var(--v4-accent) 8%, transparent), transparent 66%),
+    color-mix(in srgb, var(--v4-outer) 12%, var(--v4-card) 44%);
+  box-shadow: inset 0 0 1.2cqw color-mix(in srgb, var(--v4-shadow) 24%, transparent);
 }
 
 .tracks-xiii-story-slot.is-locked .tracks-xiii-story-copy strong {
@@ -1453,32 +1469,26 @@ html.tracks-xiii-diary-open body {
 
 .tracks-xiii-story-rail {
   position: absolute;
-  top: 0;
-  right: .15cqw;
-  bottom: 0;
-  width: .6cqw;
-  min-width: 8px;
+  top: 2cqh;
+  right: .2cqw;
+  bottom: 2cqh;
+  width: .72cqw;
+  min-width: 9px;
+  background: color-mix(in srgb, var(--v4-outer) 10%, transparent);
   cursor: pointer;
 }
 
 .tracks-xiii-story-rail::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 50%;
-  width: 1px;
-  background: var(--xiii-edge-soft);
-  transform: translateX(-50%);
+  display: none;
 }
 
 .tracks-xiii-story-rail > span {
   position: absolute;
   top: 0;
   left: 50%;
-  width: 3px;
+  width: 4px;
   min-height: 42px;
-  background: color-mix(in srgb, var(--v4-accent) 66%, var(--v4-ink) 14%);
+  background: color-mix(in srgb, var(--v4-accent) 64%, var(--v4-ink) 12%);
   box-shadow: 0 0 .45cqw color-mix(in srgb, var(--v4-accent) 18%, transparent);
   transform: translateX(-50%);
 }
@@ -1558,15 +1568,15 @@ html.tracks-xiii-diary-open body {
   background: color-mix(in srgb, var(--v4-accent) 17%, var(--v4-card) 56%);
 }
 
-/* DIARY — a single month as a full memory scene, unlike X/XI cards. */
+/* DIARY — one month per screen, composed as a quiet photographic folio. */
 .tracks-xiii-diary-month {
   position: absolute;
   inset: 0;
   overflow: hidden;
-  background: color-mix(in srgb, var(--v4-outer) 35%, transparent);
-  box-shadow:
-    inset 0 0 0 1px var(--xiii-edge-soft),
-    0 .8cqh 1.8cqw color-mix(in srgb, var(--v4-shadow) 42%, transparent);
+  background:
+    radial-gradient(ellipse at 72% 46%, color-mix(in srgb, var(--v4-card) 54%, transparent), transparent 54%),
+    linear-gradient(90deg, color-mix(in srgb, var(--v4-outer) 10%, transparent), transparent 72%);
+  box-shadow: none;
 }
 
 .tracks-xiii-diary-month[aria-hidden="true"] {
@@ -1575,15 +1585,16 @@ html.tracks-xiii-diary-open body {
 
 .tracks-xiii-diary-cover {
   position: absolute;
-  inset: 0;
+  inset: 2.6cqh 39.5% 2.6cqh .45cqw;
   display: block;
-  width: 100%;
-  height: 100%;
+  width: auto;
+  height: auto;
   padding: 0;
   overflow: hidden;
   border: 0;
   color: #f3f6f6;
-  background: transparent;
+  background: color-mix(in srgb, var(--v4-outer) 30%, transparent);
+  box-shadow: 0 .8cqh 1.9cqw color-mix(in srgb, var(--v4-shadow) 42%, transparent);
   cursor: pointer;
   isolation: isolate;
 }
@@ -1592,15 +1603,12 @@ html.tracks-xiii-diary-open body {
   content: "";
   position: absolute;
   z-index: -2;
-  inset: 0;
-  background:
-    linear-gradient(rgba(8, 14, 18, .05), rgba(8, 14, 18, .05)),
-    var(--diary-art, var(--v4-bg)) center / cover no-repeat;
-  filter: saturate(.76) contrast(.95);
-  transform: scale(1.001);
-  transition:
-    filter 200ms ease,
-    transform 320ms cubic-bezier(.22, 1, .36, 1);
+  inset: -2cqh -1.2cqw;
+  opacity: .18;
+  background: var(--diary-art, var(--v4-bg)) center / cover no-repeat;
+  filter: blur(1.2cqw) saturate(.68);
+  transform: scale(1.06);
+  transition: opacity 220ms ease, transform 320ms cubic-bezier(.22, 1, .36, 1);
 }
 
 .tracks-xiii-diary-cover::after {
@@ -1608,68 +1616,105 @@ html.tracks-xiii-diary-open body {
   position: absolute;
   z-index: -1;
   inset: 0;
-  background:
-    linear-gradient(90deg, rgba(4, 10, 14, .76), rgba(4, 10, 14, .44) 37%, rgba(4, 10, 14, .08) 66%, rgba(4, 10, 14, .24)),
-    linear-gradient(180deg, rgba(0, 0, 0, .08), transparent 55%, rgba(0, 0, 0, .28));
+  background: linear-gradient(180deg, rgba(4, 10, 14, .04), transparent 56%, rgba(4, 10, 14, .34));
+  pointer-events: none;
 }
 
 .tracks-xiii-diary-triptych {
-  display: none;
+  position: absolute;
+  z-index: 1;
+  inset: .7cqh .55cqw;
+  display: grid;
+  grid-template-columns: 15% minmax(0, 1fr) 19%;
+  gap: .52cqw;
+}
+
+.tracks-xiii-diary-triptych i {
+  display: block;
+  min-width: 0;
+  background-image:
+    linear-gradient(rgba(8, 14, 18, .04), rgba(8, 14, 18, .1)),
+    var(--diary-art, var(--v4-bg));
+  background-repeat: no-repeat;
+  background-size: cover;
+  box-shadow: 0 .35cqh .9cqw rgba(5, 11, 16, .22);
+  filter: saturate(.72) contrast(.96);
+  transition:
+    filter 200ms ease,
+    opacity 200ms ease,
+    transform 300ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.tracks-xiii-diary-triptych i:nth-child(1) {
+  background-position: 18% center;
+  opacity: .66;
+  transform: scaleY(.91);
+}
+
+.tracks-xiii-diary-triptych i:nth-child(2) {
+  background-position: center;
+}
+
+.tracks-xiii-diary-triptych i:nth-child(3) {
+  background-position: 82% center;
+  opacity: .78;
+  transform: scaleY(.95);
 }
 
 .tracks-xiii-diary-copy {
   position: absolute;
   z-index: 4;
   top: 50%;
-  left: 3.4cqw;
-  width: min(31cqw, 520px);
-  color: #f2f5f5;
+  right: 1.6cqw;
+  left: auto;
+  width: min(31.5%, 520px);
+  color: var(--xiii-ink);
   pointer-events: none;
   transform: translateY(-50%);
 }
 
 .tracks-xiii-diary-copy time {
   display: block;
-  margin-bottom: 2.4cqh;
-  color: rgba(232, 240, 242, .7);
-  font: 600 clamp(10px, .68cqw, 13px) / 1 "Yu Gothic", sans-serif;
-  letter-spacing: .2em;
-  text-shadow: 0 1px .7cqw rgba(0, 0, 0, .55);
+  margin-bottom: 1.7cqh;
+  color: var(--xiii-soft);
+  font: 500 clamp(10px, .68cqw, 13px) / 1 Baskerville, "Iowan Old Style", "Yu Mincho", serif;
+  letter-spacing: .18em;
+  text-shadow: none;
 }
 
 .tracks-xiii-diary-number {
   display: block;
-  margin-left: -.25cqw;
-  color: rgba(243, 247, 247, .9);
-  font: italic 400 clamp(64px, 7.2cqw, 132px) / .72 Baskerville, "Iowan Old Style", serif;
-  letter-spacing: -.04em;
-  text-shadow: 0 .35cqh 1.5cqw rgba(0, 0, 0, .46);
+  margin-left: -.35cqw;
+  color: color-mix(in srgb, var(--v4-accent) 54%, var(--xiii-ink) 24%);
+  font: italic 400 clamp(68px, 7.5cqw, 136px) / .72 Baskerville, "Iowan Old Style", serif;
+  letter-spacing: -.045em;
+  text-shadow: 0 .25cqh 1.3cqw color-mix(in srgb, var(--v4-shadow) 26%, transparent);
 }
 
 .tracks-xiii-diary-copy h3 {
-  margin: 2.4cqh 0 1.25cqh;
-  font: 500 clamp(20px, 1.6cqw, 31px) / 1.2 "Yu Mincho", serif;
+  margin: 2cqh 0 1.15cqh;
+  font: 500 clamp(20px, 1.65cqw, 32px) / 1.2 "Noto Serif CJK SC", "Yu Mincho", serif;
   letter-spacing: .06em;
-  text-shadow: 0 1px .9cqw rgba(0, 0, 0, .58);
+  text-shadow: none;
 }
 
 .tracks-xiii-diary-copy p {
   max-width: 30em;
   margin: 0;
-  color: rgba(235, 241, 242, .8);
-  font: 400 clamp(12px, .76cqw, 15px) / 1.72 "Yu Gothic", sans-serif;
-  text-shadow: 0 1px .8cqw rgba(0, 0, 0, .68);
+  color: var(--xiii-soft);
+  font: 400 clamp(12px, .76cqw, 15px) / 1.72 "Noto Serif CJK SC", "Yu Mincho", serif;
+  text-shadow: none;
 }
 
 .tracks-xiii-diary-open {
   position: absolute;
   z-index: 5;
-  right: 2.4cqw;
-  bottom: 2.4cqh;
+  right: 1.45cqw;
+  bottom: 1.45cqh;
   display: flex;
   align-items: baseline;
   gap: .75cqw;
-  color: rgba(239, 245, 246, .76);
+  color: rgba(239, 245, 246, .84);
   text-shadow: 0 1px .7cqw rgba(0, 0, 0, .6);
 }
 
@@ -1679,20 +1724,27 @@ html.tracks-xiii-diary-open body {
 }
 
 .tracks-xiii-diary-open span {
-  font: 600 clamp(10px, .62cqw, 12px) / 1 "Yu Gothic", sans-serif;
+  font: 500 clamp(10px, .62cqw, 12px) / 1 Baskerville, "Iowan Old Style", serif;
   letter-spacing: .16em;
 }
 
 .tracks-xiii-diary-cover:hover::before,
 .tracks-xiii-diary-cover:focus-visible::before,
 .tracks-xiii-diary-cover.is-kb-cursor::before {
-  filter: saturate(.94) contrast(1);
-  transform: scale(1.018);
+  opacity: .28;
+  transform: scale(1.09);
+}
+
+.tracks-xiii-diary-cover:hover .tracks-xiii-diary-triptych i,
+.tracks-xiii-diary-cover:focus-visible .tracks-xiii-diary-triptych i,
+.tracks-xiii-diary-cover.is-kb-cursor .tracks-xiii-diary-triptych i {
+  filter: saturate(.92) contrast(1);
+  opacity: 1;
 }
 
 .tracks-xiii-diary-cover:focus-visible {
-  outline: 2px solid rgba(224, 239, 244, .74);
-  outline-offset: -2px;
+  outline: 1px solid color-mix(in srgb, var(--v4-accent) 62%, transparent);
+  outline-offset: 3px;
 }
 
 .tracks-xiii-diary-reader {
@@ -1922,43 +1974,56 @@ html.tracks-xiii-diary-open body {
   --xiii-turner-left: calc(var(--xiii-stage-inline) + var(--xiii-content-offset) - .7cqw);
 }
 
-/* Three distinct page entrances. The silhouette is a broad VN plaque, not a web tab frame. */
+/* XIV's compact top-right entrances: three independent buttons, never a segmented control. */
 .tracks-xiii-primary-shell {
-  top: 7.25cqh;
-  right: 8cqw;
-  left: 25cqw;
-  height: 7.2cqh;
+  top: 5.2cqh;
+  right: 4.8cqw;
+  left: auto;
+  height: 6.6cqh;
   filter: none;
 }
 
 .tracks-xiii-primary {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: clamp(18px, 2.75cqw, 46px);
+  justify-content: flex-end;
+  gap: 1.05cqw;
   height: 100%;
 }
 
 .tracks-xiii-primary button {
   position: relative;
-  flex: 0 1 clamp(142px, 12.4cqw, 196px);
+  flex: 0 0 auto;
   justify-content: center;
-  height: 5.45cqh;
-  min-height: 39px;
-  padding: 0 1.15cqw;
-  overflow: visible;
-  border: 0;
+  height: 100%;
+  min-height: 38px;
+  padding: 0 1.25cqw;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--v4-ink) 34%, transparent);
   border-radius: 0;
   clip-path: none;
-  color: var(--xiii-soft);
-  background: transparent;
-  box-shadow: none;
-  font: 600 clamp(12px, .82cqw, 16px) / 1 "Segoe UI", "Yu Gothic", sans-serif;
-  letter-spacing: .16em;
+  color: color-mix(in srgb, var(--v4-ink) 76%, transparent);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--v4-card) 22%, transparent),
+    color-mix(in srgb, var(--v4-outer) 10%, transparent)
+  );
+  box-shadow:
+    inset 0 1px color-mix(in srgb, white 10%, transparent),
+    0 .3cqh .8cqw color-mix(in srgb, var(--v4-shadow) 26%, transparent);
+  font: 500 clamp(12px, .98cqw, 17px) / 1 Baskerville, "Iowan Old Style", "Yu Mincho", serif;
+  letter-spacing: .15em;
   text-align: center;
-  text-shadow: 0 1px .5cqw color-mix(in srgb, var(--v4-shadow) 35%, transparent);
-  transform: none;
-  transition: color 170ms ease, filter 170ms ease, transform 90ms ease;
+  text-shadow: none;
+  isolation: isolate;
+  transform: translate3d(0, 0, 0);
+  transition:
+    color 180ms ease,
+    border-color 180ms ease,
+    background-color 180ms ease,
+    box-shadow 200ms ease,
+    transform 120ms ease,
+    text-shadow 180ms ease;
 }
 
 .tracks-xiii-primary button span {
@@ -1969,98 +2034,84 @@ html.tracks-xiii-diary-open body {
 .tracks-xiii-primary button::before {
   content: "";
   position: absolute;
-  z-index: 0;
+  z-index: -1;
   inset: 0;
-  opacity: .76;
-  background:
-    linear-gradient(105deg, color-mix(in srgb, white 8%, transparent), transparent 44%),
-    var(--xiii-control-rest);
-  box-shadow:
-    inset 0 0 0 2px color-mix(in srgb, var(--v4-ink) 24%, transparent),
-    0 .5cqh 1.1cqw color-mix(in srgb, var(--v4-shadow) 34%, transparent),
-    inset 0 .42cqh .9cqw color-mix(in srgb, white 6%, transparent);
-  filter: none;
-  mix-blend-mode: normal;
-  transform: skewX(-8deg) scaleX(.96);
-  transition:
-    opacity 170ms ease,
-    background-color 170ms ease,
-    box-shadow 190ms ease,
-    transform 220ms cubic-bezier(.22, 1, .36, 1);
+  opacity: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 28%,
+    color-mix(in srgb, var(--v4-accent) 22%, transparent) 50%,
+    transparent 72%
+  );
+  transform: none;
+  transition: opacity 200ms ease;
 }
 
 .tracks-xiii-primary button::after {
   content: "";
   position: absolute;
   z-index: 1;
-  top: 17%;
-  bottom: 17%;
-  left: .2cqw;
+  top: 14%;
+  bottom: 14%;
+  left: 0;
   display: block;
-  width: .42cqw;
-  min-width: 5px;
+  width: 2px;
+  min-width: 0;
   height: auto;
-  opacity: .18;
-  background: var(--v4-accent);
-  box-shadow: 0 0 1cqw color-mix(in srgb, var(--v4-accent) 24%, transparent);
-  transform: skewX(-8deg) scaleY(.55);
-  transition: opacity 170ms ease, transform 220ms cubic-bezier(.22, 1, .36, 1);
+  opacity: 0;
+  background: linear-gradient(180deg, transparent, var(--v4-accent), transparent);
+  box-shadow: none;
+  transform: scaleY(.35);
+  transition: opacity 200ms ease, transform 260ms cubic-bezier(.22, 1, .36, 1);
 }
 
 .tracks-xiii-primary button[aria-current="page"] {
   color: var(--xiii-ink);
-  background: transparent;
-  box-shadow: none;
-  text-shadow: 0 0 .8cqw color-mix(in srgb, var(--v4-accent) 18%, transparent);
+  border-color: color-mix(in srgb, var(--v4-accent) 72%, var(--v4-ink) 20%);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--v4-accent) 18%, transparent),
+    color-mix(in srgb, var(--v4-accent) 12%, var(--v4-card) 40%)
+  );
+  box-shadow:
+    inset 0 1px color-mix(in srgb, white 14%, transparent),
+    0 0 1.1cqw color-mix(in srgb, var(--v4-accent) 22%, transparent);
+  text-shadow: 0 0 1cqw color-mix(in srgb, var(--v4-accent) 30%, transparent);
   transform: none;
 }
 
 .tracks-xiii-primary button[aria-current="page"]::before {
   opacity: 1;
-  background:
-    linear-gradient(105deg, color-mix(in srgb, white 11%, transparent), transparent 44%),
-    var(--xiii-control-active);
-  box-shadow:
-    inset 0 0 0 2px color-mix(in srgb, var(--v4-accent) 52%, var(--v4-ink) 18%),
-    0 .55cqh 1.25cqw color-mix(in srgb, var(--v4-shadow) 42%, transparent),
-    inset 0 .45cqh 1cqw color-mix(in srgb, white 8%, transparent),
-    0 0 1.2cqw color-mix(in srgb, var(--v4-accent) 12%, transparent);
-  transform: skewX(-8deg) scaleX(1);
 }
 
 .tracks-xiii-primary button[aria-current="page"]::after {
   display: block;
-  opacity: .92;
-  transform: skewX(-8deg) scaleY(1);
+  opacity: .9;
+  transform: scaleY(1);
 }
 
 .tracks-xiii-primary button:hover,
 .tracks-xiii-primary button:focus-visible {
   outline: 0;
   color: var(--xiii-ink);
-  background: transparent;
-  box-shadow: none;
-  filter: brightness(1.04);
+  border-color: color-mix(in srgb, var(--v4-accent) 62%, var(--v4-ink) 20%);
+  background: color-mix(in srgb, var(--v4-card) 34%, transparent);
+  box-shadow:
+    inset 0 1px color-mix(in srgb, white 12%, transparent),
+    0 .35cqh .9cqw color-mix(in srgb, var(--v4-shadow) 30%, transparent);
+  filter: none;
   transform: none;
 }
 
 .tracks-xiii-primary button:hover::before,
 .tracks-xiii-primary button:focus-visible::before {
-  opacity: 1;
-  background:
-    linear-gradient(105deg, color-mix(in srgb, white 10%, transparent), transparent 44%),
-    var(--xiii-control-hover);
-  box-shadow:
-    inset 0 0 0 2px color-mix(in srgb, var(--v4-accent) 38%, var(--v4-ink) 16%),
-    0 .55cqh 1.2cqw color-mix(in srgb, var(--v4-shadow) 38%, transparent),
-    inset 0 .42cqh .95cqw color-mix(in srgb, white 7%, transparent);
-  transform: skewX(-8deg) scaleX(1);
+  opacity: .85;
 }
 
 .tracks-xiii-primary button:hover::after,
 .tracks-xiii-primary button:focus-visible::after {
   opacity: .72;
-  transform: skewX(-8deg) scaleY(.86);
+  transform: scaleY(.86);
 }
 
 .tracks-xiii-primary button:active {
@@ -2070,7 +2121,7 @@ html.tracks-xiii-diary-open body {
 
 /* XII's compact left index, with its rejected marker removed. */
 .tracks-xiii-stage {
-  top: 17.2cqh;
+  top: 18.4cqh;
   right: var(--xiii-stage-inline);
   bottom: 12.2cqh;
   left: var(--xiii-stage-inline);
@@ -2094,17 +2145,17 @@ html.tracks-xiii-diary-open body {
 }
 
 .tracks-xiii-index-group button {
-  height: 5.35cqh;
+  height: 5.7cqh;
   min-height: 36px;
-  padding: 0 .65cqw 0 1.55cqw;
+  padding: 0 .65cqw 0 1.45cqw;
   overflow: hidden;
   border: 0;
   outline: 0;
-  color: color-mix(in srgb, var(--v4-ink) 66%, transparent);
+  color: color-mix(in srgb, var(--v4-ink) 72%, transparent);
   background: transparent;
-  font: 600 clamp(12px, .8cqw, 16px) / 1 "Segoe UI", "Yu Gothic", sans-serif;
-  letter-spacing: .1em;
-  text-shadow: none;
+  font: 400 clamp(12px, .92cqw, 17px) / 1 Baskerville, "Iowan Old Style", "Yu Mincho", serif;
+  letter-spacing: .13em;
+  text-shadow: 0 1px 0 color-mix(in srgb, white 9%, transparent);
   transform: none;
   transition:
     color 170ms ease,
@@ -2119,20 +2170,25 @@ html.tracks-xiii-diary-open body {
 .tracks-xiii-index-group button span {
   position: relative;
   z-index: 1;
-  transition: none;
+  transform-origin: left center;
+  transition:
+    color 180ms ease,
+    transform 220ms cubic-bezier(.22, 1, .36, 1),
+    text-shadow 180ms ease;
 }
 
 .tracks-xiii-index-group button[aria-selected="true"] {
-  padding-left: 1.85cqw;
+  padding-left: 1.72cqw;
   color: var(--xiii-ink);
-  font-weight: 600;
-  background: linear-gradient(90deg, color-mix(in srgb, var(--v4-accent) 20%, transparent), transparent 88%);
+  font-weight: 400;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--v4-accent) 22%, transparent), transparent 88%);
   text-shadow: 0 0 .75cqw color-mix(in srgb, var(--v4-accent) 22%, transparent);
   transform: none;
 }
 
 .tracks-xiii-index-group button[aria-selected="true"] span {
-  transform: none;
+  transform: scale(1.055);
+  text-shadow: 0 0 .9cqw color-mix(in srgb, var(--v4-accent) 21%, transparent);
 }
 
 .tracks-xiii-index-group button:hover,
@@ -2145,32 +2201,36 @@ html.tracks-xiii-diary-open body {
 }
 
 .tracks-xiii-year-index button {
-  font-size: clamp(16px, 1.12cqw, 22px);
+  font-size: clamp(17px, 1.25cqw, 23px);
+  letter-spacing: .16em;
 }
 
-/* ARTICLES: six image-led reading records, borrowing XI's clarity instead of a save-data clone. */
+/* ARTICLES: the art remains dominant, with a restrained folio strip below it. */
 .tracks-xiii-record-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   grid-template-rows: repeat(2, minmax(0, 1fr));
-  gap: 1.55cqh 1.05cqw;
+  gap: 1.45cqh 1.05cqw;
   width: 100%;
   height: 100%;
 }
 
 .tracks-xiii-record-slot {
   position: relative;
-  display: block;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) 7.25cqh;
   min-width: 0;
   min-height: 0;
   padding: 0;
   overflow: hidden;
-  border: 0;
+  border: 1px solid color-mix(in srgb, var(--v4-ink) 27%, transparent);
   outline: 0;
   clip-path: none;
-  color: #f4f7f7;
-  background: color-mix(in srgb, var(--v4-outer) 66%, #10171d 34%);
-  box-shadow: 0 .65cqh 1.25cqw var(--xiii-slot-shadow);
+  color: var(--xiii-ink);
+  background: color-mix(in srgb, var(--v4-card) 78%, transparent);
+  box-shadow:
+    inset 0 1px color-mix(in srgb, white 10%, transparent),
+    0 .48cqh 1cqw color-mix(in srgb, var(--xiii-slot-shadow) 76%, transparent);
   text-align: left;
   isolation: isolate;
   transform: none;
@@ -2181,11 +2241,11 @@ html.tracks-xiii-diary-open body {
   content: "";
   position: absolute;
   z-index: 2;
-  inset: 0;
+  inset: 0 0 7.25cqh;
   width: auto;
   height: auto;
   opacity: 0;
-  background: linear-gradient(105deg, color-mix(in srgb, var(--v4-accent) 36%, transparent), transparent 58%);
+  background: linear-gradient(105deg, color-mix(in srgb, white 18%, transparent), color-mix(in srgb, var(--v4-accent) 26%, transparent) 38%, transparent 68%);
   mix-blend-mode: soft-light;
   transform: scaleX(.72);
   transform-origin: left center;
@@ -2196,30 +2256,30 @@ html.tracks-xiii-diary-open body {
   content: "";
   position: absolute;
   z-index: 1;
-  inset: 36% 0 0;
+  inset: auto 0 7.25cqh;
   display: block;
   width: auto;
-  height: auto;
+  height: 2.8cqh;
   opacity: 1;
   clip-path: none;
-  background: linear-gradient(180deg, transparent, rgba(5, 10, 14, .62) 52%, rgba(5, 10, 14, .9));
+  background: linear-gradient(180deg, transparent, rgba(10, 18, 23, .22));
   pointer-events: none;
 }
 
 .tracks-xiii-slot-art {
-  position: absolute;
+  position: relative;
   z-index: 0;
-  inset: 0;
+  inset: auto;
   display: block;
-  width: auto;
-  height: auto;
+  width: 100%;
+  height: 100%;
   min-height: 0;
   clip-path: none;
   background:
     linear-gradient(135deg, rgba(255, 255, 255, .04), transparent 44%),
     var(--record-art, var(--v4-bg)) center / cover no-repeat;
   box-shadow: none;
-  filter: saturate(.78) contrast(.94);
+  filter: saturate(.74) contrast(.95);
   transform: scale(1.002);
   transition: filter 200ms ease, transform 280ms cubic-bezier(.22, 1, .36, 1);
 }
@@ -2227,69 +2287,82 @@ html.tracks-xiii-diary-open body {
 .tracks-xiii-slot-number {
   position: absolute;
   z-index: 4;
-  top: 1cqh;
-  right: .85cqw;
-  inset-block-end: auto;
+  top: auto;
+  right: auto;
+  bottom: 2.2cqh;
+  left: 1cqw;
   display: block;
   min-width: 0;
   padding: 0;
-  color: rgba(247, 250, 250, .9);
+  color: color-mix(in srgb, var(--v4-accent) 68%, var(--xiii-ink) 32%);
   background: transparent;
   box-shadow: none;
-  font: italic 400 clamp(18px, 1.38cqw, 27px) / 1 Baskerville, "Iowan Old Style", serif;
-  letter-spacing: .03em;
-  text-align: right;
-  text-shadow: 0 1px .65cqw rgba(0, 0, 0, .68);
+  font: italic 400 clamp(17px, 1.28cqw, 25px) / 1 Baskerville, "Iowan Old Style", serif;
+  letter-spacing: .02em;
+  text-align: left;
+  text-shadow: none;
 }
 
 .tracks-xiii-slot-copy {
-  position: absolute;
+  position: relative;
   z-index: 4;
-  right: 1cqw;
-  bottom: 1.25cqh;
-  left: 1cqw;
+  right: auto;
+  bottom: auto;
+  left: auto;
+  grid-row: 2;
   display: grid;
-  align-content: end;
-  gap: .55cqh;
+  align-content: center;
+  gap: .42cqh;
   min-width: 0;
   min-height: 0;
-  padding: 0;
-  color: #f4f7f7;
-  background: transparent;
+  padding: .72cqh .9cqw .65cqh 3.35cqw;
+  color: var(--xiii-ink);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--v4-card) 88%, transparent), color-mix(in srgb, var(--v4-paper) 68%, transparent));
 }
 
 .tracks-xiii-slot-copy strong {
   overflow: hidden;
-  color: #f6f8f8;
+  color: var(--xiii-ink);
   font: 500 clamp(14px, .94cqw, 18px) / 1.32 "Yu Mincho", "Noto Serif CJK SC", serif;
   letter-spacing: .025em;
   text-overflow: ellipsis;
   white-space: nowrap;
-  text-shadow: 0 1px .75cqw rgba(0, 0, 0, .82);
+  text-shadow: none;
 }
 
 .tracks-xiii-slot-copy time {
   margin: 0;
-  color: rgba(239, 244, 245, .78);
-  font: 600 clamp(11px, .64cqw, 13px) / 1 "Segoe UI", "Yu Gothic", sans-serif;
-  letter-spacing: .1em;
-  text-shadow: 0 1px .55cqw rgba(0, 0, 0, .78);
+  color: var(--xiii-soft);
+  font: 500 clamp(10px, .62cqw, 12px) / 1 Baskerville, "Iowan Old Style", "Yu Mincho", serif;
+  letter-spacing: .12em;
+  text-shadow: none;
 }
 
 .tracks-xiii-slot-command {
-  display: none;
+  position: absolute;
+  z-index: 5;
+  right: .8cqw;
+  bottom: 1.25cqh;
+  display: block;
+  color: var(--xiii-soft);
+  font: 500 clamp(9px, .55cqw, 11px) / 1 Baskerville, "Iowan Old Style", serif;
+  letter-spacing: .14em;
+  opacity: 0;
+  transform: translateX(.35cqw);
+  transition: opacity 170ms ease, transform 220ms cubic-bezier(.22, 1, .36, 1);
 }
 
 .tracks-xiii-record-slot:hover,
 .tracks-xiii-record-slot:focus-visible,
 .tracks-xiii-record-slot.is-kb-cursor {
   outline: 0;
-  background: color-mix(in srgb, var(--v4-outer) 66%, #10171d 34%);
+  border-color: color-mix(in srgb, var(--v4-accent) 62%, var(--v4-ink) 18%);
+  background: color-mix(in srgb, var(--v4-card) 82%, transparent);
   box-shadow:
     0 .7cqh 1.45cqw var(--xiii-slot-shadow),
     0 0 1.25cqw color-mix(in srgb, var(--v4-accent) 18%, transparent);
-  filter: brightness(1.04);
-  transform: none;
+  filter: brightness(1.025);
+  transform: translateY(-1px);
 }
 
 .tracks-xiii-record-slot:hover::before,
@@ -2312,17 +2385,24 @@ html.tracks-xiii-diary-open body {
   transform: scale(1.022);
 }
 
+.tracks-xiii-record-slot:hover .tracks-xiii-slot-command,
+.tracks-xiii-record-slot:focus-visible .tracks-xiii-slot-command,
+.tracks-xiii-record-slot.is-kb-cursor .tracks-xiii-slot-command {
+  opacity: .86;
+  transform: translateX(0);
+}
+
 .tracks-xiii-record-slot:active {
   filter: brightness(.93);
   transform: scale(.99);
 }
 
 .tracks-xiii-record-slot.is-empty {
-  display: block;
+  display: grid;
   color: var(--xiii-soft);
   background:
     linear-gradient(145deg, color-mix(in srgb, white 4%, transparent), transparent 48%),
-    color-mix(in srgb, var(--v4-card) 66%, transparent);
+    color-mix(in srgb, var(--v4-card) 72%, transparent);
   box-shadow:
     inset 0 0 2.2cqw color-mix(in srgb, var(--v4-outer) 14%, transparent),
     0 .45cqh 1cqw color-mix(in srgb, var(--v4-shadow) 30%, transparent);
@@ -2336,7 +2416,7 @@ html.tracks-xiii-diary-open body {
 }
 
 .tracks-xiii-record-slot.is-empty::after {
-  inset: 0;
+  inset: 0 0 7.25cqh;
   display: block;
   opacity: 1;
   background:
@@ -2350,11 +2430,11 @@ html.tracks-xiii-diary-open body {
 }
 
 .tracks-xiii-record-slot.is-empty .tracks-xiii-slot-art {
-  position: absolute;
-  inset: 2.2cqh 1.1cqw 7.2cqh;
+  position: relative;
+  inset: auto;
   display: grid;
-  width: auto;
-  height: auto;
+  width: 100%;
+  height: 100%;
   min-height: 0;
   place-items: center;
   background: color-mix(in srgb, var(--v4-ink) 8%, var(--v4-card) 72%);
@@ -2368,31 +2448,32 @@ html.tracks-xiii-diary-open body {
 }
 
 .tracks-xiii-record-slot.is-empty .tracks-xiii-slot-copy {
-  position: absolute;
-  inset: auto 1cqw 1.2cqh;
+  position: relative;
+  inset: auto;
   z-index: 4;
   display: grid;
+  align-content: center;
   place-items: start;
   min-height: 0;
-  padding: 0;
+  padding: .72cqh .9cqw .65cqh 3.35cqw;
   color: var(--xiii-soft);
-  background: transparent;
+  background: color-mix(in srgb, var(--v4-card) 78%, transparent);
   transform: none;
 }
 
 .tracks-xiii-record-slot.is-empty .tracks-xiii-slot-copy strong {
   color: var(--xiii-soft);
-  font: 500 clamp(12px, .75cqw, 15px) / 1 "Segoe UI", "Yu Gothic", sans-serif;
+  font: 500 clamp(11px, .72cqw, 14px) / 1 Baskerville, "Iowan Old Style", serif;
   letter-spacing: .14em;
   text-shadow: none;
 }
 
-/* SAVE DATA: traditional horizontal VN files, with real empty slots and readable metadata. */
+/* SAVE DATA: horizontal VN files — thumbnail, scene text and time in one compact read target. */
 .tracks-xiii-save-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   grid-template-rows: repeat(3, minmax(0, 1fr));
-  gap: 1.35cqh 1.1cqw;
+  gap: 1.2cqh 1.05cqw;
   width: 100%;
   height: 100%;
 }
@@ -2400,23 +2481,23 @@ html.tracks-xiii-diary-open body {
 .tracks-xiii-save-slot {
   position: relative;
   display: grid;
-  grid-template-columns: 3.15cqw 11.7cqw minmax(0, 1fr);
+  grid-template-columns: 15cqw minmax(0, 1fr);
   grid-template-rows: minmax(0, 1fr);
   align-items: center;
   min-width: 0;
   min-height: 0;
-  padding: .85cqh 1cqw .85cqh .3cqw;
+  padding: .72cqh .72cqw;
   overflow: hidden;
-  border: 0;
+  border: 1px solid color-mix(in srgb, var(--v4-ink) 25%, transparent);
   outline: 0;
   clip-path: none;
   color: var(--xiii-ink);
   background:
-    linear-gradient(105deg, color-mix(in srgb, white 6%, transparent), transparent 42%),
-    linear-gradient(90deg, var(--xiii-slot-rest), color-mix(in srgb, var(--v4-paper) 62%, transparent));
+    linear-gradient(105deg, color-mix(in srgb, white 10%, transparent), transparent 42%),
+    color-mix(in srgb, var(--v4-card) 78%, transparent);
   box-shadow:
-    inset 0 .45cqh 1.1cqw color-mix(in srgb, white 5%, transparent),
-    0 .55cqh 1.1cqw var(--xiii-slot-shadow);
+    inset 0 1px color-mix(in srgb, white 11%, transparent),
+    0 .48cqh 1cqw color-mix(in srgb, var(--xiii-slot-shadow) 72%, transparent);
   text-align: left;
   isolation: isolate;
   transform: none;
@@ -2431,9 +2512,9 @@ html.tracks-xiii-diary-open body {
   width: auto;
   height: auto;
   opacity: 0;
-  background: linear-gradient(100deg, color-mix(in srgb, var(--v4-accent) 30%, transparent), transparent 64%);
-  mix-blend-mode: normal;
-  transform: scaleX(.74);
+  background: linear-gradient(100deg, color-mix(in srgb, var(--v4-accent) 21%, transparent), color-mix(in srgb, white 9%, transparent) 42%, transparent 73%);
+  mix-blend-mode: soft-light;
+  transform: translateX(-12%);
   transform-origin: left center;
   transition: opacity 180ms ease, transform 260ms cubic-bezier(.22, 1, .36, 1);
 }
@@ -2450,21 +2531,28 @@ html.tracks-xiii-diary-open body {
 }
 
 .tracks-xiii-save-number {
-  inset: auto;
-  align-self: stretch;
+  position: absolute;
+  z-index: 5;
+  top: .72cqh;
+  left: .72cqw;
+  inset-block-end: auto;
+  align-self: auto;
   display: grid;
   place-items: center;
-  min-width: 0;
+  width: 2.7cqw;
+  min-width: 34px;
+  height: 3.5cqh;
+  min-height: 25px;
   padding: 0;
-  color: var(--xiii-soft);
-  background: transparent;
-  box-shadow: none;
-  font: 400 clamp(18px, 1.36cqw, 26px) / 1 Baskerville, "Iowan Old Style", serif;
-  letter-spacing: .02em;
+  color: rgba(244, 248, 249, .92);
+  background: rgba(10, 20, 27, .54);
+  box-shadow: 0 .2cqh .65cqw rgba(4, 9, 13, .25);
+  font: italic 400 clamp(15px, 1.02cqw, 20px) / 1 Baskerville, "Iowan Old Style", serif;
+  letter-spacing: .04em;
   text-align: center;
-  text-shadow: none;
-  writing-mode: vertical-rl;
-  transform: rotate(180deg);
+  text-shadow: 0 1px .45cqw rgba(0, 0, 0, .52);
+  writing-mode: horizontal-tb;
+  transform: none;
 }
 
 .tracks-xiii-save-number::before {
@@ -2475,14 +2563,17 @@ html.tracks-xiii-diary-open body {
   inset: auto;
   display: block;
   width: 100%;
-  height: 11.5cqh;
-  min-height: 70px;
+  height: auto;
+  min-height: 0;
+  aspect-ratio: 16 / 9;
   overflow: hidden;
   clip-path: none;
   background:
     linear-gradient(rgba(6, 13, 18, .03), rgba(6, 13, 18, .12)),
     var(--save-art, var(--v4-bg)) center / cover no-repeat;
-  box-shadow: 0 .3cqh .75cqw color-mix(in srgb, var(--v4-shadow) 34%, transparent);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, white 8%, transparent),
+    0 .28cqh .72cqw color-mix(in srgb, var(--v4-shadow) 34%, transparent);
   filter: var(--v4-cover-filter);
   transform: none;
   transition: filter 200ms ease, transform 260ms cubic-bezier(.22, 1, .36, 1);
@@ -2497,10 +2588,10 @@ html.tracks-xiii-diary-open body {
   align-self: stretch;
   display: grid;
   align-content: center;
-  gap: .62cqh;
+  gap: .56cqh;
   min-width: 0;
   min-height: 0;
-  padding: .35cqh .25cqw .35cqh 1.05cqw;
+  padding: .5cqh .4cqw .5cqh 1.05cqw;
   color: var(--xiii-ink);
   background: transparent;
 }
@@ -2509,8 +2600,8 @@ html.tracks-xiii-diary-open body {
   margin: 0;
   overflow: hidden;
   color: var(--xiii-soft);
-  font: 600 clamp(11px, .66cqw, 13px) / 1.2 "Segoe UI", "Yu Gothic", sans-serif;
-  letter-spacing: .1em;
+  font: 500 clamp(10px, .64cqw, 12px) / 1.2 Baskerville, "Iowan Old Style", "Yu Mincho", serif;
+  letter-spacing: .13em;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -2518,8 +2609,8 @@ html.tracks-xiii-diary-open body {
 .tracks-xiii-save-copy strong {
   overflow: hidden;
   color: var(--xiii-ink);
-  font: 500 clamp(14px, .91cqw, 18px) / 1.32 "Yu Mincho", "Noto Serif CJK SC", serif;
-  letter-spacing: .025em;
+  font: 500 clamp(14px, .94cqw, 18px) / 1.28 "Noto Serif CJK SC", "Yu Mincho", serif;
+  letter-spacing: .035em;
   text-overflow: ellipsis;
   white-space: nowrap;
   text-shadow: none;
@@ -2532,8 +2623,8 @@ html.tracks-xiii-diary-open body {
   gap: .7cqw;
   min-width: 0;
   color: var(--xiii-soft);
-  font: 600 clamp(11px, .66cqw, 13px) / 1.2 "Segoe UI", "Yu Gothic", sans-serif;
-  letter-spacing: .055em;
+  font: 500 clamp(10px, .62cqw, 12px) / 1.2 Baskerville, "Iowan Old Style", "Yu Mincho", serif;
+  letter-spacing: .075em;
   text-shadow: none;
 }
 
@@ -2554,12 +2645,12 @@ html.tracks-xiii-diary-open body {
 .tracks-xiii-save-command {
   position: absolute;
   z-index: 4;
-  top: auto;
-  right: 1cqw;
-  bottom: .8cqh;
+  top: .95cqh;
+  right: .9cqw;
+  bottom: auto;
   display: block;
   color: var(--xiii-ink);
-  font: 700 clamp(10px, .58cqw, 12px) / 1 "Segoe UI", "Yu Gothic", sans-serif;
+  font: 500 clamp(9px, .56cqw, 11px) / 1 Baskerville, "Iowan Old Style", serif;
   letter-spacing: .15em;
   text-shadow: none;
   opacity: 0;
@@ -2572,15 +2663,16 @@ html.tracks-xiii-diary-open body {
 .tracks-xiii-save-slot.is-kb-cursor,
 .tracks-xiii-save-slot[aria-pressed="true"] {
   outline: 0;
+  border-color: color-mix(in srgb, var(--v4-accent) 64%, var(--v4-ink) 18%);
   background:
-    linear-gradient(105deg, color-mix(in srgb, white 7%, transparent), transparent 42%),
-    linear-gradient(90deg, var(--xiii-slot-rest), color-mix(in srgb, var(--v4-paper) 62%, transparent));
+    linear-gradient(105deg, color-mix(in srgb, white 11%, transparent), transparent 42%),
+    color-mix(in srgb, var(--v4-card) 82%, transparent);
   box-shadow:
     inset 0 .45cqh 1.1cqw color-mix(in srgb, white 6%, transparent),
     0 .6cqh 1.3cqw var(--xiii-slot-shadow),
     0 0 1.15cqw color-mix(in srgb, var(--v4-accent) 16%, transparent);
-  filter: brightness(1.035);
-  transform: none;
+  filter: brightness(1.025);
+  transform: translateY(-1px);
 }
 
 .tracks-xiii-save-slot:hover::before,
@@ -2588,7 +2680,7 @@ html.tracks-xiii-diary-open body {
 .tracks-xiii-save-slot.is-kb-cursor::before,
 .tracks-xiii-save-slot[aria-pressed="true"]::before {
   opacity: .82;
-  transform: scaleX(1);
+  transform: translateX(0);
 }
 
 .tracks-xiii-save-slot:hover .tracks-xiii-save-art,
@@ -2596,7 +2688,7 @@ html.tracks-xiii-diary-open body {
 .tracks-xiii-save-slot.is-kb-cursor .tracks-xiii-save-art,
 .tracks-xiii-save-slot[aria-pressed="true"] .tracks-xiii-save-art {
   filter: brightness(1.08) saturate(1.02);
-  transform: none;
+  transform: scale(1.025);
 }
 
 .tracks-xiii-save-slot:hover .tracks-xiii-save-command,
@@ -2617,7 +2709,7 @@ html.tracks-xiii-diary-open body {
   color: var(--xiii-soft);
   background:
     linear-gradient(105deg, color-mix(in srgb, white 3%, transparent), transparent 44%),
-    color-mix(in srgb, var(--v4-card) 70%, transparent);
+    color-mix(in srgb, var(--v4-card) 68%, transparent);
   box-shadow:
     inset 0 0 2cqw color-mix(in srgb, var(--v4-outer) 12%, transparent),
     0 .4cqh .9cqw color-mix(in srgb, var(--v4-shadow) 28%, transparent);
@@ -2635,8 +2727,8 @@ html.tracks-xiii-diary-open body {
 }
 
 .tracks-xiii-save-slot.is-empty .tracks-xiii-save-number {
-  color: var(--xiii-soft);
-  background: transparent;
+  color: color-mix(in srgb, var(--xiii-soft) 78%, transparent);
+  background: color-mix(in srgb, var(--v4-outer) 24%, transparent);
   text-shadow: none;
 }
 
@@ -2645,8 +2737,9 @@ html.tracks-xiii-diary-open body {
   inset: auto;
   display: grid;
   width: 100%;
-  height: 11.5cqh;
-  min-height: 70px;
+  height: auto;
+  min-height: 0;
+  aspect-ratio: 16 / 9;
   place-items: center;
   background:
     radial-gradient(ellipse at 50% 48%, color-mix(in srgb, var(--v4-accent) 7%, transparent), transparent 64%),
@@ -2667,7 +2760,7 @@ html.tracks-xiii-diary-open body {
   align-content: center;
   place-items: start;
   min-height: 0;
-  padding: .35cqh .25cqw .35cqh 1.05cqw;
+  padding: .5cqh .4cqw .5cqh 1.05cqw;
   color: var(--xiii-soft);
   background: transparent;
   transform: none;
@@ -2675,7 +2768,7 @@ html.tracks-xiii-diary-open body {
 
 .tracks-xiii-save-slot.is-empty .tracks-xiii-save-copy strong {
   color: var(--xiii-soft);
-  font: 500 clamp(12px, .76cqw, 15px) / 1 "Segoe UI", "Yu Gothic", sans-serif;
+  font: 500 clamp(12px, .76cqw, 15px) / 1 Baskerville, "Iowan Old Style", serif;
   letter-spacing: .14em;
   text-shadow: none;
 }
@@ -2798,12 +2891,12 @@ html.tracks-xiii-diary-open body {
   }
 
   .tracks-xiii-primary-shell {
-    right: 6cqw;
-    left: 22cqw;
+    right: 3.8cqw;
+    left: auto;
   }
 
   .tracks-xiii-primary {
-    gap: 2cqw;
+    gap: 1.2cqw;
   }
 
   .tracks-xiii-stage {
@@ -2814,7 +2907,7 @@ html.tracks-xiii-diary-open body {
   }
 
   .tracks-xiii-save-slot {
-    grid-template-columns: 3.4cqw 12.8cqw minmax(0, 1fr);
+    grid-template-columns: 16cqw minmax(0, 1fr);
   }
 
   .tracks-xiii-slot-copy strong,
@@ -2831,23 +2924,23 @@ html.tracks-xiii-diary-open body {
   }
 
   .tracks-xiii-primary-shell {
-    top: 7.5cqh;
-    right: 4.5cqw;
-    left: 19cqw;
+    top: 5.2cqh;
+    right: 2.8cqw;
+    left: auto;
   }
 
   .tracks-xiii-primary {
-    gap: 1.2cqw;
+    gap: .9cqw;
   }
 
   .tracks-xiii-primary button {
     flex-basis: auto;
     min-height: 38px;
-    padding-inline: 1.25cqw;
+    padding-inline: 1cqw;
   }
 
   .tracks-xiii-stage {
-    top: 17.2cqh;
+    top: 18.4cqh;
     right: var(--xiii-stage-inline);
     bottom: 9.6cqh;
     left: var(--xiii-stage-inline);
@@ -2870,12 +2963,12 @@ html.tracks-xiii-diary-open body {
   }
 
   .tracks-xiii-save-slot {
-    grid-template-columns: 3.8cqw 13.5cqw minmax(0, 1fr);
+    grid-template-columns: 17.5cqw minmax(0, 1fr);
   }
 
   .tracks-xiii-save-art,
   .tracks-xiii-save-slot.is-empty .tracks-xiii-save-art {
-    height: 10.8cqh;
+    height: auto;
     min-height: 0;
   }
 
@@ -2899,6 +2992,15 @@ html.tracks-xiii-diary-open body {
 
   .tracks-xiii-page-nav {
     left: 20cqw;
+  }
+
+  .tracks-xiii-diary-cover {
+    right: 43%;
+  }
+
+  .tracks-xiii-diary-copy {
+    right: .8cqw;
+    width: 36%;
   }
 }
 
