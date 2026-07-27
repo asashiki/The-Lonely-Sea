@@ -27,24 +27,24 @@ const gameSections = [
 const demoSaves = [
   {
     number: "01",
-    title: "序章：来到孤独之海",
-    chapter: "PROLOGUE / OPEN SEA",
+    title: "来到孤独之海",
+    chapter: "PROLOGUE",
     progress: "00:18:42",
     savedAt: "2026.07.26 23:14",
     art: "/assets/lonely-sea/mist.png",
   },
   {
     number: "02",
-    title: "第一幕：关于我",
-    chapter: "CHAPTER 01 / ABOUT ME",
+    title: "关于我",
+    chapter: "CHAPTER 01",
     progress: "01:06:17",
     savedAt: "2026.07.27 00:02",
     art: "/assets/lonely-sea/day.png",
   },
   {
     number: "03",
-    title: "第二幕：潮声留下的记录",
-    chapter: "CHAPTER 02 / AFTERTIDE",
+    title: "潮声留下的记录",
+    chapter: "CHAPTER 02",
     progress: "01:48:05",
     savedAt: "2026.07.27 00:44",
     art: "/assets/lonely-sea/night.png",
@@ -243,7 +243,7 @@ const lockedStorySlots = Array.from({ length: 7 }, (_, index) => index);
           <span>ARTICLES</span>
         </button>
         <button type="button" data-xiii-page-entry="game" aria-current="false" aria-controls="tracks-xiii-panel-game">
-          <span>GAME DATA</span>
+          <span>GAME</span>
         </button>
         <button type="button" data-xiii-page-entry="diary" aria-current="false" aria-controls="tracks-xiii-panel-diary">
           <span>DIARY</span>
@@ -308,7 +308,7 @@ const lockedStorySlots = Array.from({ length: 7 }, (_, index) => index);
               <div class="tracks-xiii-record-slot is-empty" data-xiii-article-empty aria-hidden="true">
                 <span class="tracks-xiii-slot-number">{String(index + 1).padStart(2, "0")}</span>
                 <span class="tracks-xiii-slot-art" aria-hidden="true"><i></i></span>
-                <span class="tracks-xiii-slot-copy"><strong>NO DATA</strong></span>
+                <span class="tracks-xiii-slot-copy"><strong>NO RECORD</strong></span>
               </div>
             ))}
           </div>
@@ -333,14 +333,11 @@ const lockedStorySlots = Array.from({ length: 7 }, (_, index) => index);
                 >
                   <span class="tracks-xiii-save-number" aria-hidden="true">{save.number}</span>
                   <span class="tracks-xiii-save-art" aria-hidden="true"></span>
-                  <span class="tracks-xiii-save-copy">
-                    <small>{save.chapter}</small>
-                    <strong>{save.title}</strong>
-                    <span class="tracks-xiii-save-meta">
-                      <time>{save.savedAt}</time>
-                      <b>{save.progress}</b>
-                    </span>
-                  </span>
+                <span class="tracks-xiii-save-copy">
+                  <small>{save.chapter}</small>
+                  <strong>{save.title}</strong>
+                  <time>{save.progress}</time>
+                </span>
                   <span class="tracks-xiii-save-command" aria-hidden="true">LOAD</span>
                 </button>
               ))}
@@ -348,7 +345,7 @@ const lockedStorySlots = Array.from({ length: 7 }, (_, index) => index);
                 <div class="tracks-xiii-save-slot is-empty" data-xiii-save-empty aria-label="空存档槽位">
                   <span class="tracks-xiii-save-number">{String(index + demoSaves.length + 1).padStart(2, "0")}</span>
                   <span class="tracks-xiii-save-art" aria-hidden="true"><i></i></span>
-                  <span class="tracks-xiii-save-copy"><strong>NO DATA</strong></span>
+                  <span class="tracks-xiii-save-copy"><small>UNRECORDED MEMORY</small><strong>EMPTY DATA</strong><span>NO PLAY DATA</span></span>
                 </div>
               ))}
             </div>
@@ -448,8 +445,9 @@ const lockedStorySlots = Array.from({ length: 7 }, (_, index) => index);
                     aria-pressed="false"
                     style={`--story-art:url('${scene.art}')`}
                   >
-                    <span class="tracks-xiii-story-number">{scene.number}</span>
+                    <span class="tracks-xiii-story-node" aria-hidden="true"></span>
                     <span class="tracks-xiii-story-art" aria-hidden="true"></span>
+                    <span class="tracks-xiii-story-number">{scene.number}</span>
                     <span class="tracks-xiii-story-copy">
                       <strong>{scene.title}</strong>
                       <span>{scene.summary}</span>
@@ -458,9 +456,9 @@ const lockedStorySlots = Array.from({ length: 7 }, (_, index) => index);
                 ))}
                 {lockedStorySlots.map((_, index) => (
                   <div class="tracks-xiii-story-slot is-locked" aria-label="未解锁故事场景">
+                    <span class="tracks-xiii-story-node" aria-hidden="true"></span>
                     <span class="tracks-xiii-story-number">{String(index + storyScenes.length + 1).padStart(2, "0")}</span>
-                    <span class="tracks-xiii-story-art" aria-hidden="true"><i></i></span>
-                    <span class="tracks-xiii-story-copy"><strong>LOCKED</strong></span>
+                    <span class="tracks-xiii-story-copy"><strong>LOCKED</strong><span>STORY RECORD IS NOT YET AVAILABLE</span></span>
                   </div>
                 ))}
               </div>
@@ -484,17 +482,18 @@ const lockedStorySlots = Array.from({ length: 7 }, (_, index) => index);
               data-diary-art={entry.art}
               aria-hidden={index !== 0}
             >
+              <span class="tracks-xiii-diary-ghost" aria-hidden="true">{entry.monthNumber}</span>
               <div class="tracks-xiii-diary-copy">
                 <time>{entry.dateLabel}</time>
-                <span class="tracks-xiii-diary-number" aria-hidden="true">{entry.monthNumber}</span>
+                <small>{entry.month} — MONTHLY DIARY</small>
                 <h3>{entry.title}</h3>
                 <p>{entry.summary}</p>
+                <span>OPEN THIS MONTH</span>
               </div>
               <button class="tracks-xiii-diary-cover" type="button" data-xiii-diary-entry aria-label={`读取 ${entry.dateLabel} 日记`} aria-pressed="false" style={`--diary-art:url('${entry.art}')`}>
-                <span class="tracks-xiii-diary-triptych" aria-hidden="true">
-                  <i></i><i></i><i></i>
-                </span>
-                <span class="tracks-xiii-diary-open"><b>{entry.month}</b><span>OPEN MONTH</span></span>
+                <span class="tracks-xiii-diary-art" aria-hidden="true"></span>
+                <span class="tracks-xiii-diary-edge" aria-hidden="true"></span>
+                <strong>{entry.month}</strong>
               </button>
             </article>
           ))}

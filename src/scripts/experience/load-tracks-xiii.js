@@ -3,7 +3,7 @@ const KEYBOARD_CURSOR_STORAGE_KEY = "lonely-sea-load-keyboard-cursor";
 const PAGE_CAPACITY = 6;
 const ARTICLE_SLOT_CAPACITY = 24;
 const VIEW_DURATION = 270;
-const PAGE_DURATION = 420;
+const PAGE_DURATION = 520;
 const FLOW_DURATION = 460;
 
 export function initLoadTracksXiiiConcept({ reduceMotion }) {
@@ -154,6 +154,7 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
     transitionIncomingIndexGhost = null;
     view.style.removeProperty("visibility");
     indexStack.style.removeProperty("visibility");
+    articleGrid.classList.remove("is-flipping");
   }
 
   function clearFlowThemeAnimations() {
@@ -223,7 +224,9 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
 
     const duration = direction === 0 ? VIEW_DURATION : PAGE_DURATION;
     const travel = direction === 0 ? 0 : direction * 4.6;
-    const easing = "cubic-bezier(0.22, 1, 0.36, 1)";
+    const easing = direction === 0
+      ? "cubic-bezier(0.22, 1, 0.36, 1)"
+      : "cubic-bezier(0.25, 1, 0.5, 1)";
     transitionAnimations = [
       ghost.animate(
         [
@@ -270,6 +273,59 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
     }
 
     Promise.allSettled(transitionAnimations.map((animation) => animation.finished))
+      .then(() => {
+        if (serial === transitionSerial) clearTransition();
+      });
+  }
+
+  function runArticleFilterTransition(commit, { animate = true } = {}) {
+    const serial = ++transitionSerial;
+    if (!animate || reduceMotion.matches) {
+      clearTransition();
+      commit();
+      return;
+    }
+
+    clearTransition();
+    articleGrid.classList.add("is-flipping");
+    const visibleSlotContent = () => all(
+      ".tracks-xiii-record-slot:not(.is-page-hidden) > *",
+      articleGrid,
+    );
+    const outgoing = visibleSlotContent().map((node) => node.animate(
+      [
+        { opacity: 1, transform: "perspective(48vw) rotateY(0deg)" },
+        { opacity: 0, transform: "perspective(48vw) rotateY(-68deg)" },
+      ],
+      {
+        duration: 180,
+        easing: "cubic-bezier(0.25, 1, 0.5, 1)",
+        fill: "both",
+      },
+    ));
+    transitionAnimations = outgoing;
+
+    Promise.allSettled(outgoing.map((animation) => animation.finished))
+      .then(() => {
+        if (serial !== transitionSerial) return;
+        outgoing.forEach((animation) => animation.cancel());
+        transitionAnimations = [];
+        commit();
+
+        const incoming = visibleSlotContent().map((node) => node.animate(
+          [
+            { opacity: 0, transform: "perspective(48vw) rotateY(68deg)" },
+            { opacity: 1, transform: "perspective(48vw) rotateY(0deg)" },
+          ],
+          {
+            duration: 240,
+            easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+            fill: "both",
+          },
+        ));
+        transitionAnimations = incoming;
+        return Promise.allSettled(incoming.map((animation) => animation.finished));
+      })
       .then(() => {
         if (serial === transitionSerial) clearTransition();
       });
@@ -490,7 +546,7 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
     if (nextFilter === activeFilter[activePage]) return;
 
     dispatchCue("select", { target: nextFilter });
-    runTransition(() => {
+    const commit = () => {
       activeFilter[activePage] = nextFilter;
       if (activePage === "articles") articlePage = 0;
       if (activePage === "game" && nextFilter === "save") savePage = 0;
@@ -498,7 +554,13 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
         diaryPageByYear[nextFilter] = 0;
       }
       updateSelectionState();
-    }, { animate });
+    };
+
+    if (activePage === "articles") {
+      runArticleFilterTransition(commit, { animate });
+    } else {
+      runTransition(commit, { animate });
+    }
   }
 
   function goToPage(nextPage, { animate = true, direction = 0 } = {}) {
