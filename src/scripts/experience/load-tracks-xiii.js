@@ -3,7 +3,7 @@ const KEYBOARD_CURSOR_STORAGE_KEY = "lonely-sea-load-keyboard-cursor";
 const PAGE_CAPACITY = 6;
 const ARTICLE_SLOT_CAPACITY = 24;
 const VIEW_DURATION = 270;
-const PAGE_DURATION = 420;
+const PAGE_DURATION = 520;
 const FLOW_DURATION = 460;
 
 export function initLoadTracksXiiiConcept({ reduceMotion }) {
@@ -127,6 +127,7 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
   let transitionIndexGhost = null;
   let transitionIncomingIndexGhost = null;
   let transitionAnimations = [];
+  let saveFeedbackTimer = 0;
   let keyboardCursorEnabled = true;
   let keyboardCursorItem = null;
 
@@ -154,6 +155,7 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
     transitionIncomingIndexGhost = null;
     view.style.removeProperty("visibility");
     indexStack.style.removeProperty("visibility");
+    articleGrid.classList.remove("is-flipping");
   }
 
   function clearFlowThemeAnimations() {
@@ -222,8 +224,10 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
     }
 
     const duration = direction === 0 ? VIEW_DURATION : PAGE_DURATION;
-    const travel = direction === 0 ? 0 : direction * 4.6;
-    const easing = "cubic-bezier(0.22, 1, 0.36, 1)";
+    const travel = direction === 0 ? 0 : direction * 12;
+    const easing = direction === 0
+      ? "cubic-bezier(0.22, 1, 0.36, 1)"
+      : "cubic-bezier(0.25, 1, 0.5, 1)";
     transitionAnimations = [
       ghost.animate(
         [
@@ -268,8 +272,65 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
         ),
       );
     }
-
     Promise.allSettled(transitionAnimations.map((animation) => animation.finished))
+      .then(() => {
+        if (serial === transitionSerial) clearTransition();
+      });
+  }
+
+  function runArticleFilterTransition(commit, { animate = true, direction = 1 } = {}) {
+    const serial = ++transitionSerial;
+    if (!animate || reduceMotion.matches) {
+      clearTransition();
+      commit();
+      return;
+    }
+
+    clearTransition();
+    articleGrid.classList.add("is-flipping");
+    const visibleSlots = all(
+      ".tracks-xiii-record-slot:not(.is-page-hidden)",
+      articleGrid,
+    );
+    const travel = Math.max(96, (visibleSlots[0]?.getBoundingClientRect().height || 160) * .92);
+    const visibleSlotContent = () => all(
+      ".tracks-xiii-record-slot:not(.is-page-hidden) > *",
+      articleGrid,
+    );
+    const outgoing = visibleSlotContent().map((node) => node.animate(
+      [
+        { opacity: 1, transform: "translate3d(0,0,0)" },
+        { opacity: .08, transform: `translate3d(0, ${-direction * travel}px, 0)` },
+      ],
+      {
+        duration: 220,
+        easing: "cubic-bezier(0.25, 1, 0.5, 1)",
+        fill: "both",
+      },
+    ));
+    transitionAnimations = outgoing;
+
+    Promise.allSettled(outgoing.map((animation) => animation.finished))
+      .then(() => {
+        if (serial !== transitionSerial) return;
+        outgoing.forEach((animation) => animation.cancel());
+        transitionAnimations = [];
+        commit();
+
+        const incoming = visibleSlotContent().map((node) => node.animate(
+          [
+            { opacity: .08, transform: `translate3d(0, ${direction * travel}px, 0)` },
+            { opacity: 1, transform: "translate3d(0,0,0)" },
+          ],
+          {
+            duration: 260,
+            easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+            fill: "both",
+          },
+        ));
+        transitionAnimations = incoming;
+        return Promise.allSettled(incoming.map((animation) => animation.finished));
+      })
       .then(() => {
         if (serial === transitionSerial) clearTransition();
       });
@@ -391,6 +452,7 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
     pageStatus.textContent = model.mode === "diary"
       ? (activeDiaryEntry()?.dataset.diaryLabel || "")
       : "";
+    pageMarkers.style.setProperty("--xiii-page-index", String(model.active));
 
     if (!visible) return;
 
@@ -490,7 +552,15 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
     if (nextFilter === activeFilter[activePage]) return;
 
     dispatchCue("select", { target: nextFilter });
-    runTransition(() => {
+    const filterButtons = all("[data-xiii-filter]", group);
+    const currentFilterIndex = filterButtons.findIndex(
+      (button) => button.dataset.xiiiFilter === activeFilter[activePage],
+    );
+    const nextFilterIndex = filterButtons.findIndex(
+      (button) => button.dataset.xiiiFilter === nextFilter,
+    );
+    const filterDirection = nextFilterIndex >= currentFilterIndex ? 1 : -1;
+    const commit = () => {
       activeFilter[activePage] = nextFilter;
       if (activePage === "articles") articlePage = 0;
       if (activePage === "game" && nextFilter === "save") savePage = 0;
@@ -498,7 +568,13 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
         diaryPageByYear[nextFilter] = 0;
       }
       updateSelectionState();
-    }, { animate });
+    };
+
+    if (activePage === "articles") {
+      runArticleFilterTransition(commit, { animate, direction: filterDirection });
+    } else {
+      runTransition(commit, { animate });
+    }
   }
 
   function goToPage(nextPage, { animate = true, direction = 0 } = {}) {
@@ -816,9 +892,6 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
 
   function openStoryConfirm(slot, { animate = true } = {}) {
     storyTrigger = slot;
-    storySlots.forEach((candidate) => {
-      candidate.setAttribute("aria-pressed", String(candidate === slot));
-    });
     storyConfirmNumber.textContent = "SCENE " + (slot.dataset.storyNumber || "--");
     storyConfirmTitle.textContent = slot.dataset.storyTitle || "";
     storyConfirm.setAttribute("aria-hidden", "false");
@@ -838,11 +911,14 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
 
   function closeStoryConfirm({ restoreFocus = true, cue = true } = {}) {
     if (storyConfirm.getAttribute("aria-hidden") === "true") return false;
+    const trigger = storyTrigger;
     storyConfirm.setAttribute("aria-hidden", "true");
     setInterfaceInert(false);
     storyScroll.inert = false;
     storyRail.inert = false;
-    if (restoreFocus) storyTrigger?.focus({ preventScroll: true });
+    storySlots.forEach((candidate) => candidate.removeAttribute("aria-pressed"));
+    storyTrigger = null;
+    if (restoreFocus) trigger?.focus({ preventScroll: true });
     if (cue) dispatchCue("back", { target: "story" });
     return true;
   }
@@ -1242,22 +1318,55 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
   articleSlots.forEach((slot) => {
     slot.addEventListener("click", () => openArticle(slot));
   });
-  all("[data-xiii-save-slot]").forEach((slot) => {
-    slot.addEventListener("click", () => {
-      all("[data-xiii-save-slot]").forEach((candidate) => {
-        candidate.setAttribute("aria-pressed", String(candidate === slot));
-      });
-      dispatchCue("select", { target: "save-data" });
-      window.dispatchEvent(new CustomEvent("lonely-sea:save-select", {
-        detail: {
-          source: "load-xiii",
-          number: slot.dataset.saveNumber || "",
-          title: slot.dataset.saveTitle || "",
-          chapter: slot.dataset.saveChapter || "",
-          progress: slot.dataset.saveProgress || "",
-          savedAt: slot.dataset.saveSavedAt || "",
-        },
-      }));
+
+  function activateSaveSlot(slot, { animate = true } = {}) {
+    window.clearTimeout(saveFeedbackTimer);
+    saveSlots.forEach((candidate) => {
+      candidate.classList.remove("is-load-feedback");
+      if (candidate !== slot) candidate.classList.remove("is-load-acknowledged");
+    });
+    slot.classList.add("is-load-acknowledged");
+
+    if (animate && !reduceMotion.matches) {
+      slot.classList.add("is-load-feedback");
+      saveFeedbackTimer = window.setTimeout(() => {
+        slot.classList.remove("is-load-feedback");
+        saveFeedbackTimer = 0;
+      }, 240);
+
+      slot.animate(
+        [
+          { transform: "scale(1)" },
+          { transform: "scale(.986)", offset: .42 },
+          { transform: "scale(1)" },
+        ],
+        { duration: 210, easing: "cubic-bezier(.22, 1, .36, 1)" },
+      );
+    }
+
+    dispatchCue("select", { target: "save-data" });
+    window.dispatchEvent(new CustomEvent("lonely-sea:save-select", {
+      detail: {
+        source: "load-xiii",
+        number: slot.dataset.saveNumber || "",
+        title: slot.dataset.saveTitle || "",
+        chapter: slot.dataset.saveChapter || "",
+        section: slot.dataset.saveSection || "",
+        progress: slot.dataset.saveProgress || "",
+        savedAt: slot.dataset.saveSavedAt || "",
+      },
+    }));
+  }
+
+  saveSlots.forEach((slot) => {
+    slot.addEventListener("click", (event) => {
+      activateSaveSlot(slot, { animate: event.detail > 0 });
+    });
+    slot.addEventListener("pointerleave", () => {
+      slot.classList.remove("is-load-acknowledged");
+    });
+    slot.addEventListener("blur", () => {
+      slot.classList.remove("is-load-acknowledged");
     });
   });
   storySlots.forEach((slot) => {
@@ -1346,6 +1455,12 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
 
   function deactivate() {
     clearKeyboardCursor({ forget: true });
+    window.clearTimeout(saveFeedbackTimer);
+    saveFeedbackTimer = 0;
+    saveSlots.forEach((slot) => {
+      slot.classList.remove("is-load-feedback");
+      slot.classList.remove("is-load-acknowledged");
+    });
     closeStoryConfirm({ restoreFocus: false });
     closeDiaryReader();
     if (flowExpanded) setFlowExpanded(false, { animate: false });
