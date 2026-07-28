@@ -3786,3 +3786,134 @@ html.tracks-xiii-diary-open body {
     transition: none;
   }
 }
+
+@media (max-width: 900px) and (orientation: portrait) {
+  .tracks-xiii-canvas {
+    --xiii-stage-inline: 3.4cqw;
+    --xiii-index-width: 21.5cqw;
+    --xiii-stage-gap: 1.5cqw;
+  }
+
+  .tracks-xiii-heading {
+    top: 3.4cqh;
+    left: 3.4cqw;
+  }
+
+  .tracks-xiii-heading h2 {
+    font-size: clamp(38px, 12vw, 52px);
+  }
+
+  .tracks-xiii-primary-shell {
+    top: 11.2cqh;
+    right: 3.4cqw;
+    left: 3.4cqw;
+    height: 6.5cqh;
+  }
+
+  .tracks-xiii-primary {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1cqw;
+  }
+
+  .tracks-xiii-primary button {
+    width: auto;
+    min-width: 0;
+    min-height: 42px;
+    padding-inline: .6cqw;
+    font-size: clamp(11px, 3.2vw, 15px);
+    letter-spacing: .1em;
+  }
+
+  .tracks-xiii-stage {
+    top: 21.2cqh;
+    right: var(--xiii-stage-inline);
+    bottom: 12.4cqh;
+    left: var(--xiii-stage-inline);
+    grid-template-columns: var(--xiii-index-width) minmax(0, 1fr);
+    column-gap: var(--xiii-stage-gap);
+  }
+
+  .tracks-xiii-index-group {
+    gap: 1.1cqh;
+  }
+
+  .tracks-xiii-index-group button {
+    height: 7cqh;
+    padding-right: .2cqw;
+    padding-left: 2.4cqw;
+    font-size: clamp(11px, 3.2vw, 14px);
+    letter-spacing: .075em;
+  }
+
+  .tracks-xiii-index-group button[aria-selected="true"] {
+    padding-left: 2.8cqw;
+  }
+
+  .tracks-xiii-index-group[data-xiii-index-group="game"] button {
+    font-size: clamp(9px, 2.65vw, 12px);
+    letter-spacing: .025em;
+  }
+
+  .tracks-xiii-record-grid,
+  .tracks-xiii-save-grid {
+    gap: 1cqh 1.2cqw;
+  }
+
+  .tracks-xiii-save-grid {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: repeat(6, minmax(0, 1fr));
+    gap: .65cqh;
+  }
+
+  .tracks-xiii-save-slot {
+    grid-template-columns: 24.5cqw minmax(0, 1fr);
+    padding: .45cqh .9cqw;
+  }
+
+  .tracks-xiii-save-art,
+  .tracks-xiii-save-slot.is-empty .tracks-xiii-save-art {
+    width: 23.2cqw;
+    height: 8.15cqh;
+  }
+
+  .tracks-xiii-save-copy,
+  .tracks-xiii-save-slot.is-empty .tracks-xiii-save-copy {
+    padding-left: 1.6cqw;
+  }
+
+  .tracks-xiii-save-copy small {
+    gap: 1cqw;
+    margin-bottom: .42cqh;
+    font-size: clamp(8px, 2.2vw, 10px);
+    letter-spacing: .065em;
+  }
+
+  .tracks-xiii-save-copy strong,
+  .tracks-xiii-save-slot.is-empty .tracks-xiii-save-copy strong {
+    font-size: clamp(12px, 3.5vw, 16px);
+    line-height: 1.2;
+    -webkit-line-clamp: 1;
+  }
+
+  .tracks-xiii-save-meta {
+    gap: .22cqh;
+    margin-top: .55cqh;
+    font-size: clamp(8px, 2.15vw, 10px);
+    letter-spacing: .045em;
+  }
+
+  .tracks-xiii-save-meta time {
+    display: block;
+  }
+
+  .tracks-xiii-page-nav {
+    right: 23cqw;
+    bottom: 4.5cqh;
+    left: 23cqw;
+  }
+
+  .tracks-xiii-canvas .tracks-xiii-reference-switcher {
+    display: none;
+  }
+}

@@ -1,34 +1,57 @@
+---
+const modes = [
+  { id: "cg", label: "CG" },
+  { id: "music", label: "MUSIC" },
+  { id: "character", label: "CHARACTER" },
+  { id: "projects", label: "PROJECT" },
+  { id: "bangumi", label: "BANGUMI" },
+  { id: "development", label: "DEVELOPMENT" },
+];
+---
+
 <section class="system-screen extra-screen" data-screen="extra" aria-hidden="true" aria-label="附加内容">
-  <div class="system-canvas extra-canvas" id="extra-canvas" data-extra-mode="album">
-    <p class="v4-scene-sign"><span>CURRENT SCENE</span><strong data-scene-label>灰霭</strong></p>
+  <div class="system-canvas extra-canvas special-system-canvas" id="extra-canvas" data-extra-mode="cg">
     <button class="system-back" type="button" data-back>BACK</button>
-    <header class="sys-heading"><h2>EXTRA</h2><p>COLLECTIONS BEYOND THE MAIN STORY</p></header>
-    <nav class="v4-extra-tabs" aria-label="附加内容分类">
-      <button type="button" data-v4-extra="cg" aria-pressed="true"><span>01</span>CG ROOM</button>
-      <button type="button" data-v4-extra="projects" aria-pressed="false"><span>02</span>PROJECTS</button>
-      <button type="button" data-v4-extra="music" aria-pressed="false"><span>03</span>MUSIC</button>
-      <button type="button" data-v4-extra="memory" aria-pressed="false"><span>04</span>MEMORY</button>
-      <button type="button" data-v4-extra="timeline" aria-pressed="false"><span>05</span>TIMELINE</button>
-      <button type="button" data-v4-extra="character" aria-pressed="false"><span>06</span>CHARACTER</button>
+
+    <header class="special-page-heading extra-heading">
+      <h2>EXTRA</h2>
+      <p>ARCHIVE BEYOND THE MAIN STORY</p>
+    </header>
+
+    <nav class="extra-primary" aria-label="附加内容分类">
+      {modes.map((mode, index) => (
+        <button
+          type="button"
+          data-extra-mode={mode.id}
+          aria-pressed={index === 0}
+          aria-controls="extra-stage"
+        >
+          {mode.label}
+        </button>
+      ))}
     </nav>
-    <section class="v4-extra-stage" id="v4-extra-stage" aria-live="polite"></section>
-    <p class="v4-extra-hover" id="v4-extra-hover"><span>SELECT</span><strong>灰霭之海</strong><small>CLICK TO VIEW</small></p>
-    <div class="v4-edge-turners extra-edge-turners" aria-label="附加内容翻页">
-      <button type="button" data-extra-page-direction="-1" aria-label="上一页">‹</button>
-      <button type="button" data-extra-page-direction="1" aria-label="下一页">›</button>
-    </div>
-    <nav class="v4-page-turner extra-page-turner" aria-label="附加内容页码">
-      <button type="button" data-extra-page-direction="-1"><span>PREV</span><b>‹</b></button>
-      <div class="page-turner-track"><i id="extra-page-progress"></i></div>
-      <strong id="extra-page-label">PAGE 01 / 02</strong>
-      <button type="button" data-extra-page-direction="1"><b>›</b><span>NEXT</span></button>
-    </nav>
+
+    <section class="extra-stage" id="extra-stage" aria-live="polite"></section>
+
+    <footer class="extra-status">
+      <p id="extra-focus"><span>SELECT</span><strong>灰霭之海</strong><small>OPEN CG</small></p>
+      <nav class="extra-page-controls" aria-label="附加内容翻页">
+        <button type="button" data-extra-page-direction="-1" aria-label="上一页">‹</button>
+        <span><b id="extra-page-current">01</b> / <i id="extra-page-total">02</i></span>
+        <button type="button" data-extra-page-direction="1" aria-label="下一页">›</button>
+      </nav>
+    </footer>
+
     <section class="cg-viewer" id="cg-viewer" aria-hidden="true" aria-label="CG 全屏鉴赏">
+      <div class="cg-viewer-backdrop" aria-hidden="true"></div>
       <div class="cg-viewer-art" id="cg-viewer-art"></div>
-      <p><small id="cg-viewer-index">CG 01 / 08</small><strong id="cg-viewer-title">灰霭之海</strong></p>
-      <button type="button" data-cg-direction="-1" aria-label="上一张 CG">‹</button>
-      <button type="button" data-cg-direction="1" aria-label="下一张 CG">›</button>
-      <button type="button" class="cg-viewer-close" id="cg-viewer-close">× <span>CLOSE</span></button>
+      <p class="cg-viewer-caption">
+        <small id="cg-viewer-index">CG 01 / 08</small>
+        <strong id="cg-viewer-title">灰霭之海</strong>
+      </p>
+      <button class="cg-viewer-prev" type="button" data-cg-direction="-1" aria-label="上一张 CG">‹</button>
+      <button class="cg-viewer-next" type="button" data-cg-direction="1" aria-label="下一张 CG">›</button>
+      <button type="button" class="cg-viewer-close" id="cg-viewer-close"><span>×</span> CLOSE</button>
     </section>
   </div>
 </section>

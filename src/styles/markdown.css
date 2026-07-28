@@ -2,8 +2,12 @@
   .prose {
     color: var(--reading-ink);
     font-family: var(--font-display);
-    font-size: clamp(1rem, 1.7vw, 1.075rem);
-    line-height: 1.8;
+    font-size: clamp(
+      calc(1rem * var(--reading-text-scale, 1)),
+      calc(1.7vw * var(--reading-text-scale, 1)),
+      calc(1.075rem * var(--reading-text-scale, 1))
+    );
+    line-height: 1.86;
     overflow-wrap: anywhere;
   }
 
@@ -25,8 +29,8 @@
 
   .prose h2 {
     margin-block: 2.8rem 0.9rem;
-    padding-block-end: 0.55rem;
-    border-block-end: 1px solid var(--reading-line);
+    padding: 0.45rem 0 0.55rem 1.1rem;
+    background: linear-gradient(90deg, rgb(var(--reading-accent-rgb) / 11%), transparent 68%);
     font-size: clamp(1.65rem, 4vw, 2.35rem);
     letter-spacing: 0.045em;
   }
@@ -143,9 +147,10 @@
 
   .prose blockquote {
     margin-inline: 0;
-    padding: 0.65rem 0 0.65rem 1.35rem;
-    border-inline-start: 2px solid var(--reading-accent);
+    padding: 1rem 1.3rem;
+    border: 0;
     color: var(--reading-soft);
+    background: linear-gradient(100deg, rgb(var(--reading-accent-rgb) / 10%), transparent);
     font-style: italic;
 
     > :first-child {
@@ -235,9 +240,9 @@
   }
 
   .prose details {
-    padding: 0.9rem 1rem;
-    border: 1px solid var(--reading-line);
-    background: rgb(255 255 255 / 36%);
+    padding: 1rem 1.15rem;
+    border: 0;
+    background: rgb(var(--reading-accent-rgb) / 7%);
   }
 
   .prose summary {
@@ -300,6 +305,16 @@
     .prose :where(th, td) {
       padding: 0.65rem 0.7rem;
     }
+  }
+
+  html[data-reading-typeset="novel"] .prose {
+    font-size: clamp(
+      calc(1.05rem * var(--reading-text-scale, 1)),
+      calc(1.8vw * var(--reading-text-scale, 1)),
+      calc(1.15rem * var(--reading-text-scale, 1))
+    );
+    line-height: 2;
+    letter-spacing: .025em;
   }
 
   @media (prefers-reduced-motion: reduce) {

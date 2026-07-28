@@ -8,11 +8,13 @@ import { initLoadTracksXiConcept } from "./experience/load-tracks-xi.js";
 import { initLoadTracksXiiConcept } from "./experience/load-tracks-xii.js";
 import { initLoadTracksXiiiConcept } from "./experience/load-tracks-xiii.js";
 import { initOptions } from "./experience/options.js";
+import { initStartScreen } from "./experience/start.js";
 import { createWeatherController } from "./experience/weather.js";
+import { applyPreferences, readPreferences } from "./experience/preferences.js";
 
 const EXPERIENCE_STORAGE_KEY = "lonely-sea-experience-v1";
 const OPENING_STORAGE_KEY = "lonely-sea-opening-seen";
-const ROUTES = new Set(["load", "extra", "option"]);
+const ROUTES = new Set(["start", "load", "extra", "option"]);
 
 const body = document.body;
 const stage = required(".stage");
@@ -20,16 +22,25 @@ const titleMenu = required(".title-menu");
 const fxPanel = required("#fx-panel");
 const showFx = required("#show-fx");
 const status = required("#menu-status");
-const menuNote = required(".menu-note span");
 const opening = required("#opening");
 const openingSteps = all("[data-opening-step]");
 const curtain = required("#route-curtain");
 const screens = all("[data-screen]");
-const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+const systemReduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+let preferences = applyPreferences(readPreferences());
+const reduceMotion = {
+  get matches() {
+    return systemReduceMotion.matches || preferences.reducedMotion;
+  },
+  addEventListener(...args) {
+    systemReduceMotion.addEventListener(...args);
+  },
+};
 
 let requestedRoute = new URLSearchParams(window.location.search).get("screen");
 if (!ROUTES.has(requestedRoute)) requestedRoute = null;
 let routeBusy = false;
+let routeTransitionToken = 0;
 let openingTimers = [];
 
 function readExperience() {
@@ -61,6 +72,7 @@ function refreshStatus(message = "") {
 const weather = createWeatherController({
   body,
   reduceMotion,
+  initialDensity: preferences.particleDensity / 100,
   onChange(value) {
     updatePressed("[data-weather-option]", value, "weatherOption");
     refreshStatus();
@@ -89,6 +101,9 @@ function setWeather(nextWeather) {
 }
 
 function setRoute(route) {
+  if (route !== "start") startScreen.deactivate();
+  if (route !== "extra") extraScreen.deactivate();
+  if (route !== "option") optionScreen.deactivate();
   body.dataset.route = route;
   titleMenu.inert = route !== "title";
   fxPanel.inert = route !== "title";
@@ -100,29 +115,34 @@ function setRoute(route) {
 }
 
 async function navigateTo(route, { instant = false } = {}) {
-  if (routeBusy || route === body.dataset.route) return;
+  if (!routeBusy && route === body.dataset.route) return;
+  const transitionToken = ++routeTransitionToken;
   routeBusy = true;
-  stage.inert = true;
-  const coverDuration = instant || reduceMotion.matches ? 0 : 430;
-  const revealDuration = instant || reduceMotion.matches ? 0 : 620;
+  const coverDuration = instant || reduceMotion.matches || !preferences.sceneCrossfade ? 0 : 240;
+  const revealDuration = instant || reduceMotion.matches || !preferences.sceneCrossfade ? 0 : 260;
 
   if (coverDuration) {
     curtain.setAttribute("aria-hidden", "false");
     curtain.classList.add("is-covering");
     await wait(coverDuration);
+    if (transitionToken !== routeTransitionToken) return;
+  } else {
+    curtain.classList.remove("is-covering");
+    curtain.setAttribute("aria-hidden", "true");
   }
 
   setRoute(route);
 
   if (coverDuration) {
-    await wait(30);
+    await wait(20);
+    if (transitionToken !== routeTransitionToken) return;
     curtain.classList.remove("is-covering");
     await wait(revealDuration);
+    if (transitionToken !== routeTransitionToken) return;
     curtain.setAttribute("aria-hidden", "true");
   }
 
   routeBusy = false;
-  stage.inert = false;
   if (route !== "title") {
     const routeScreen = required(`[data-screen="${route}"]`);
     const visibleBack = all("[data-back]", routeScreen).find(
@@ -148,6 +168,7 @@ function rememberOpening() {
 }
 
 function hasSeenOpening() {
+  if (preferences.openingBehaviour === "ALWAYS") return false;
   try { return sessionStorage.getItem(OPENING_STORAGE_KEY) === "1"; } catch { return false; }
 }
 
@@ -200,29 +221,32 @@ loadScreen.registerReferenceControllers({
   "tracks-xiii": loadTracksXiiiConcept,
 });
 const extraScreen = initExtraScreen();
+const startScreen = initStartScreen({ reduceMotion });
 const optionScreen = initOptions({
   onReplayOpening: replayOpeningFromTitle,
   onResetExperience: resetExperience,
 });
 const exitDialog = initExitDialog();
 
+window.addEventListener("lonely-sea:preferences-change", (event) => {
+  preferences = applyPreferences(event.detail?.preferences || readPreferences());
+  weather.setDensity(preferences.particleDensity / 100);
+  weather.handlePreferenceChange();
+});
+
 all("[data-command]").forEach((button) => {
-  button.addEventListener("click", () => {
+  button.addEventListener("click", (event) => {
     const command = button.dataset.command;
-    const route = { LOAD: "load", EXTRA: "extra", OPTION: "option" }[command];
+    const route = { START: "start", LOAD: "load", EXTRA: "extra", OPTION: "option" }[command];
     if (route) {
-      navigateTo(route);
+      navigateTo(route, { instant: event.detail === 0 });
       return;
-    }
-    if (command === "START") {
-      menuNote.textContent = "START / STORY ROUTE IS NOT YET AVAILABLE";
-      window.setTimeout(() => { menuNote.textContent = "MAIN MENU"; }, 1500);
     }
   });
 });
 
 all("[data-back]").forEach((button) => {
-  button.addEventListener("click", () => navigateTo("title"));
+  button.addEventListener("click", (event) => navigateTo("title", { instant: event.detail === 0 }));
 });
 
 all("[data-scene-option]").forEach((button) => {
@@ -287,6 +311,11 @@ document.addEventListener("keydown", (event) => {
     event.preventDefault();
     const activeLoad = loadScreen.getActiveController() || loadScreen;
     activeLoad.changePage(horizontalDirection);
+    return;
+  }
+  if (body.dataset.route === "start" && horizontalDirection) {
+    event.preventDefault();
+    startScreen.changePage(horizontalDirection);
     return;
   }
   if (body.dataset.route === "extra" && horizontalDirection) {

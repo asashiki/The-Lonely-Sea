@@ -1,6 +1,7 @@
 ---
 import { siteConfig } from "../../site.config.mjs";
 import "../styles/global.css";
+import "../styles/cursor.css";
 
 interface Props {
   title?: string;
@@ -29,6 +30,14 @@ const canonicalUrl = new URL(Astro.url.pathname, siteConfig.url);
     {noindex && <meta name="robots" content="noindex" />}
     <link rel="canonical" href={canonicalUrl} />
     <title>{documentTitle}</title>
+    <script is:inline>
+      try {
+        const value = JSON.parse(localStorage.getItem("lonely-sea-preferences-v2") || "{}");
+        document.documentElement.classList.toggle("has-special-cursor", value.specialCursor !== false);
+      } catch {
+        document.documentElement.classList.add("has-special-cursor");
+      }
+    </script>
   </head>
   <body>
     <slot />
