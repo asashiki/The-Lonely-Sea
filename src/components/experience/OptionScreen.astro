@@ -1,56 +1,220 @@
+---
+const tabs = [
+  { id: "display", label: "DISPLAY" },
+  { id: "sound", label: "SOUND" },
+  { id: "text", label: "TEXT" },
+  { id: "web", label: "WEB" },
+  { id: "system", label: "SYSTEM" },
+];
+---
+
 <section class="system-screen option-screen" data-screen="option" aria-hidden="true" aria-label="环境设定">
-  <div class="system-canvas option-canvas">
-    <p class="v4-scene-sign"><span>CURRENT SCENE</span><strong data-scene-label>灰霭</strong></p>
+  <div class="system-canvas option-canvas special-system-canvas" data-option-dirty="false">
     <button class="system-back" type="button" data-back>BACK</button>
-    <header class="sys-heading"><h2>OPTION</h2><p>SYSTEM CONFIGURATION / 环境设定</p></header>
-    <div class="sys-tabs option-tabs" role="tablist" aria-label="设置分类">
-      <button class="sys-tab option-tab" type="button" role="tab" data-option-tab="display" aria-selected="true">DISPLAY</button>
-      <button class="sys-tab option-tab" type="button" role="tab" data-option-tab="sound" aria-selected="false">SOUND</button>
-      <button class="sys-tab option-tab" type="button" role="tab" data-option-tab="text" aria-selected="false">TEXT</button>
-      <button class="sys-tab option-tab" type="button" role="tab" data-option-tab="web" aria-selected="false">WEB</button>
-      <button class="sys-tab option-tab" type="button" role="tab" data-option-tab="system" aria-selected="false">SYSTEM</button>
-    </div>
-    <div class="sys-workspace option-workspace">
-      <div class="option-main">
-        <div class="option-panel is-active" data-option-panel="display" role="tabpanel">
-          <div class="setting-row" data-help="控制雪与雨的粒子数量；降低后可减少显卡负担。"><span class="setting-label"><strong>粒子密度</strong><small>WEATHER PARTICLES</small></span><div class="setting-control"><input type="range" min="0" max="100" value="72" data-setting-range></div><output class="setting-value">72%</output></div>
-          <div class="setting-row" data-help="在场景切换时使用柔和的交叉淡化。"><span class="setting-label"><strong>场景渐变</strong><small>SCENE CROSSFADE</small></span><div class="setting-control"><button class="setting-toggle" type="button" aria-pressed="true" aria-label="场景渐变"></button></div><output class="setting-value">ON</output></div>
-          <div class="setting-row" data-help="在画面四周添加轻微暗角，以集中视觉重心。"><span class="setting-label"><strong>画面暗角</strong><small>SCENE VIGNETTE</small></span><div class="setting-control"><button class="setting-toggle" type="button" aria-pressed="true" aria-label="画面暗角"></button></div><output class="setting-value">ON</output></div>
-          <div class="setting-row" data-help="使用方向键在 LOAD ⅩⅢ 的存档槽位间移动游戏式光标；关闭后仍可使用鼠标与常规焦点。"><span class="setting-label"><strong>键盘光标</strong><small>KEYBOARD CURSOR</small></span><div class="setting-control"><button class="setting-toggle" type="button" aria-pressed="true" aria-label="键盘光标" data-kb-cursor-toggle></button></div><output class="setting-value">ON</output></div>
-          <div class="setting-row" data-help="整体调整菜单与特殊页界面的显示比例。"><span class="setting-label"><strong>界面尺寸</strong><small>INTERFACE SCALE</small></span><div class="setting-control"><input type="range" min="80" max="120" value="100" data-setting-range></div><output class="setting-value">100%</output></div>
-          <div class="setting-row" data-help="背景素材优先保持清晰度，或优先减少网络传输。"><span class="setting-label"><strong>背景画质</strong><small>BACKGROUND QUALITY</small></span><div class="setting-control setting-segments" data-setting-segment-group><button class="setting-segment" type="button" aria-pressed="false">ECO</button><button class="setting-segment" type="button" aria-pressed="true">HIGH</button><button class="setting-segment" type="button" aria-pressed="false">AUTO</button></div><output class="setting-value">HIGH</output></div>
-        </div>
-        <div class="option-panel" data-option-panel="sound" role="tabpanel">
-          <div class="setting-row" data-help="调整标题画面与文章页的背景音乐音量。"><span class="setting-label"><strong>背景音乐</strong><small>BACKGROUND MUSIC</small></span><div class="setting-control"><input type="range" min="0" max="100" value="60" data-setting-range></div><output class="setting-value">60%</output></div>
-          <div class="setting-row" data-help="调整海浪、风声和天气等环境音量。"><span class="setting-label"><strong>环境音</strong><small>AMBIENT SOUND</small></span><div class="setting-control"><input type="range" min="0" max="100" value="45" data-setting-range></div><output class="setting-value">45%</output></div>
-          <div class="setting-row" data-help="调整菜单选择与确认音效的音量。"><span class="setting-label"><strong>界面音效</strong><small>INTERFACE SOUND</small></span><div class="setting-control"><input type="range" min="0" max="100" value="70" data-setting-range></div><output class="setting-value">70%</output></div>
-          <div class="setting-row" data-help="为未来可能加入的角色语音预留独立音轨。"><span class="setting-label"><strong>角色语音</strong><small>CHARACTER VOICE</small></span><div class="setting-control"><input type="range" min="0" max="100" value="80" data-setting-range></div><output class="setting-value">80%</output></div>
-          <div class="setting-row" data-help="进入网站时保持静音，等待第一次交互后再播放。"><span class="setting-label"><strong>启动时静音</strong><small>MUTE ON START</small></span><div class="setting-control"><button class="setting-toggle" type="button" aria-pressed="false" aria-label="启动时静音"></button></div><output class="setting-value">OFF</output></div>
-        </div>
-        <div class="option-panel" data-option-panel="text" role="tabpanel">
-          <div class="setting-row" data-help="切换菜单、提示和系统文字所使用的语言。"><span class="setting-label"><strong>界面语言</strong><small>INTERFACE LANGUAGE</small></span><div class="setting-control setting-segments" data-setting-segment-group><button class="setting-segment" type="button" aria-pressed="true">中文</button><button class="setting-segment" type="button" aria-pressed="false">日本語</button><button class="setting-segment" type="button" aria-pressed="false">EN</button></div><output class="setting-value">ZH-CN</output></div>
-          <div class="setting-row" data-help="调整文章正文和对话文字的基础字号。"><span class="setting-label"><strong>文字尺寸</strong><small>TEXT SIZE</small></span><div class="setting-control"><input type="range" min="80" max="120" value="100" data-setting-range></div><output class="setting-value">100%</output></div>
-          <div class="setting-row" data-help="设置自动阅读模式中每段文字的停留时间。"><span class="setting-label"><strong>自动阅读速度</strong><small>AUTO MODE SPEED</small></span><div class="setting-control"><input type="range" min="1" max="10" value="6" data-setting-range data-suffix=" / 10"></div><output class="setting-value">6 / 10</output></div>
-          <div class="setting-row" data-help="在主选项下方显示日文或英文辅助标记。"><span class="setting-label"><strong>辅助标签</strong><small>SUB LABEL</small></span><div class="setting-control"><button class="setting-toggle" type="button" aria-pressed="true" aria-label="辅助标签"></button></div><output class="setting-value">ON</output></div>
-          <div class="setting-row" data-help="选择正文更接近阅读排版，或更接近游戏对话排版。"><span class="setting-label"><strong>排版模式</strong><small>READING TYPESET</small></span><div class="setting-control setting-segments" data-setting-segment-group><button class="setting-segment" type="button" aria-pressed="true">BLOG</button><button class="setting-segment" type="button" aria-pressed="false">NOVEL</button></div><output class="setting-value">BLOG</output></div>
-        </div>
-        <div class="option-panel" data-option-panel="web" role="tabpanel">
-          <div class="setting-row" data-help="决定再次访问时是否播放 Logo 与注意事项序列。"><span class="setting-label"><strong>开场显示</strong><small>OPENING BEHAVIOUR</small></span><div class="setting-control setting-segments" data-setting-segment-group><button class="setting-segment" type="button" aria-pressed="false">ALWAYS</button><button class="setting-segment" type="button" aria-pressed="true">ONCE</button></div><output class="setting-value">ONCE</output></div>
-          <div class="setting-row" data-help="站外链接在新标签页打开，站内入口维持当前画面。"><span class="setting-label"><strong>外部链接</strong><small>EXTERNAL LINKS</small></span><div class="setting-control setting-segments" data-setting-segment-group><button class="setting-segment" type="button" aria-pressed="true">NEW TAB</button><button class="setting-segment" type="button" aria-pressed="false">CURRENT</button></div><output class="setting-value">NEW</output></div>
-          <div class="setting-row" data-help="在文章切换期间保留界面，并使用短暂的场景转场。"><span class="setting-label"><strong>文章转场</strong><small>ARTICLE TRANSITION</small></span><div class="setting-control"><button class="setting-toggle" type="button" aria-pressed="true" aria-label="文章转场"></button></div><output class="setting-value">ON</output></div>
-          <div class="setting-row" data-help="在空闲时预先载入最可能访问的下一页资源。"><span class="setting-label"><strong>智能预载</strong><small>SMART PRELOAD</small></span><div class="setting-control"><button class="setting-toggle" type="button" aria-pressed="true" aria-label="智能预载"></button></div><output class="setting-value">ON</output></div>
-          <div class="setting-row" data-help="在移动网络下减少大图与动态素材的加载。"><span class="setting-label"><strong>节省流量</strong><small>DATA SAVER</small></span><div class="setting-control"><button class="setting-toggle" type="button" aria-pressed="false" aria-label="节省流量"></button></div><output class="setting-value">OFF</output></div>
-        </div>
-        <div class="option-panel" data-option-panel="system" role="tabpanel">
-          <div class="setting-row" data-help="立刻重新播放 Logo、注意事项与开场文字。"><span class="setting-label"><strong>启动序列</strong><small>OPENING SEQUENCE</small></span><div class="setting-control"><button class="setting-action" type="button" id="option-replay-opening">立即重播</button></div><output class="setting-value">READY</output></div>
-          <div class="setting-row" data-help="减少转场、粒子和持续运动，系统偏好也会自动生效。"><span class="setting-label"><strong>减少动态效果</strong><small>REDUCED MOTION</small></span><div class="setting-control"><button class="setting-toggle" type="button" aria-pressed="false" aria-label="减少动态效果"></button></div><output class="setting-value">AUTO</output></div>
-          <div class="setting-row" data-help="自动保存最后阅读的文章与段落位置。"><span class="setting-label"><strong>自动保存位置</strong><small>AUTO SAVE POSITION</small></span><div class="setting-control"><button class="setting-toggle" type="button" aria-pressed="true" aria-label="自动保存阅读位置"></button></div><output class="setting-value">ON</output></div>
-          <div class="setting-row" data-help="清除本地保存的显示、声音与阅读偏好。"><span class="setting-label"><strong>恢复默认设置</strong><small>RESET CONFIGURATION</small></span><div class="setting-control"><button class="setting-action" type="button" id="reset-options">RESET</button></div><output class="setting-value">—</output></div>
-          <div class="setting-row" data-help="当前为交互原型，尚未接入真实配置存储。"><span class="setting-label"><strong>版本信息</strong><small>BUILD INFORMATION</small></span><div class="setting-control"><span class="setting-value">MODERN ROUTE / SPECIAL UI</span></div><output class="setting-value">V2.0</output></div>
-        </div>
+
+    <header class="special-page-heading option-heading">
+      <h2>OPTION</h2>
+      <p>SYSTEM CONFIGURATION</p>
+    </header>
+
+    <nav class="option-primary" role="tablist" aria-label="设置分类">
+      {tabs.map((tab, index) => (
+        <button
+          type="button"
+          role="tab"
+          data-option-tab={tab.id}
+          aria-selected={index === 0}
+          aria-controls={`option-panel-${tab.id}`}
+        >
+          {tab.label}
+        </button>
+      ))}
+    </nav>
+
+    <div class="option-stage">
+      <div class="option-main" data-option-main>
+        <section class="option-panel is-active" id="option-panel-display" data-option-panel="display" role="tabpanel">
+          <div class="setting-row" data-setting-key="particleDensity" data-help="控制雪与雨的粒子数量。数值越低，画面越安静，也越节省性能。">
+            <span class="setting-label"><strong>粒子密度</strong><small>WEATHER PARTICLES</small></span>
+            <label class="setting-range"><input type="range" min="0" max="100" step="1" data-setting-range><span aria-hidden="true"></span></label>
+            <output class="setting-value">72%</output>
+          </div>
+          <div class="setting-row" data-setting-key="sceneCrossfade" data-help="在标题画面与特殊页面之间保留短促的交叉淡化。">
+            <span class="setting-label"><strong>场景渐变</strong><small>SCENE CROSSFADE</small></span>
+            <button class="setting-switch" type="button" data-setting-toggle aria-pressed="true"><span>ON</span><span>OFF</span></button>
+            <output class="setting-value">ON</output>
+          </div>
+          <div class="setting-row" data-setting-key="vignette" data-help="保留画面四周的暗角，使视觉重心停留在菜单与内容区域。">
+            <span class="setting-label"><strong>画面暗角</strong><small>SCENE VIGNETTE</small></span>
+            <button class="setting-switch" type="button" data-setting-toggle aria-pressed="true"><span>ON</span><span>OFF</span></button>
+            <output class="setting-value">ON</output>
+          </div>
+          <div class="setting-row" data-setting-key="keyboardCursor" data-help="允许方向键在 LOAD XIII 的存档槽位间移动游戏式光标。">
+            <span class="setting-label"><strong>键盘光标</strong><small>KEYBOARD CURSOR</small></span>
+            <button class="setting-switch" type="button" data-setting-toggle aria-pressed="true"><span>ON</span><span>OFF</span></button>
+            <output class="setting-value">ON</output>
+          </div>
+          <div class="setting-row" data-setting-key="specialCursor" data-help="使用为孤独之海绘制的玻璃笔尖鼠标指针；文字选择仍使用系统光标。">
+            <span class="setting-label"><strong>特殊鼠标指针</strong><small>SPECIAL CURSOR</small></span>
+            <button class="setting-switch" type="button" data-setting-toggle aria-pressed="true"><span>ON</span><span>OFF</span></button>
+            <output class="setting-value">ON</output>
+          </div>
+          <div class="setting-row" data-setting-key="interfaceScale" data-help="调整特殊页面的菜单文字与控制区域比例，不改变背景构图。">
+            <span class="setting-label"><strong>界面尺寸</strong><small>INTERFACE SCALE</small></span>
+            <label class="setting-range"><input type="range" min="80" max="120" step="1" data-setting-range><span aria-hidden="true"></span></label>
+            <output class="setting-value">100%</output>
+          </div>
+          <div class="setting-row" data-setting-key="backgroundQuality" data-help="选择背景素材优先保持清晰度、减少传输，或由浏览器自动判断。">
+            <span class="setting-label"><strong>背景画质</strong><small>BACKGROUND QUALITY</small></span>
+            <div class="setting-choices" data-setting-choice>
+              <button type="button" data-setting-value="ECO">ECO</button>
+              <button type="button" data-setting-value="HIGH">HIGH</button>
+              <button type="button" data-setting-value="AUTO">AUTO</button>
+            </div>
+            <output class="setting-value">HIGH</output>
+          </div>
+        </section>
+
+        <section class="option-panel" id="option-panel-sound" data-option-panel="sound" role="tabpanel" hidden>
+          <div class="setting-row" data-setting-key="bgmVolume" data-help="调整标题画面与阅读页未来使用的背景音乐音量。">
+            <span class="setting-label"><strong>背景音乐</strong><small>BACKGROUND MUSIC</small></span>
+            <label class="setting-range"><input type="range" min="0" max="100" step="1" data-setting-range><span aria-hidden="true"></span></label>
+            <output class="setting-value">60%</output>
+          </div>
+          <div class="setting-row" data-setting-key="ambientVolume" data-help="调整海浪、风声和天气等环境音量。">
+            <span class="setting-label"><strong>环境音</strong><small>AMBIENT SOUND</small></span>
+            <label class="setting-range"><input type="range" min="0" max="100" step="1" data-setting-range><span aria-hidden="true"></span></label>
+            <output class="setting-value">45%</output>
+          </div>
+          <div class="setting-row" data-setting-key="interfaceVolume" data-help="调整菜单选择、确认与返回等界面音效的音量。">
+            <span class="setting-label"><strong>界面音效</strong><small>INTERFACE SOUND</small></span>
+            <label class="setting-range"><input type="range" min="0" max="100" step="1" data-setting-range><span aria-hidden="true"></span></label>
+            <output class="setting-value">70%</output>
+          </div>
+          <div class="setting-row" data-setting-key="voiceVolume" data-help="为之后加入的角色语音预留独立音轨。">
+            <span class="setting-label"><strong>角色语音</strong><small>CHARACTER VOICE</small></span>
+            <label class="setting-range"><input type="range" min="0" max="100" step="1" data-setting-range><span aria-hidden="true"></span></label>
+            <output class="setting-value">80%</output>
+          </div>
+          <div class="setting-row" data-setting-key="muteOnStart" data-help="进入网站时保持静音，等待第一次交互后再允许播放。">
+            <span class="setting-label"><strong>启动时静音</strong><small>MUTE ON START</small></span>
+            <button class="setting-switch" type="button" data-setting-toggle aria-pressed="false"><span>ON</span><span>OFF</span></button>
+            <output class="setting-value">OFF</output>
+          </div>
+        </section>
+
+        <section class="option-panel" id="option-panel-text" data-option-panel="text" role="tabpanel" hidden>
+          <div class="setting-row" data-setting-key="language" data-help="选择菜单、提示和系统文字所使用的语言；正文语言不受影响。">
+            <span class="setting-label"><strong>界面语言</strong><small>INTERFACE LANGUAGE</small></span>
+            <div class="setting-choices" data-setting-choice>
+              <button type="button" data-setting-value="ZH-CN">中文</button>
+              <button type="button" data-setting-value="JA-JP">日本語</button>
+              <button type="button" data-setting-value="EN-US">EN</button>
+            </div>
+            <output class="setting-value">ZH-CN</output>
+          </div>
+          <div class="setting-row" data-setting-key="textSize" data-help="调整文章正文与视觉小说对话文字的基础字号。">
+            <span class="setting-label"><strong>文字尺寸</strong><small>TEXT SIZE</small></span>
+            <label class="setting-range"><input type="range" min="80" max="120" step="1" data-setting-range><span aria-hidden="true"></span></label>
+            <output class="setting-value">100%</output>
+          </div>
+          <div class="setting-row" data-setting-key="autoSpeed" data-help="设置自动阅读模式中每段文字的停留速度。">
+            <span class="setting-label"><strong>自动阅读速度</strong><small>AUTO MODE SPEED</small></span>
+            <label class="setting-range"><input type="range" min="1" max="10" step="1" data-setting-range data-suffix=" / 10"><span aria-hidden="true"></span></label>
+            <output class="setting-value">6 / 10</output>
+          </div>
+          <div class="setting-row" data-setting-key="subLabels" data-help="在主要菜单文字下方显示英文辅助标记。">
+            <span class="setting-label"><strong>辅助标签</strong><small>SUB LABEL</small></span>
+            <button class="setting-switch" type="button" data-setting-toggle aria-pressed="true"><span>ON</span><span>OFF</span></button>
+            <output class="setting-value">ON</output>
+          </div>
+          <div class="setting-row" data-setting-key="typeset" data-help="在长文阅读排版与更接近视觉小说的排版之间切换。">
+            <span class="setting-label"><strong>排版模式</strong><small>READING TYPESET</small></span>
+            <div class="setting-choices" data-setting-choice>
+              <button type="button" data-setting-value="BLOG">BLOG</button>
+              <button type="button" data-setting-value="NOVEL">NOVEL</button>
+            </div>
+            <output class="setting-value">BLOG</output>
+          </div>
+        </section>
+
+        <section class="option-panel" id="option-panel-web" data-option-panel="web" role="tabpanel" hidden>
+          <div class="setting-row" data-setting-key="openingBehaviour" data-help="决定再次访问时是否播放 Logo、注意事项与开场文字。">
+            <span class="setting-label"><strong>开场显示</strong><small>OPENING BEHAVIOUR</small></span>
+            <div class="setting-choices" data-setting-choice>
+              <button type="button" data-setting-value="ALWAYS">ALWAYS</button>
+              <button type="button" data-setting-value="ONCE">ONCE</button>
+            </div>
+            <output class="setting-value">ONCE</output>
+          </div>
+          <div class="setting-row" data-setting-key="externalLinks" data-help="选择站外链接在新标签页打开，或替换当前页面。">
+            <span class="setting-label"><strong>外部链接</strong><small>EXTERNAL LINKS</small></span>
+            <div class="setting-choices" data-setting-choice>
+              <button type="button" data-setting-value="NEW">NEW TAB</button>
+              <button type="button" data-setting-value="CURRENT">CURRENT</button>
+            </div>
+            <output class="setting-value">NEW</output>
+          </div>
+          <div class="setting-row" data-setting-key="articleTransition" data-help="进入文章前保留短暂的 NOW LOADING 演出，使 LOAD 与 PAGE 连续。">
+            <span class="setting-label"><strong>文章转场</strong><small>ARTICLE TRANSITION</small></span>
+            <button class="setting-switch" type="button" data-setting-toggle aria-pressed="true"><span>ON</span><span>OFF</span></button>
+            <output class="setting-value">ON</output>
+          </div>
+          <div class="setting-row" data-setting-key="smartPreload" data-help="在空闲时预先载入最可能访问的下一条记录。">
+            <span class="setting-label"><strong>智能预载</strong><small>SMART PRELOAD</small></span>
+            <button class="setting-switch" type="button" data-setting-toggle aria-pressed="true"><span>ON</span><span>OFF</span></button>
+            <output class="setting-value">ON</output>
+          </div>
+          <div class="setting-row" data-setting-key="dataSaver" data-help="在移动网络下减少大图与动态素材的加载。">
+            <span class="setting-label"><strong>节省流量</strong><small>DATA SAVER</small></span>
+            <button class="setting-switch" type="button" data-setting-toggle aria-pressed="false"><span>ON</span><span>OFF</span></button>
+            <output class="setting-value">OFF</output>
+          </div>
+        </section>
+
+        <section class="option-panel" id="option-panel-system" data-option-panel="system" role="tabpanel" hidden>
+          <div class="setting-row" data-help="立刻重新播放 Logo、注意事项与开场文字。">
+            <span class="setting-label"><strong>启动序列</strong><small>OPENING SEQUENCE</small></span>
+            <button class="setting-command" type="button" id="option-replay-opening">REPLAY</button>
+            <output class="setting-value">READY</output>
+          </div>
+          <div class="setting-row" data-setting-key="reducedMotion" data-help="减少转场、粒子和持续运动；系统减少动态偏好也会自动生效。">
+            <span class="setting-label"><strong>减少动态效果</strong><small>REDUCED MOTION</small></span>
+            <button class="setting-switch" type="button" data-setting-toggle aria-pressed="false"><span>ON</span><span>OFF</span></button>
+            <output class="setting-value">OFF</output>
+          </div>
+          <div class="setting-row" data-setting-key="autoSavePosition" data-help="自动保存最后阅读的文章与段落位置。">
+            <span class="setting-label"><strong>自动保存位置</strong><small>AUTO SAVE POSITION</small></span>
+            <button class="setting-switch" type="button" data-setting-toggle aria-pressed="true"><span>ON</span><span>OFF</span></button>
+            <output class="setting-value">ON</output>
+          </div>
+          <div class="setting-row" data-help="清除本地保存的显示、声音与阅读偏好，并恢复默认场景。">
+            <span class="setting-label"><strong>恢复默认设置</strong><small>RESET CONFIGURATION</small></span>
+            <button class="setting-command" type="button" id="reset-options">RESET</button>
+            <output class="setting-value">LOCAL</output>
+          </div>
+          <div class="setting-row" data-help="当前特殊页面系统的构建信息。">
+            <span class="setting-label"><strong>版本信息</strong><small>BUILD INFORMATION</small></span>
+            <span class="setting-build">LONELY SEA / XIII SYSTEM</span>
+            <output class="setting-value">V2.1</output>
+          </div>
+        </section>
       </div>
-      <div class="option-help"><strong id="option-heading">DISPLAY / DESCRIPTION</strong><p id="option-help">控制雪与雨的粒子数量；降低后可减少显卡负担。</p><span id="option-page">PAGE 01 / 05</span></div>
+
+      <aside class="option-guide" aria-live="polite">
+        <span class="option-guide-number" id="option-guide-number">01</span>
+        <p class="option-guide-title" id="option-heading">DISPLAY</p>
+        <p class="option-guide-help" id="option-help">控制雪与雨的粒子数量。数值越低，画面越安静，也越节省性能。</p>
+        <span class="option-guide-state"><i aria-hidden="true"></i><b data-option-state>SAVED</b></span>
+      </aside>
     </div>
-    <footer class="setting-actions"><button class="setting-action" type="button" id="apply-options">APPLY</button></footer>
+
+    <footer class="option-actions">
+      <p><span id="option-page">01</span> / 05</p>
+      <button class="option-apply" type="button" id="apply-options">
+        <span>APPLY</span>
+        <small>SAVE CONFIGURATION</small>
+      </button>
+    </footer>
   </div>
 </section>

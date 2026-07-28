@@ -1,78 +1,44 @@
-import { sceneArt } from "./config.js";
+import {
+  bangumiItems,
+  cgItems,
+  characterItems,
+  developmentItems,
+  extraDefaults,
+  musicItems,
+  projectItems,
+} from "../../data/extra-content.js";
 import { all, required } from "./dom.js";
+import { preferencesReduceMotion, readPreferences } from "./preferences.js";
 
-const cgItems = [
-  { title: "灰霭之海", meta: "SCENE / 01", art: sceneArt.mist },
-  { title: "晴日潮声", meta: "SCENE / 02", art: sceneArt.day },
-  { title: "无灯深夜", meta: "SCENE / 03", art: sceneArt.night },
-  { title: "赤色梦境", meta: "SCENE / 04", art: sceneArt.crimson },
-  { title: "潮汐习作", meta: "SKETCH / 05", art: sceneArt.day },
-  { title: "遗失的窗景", meta: "CAPTURE / 06", art: sceneArt.mist },
-  { title: "未采用界面", meta: "ARCHIVE / 07", art: sceneArt.crimson },
-  { title: "冬夜存档", meta: "SCENE / 08", art: sceneArt.night },
-];
+const CG_PAGE_SIZE = 6;
 
-const projectItems = [
-  { title: "Asashiki", meta: "BLOG / ACTIVE", desc: "个人博客与内容迁移主线。", art: sceneArt.mist },
-  { title: "Gal-blog", meta: "WEB EXPERIMENT", desc: "把 Blog 做成视觉小说式入口。", art: sceneArt.night },
-  { title: "Bangumi Heatmap", meta: "DATA VISUAL", desc: "追番活动与年度观看记录。", art: sceneArt.day },
-  { title: "Project Archive", meta: "REPOSITORY", desc: "完成、搁置与失败实验的陈列。", art: sceneArt.crimson },
-  { title: "Theme Lab", meta: "DESIGN SYSTEM", desc: "角色主题和四场景视觉实验。", art: sceneArt.day },
-  { title: "Tiny Tools", meta: "COLLECTION", desc: "散落在 GitHub 的小型工具。", art: sceneArt.mist },
-];
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
 
-const tracks = [
-  ["01", "Lonely Sea", "04:18"],
-  ["02", "After the Rain", "03:46"],
-  ["03", "Blue Hour", "05:02"],
-  ["04", "Crimson Sleep", "04:31"],
-  ["05", "Reading Loop", "∞"],
-];
+function artStyle(url) {
+  return `--extra-art:url('${String(url).replaceAll("'", "%27")}')`;
+}
 
-const memories = [
-  ["2026", "孤独之海", "CURRENT"],
-  ["2025", "重写开始", "RECOLLECTION"],
-  ["2024", "旧站迁移", "ARCHIVE"],
-  ["2023", "追番之年", "ANIME"],
-  ["2022", "项目搁浅", "PROJECT"],
-  ["2021", "第一篇文章", "ORIGIN"],
-  ["EX", "没有发生的结局", "IF ROUTE"],
-  ["TRUE", "尚未写完", "LOCKED"],
-  ["AFTER", "海仍在继续", "EPILOGUE"],
-];
-
-const timelineItems = [
-  ["2021", "起点", "第一篇公开文章。"],
-  ["2022", "收藏", "追番与游戏记录成形。"],
-  ["2023", "扩张", "项目、状态与热力图加入。"],
-  ["2025", "迁移", "重新整理 Asashiki。"],
-  ["2026", "孤独之海", "Galgame Blog 视觉实验。"],
-];
-
-const characterProfiles = [
-  { name: "爱丽丝", role: "LIBRARIAN / GUIDE", text: "负责整理文章、项目与未写完的记忆。她不是 CG 缩略图，而是这个站点的引导角色。" },
-  { name: "水无灯里", role: "THEME / DAY", text: "晴日主题的占位角色。未来可以负责追番、旅行与温柔日常的内容入口。" },
-  { name: "伊卡洛斯", role: "THEME / NIGHT", text: "暗夜主题的占位角色。未来可以连接音乐室、技术文章和深夜记录。" },
-  { name: "COMING SOON", role: "UNASSIGNED ROUTE", text: "角色页可以承载主题、简介、关联文章和解锁记录，而不是重复的照片列表。" },
-];
-
-const defaultHover = {
-  cg: ["灰霭之海", "HOVER TO PREVIEW / CLICK TO VIEW"],
-  projects: ["Asashiki", "HOVER TO PREVIEW / CLICK TO OPEN"],
-  music: ["Lonely Sea", "SELECT A TRACK"],
-  memory: ["孤独之海", "OPEN RECOLLECTION"],
-  timeline: ["起点", "OPEN TIMELINE ENTRY"],
-  character: ["爱丽丝", "CHARACTER FILE"],
-};
+function externalAttributes() {
+  return readPreferences().externalLinks === "CURRENT"
+    ? 'rel="noreferrer"'
+    : 'target="_blank" rel="noreferrer"';
+}
 
 export function initExtraScreen() {
-  const extraStage = required("#v4-extra-stage");
   const extraCanvas = required("#extra-canvas");
-  const extraHover = required("#v4-extra-hover");
-  const extraPageLabel = required("#extra-page-label");
-  const extraPageProgress = required("#extra-page-progress");
-  const extraPageButtons = all("[data-extra-page-direction]");
-  const extraModeButtons = all("[data-v4-extra]");
+  const extraStage = required("#extra-stage");
+  const extraFocus = required("#extra-focus");
+  const extraModeButtons = all("[data-extra-mode]", extraCanvas);
+  const extraPageButtons = all("[data-extra-page-direction]", extraCanvas);
+  const extraPageCurrent = required("#extra-page-current");
+  const extraPageTotal = required("#extra-page-total");
   const cgViewer = required("#cg-viewer");
   const cgViewerArt = required("#cg-viewer-art");
   const cgViewerClose = required("#cg-viewer-close");
@@ -80,64 +46,311 @@ export function initExtraScreen() {
   let extraMode = "cg";
   let extraPage = 0;
   let cgIndex = 0;
+  let musicIndex = 0;
+  let characterIndex = 0;
+  let bangumiIndex = 0;
+  let stageTransition = null;
+  let transitionToken = 0;
 
-  function setHover(title, action) {
-    required("strong", extraHover).textContent = title;
-    required("small", extraHover).textContent = action || "CLICK TO OPEN";
+  function setFocus(title, action) {
+    required("strong", extraFocus).textContent = title;
+    required("small", extraFocus).textContent = action || "OPEN";
   }
 
   function totalPages() {
-    return extraMode === "cg" ? Math.ceil(cgItems.length / 6) : 1;
+    return extraMode === "cg" ? Math.ceil(cgItems.length / CG_PAGE_SIZE) : 1;
   }
 
-  function cgCardMarkup(item, index) {
-    return `<button class="v4-extra-card" type="button" data-cg-index="${index}" data-hover-title="${item.title}" data-hover-action="CLICK TO VIEW FULLSCREEN" style="--card-art:url(${item.art})"><span class="v4-extra-card-copy"><strong>${item.title}</strong><small>${item.meta}</small><em>${String(index + 1).padStart(2, "0")} / ${String(cgItems.length).padStart(2, "0")}</em></span></button>`;
-  }
-
-  function renderCgRoom() {
-    const start = extraPage * 6;
-    const items = cgItems.slice(start, start + 6);
-    extraStage.innerHTML = `<div class="v4-extra-grid">${items.map((item, offset) => cgCardMarkup(item, start + offset)).join("")}</div>`;
-  }
-
-  function renderProjects() {
-    extraStage.innerHTML = `<div class="project-room">${projectItems.map((item) =>
-      `<button class="project-card" type="button" data-hover-title="${item.title}" data-hover-action="OPEN PROJECT LINK"><span class="project-cover" style="--card-art:url(${item.art})"></span><span class="project-copy"><small>${item.meta}</small><strong>${item.title}</strong><p>${item.desc}</p><em>LIVE / REPO →</em></span></button>`
-    ).join("")}</div>`;
+  function renderCg() {
+    const start = extraPage * CG_PAGE_SIZE;
+    const items = cgItems.slice(start, start + CG_PAGE_SIZE);
+    extraStage.innerHTML = `
+      <div class="extra-cg-grid">
+        ${items.map((item, offset) => {
+          const index = start + offset;
+          return `
+            <button
+              class="extra-cg-card${item.portrait ? " is-portrait" : ""}"
+              type="button"
+              data-cg-index="${index}"
+              data-focus-title="${escapeHtml(item.title)}"
+              data-focus-action="OPEN CG"
+              style="${artStyle(item.art)}"
+            >
+              <span class="extra-cg-art" aria-hidden="true"></span>
+              <span class="extra-cg-copy">
+                <small>${escapeHtml(item.meta)}</small>
+                <strong>${escapeHtml(item.title)}</strong>
+                <em>${String(index + 1).padStart(2, "0")}</em>
+              </span>
+            </button>
+          `;
+        }).join("")}
+      </div>
+    `;
   }
 
   function renderMusic() {
-    extraStage.innerHTML = `<div class="music-room"><div class="music-disc" aria-hidden="true"></div><div class="track-list">${tracks.map((track, index) =>
-      `<button class="track-row" type="button" data-track="${index}" data-hover-title="${track[1]}" data-hover-action="PLAY / PAUSE"><b>${track[0]}</b><strong>${track[1]}</strong><small>${track[2]}</small></button>`
-    ).join("")}</div></div>`;
+    const current = musicItems[musicIndex];
+    extraStage.innerHTML = `
+      <div class="extra-music-room" data-music-tone="${escapeHtml(current.tone)}">
+        <section class="extra-music-player">
+          <div class="extra-music-disc" aria-hidden="true"><span></span></div>
+          <p><small>SOUND TEST / ${escapeHtml(current.number)}</small><strong>${escapeHtml(current.title)}</strong></p>
+          <p class="extra-music-note">${escapeHtml(current.note)}</p>
+          <span class="extra-music-pending">AUDIO SOURCE PENDING</span>
+        </section>
+        <div class="extra-track-list" aria-label="音乐列表">
+          ${musicItems.map((track, index) => `
+            <button
+              type="button"
+              data-music-index="${index}"
+              data-focus-title="${escapeHtml(track.title)}"
+              data-focus-action="SELECT SOUND TEST"
+              aria-pressed="${index === musicIndex}"
+            >
+              <b>${escapeHtml(track.number)}</b>
+              <strong>${escapeHtml(track.title)}</strong>
+              <small>${escapeHtml(track.length)}</small>
+            </button>
+          `).join("")}
+        </div>
+      </div>
+    `;
   }
 
-  function renderMemory() {
-    const columns = [memories.slice(0, 3), memories.slice(3, 6), memories.slice(6, 9)];
-    extraStage.innerHTML = `<div class="memory-room">${columns.map((column, index) =>
-      `<section class="memory-column"><h3>ROUTE ${String(index + 1).padStart(2, "0")}</h3>${column.map((item) =>
-        `<button class="memory-item" type="button" data-hover-title="${item[1]}" data-hover-action="OPEN RECOLLECTION"><small>${item[0]}</small><span>${item[1]}</span><small>${item[2]}</small></button>`
-      ).join("")}</section>`
-    ).join("")}</div>`;
+  function renderCharacter() {
+    const current = characterItems[characterIndex];
+    extraStage.innerHTML = `
+      <div class="extra-character-room">
+        <figure class="extra-character-art${current.unlocked ? "" : " is-locked"}" style="${artStyle(current.art)}">
+          <span aria-hidden="true"></span>
+        </figure>
+        <section class="extra-character-copy">
+          <small>${escapeHtml(current.reading)}</small>
+          <h3>${escapeHtml(current.unlocked ? current.name : "UNKNOWN")}</h3>
+          <p class="extra-character-role">${escapeHtml(current.role)}</p>
+          <p>${escapeHtml(current.text)}</p>
+          <div class="extra-character-index" aria-label="角色资料">
+            ${characterItems.map((item, index) => `
+              <button
+                type="button"
+                data-character-index="${index}"
+                data-focus-title="${escapeHtml(item.unlocked ? item.name : "LOCKED")}"
+                data-focus-action="${item.unlocked ? "OPEN CHARACTER FILE" : "NOT YET REGISTERED"}"
+                aria-pressed="${index === characterIndex}"
+                ${item.unlocked ? "" : "disabled"}
+              >
+                <span>${String(index + 1).padStart(2, "0")}</span>
+                <strong>${escapeHtml(item.unlocked ? item.name : "LOCKED")}</strong>
+              </button>
+            `).join("")}
+          </div>
+        </section>
+      </div>
+    `;
   }
 
-  function renderTimeline() {
-    extraStage.innerHTML = `<div class="timeline-room">${timelineItems.map((item) =>
-      `<button class="timeline-item" type="button" data-hover-title="${item[1]}" data-hover-action="OPEN TIMELINE ENTRY"><small>${item[0]}</small><strong>${item[1]}</strong><p>${item[2]}</p></button>`
-    ).join("")}</div>`;
+  function renderProjects() {
+    extraStage.innerHTML = `
+      <div class="extra-project-room">
+        ${projectItems.map((item, index) => `
+          <a
+            class="extra-project-record"
+            href="${escapeHtml(item.href)}"
+            ${externalAttributes()}
+            data-focus-title="${escapeHtml(item.title)}"
+            data-focus-action="OPEN PROJECT"
+            style="${artStyle(item.art)}"
+          >
+            <span class="extra-project-art" aria-hidden="true"></span>
+            <span class="extra-project-number">${String(index + 1).padStart(2, "0")}</span>
+            <span class="extra-project-copy">
+              <small>${escapeHtml(item.state)}</small>
+              <strong>${escapeHtml(item.title)}</strong>
+              <p>${escapeHtml(item.description)}</p>
+            </span>
+            <span class="extra-project-open" aria-hidden="true">OPEN</span>
+          </a>
+        `).join("")}
+      </div>
+    `;
   }
 
-  function renderCharacter(index = 0) {
-    const current = characterProfiles[index];
-    extraStage.innerHTML = `<div class="character-room"><div class="character-portrait"><img src="/assets/lonely-sea/alice_chibi_transparent.png" alt=""></div><div class="character-profile"><div class="character-copy"><small>${current.role}</small><h3 id="character-name">${current.name}<span>CHARACTER FILE</span></h3><p id="character-text">${current.text}</p></div><div class="character-list">${characterProfiles.map((profile, profileIndex) =>
-      `<button type="button" data-character="${profileIndex}" aria-pressed="${profileIndex === index}">${profile.name}</button>`
-    ).join("")}</div></div></div>`;
+  function renderBangumi() {
+    const current = bangumiItems[bangumiIndex];
+    extraStage.innerHTML = `
+      <div class="extra-bangumi-room">
+        <section class="extra-bangumi-feature">
+          <div class="extra-bangumi-cover" style="${artStyle(current.cover)}" aria-hidden="true"></div>
+          <div class="extra-bangumi-copy">
+            <small>${escapeHtml(current.type)}</small>
+            <h3>${escapeHtml(current.title)}</h3>
+            <p>${escapeHtml(current.note)}</p>
+            <a href="${escapeHtml(current.href)}" ${externalAttributes()}>OPEN BANGUMI</a>
+          </div>
+        </section>
+        <div class="extra-bangumi-shelf" aria-label="Bangumi 收藏">
+          ${bangumiItems.map((item, index) => `
+            <button
+              type="button"
+              data-bangumi-index="${index}"
+              data-focus-title="${escapeHtml(item.title)}"
+              data-focus-action="OPEN RECORD"
+              aria-pressed="${index === bangumiIndex}"
+            >
+              <span style="${artStyle(item.cover)}" aria-hidden="true"></span>
+              <strong>${escapeHtml(item.title)}</strong>
+            </button>
+          `).join("")}
+        </div>
+      </div>
+    `;
+  }
+
+  function renderDevelopment() {
+    extraStage.innerHTML = `
+      <div class="extra-development-room">
+        <header>
+          <strong>THE LONELY SEA</strong>
+          <span>CURRENT DEVELOPMENT RECORD</span>
+          <a href="https://github.com/asashiki/The-Lonely-Sea" ${externalAttributes()}>SOURCE REPOSITORY</a>
+        </header>
+        <div class="extra-development-list">
+          ${developmentItems.map((item, index) => `
+            <article
+              data-focus-title="${escapeHtml(item.title)}"
+              data-focus-action="DEVELOPMENT RECORD"
+            >
+              <time>${escapeHtml(item.date)}</time>
+              <span>${String(index + 1).padStart(2, "0")}</span>
+              <div><small>${escapeHtml(item.state)}</small><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.description)}</p></div>
+            </article>
+          `).join("")}
+        </div>
+      </div>
+    `;
+  }
+
+  function bindFocusNodes() {
+    all("[data-focus-title]", extraStage).forEach((node) => {
+      const update = () => setFocus(node.dataset.focusTitle, node.dataset.focusAction);
+      node.addEventListener("pointerenter", update);
+      node.addEventListener("focus", update);
+    });
+  }
+
+  function bindStage() {
+    bindFocusNodes();
+
+    all("[data-cg-index]", extraStage).forEach((node) => {
+      node.addEventListener("click", () => openCg(Number(node.dataset.cgIndex)));
+    });
+
+    all("[data-music-index]", extraStage).forEach((node) => {
+      node.addEventListener("click", () => {
+        musicIndex = Number(node.dataset.musicIndex);
+        renderMode();
+        setFocus(musicItems[musicIndex].title, "SOUND TEST SELECTED");
+      });
+    });
+
+    all("[data-character-index]", extraStage).forEach((node) => {
+      node.addEventListener("click", () => {
+        characterIndex = Number(node.dataset.characterIndex);
+        renderMode();
+        setFocus(characterItems[characterIndex].name, "CHARACTER FILE");
+      });
+    });
+
+    all("[data-bangumi-index]", extraStage).forEach((node) => {
+      node.addEventListener("click", () => {
+        bangumiIndex = Number(node.dataset.bangumiIndex);
+        renderMode();
+        setFocus(bangumiItems[bangumiIndex].title, "OPEN BANGUMI");
+      });
+    });
+  }
+
+  function updatePageControls() {
+    const total = totalPages();
+    extraCanvas.dataset.hasMultiplePages = String(total > 1);
+    extraPageCurrent.textContent = String(extraPage + 1).padStart(2, "0");
+    extraPageTotal.textContent = String(total).padStart(2, "0");
+    extraPageButtons.forEach((button) => {
+      const direction = Number(button.dataset.extraPageDirection);
+      button.disabled = direction < 0 ? extraPage === 0 : extraPage >= total - 1;
+    });
+  }
+
+  function renderMode() {
+    if (extraMode === "cg") renderCg();
+    if (extraMode === "music") renderMusic();
+    if (extraMode === "character") renderCharacter();
+    if (extraMode === "projects") renderProjects();
+    if (extraMode === "bangumi") renderBangumi();
+    if (extraMode === "development") renderDevelopment();
+    bindStage();
+    updatePageControls();
+  }
+
+  function commitMode(mode) {
+    extraMode = mode;
+    extraPage = 0;
+    extraCanvas.dataset.extraMode = mode;
+    extraModeButtons.forEach((button) => {
+      button.setAttribute("aria-pressed", String(button.dataset.extraMode === mode));
+    });
+    renderMode();
+    setFocus(...extraDefaults[mode]);
+  }
+
+  async function setMode(mode, { animate = true } = {}) {
+    if (!extraDefaults[mode] || mode === extraMode) return;
+    const token = ++transitionToken;
+    stageTransition?.cancel();
+
+    if (!animate || preferencesReduceMotion()) {
+      commitMode(mode);
+      return;
+    }
+
+    stageTransition = extraStage.animate(
+      [
+        { opacity: 1, transform: "translate3d(0,0,0)" },
+        { opacity: 0, transform: "translate3d(0,-10px,0)" },
+      ],
+      { duration: 110, easing: "ease-out", fill: "both" },
+    );
+    try {
+      await stageTransition.finished;
+    } catch {
+      return;
+    }
+    if (token !== transitionToken) return;
+
+    commitMode(mode);
+    stageTransition = extraStage.animate(
+      [
+        { opacity: 0, transform: "translate3d(0,10px,0)" },
+        { opacity: 1, transform: "translate3d(0,0,0)" },
+      ],
+      { duration: 240, easing: "cubic-bezier(.22,1,.36,1)", fill: "both" },
+    );
+    try {
+      await stageTransition.finished;
+    } catch {}
+    if (token === transitionToken) {
+      stageTransition?.cancel();
+      stageTransition = null;
+    }
   }
 
   function openCg(index) {
     cgIndex = (index + cgItems.length) % cgItems.length;
     const item = cgItems[cgIndex];
     cgViewerArt.style.setProperty("--cg-art", `url("${item.art}")`);
+    cgViewerArt.classList.toggle("is-portrait", Boolean(item.portrait));
     required("#cg-viewer-index").textContent = `CG ${String(cgIndex + 1).padStart(2, "0")} / ${String(cgItems.length).padStart(2, "0")}`;
     required("#cg-viewer-title").textContent = item.title;
     cgViewer.setAttribute("aria-hidden", "false");
@@ -150,79 +363,39 @@ export function initExtraScreen() {
     return true;
   }
 
-  function bindStage() {
-    all("[data-hover-title]", extraStage).forEach((node) => {
-      node.addEventListener("pointerenter", () => setHover(node.dataset.hoverTitle, node.dataset.hoverAction));
-      node.addEventListener("focus", () => setHover(node.dataset.hoverTitle, node.dataset.hoverAction));
-    });
-    all("[data-cg-index]", extraStage).forEach((node) => {
-      node.addEventListener("click", () => openCg(Number(node.dataset.cgIndex)));
-    });
-    all(".project-card", extraStage).forEach((node) => {
-      node.addEventListener("click", () => setHover(node.dataset.hoverTitle, "PROJECT LINK PLACEHOLDER"));
-    });
-    all("[data-track]", extraStage).forEach((node) => {
-      node.addEventListener("click", () => {
-        all("[data-track]", extraStage).forEach((track) => track.classList.toggle("is-playing", track === node));
-        setHover(node.dataset.hoverTitle, "NOW PLAYING / PROTOTYPE");
-      });
-    });
-    all("[data-character]", extraStage).forEach((node) => {
-      node.addEventListener("click", () => {
-        const index = Number(node.dataset.character);
-        renderCharacter(index);
-        bindStage();
-        setHover(characterProfiles[index].name, "CHARACTER FILE");
-      });
-    });
-  }
-
-  function renderMode() {
-    if (extraMode === "cg") renderCgRoom();
-    if (extraMode === "projects") renderProjects();
-    if (extraMode === "music") renderMusic();
-    if (extraMode === "memory") renderMemory();
-    if (extraMode === "timeline") renderTimeline();
-    if (extraMode === "character") renderCharacter();
-    bindStage();
-
-    const total = totalPages();
-    extraCanvas.dataset.hasMultiplePages = String(total > 1);
-    extraPageLabel.textContent = `PAGE ${String(extraPage + 1).padStart(2, "0")} / ${String(total).padStart(2, "0")}`;
-    extraPageProgress.style.width = `${(extraPage + 1) / total * 100}%`;
-    extraPageButtons.forEach((button) => {
-      const direction = Number(button.dataset.extraPageDirection);
-      button.disabled = direction < 0 ? extraPage === 0 : extraPage >= total - 1;
-    });
-    setHover(...defaultHover[extraMode]);
-  }
-
-  function setMode(mode) {
-    extraMode = mode;
-    extraPage = 0;
-    extraModeButtons.forEach((button) => {
-      button.setAttribute("aria-pressed", String(button.dataset.v4Extra === mode));
-    });
-    renderMode();
-  }
-
   function changePage(direction) {
     if (cgViewer.getAttribute("aria-hidden") === "false") {
       openCg(cgIndex + direction);
       return;
     }
-    extraPage = Math.max(0, Math.min(extraPage + direction, totalPages() - 1));
+    const next = Math.max(0, Math.min(extraPage + direction, totalPages() - 1));
+    if (next === extraPage) return;
+    extraPage = next;
     renderMode();
   }
 
-  extraModeButtons.forEach((button) => button.addEventListener("click", () => setMode(button.dataset.v4Extra)));
-  extraPageButtons.forEach((button) => button.addEventListener("click", () => changePage(Number(button.dataset.extraPageDirection))));
-  all("[data-cg-direction]").forEach((button) => button.addEventListener("click", () => openCg(cgIndex + Number(button.dataset.cgDirection))));
+  extraModeButtons.forEach((button) => {
+    button.addEventListener("click", (event) => {
+      setMode(button.dataset.extraMode, { animate: event.detail > 0 });
+    });
+  });
+  extraPageButtons.forEach((button) => {
+    button.addEventListener("click", () => changePage(Number(button.dataset.extraPageDirection)));
+  });
+  all("[data-cg-direction]", cgViewer).forEach((button) => {
+    button.addEventListener("click", () => openCg(cgIndex + Number(button.dataset.cgDirection)));
+  });
   cgViewerClose.addEventListener("click", closeCg);
-  renderMode();
+
+  commitMode("cg");
 
   return {
     changePage,
     closeCg,
+    deactivate() {
+      transitionToken += 1;
+      stageTransition?.cancel();
+      stageTransition = null;
+    },
   };
 }

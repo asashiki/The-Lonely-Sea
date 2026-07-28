@@ -71,6 +71,7 @@ function refreshStatus(message = "") {
 const weather = createWeatherController({
   body,
   reduceMotion,
+  initialDensity: preferences.particleDensity / 100,
   onChange(value) {
     updatePressed("[data-weather-option]", value, "weatherOption");
     refreshStatus();
@@ -113,8 +114,8 @@ async function navigateTo(route, { instant = false } = {}) {
   if (routeBusy || route === body.dataset.route) return;
   routeBusy = true;
   stage.inert = true;
-  const coverDuration = instant || reduceMotion.matches ? 0 : 430;
-  const revealDuration = instant || reduceMotion.matches ? 0 : 620;
+  const coverDuration = instant || reduceMotion.matches || !preferences.sceneCrossfade ? 0 : 430;
+  const revealDuration = instant || reduceMotion.matches || !preferences.sceneCrossfade ? 0 : 620;
 
   if (coverDuration) {
     curtain.setAttribute("aria-hidden", "false");
@@ -158,6 +159,7 @@ function rememberOpening() {
 }
 
 function hasSeenOpening() {
+  if (preferences.openingBehaviour === "ALWAYS") return false;
   try { return sessionStorage.getItem(OPENING_STORAGE_KEY) === "1"; } catch { return false; }
 }
 
@@ -216,6 +218,12 @@ const optionScreen = initOptions({
   onResetExperience: resetExperience,
 });
 const exitDialog = initExitDialog();
+
+window.addEventListener("lonely-sea:preferences-change", (event) => {
+  preferences = applyPreferences(event.detail?.preferences || readPreferences());
+  weather.setDensity(preferences.particleDensity / 100);
+  weather.handlePreferenceChange();
+});
 
 all("[data-command]").forEach((button) => {
   button.addEventListener("click", () => {

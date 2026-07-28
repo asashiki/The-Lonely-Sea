@@ -1,6 +1,6 @@
 import { required } from "./dom.js";
 
-export function createWeatherController({ body, reduceMotion, onChange }) {
+export function createWeatherController({ body, reduceMotion, onChange, initialDensity = 1 }) {
   const canvas = required("#weather-canvas");
   const context = canvas.getContext("2d", { alpha: true });
   if (!context) throw new Error("Weather canvas is unavailable");
@@ -12,6 +12,7 @@ export function createWeatherController({ body, reduceMotion, onChange }) {
   let frameId = 0;
   let previousTime = 0;
   let weatherTimer = 0;
+  let density = Math.min(1, Math.max(0, Number(initialDensity) || 0));
 
   function makeSnowSprite(size, coreOpacity) {
     const sprite = document.createElement("canvas");
@@ -70,12 +71,13 @@ export function createWeatherController({ body, reduceMotion, onChange }) {
 
   function populateParticles() {
     particles = [];
-    if (weather === "clear" || reduceMotion.matches || !width || !height) return;
+    if (weather === "clear" || reduceMotion.matches || !width || !height || density === 0) return;
 
     const area = width * height;
-    const count = weather === "snow"
+    const baseCount = weather === "snow"
       ? Math.min(270, Math.max(84, Math.round(area / 8200)))
       : Math.min(430, Math.max(150, Math.round(area / 5000)));
+    const count = Math.round(baseCount * density);
 
     for (let index = 0; index < count; index += 1) {
       particles.push(weather === "snow" ? createSnowParticle(true) : createRainParticle(true));
@@ -186,6 +188,13 @@ export function createWeatherController({ body, reduceMotion, onChange }) {
     start();
   }
 
+  function setDensity(value) {
+    const nextDensity = Math.min(1, Math.max(0, Number(value) || 0));
+    if (nextDensity === density) return;
+    density = nextDensity;
+    handlePreferenceChange();
+  }
+
   return {
     get value() {
       return weather;
@@ -194,6 +203,7 @@ export function createWeatherController({ body, reduceMotion, onChange }) {
     populateParticles,
     resize,
     set,
+    setDensity,
     start,
     stop,
   };

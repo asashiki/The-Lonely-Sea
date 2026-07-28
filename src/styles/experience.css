@@ -629,6 +629,10 @@ body.is-ready .fx-panel:not([hidden]) {
   position: fixed;
   z-index: 110;
   inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  color: rgba(230,239,243,.84);
   background: #080d14;
   opacity: 0;
   visibility: hidden;
@@ -638,6 +642,28 @@ body.is-ready .fx-panel:not([hidden]) {
     visibility 420ms;
 }
 .route-curtain.is-covering { opacity: 1; visibility: visible; }
+.route-curtain > span {
+  position: absolute;
+  width: min(64vw,52rem);
+  height: 1px;
+  background: linear-gradient(90deg,transparent,rgba(114,158,184,.45),transparent);
+}
+.route-curtain > p {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: .8rem;
+  margin: 0;
+}
+.route-curtain small {
+  color: rgba(213,228,234,.4);
+  font: 600 .57rem/1 "Yu Gothic",sans-serif;
+  letter-spacing: .24em;
+}
+.route-curtain strong {
+  font: 400 clamp(1.25rem,2vw,2rem)/1 Baskerville,serif;
+  letter-spacing: .22em;
+}
 
 /* Full-screen system pages */
 .system-screen {
