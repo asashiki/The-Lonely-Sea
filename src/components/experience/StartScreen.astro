@@ -1,0 +1,73 @@
+---
+import type { ExperienceRecord } from "../../lib/experience-records";
+import { startTopics } from "../../data/start-content";
+
+interface Props {
+  records: ExperienceRecord[];
+}
+
+const { records } = Astro.props;
+const randomRecord = records[2] ?? records[0];
+---
+
+<section class="system-screen start-screen" data-screen="start" aria-hidden="true" aria-label="叙事入口">
+  <div class="system-canvas start-canvas special-system-canvas">
+    <button class="system-back" type="button" data-back>BACK</button>
+    <header class="special-page-heading start-heading">
+      <h2>START</h2>
+      <p>WELCOME TO THE LONELY SEA</p>
+    </header>
+
+    <div class="start-stage">
+      <nav class="start-choices" aria-label="叙事入口选择">
+        {startTopics.map((topic, index) => (
+          <button
+            type="button"
+            data-start-topic={topic.id}
+            aria-current={index === 0 ? "page" : undefined}
+          >
+            <span>{String(index + 1).padStart(2, "0")}</span>
+            <strong>{topic.label}</strong>
+          </button>
+        ))}
+      </nav>
+
+      <div class="start-character" aria-hidden="true">
+        <span></span>
+        <img src="/assets/lonely-sea/alice_chibi_transparent.png" alt="">
+      </div>
+
+      <section class="start-dialog" aria-live="polite">
+        <p class="start-speaker"><span>ALICE</span><small>SYSTEM GUIDE</small></p>
+        <div class="start-dialog-pages" data-start-dialog-pages>
+          {startTopics.map((topic, index) => (
+            <article
+              class="start-dialog-page"
+              data-start-panel={topic.id}
+              aria-hidden={index !== 0}
+            >
+              <small>{topic.eyebrow}</small>
+              <h3>{topic.title}</h3>
+              {topic.lines.map((line) => <p>{line}</p>)}
+              {
+                topic.id === "contact" && (
+                  <a href="https://github.com/asashiki" target="_blank" rel="noreferrer">
+                    OPEN GITHUB
+                  </a>
+                )
+              }
+              {
+                topic.id === "random" && randomRecord && (
+                  <a href={randomRecord.url} data-start-random-link>
+                    READ {randomRecord.number} — {randomRecord.title}
+                  </a>
+                )
+              }
+            </article>
+          ))}
+        </div>
+        <span class="start-dialog-cue" aria-hidden="true">›</span>
+      </section>
+    </div>
+  </div>
+</section>

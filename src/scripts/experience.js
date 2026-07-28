@@ -8,11 +8,13 @@ import { initLoadTracksXiConcept } from "./experience/load-tracks-xi.js";
 import { initLoadTracksXiiConcept } from "./experience/load-tracks-xii.js";
 import { initLoadTracksXiiiConcept } from "./experience/load-tracks-xiii.js";
 import { initOptions } from "./experience/options.js";
+import { initStartScreen } from "./experience/start.js";
 import { createWeatherController } from "./experience/weather.js";
+import { applyPreferences, readPreferences } from "./experience/preferences.js";
 
 const EXPERIENCE_STORAGE_KEY = "lonely-sea-experience-v1";
 const OPENING_STORAGE_KEY = "lonely-sea-opening-seen";
-const ROUTES = new Set(["load", "extra", "option"]);
+const ROUTES = new Set(["start", "load", "extra", "option"]);
 
 const body = document.body;
 const stage = required(".stage");
@@ -20,12 +22,20 @@ const titleMenu = required(".title-menu");
 const fxPanel = required("#fx-panel");
 const showFx = required("#show-fx");
 const status = required("#menu-status");
-const menuNote = required(".menu-note span");
 const opening = required("#opening");
 const openingSteps = all("[data-opening-step]");
 const curtain = required("#route-curtain");
 const screens = all("[data-screen]");
-const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+const systemReduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+let preferences = applyPreferences(readPreferences());
+const reduceMotion = {
+  get matches() {
+    return systemReduceMotion.matches || preferences.reducedMotion;
+  },
+  addEventListener(...args) {
+    systemReduceMotion.addEventListener(...args);
+  },
+};
 
 let requestedRoute = new URLSearchParams(window.location.search).get("screen");
 if (!ROUTES.has(requestedRoute)) requestedRoute = null;
@@ -200,6 +210,7 @@ loadScreen.registerReferenceControllers({
   "tracks-xiii": loadTracksXiiiConcept,
 });
 const extraScreen = initExtraScreen();
+const startScreen = initStartScreen({ reduceMotion });
 const optionScreen = initOptions({
   onReplayOpening: replayOpeningFromTitle,
   onResetExperience: resetExperience,
@@ -209,14 +220,10 @@ const exitDialog = initExitDialog();
 all("[data-command]").forEach((button) => {
   button.addEventListener("click", () => {
     const command = button.dataset.command;
-    const route = { LOAD: "load", EXTRA: "extra", OPTION: "option" }[command];
+    const route = { START: "start", LOAD: "load", EXTRA: "extra", OPTION: "option" }[command];
     if (route) {
       navigateTo(route);
       return;
-    }
-    if (command === "START") {
-      menuNote.textContent = "START / STORY ROUTE IS NOT YET AVAILABLE";
-      window.setTimeout(() => { menuNote.textContent = "MAIN MENU"; }, 1500);
     }
   });
 });
@@ -287,6 +294,11 @@ document.addEventListener("keydown", (event) => {
     event.preventDefault();
     const activeLoad = loadScreen.getActiveController() || loadScreen;
     activeLoad.changePage(horizontalDirection);
+    return;
+  }
+  if (body.dataset.route === "start" && horizontalDirection) {
+    event.preventDefault();
+    startScreen.changePage(horizontalDirection);
     return;
   }
   if (body.dataset.route === "extra" && horizontalDirection) {
