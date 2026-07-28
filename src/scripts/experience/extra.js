@@ -51,10 +51,112 @@ export function initExtraScreen() {
   let bangumiIndex = 0;
   let stageTransition = null;
   let transitionToken = 0;
+  let audioContext = null;
+  let musicOutput = null;
+  let musicSources = [];
+  let musicGraph = [];
+  let musicPlaying = false;
 
   function setFocus(title, action) {
     required("strong", extraFocus).textContent = title;
     required("small", extraFocus).textContent = action || "OPEN";
+  }
+
+  function syncMusicState() {
+    extraCanvas.dataset.musicPlaying = String(musicPlaying);
+    all("[data-music-toggle]", extraStage).forEach((toggle) => {
+      toggle.setAttribute("aria-pressed", String(musicPlaying));
+      required("span", toggle).textContent = musicPlaying ? "Ⅱ" : "▶";
+      required("strong", toggle).textContent = musicPlaying ? "PAUSE PREVIEW" : "PLAY PREVIEW";
+    });
+    extraStage.querySelector(".extra-music-disc")?.classList.toggle("is-playing", musicPlaying);
+  }
+
+  function stopMusic({ immediate = false } = {}) {
+    const context = audioContext;
+    const output = musicOutput;
+    const sources = musicSources;
+    const graph = musicGraph;
+    musicOutput = null;
+    musicSources = [];
+    musicGraph = [];
+    musicPlaying = false;
+    syncMusicState();
+
+    if (!context || !output) return;
+    const now = context.currentTime;
+    const release = immediate ? .01 : .18;
+    try {
+      output.gain.cancelScheduledValues(now);
+      output.gain.setValueAtTime(Math.max(.0001, output.gain.value), now);
+      output.gain.exponentialRampToValueAtTime(.0001, now + release);
+    } catch {}
+    sources.forEach((source) => {
+      try { source.stop(now + release + .02); } catch {}
+    });
+    window.setTimeout(() => {
+      [...sources, ...graph].forEach((node) => {
+        try { node.disconnect(); } catch {}
+      });
+    }, Math.ceil((release + .05) * 1000));
+  }
+
+  async function startMusic() {
+    const AudioContextConstructor = window.AudioContext;
+    if (!AudioContextConstructor) {
+      setFocus(musicItems[musicIndex].title, "AUDIO IS NOT SUPPORTED");
+      return;
+    }
+
+    stopMusic({ immediate: true });
+    if (!audioContext || audioContext.state === "closed") {
+      audioContext = new AudioContextConstructor();
+    }
+    await audioContext.resume();
+
+    const current = musicItems[musicIndex];
+    const now = audioContext.currentTime;
+    const master = audioContext.createGain();
+    const filter = audioContext.createBiquadFilter();
+    const volume = Math.max(.004, readPreferences().bgmVolume / 100 * .045);
+    master.gain.setValueAtTime(.0001, now);
+    master.gain.exponentialRampToValueAtTime(volume, now + .48);
+    filter.type = "lowpass";
+    filter.frequency.setValueAtTime(current.cutoff, now);
+    filter.Q.setValueAtTime(.65, now);
+    master.connect(filter);
+    filter.connect(audioContext.destination);
+
+    const sources = [];
+    const graph = [master, filter];
+    current.frequencies.forEach((frequency, index) => {
+      const oscillator = audioContext.createOscillator();
+      const voice = audioContext.createGain();
+      const drift = audioContext.createOscillator();
+      const driftDepth = audioContext.createGain();
+      oscillator.type = current.wave;
+      oscillator.frequency.setValueAtTime(frequency, now);
+      oscillator.detune.setValueAtTime((index - 1) * 2.5, now);
+      voice.gain.setValueAtTime(1 / current.frequencies.length, now);
+      drift.type = "sine";
+      drift.frequency.setValueAtTime(current.drift + index * .009, now);
+      driftDepth.gain.setValueAtTime(3.5 + index * 1.25, now);
+      drift.connect(driftDepth);
+      driftDepth.connect(oscillator.detune);
+      oscillator.connect(voice);
+      voice.connect(master);
+      oscillator.start(now);
+      drift.start(now);
+      sources.push(oscillator, drift);
+      graph.push(voice, driftDepth);
+    });
+
+    musicOutput = master;
+    musicSources = sources;
+    musicGraph = graph;
+    musicPlaying = true;
+    syncMusicState();
+    setFocus(current.title, "PLAYING GENERATIVE PREVIEW");
   }
 
   function totalPages() {
@@ -93,13 +195,22 @@ export function initExtraScreen() {
   function renderMusic() {
     const current = musicItems[musicIndex];
     extraStage.innerHTML = `
-      <div class="extra-music-room" data-music-tone="${escapeHtml(current.tone)}">
+      <div class="extra-music-room" data-music-tone="${escapeHtml(current.tone)}" data-music-playing="${musicPlaying}">
         <section class="extra-music-player">
-          <div class="extra-music-disc" aria-hidden="true"><span></span></div>
+          <div class="extra-music-disc${musicPlaying ? " is-playing" : ""}" aria-hidden="true"><span></span></div>
           <p><small>SOUND TEST / ${escapeHtml(current.number)}</small><strong>${escapeHtml(current.title)}</strong></p>
           <p class="extra-music-note">${escapeHtml(current.note)}</p>
-          <span class="extra-music-pending">AUDIO SOURCE PENDING</span>
+          <button class="extra-music-pending" type="button" data-music-toggle aria-pressed="${musicPlaying}">
+            <span aria-hidden="true">${musicPlaying ? "Ⅱ" : "▶"}</span>
+            <strong>${musicPlaying ? "PAUSE PREVIEW" : "PLAY PREVIEW"}</strong>
+            <small>GENERATIVE SOUND TEST</small>
+          </button>
         </section>
+        <button class="extra-music-compact-toggle" type="button" data-music-toggle aria-pressed="${musicPlaying}">
+          <span aria-hidden="true">${musicPlaying ? "Ⅱ" : "▶"}</span>
+          <strong>${musicPlaying ? "PAUSE PREVIEW" : "PLAY PREVIEW"}</strong>
+          <small>${escapeHtml(current.number)} / ${escapeHtml(current.title)}</small>
+        </button>
         <div class="extra-track-list" aria-label="音乐列表">
           ${musicItems.map((track, index) => `
             <button
@@ -249,9 +360,23 @@ export function initExtraScreen() {
 
     all("[data-music-index]", extraStage).forEach((node) => {
       node.addEventListener("click", () => {
+        const resume = musicPlaying;
+        stopMusic({ immediate: true });
         musicIndex = Number(node.dataset.musicIndex);
         renderMode();
         setFocus(musicItems[musicIndex].title, "SOUND TEST SELECTED");
+        if (resume) startMusic();
+      });
+    });
+
+    all("[data-music-toggle]", extraStage).forEach((toggle) => {
+      toggle.addEventListener("click", () => {
+        if (musicPlaying) {
+          stopMusic();
+          setFocus(musicItems[musicIndex].title, "PREVIEW PAUSED");
+        } else {
+          startMusic();
+        }
       });
     });
 
@@ -295,6 +420,7 @@ export function initExtraScreen() {
   }
 
   function commitMode(mode) {
+    if (extraMode === "music" && mode !== "music") stopMusic();
     extraMode = mode;
     extraPage = 0;
     extraCanvas.dataset.extraMode = mode;
@@ -386,6 +512,10 @@ export function initExtraScreen() {
     button.addEventListener("click", () => openCg(cgIndex + Number(button.dataset.cgDirection)));
   });
   cgViewerClose.addEventListener("click", closeCg);
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) stopMusic({ immediate: true });
+  });
+  window.addEventListener("pagehide", () => stopMusic({ immediate: true }));
 
   commitMode("cg");
 
@@ -396,6 +526,7 @@ export function initExtraScreen() {
       transitionToken += 1;
       stageTransition?.cancel();
       stageTransition = null;
+      stopMusic({ immediate: true });
     },
   };
 }

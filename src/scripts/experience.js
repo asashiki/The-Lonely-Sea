@@ -40,6 +40,7 @@ const reduceMotion = {
 let requestedRoute = new URLSearchParams(window.location.search).get("screen");
 if (!ROUTES.has(requestedRoute)) requestedRoute = null;
 let routeBusy = false;
+let routeTransitionToken = 0;
 let openingTimers = [];
 
 function readExperience() {
@@ -100,6 +101,9 @@ function setWeather(nextWeather) {
 }
 
 function setRoute(route) {
+  if (route !== "start") startScreen.deactivate();
+  if (route !== "extra") extraScreen.deactivate();
+  if (route !== "option") optionScreen.deactivate();
   body.dataset.route = route;
   titleMenu.inert = route !== "title";
   fxPanel.inert = route !== "title";
@@ -111,29 +115,34 @@ function setRoute(route) {
 }
 
 async function navigateTo(route, { instant = false } = {}) {
-  if (routeBusy || route === body.dataset.route) return;
+  if (!routeBusy && route === body.dataset.route) return;
+  const transitionToken = ++routeTransitionToken;
   routeBusy = true;
-  stage.inert = true;
-  const coverDuration = instant || reduceMotion.matches || !preferences.sceneCrossfade ? 0 : 430;
-  const revealDuration = instant || reduceMotion.matches || !preferences.sceneCrossfade ? 0 : 620;
+  const coverDuration = instant || reduceMotion.matches || !preferences.sceneCrossfade ? 0 : 240;
+  const revealDuration = instant || reduceMotion.matches || !preferences.sceneCrossfade ? 0 : 260;
 
   if (coverDuration) {
     curtain.setAttribute("aria-hidden", "false");
     curtain.classList.add("is-covering");
     await wait(coverDuration);
+    if (transitionToken !== routeTransitionToken) return;
+  } else {
+    curtain.classList.remove("is-covering");
+    curtain.setAttribute("aria-hidden", "true");
   }
 
   setRoute(route);
 
   if (coverDuration) {
-    await wait(30);
+    await wait(20);
+    if (transitionToken !== routeTransitionToken) return;
     curtain.classList.remove("is-covering");
     await wait(revealDuration);
+    if (transitionToken !== routeTransitionToken) return;
     curtain.setAttribute("aria-hidden", "true");
   }
 
   routeBusy = false;
-  stage.inert = false;
   if (route !== "title") {
     const routeScreen = required(`[data-screen="${route}"]`);
     const visibleBack = all("[data-back]", routeScreen).find(
@@ -226,18 +235,18 @@ window.addEventListener("lonely-sea:preferences-change", (event) => {
 });
 
 all("[data-command]").forEach((button) => {
-  button.addEventListener("click", () => {
+  button.addEventListener("click", (event) => {
     const command = button.dataset.command;
     const route = { START: "start", LOAD: "load", EXTRA: "extra", OPTION: "option" }[command];
     if (route) {
-      navigateTo(route);
+      navigateTo(route, { instant: event.detail === 0 });
       return;
     }
   });
 });
 
 all("[data-back]").forEach((button) => {
-  button.addEventListener("click", () => navigateTo("title"));
+  button.addEventListener("click", (event) => navigateTo("title", { instant: event.detail === 0 }));
 });
 
 all("[data-scene-option]").forEach((button) => {

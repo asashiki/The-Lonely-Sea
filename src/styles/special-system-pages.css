@@ -1253,6 +1253,14 @@ html[data-motion="reduced"] .option-screen[aria-hidden="false"] .option-actions 
   transform: rotate(28deg);
 }
 
+.extra-music-disc.is-playing {
+  animation: extra-music-spin 12s linear infinite;
+}
+
+@keyframes extra-music-spin {
+  to { transform: rotate(360deg); }
+}
+
 .extra-music-player > p {
   margin: 0;
 }
@@ -1279,10 +1287,40 @@ html[data-motion="reduced"] .option-screen[aria-hidden="false"] .option-actions 
 }
 
 .extra-music-pending {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  justify-self: start;
+  gap: .45cqh .7cqw;
   align-self: start;
-  color: var(--v4-faint);
-  font: 600 clamp(7px, .45cqw, 9px) / 1 "Yu Gothic", sans-serif;
+  min-height: 4.6cqh;
+  padding: .7cqh 1cqw;
+  border: 0;
+  color: var(--v4-ink);
+  background: color-mix(in srgb, var(--v4-accent) 15%, var(--v4-card) 44%);
+  box-shadow: inset 0 -2px color-mix(in srgb, var(--v4-accent) 62%, transparent);
+  cursor: pointer;
+  text-align: left;
+}
+
+.extra-music-pending > span {
+  grid-row: 1 / 3;
+  font: 400 clamp(15px, 1cqw, 19px) / 1 Baskerville, serif;
+}
+
+.extra-music-pending strong {
+  font: 600 clamp(8px, .52cqw, 10px) / 1 "Yu Gothic", sans-serif;
   letter-spacing: .14em;
+}
+
+.extra-music-pending small {
+  color: var(--v4-faint);
+  font: 600 clamp(7px, .42cqw, 9px) / 1 "Yu Gothic", sans-serif;
+  letter-spacing: .11em;
+}
+
+.extra-music-compact-toggle {
+  display: none;
 }
 
 .extra-track-list {
@@ -1938,6 +1976,11 @@ html[data-motion="reduced"] .option-screen[aria-hidden="false"] .option-actions 
     letter-spacing: .07em;
   }
 
+  .extra-primary button:last-child {
+    font-size: clamp(8px, 1.2vw, 12px);
+    letter-spacing: .025em;
+  }
+
   .extra-stage {
     right: 3.2cqw;
     left: 3.2cqw;
@@ -2008,6 +2051,50 @@ html[data-motion="reduced"] .option-screen[aria-hidden="false"] .option-actions 
     display: none;
   }
 
+  .extra-music-room {
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: 1cqh;
+  }
+
+  .extra-music-compact-toggle {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    min-height: 6.5cqh;
+    padding: 0 3cqw;
+    border: 0;
+    color: var(--v4-ink);
+    background: color-mix(in srgb, var(--v4-accent) 15%, var(--v4-card) 68%);
+    box-shadow: inset 0 -2px color-mix(in srgb, var(--v4-accent) 62%, transparent);
+    cursor: pointer;
+    text-align: left;
+  }
+
+  .extra-music-compact-toggle > span {
+    margin-right: 3cqw;
+    font: 400 clamp(15px, 4vw, 20px) / 1 Baskerville, serif;
+  }
+
+  .extra-music-compact-toggle strong {
+    font: 600 clamp(9px, 2.5vw, 12px) / 1 "Yu Gothic", sans-serif;
+    letter-spacing: .1em;
+  }
+
+  .extra-music-compact-toggle small {
+    color: var(--v4-soft);
+    font: 500 clamp(8px, 2.1vw, 10px) / 1 Baskerville, serif;
+    letter-spacing: .08em;
+  }
+
+  .extra-music-room .extra-track-list {
+    padding-block: 0;
+  }
+
+  .extra-music-room .extra-track-list button {
+    grid-template-columns: 8cqw minmax(0, 1fr) auto;
+    padding-inline: 2cqw;
+  }
+
   .extra-project-room {
     grid-template-columns: 1fr;
     grid-template-rows: repeat(4, minmax(0, 1fr));
@@ -2038,6 +2125,20 @@ html[data-motion="reduced"] .option-screen[aria-hidden="false"] .option-actions 
   }
 }
 
+@media (max-width: 700px) and (orientation: portrait) {
+  .start-stage {
+    bottom: 10.5cqh;
+  }
+
+  .option-actions {
+    right: 22cqw;
+  }
+
+  .extra-status {
+    right: 21cqw;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .extra-screen[aria-hidden="false"] .extra-heading,
   .extra-screen[aria-hidden="false"] .extra-primary,
@@ -2048,6 +2149,7 @@ html[data-motion="reduced"] .option-screen[aria-hidden="false"] .option-actions 
 
   .extra-primary button,
   .extra-cg-art,
+  .extra-music-disc,
   .extra-project-record,
   .extra-track-list button,
   .extra-bangumi-shelf button,
@@ -2055,11 +2157,19 @@ html[data-motion="reduced"] .option-screen[aria-hidden="false"] .option-actions 
     transition: none;
     transform: none;
   }
+
+  .extra-music-disc {
+    animation: none;
+  }
 }
 
 html[data-motion="reduced"] .extra-screen[aria-hidden="false"] .extra-heading,
 html[data-motion="reduced"] .extra-screen[aria-hidden="false"] .extra-primary,
 html[data-motion="reduced"] .extra-screen[aria-hidden="false"] .extra-stage,
 html[data-motion="reduced"] .extra-screen[aria-hidden="false"] .extra-status {
+  animation: none;
+}
+
+html[data-motion="reduced"] .extra-music-disc {
   animation: none;
 }

@@ -64,15 +64,6 @@ const tabs = [
             <label class="setting-range"><input type="range" min="80" max="120" step="1" data-setting-range><span aria-hidden="true"></span></label>
             <output class="setting-value">100%</output>
           </div>
-          <div class="setting-row" data-setting-key="backgroundQuality" data-help="选择背景素材优先保持清晰度、减少传输，或由浏览器自动判断。">
-            <span class="setting-label"><strong>背景画质</strong><small>BACKGROUND QUALITY</small></span>
-            <div class="setting-choices" data-setting-choice>
-              <button type="button" data-setting-value="ECO">ECO</button>
-              <button type="button" data-setting-value="HIGH">HIGH</button>
-              <button type="button" data-setting-value="AUTO">AUTO</button>
-            </div>
-            <output class="setting-value">HIGH</output>
-          </div>
         </section>
 
         <section class="option-panel" id="option-panel-sound" data-option-panel="sound" role="tabpanel" hidden>
@@ -96,32 +87,13 @@ const tabs = [
             <label class="setting-range"><input type="range" min="0" max="100" step="1" data-setting-range><span aria-hidden="true"></span></label>
             <output class="setting-value">80%</output>
           </div>
-          <div class="setting-row" data-setting-key="muteOnStart" data-help="进入网站时保持静音，等待第一次交互后再允许播放。">
-            <span class="setting-label"><strong>启动时静音</strong><small>MUTE ON START</small></span>
-            <button class="setting-switch" type="button" data-setting-toggle aria-pressed="false"><span>ON</span><span>OFF</span></button>
-            <output class="setting-value">OFF</output>
-          </div>
         </section>
 
         <section class="option-panel" id="option-panel-text" data-option-panel="text" role="tabpanel" hidden>
-          <div class="setting-row" data-setting-key="language" data-help="选择菜单、提示和系统文字所使用的语言；正文语言不受影响。">
-            <span class="setting-label"><strong>界面语言</strong><small>INTERFACE LANGUAGE</small></span>
-            <div class="setting-choices" data-setting-choice>
-              <button type="button" data-setting-value="ZH-CN">中文</button>
-              <button type="button" data-setting-value="JA-JP">日本語</button>
-              <button type="button" data-setting-value="EN-US">EN</button>
-            </div>
-            <output class="setting-value">ZH-CN</output>
-          </div>
           <div class="setting-row" data-setting-key="textSize" data-help="调整文章正文与视觉小说对话文字的基础字号。">
             <span class="setting-label"><strong>文字尺寸</strong><small>TEXT SIZE</small></span>
             <label class="setting-range"><input type="range" min="80" max="120" step="1" data-setting-range><span aria-hidden="true"></span></label>
             <output class="setting-value">100%</output>
-          </div>
-          <div class="setting-row" data-setting-key="autoSpeed" data-help="设置自动阅读模式中每段文字的停留速度。">
-            <span class="setting-label"><strong>自动阅读速度</strong><small>AUTO MODE SPEED</small></span>
-            <label class="setting-range"><input type="range" min="1" max="10" step="1" data-setting-range data-suffix=" / 10"><span aria-hidden="true"></span></label>
-            <output class="setting-value">6 / 10</output>
           </div>
           <div class="setting-row" data-setting-key="subLabels" data-help="在主要菜单文字下方显示英文辅助标记。">
             <span class="setting-label"><strong>辅助标签</strong><small>SUB LABEL</small></span>

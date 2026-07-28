@@ -463,10 +463,15 @@ body.is-ready .fx-panel:not([hidden]) {
 }
 
 @media (max-height: 680px) and (min-width: 761px) {
+  .stage { min-height: 0; }
   .title-menu { transform: translate3d(18px, -48%, 0); }
   body.is-ready .title-menu { transform: translate3d(0, -48%, 0); }
   .menu-button { min-height: 49px; }
   .identity h1 { font-size: clamp(32px, 4.4vw, 60px); }
+}
+
+@media (max-height: 520px) and (orientation: landscape) {
+  .stage { min-height: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -638,8 +643,8 @@ body.is-ready .fx-panel:not([hidden]) {
   visibility: hidden;
   pointer-events: none;
   transition:
-    opacity 420ms ease,
-    visibility 420ms;
+    opacity 240ms ease,
+    visibility 240ms;
 }
 .route-curtain.is-covering { opacity: 1; visibility: visible; }
 .route-curtain > span {
@@ -1940,67 +1945,133 @@ body[data-scene="crimson"] .system-screen {
 }
 .setting-actions .setting-action { min-width: 6cqw; padding: 0 1cqw; color: var(--v4-soft); }
 
-/* EXIT stays on the title screen as a modal. */
-body[data-scene="mist"] .exit-dialog { --modal-accent: 110,137,154; --modal-card: rgba(19,29,38,.86); }
-body[data-scene="day"] .exit-dialog { --modal-accent: 69,145,179; --modal-card: rgba(11,42,57,.84); }
-body[data-scene="night"] .exit-dialog { --modal-accent: 135,195,226; --modal-card: rgba(4,12,27,.9); }
-body[data-scene="crimson"] .exit-dialog { --modal-accent: 214,125,107; --modal-card: rgba(38,7,12,.9); }
+/* EXIT is an ADV choice layer over the title scene, not a detached web modal. */
+body[data-scene="mist"] .exit-dialog { --modal-accent: 110,137,154; --modal-card: rgba(13,23,31,.84); }
+body[data-scene="day"] .exit-dialog { --modal-accent: 69,145,179; --modal-card: rgba(8,34,46,.82); }
+body[data-scene="night"] .exit-dialog { --modal-accent: 135,195,226; --modal-card: rgba(3,10,22,.88); }
+body[data-scene="crimson"] .exit-dialog { --modal-accent: 214,125,107; --modal-card: rgba(31,5,10,.89); }
 .exit-dialog {
   position: fixed;
   z-index: 320;
   inset: 0;
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: flex-end;
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  transition: opacity 250ms ease, visibility 250ms;
+  transition: opacity 220ms ease, visibility 220ms;
 }
 .exit-dialog[aria-hidden="false"] { opacity: 1; visibility: visible; pointer-events: auto; }
 .exit-dialog-scrim {
   position: absolute;
   inset: 0;
   border: 0;
-  background: rgba(4,8,13,.44);
-  backdrop-filter: blur(7px) saturate(.72);
+  background:
+    linear-gradient(180deg, rgba(3,8,13,.08) 0 42%, rgba(3,8,13,.44) 100%),
+    rgba(4,8,13,.12);
+  backdrop-filter: saturate(.76) brightness(.78);
   cursor: default;
 }
 .exit-dialog-card {
   position: relative;
-  width: min(720px,72vw);
-  padding: clamp(34px,6vh,64px) clamp(38px,6vw,86px);
-  border-top: 1px solid rgba(var(--modal-accent),.52);
-  border-bottom: 1px solid rgba(var(--modal-accent),.26);
+  display: grid;
+  grid-template-columns: minmax(112px, .34fr) minmax(300px, 1.36fr) minmax(330px, .72fr);
+  align-items: stretch;
+  width: 100%;
+  min-height: clamp(178px, 29vh, 252px);
+  padding: 0 clamp(42px, 7vw, 130px);
   color: #edf3f6;
   background:
-    linear-gradient(90deg, transparent, rgba(var(--modal-accent),.06), transparent),
+    linear-gradient(90deg, rgba(var(--modal-accent),.12), transparent 21%, transparent 78%, rgba(var(--modal-accent),.07)),
     var(--modal-card);
-  box-shadow: 0 24px 80px rgba(0,0,0,.38);
-  text-align: center;
-  backdrop-filter: blur(16px);
-  transform: translateY(10px) scale(.985);
-  transition: transform 320ms cubic-bezier(.16,1,.3,1);
+  box-shadow: 0 -18px 70px rgba(0,0,0,.2);
+  backdrop-filter: blur(14px);
+  transform: translateY(18px);
+  transition: transform 280ms cubic-bezier(.22,1,.36,1);
 }
-.exit-dialog[aria-hidden="false"] .exit-dialog-card { transform: translateY(0) scale(1); }
-.exit-dialog-card::before,
-.exit-dialog-card::after { content: ""; position: absolute; width: 22px; height: 22px; border-color: rgba(var(--modal-accent),.42); }
-.exit-dialog-card::before { top: -1px; left: -1px; border-top: 1px solid; border-left: 1px solid; }
-.exit-dialog-card::after { right: -1px; bottom: -1px; border-right: 1px solid; border-bottom: 1px solid; }
-.exit-dialog-overline { margin: 0 0 18px; color: rgba(224,237,243,.5); font: 500 9px/1 "Yu Gothic",sans-serif; letter-spacing: .2em; }
-.exit-dialog-card h2 { margin: 0; font: 400 clamp(26px,3vw,46px)/1.25 "Yu Mincho",serif; letter-spacing: .09em; }
-.exit-dialog-card > p:not(.exit-dialog-overline) { margin: 18px 0 0; color: rgba(225,236,242,.58); font-size: clamp(10px,.78vw,13px); letter-spacing: .08em; }
-.exit-dialog-actions { display: grid; grid-template-columns: repeat(2,1fr); gap: 24px; margin-top: clamp(34px,6vh,58px); }
+.exit-dialog[aria-hidden="false"] .exit-dialog-card { transform: translateY(0); }
+.exit-dialog-chapter {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-right: clamp(24px, 3vw, 54px);
+  color: rgba(225,238,245,.36);
+  text-align: right;
+}
+.exit-dialog-chapter span {
+  font: italic 400 clamp(40px, 5vw, 82px)/.82 Baskerville, "Times New Roman", serif;
+  letter-spacing: -.04em;
+}
+.exit-dialog-chapter strong {
+  margin-top: 14px;
+  font: 500 clamp(8px, .62vw, 11px)/1 "Yu Gothic", sans-serif;
+  letter-spacing: .28em;
+}
+.exit-dialog-message {
+  align-self: center;
+  padding: 18px clamp(30px, 4vw, 72px);
+  border-left: 2px solid rgba(var(--modal-accent),.56);
+}
+.exit-dialog-overline {
+  margin: 0 0 18px;
+  color: rgba(224,237,243,.58);
+  font: 600 clamp(9px, .64vw, 12px)/1 "Yu Gothic", sans-serif;
+  letter-spacing: .28em;
+}
+.exit-dialog-card h2 {
+  margin: 0;
+  font: 400 clamp(24px, 2.25vw, 40px)/1.3 "Yu Mincho", serif;
+  letter-spacing: .1em;
+}
+.exit-dialog-message > p:last-child {
+  margin: 16px 0 0;
+  color: rgba(225,236,242,.62);
+  font-size: clamp(11px, .75vw, 14px);
+  letter-spacing: .08em;
+}
+.exit-dialog-actions {
+  display: grid;
+  align-content: center;
+  gap: 10px;
+  padding-left: clamp(24px, 3vw, 58px);
+}
 .exit-dialog-actions button {
-  min-height: 64px;
-  border: 1px solid rgba(var(--modal-accent),.22);
-  color: rgba(232,241,245,.68);
-  background: rgba(255,255,255,.025);
+  position: relative;
+  min-height: clamp(56px, 7vh, 72px);
+  padding: 0 25px;
+  border: 0;
+  color: rgba(232,241,245,.7);
+  background:
+    linear-gradient(90deg, rgba(var(--modal-accent),.11), rgba(var(--modal-accent),.025) 74%, transparent);
   cursor: pointer;
-  transition: color 160ms ease, border-color 160ms ease, background-color 160ms ease, transform 220ms ease;
+  text-align: left;
+  transition: color 160ms ease, background-color 160ms ease, transform 200ms ease;
 }
-.exit-dialog-actions button:hover { color: #fff; border-color: rgba(var(--modal-accent),.65); background: rgba(var(--modal-accent),.11); transform: translateY(-2px); }
-.exit-dialog-actions span { display: block; font: 400 19px/1 Baskerville,serif; letter-spacing: .16em; }
-.exit-dialog-actions small { display: block; margin-top: 8px; color: rgba(223,235,241,.42); font: 500 8px/1 "Yu Gothic",sans-serif; letter-spacing: .14em; }
+.exit-dialog-actions button::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 3px;
+  height: 0;
+  background: rgba(var(--modal-accent),.9);
+  box-shadow: 0 0 18px rgba(var(--modal-accent),.5);
+  transform: translateY(-50%);
+  transition: height 180ms ease;
+}
+.exit-dialog-actions button:is(:hover, :focus-visible) {
+  color: #fff;
+  background: linear-gradient(90deg, rgba(var(--modal-accent),.25), rgba(var(--modal-accent),.045) 82%, transparent);
+  transform: translateX(5px);
+}
+.exit-dialog-actions button:is(:hover, :focus-visible)::before { height: 66%; }
+.exit-dialog-actions span { font: 400 clamp(18px, 1.25vw, 23px)/1 Baskerville, serif; letter-spacing: .18em; }
+.exit-dialog-actions small {
+  margin-left: 14px;
+  color: rgba(223,235,241,.42);
+  font: 500 clamp(7px, .48vw, 9px)/1 "Yu Gothic", sans-serif;
+  letter-spacing: .16em;
+}
 
 @media (max-aspect-ratio: 4 / 3) {
   .system-canvas { width: 100vw; height: 56.25vw; }
@@ -2015,23 +2086,24 @@ body[data-scene="crimson"] .exit-dialog { --modal-accent: 214,125,107; --modal-c
   .character-profile { grid-template-columns: 1fr 13cqw; }
 }
 @media (max-width: 900px) and (orientation: portrait) {
-  body .system-screen::after {
-    content: "横屏浏览  /  PLEASE ROTATE YOUR DEVICE";
-    position: absolute;
-    z-index: 110;
-    inset: 0;
-    display: grid;
-    place-items: center;
-    padding: 8vw;
-    color: rgba(224,233,240,.78);
-    background: #07101a;
-    font: 500 11px/1.8 "Yu Gothic",sans-serif;
-    letter-spacing: .18em;
-    text-align: center;
+  .system-canvas {
+    width: 100vw;
+    height: 100vh;
+    opacity: 1;
+    pointer-events: auto;
   }
-  .system-canvas { opacity: 0; pointer-events: none; }
-  .exit-dialog-card { width: 88vw; padding: 36px 26px; }
-  .exit-dialog-actions { gap: 12px; }
+  .tracks-xiii-canvas > .load-safe-frame {
+    width: 100vw;
+    height: 100vh;
+  }
+  .exit-dialog-card {
+    grid-template-columns: 1fr;
+    min-height: 48vh;
+    padding: 28px 8vw max(28px, env(safe-area-inset-bottom));
+  }
+  .exit-dialog-chapter { display: none; }
+  .exit-dialog-message { padding: 0 0 24px; border-left: 0; }
+  .exit-dialog-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); padding-left: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
   .system-screen[aria-hidden="false"] .sys-heading,
@@ -2042,7 +2114,26 @@ body[data-scene="crimson"] .exit-dialog { --modal-accent: 214,125,107; --modal-c
   .save-slot,
   .v4-extra-card,
   .project-card,
-  .exit-dialog-card { transition: none; }
+  .exit-dialog-card,
+  .exit-dialog-actions button,
+  .exit-dialog-actions button::before { transition: none; }
+}
+
+html[data-motion="reduced"] .route-curtain,
+html[data-motion="reduced"] .exit-dialog,
+html[data-motion="reduced"] .exit-dialog-card,
+html[data-motion="reduced"] .exit-dialog-actions button,
+html[data-motion="reduced"] .exit-dialog-actions button::before {
+  transition: none;
+  transform: none;
+}
+
+html[data-motion="reduced"] .system-screen *,
+html[data-motion="reduced"] .system-screen *::before,
+html[data-motion="reduced"] .system-screen *::after {
+  animation: none !important;
+  scroll-behavior: auto !important;
+  transition: none !important;
 }
 
 /* ============================================================
