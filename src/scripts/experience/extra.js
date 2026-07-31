@@ -1,16 +1,29 @@
 import {
+  achievementItems,
   bangumiItems,
   cgItems,
-  characterItems,
-  developmentItems,
   extraDefaults,
+  movieItems,
   musicItems,
   projectItems,
 } from "../../data/extra-content.js";
 import { all, required } from "./dom.js";
 import { preferencesReduceMotion, readPreferences } from "./preferences.js";
 
-const CG_PAGE_SIZE = 6;
+const CG_PAGE_SIZE = 8;
+const PROJECT_PAGE_SIZE = 6;
+const BANGUMI_PAGE_SIZE = 5;
+const ACHIEVEMENT_PAGE_SIZE = 6;
+const HEAT_LEVELS = Object.freeze([
+  0, 1, 0, 2, 1, 0, 3, 1, 2, 0, 1, 3,
+  2, 1, 4, 2, 0, 1, 3, 2, 1, 2, 4, 1,
+  0, 2, 3, 1, 2, 4, 3, 1, 0, 2, 1, 3,
+]);
+const WAVE_LEVELS = Object.freeze([
+  18, 31, 46, 27, 54, 72, 42, 61, 34, 24, 49, 68,
+  84, 57, 38, 63, 76, 45, 29, 52, 69, 91, 65, 41,
+  58, 77, 48, 33, 55, 73, 62, 39, 25, 44, 59, 35,
+]);
 
 function escapeHtml(value) {
   return String(value)
@@ -31,6 +44,33 @@ function externalAttributes() {
     : 'target="_blank" rel="noreferrer"';
 }
 
+function roomHeading({ eyebrow, title, summary, note = "" }) {
+  return `
+    <header class="extra-room-heading">
+      <p>${escapeHtml(eyebrow)}</p>
+      <h3>${escapeHtml(title)}</h3>
+      <div class="extra-room-summary">${summary}</div>
+      ${note ? `<small>${escapeHtml(note)}</small>` : ""}
+    </header>
+  `;
+}
+
+function heatmapMarkup(className = "") {
+  return `
+    <span class="extra-heatmap ${className}" aria-hidden="true">
+      ${HEAT_LEVELS.map((level) => `<i data-level="${level}"></i>`).join("")}
+    </span>
+  `;
+}
+
+function waveMarkup() {
+  return `
+    <span class="extra-music-wave" aria-hidden="true">
+      ${WAVE_LEVELS.map((level) => `<i style="--wave-level:${level}%"></i>`).join("")}
+    </span>
+  `;
+}
+
 export function initExtraScreen() {
   const extraCanvas = required("#extra-canvas");
   const extraStage = required("#extra-stage");
@@ -39,6 +79,7 @@ export function initExtraScreen() {
   const extraPageButtons = all("[data-extra-page-direction]", extraCanvas);
   const extraPageCurrent = required("#extra-page-current");
   const extraPageTotal = required("#extra-page-total");
+  const extraPageProgress = required("#extra-page-progress");
   const cgViewer = required("#cg-viewer");
   const cgViewerArt = required("#cg-viewer-art");
   const cgViewerClose = required("#cg-viewer-close");
@@ -47,8 +88,8 @@ export function initExtraScreen() {
   let extraPage = 0;
   let cgIndex = 0;
   let musicIndex = 0;
-  let characterIndex = 0;
-  let bangumiIndex = 0;
+  let bangumiCategory = "all";
+  let bangumiStatus = "all";
   let stageTransition = null;
   let transitionToken = 0;
   let audioContext = null;
@@ -64,12 +105,12 @@ export function initExtraScreen() {
 
   function syncMusicState() {
     extraCanvas.dataset.musicPlaying = String(musicPlaying);
+    extraStage.querySelector(".extra-music-room")?.classList.toggle("is-playing", musicPlaying);
     all("[data-music-toggle]", extraStage).forEach((toggle) => {
       toggle.setAttribute("aria-pressed", String(musicPlaying));
       required("span", toggle).textContent = musicPlaying ? "Ⅱ" : "▶";
-      required("strong", toggle).textContent = musicPlaying ? "PAUSE PREVIEW" : "PLAY PREVIEW";
+      required("strong", toggle).textContent = musicPlaying ? "PAUSE" : "PLAY";
     });
-    extraStage.querySelector(".extra-music-disc")?.classList.toggle("is-playing", musicPlaying);
   }
 
   function stopMusic({ immediate = false } = {}) {
@@ -156,38 +197,66 @@ export function initExtraScreen() {
     musicGraph = graph;
     musicPlaying = true;
     syncMusicState();
-    setFocus(current.title, "PLAYING GENERATIVE PREVIEW");
+    setFocus(current.title, "PLAYING");
+  }
+
+  function filteredBangumiItems() {
+    return bangumiItems.filter((item) => {
+      const categoryMatches = bangumiCategory === "all" || item.category === bangumiCategory;
+      const statusMatches =
+        bangumiStatus === "all"
+        || (bangumiStatus === "active" && ["playing", "watching"].includes(item.status))
+        || item.status === bangumiStatus;
+      return categoryMatches && statusMatches;
+    });
   }
 
   function totalPages() {
-    return extraMode === "cg" ? Math.ceil(cgItems.length / CG_PAGE_SIZE) : 1;
+    if (extraMode === "cg") return Math.max(1, Math.ceil(cgItems.length / CG_PAGE_SIZE));
+    if (extraMode === "projects") return Math.max(1, Math.ceil(projectItems.length / PROJECT_PAGE_SIZE));
+    if (extraMode === "bangumi") {
+      return Math.max(1, Math.ceil(filteredBangumiItems().length / BANGUMI_PAGE_SIZE));
+    }
+    if (extraMode === "achievement") {
+      return Math.max(1, Math.ceil(achievementItems.length / ACHIEVEMENT_PAGE_SIZE));
+    }
+    return 1;
   }
 
   function renderCg() {
     const start = extraPage * CG_PAGE_SIZE;
     const items = cgItems.slice(start, start + CG_PAGE_SIZE);
+    const collected = cgItems.filter((item) => item.unlocked).length;
     extraStage.innerHTML = `
-      <div class="extra-cg-grid">
-        ${items.map((item, offset) => {
-          const index = start + offset;
-          return `
-            <button
-              class="extra-cg-card${item.portrait ? " is-portrait" : ""}"
-              type="button"
-              data-cg-index="${index}"
-              data-focus-title="${escapeHtml(item.title)}"
-              data-focus-action="OPEN CG"
-              style="${artStyle(item.art)}"
-            >
-              <span class="extra-cg-art" aria-hidden="true"></span>
-              <span class="extra-cg-copy">
-                <small>${escapeHtml(item.meta)}</small>
-                <strong>${escapeHtml(item.title)}</strong>
-                <em>${String(index + 1).padStart(2, "0")}</em>
-              </span>
-            </button>
-          `;
-        }).join("")}
+      <div class="extra-room extra-cg-room">
+        ${roomHeading({
+          eyebrow: "CG GALLERY",
+          title: "CG 鉴赏",
+          summary: `已收录 <b>${collected}</b><i>/</i>${cgItems.length}`,
+          note: "SELECT A SCENE TO VIEW",
+        })}
+        <div class="extra-cg-grid">
+          ${items.map((item, offset) => {
+            const index = start + offset;
+            const locked = !item.unlocked;
+            return `
+              <button
+                class="extra-cg-card${item.portrait ? " is-portrait" : ""}${locked ? " is-locked" : ""}"
+                type="button"
+                ${locked ? "disabled" : `data-cg-index="${index}"`}
+                data-focus-title="${escapeHtml(locked ? "未收录" : item.title)}"
+                data-focus-action="${locked ? "NOT YET REGISTERED" : "OPEN CG"}"
+                style="${artStyle(item.art)}"
+              >
+                <span class="extra-cg-art" aria-hidden="true"></span>
+                <span class="extra-cg-copy">
+                  <small>${escapeHtml(item.meta)}</small>
+                  <strong>${escapeHtml(locked ? "未收录" : item.title)}</strong>
+                </span>
+              </button>
+            `;
+          }).join("")}
+        </div>
       </div>
     `;
   }
@@ -195,123 +264,185 @@ export function initExtraScreen() {
   function renderMusic() {
     const current = musicItems[musicIndex];
     extraStage.innerHTML = `
-      <div class="extra-music-room" data-music-tone="${escapeHtml(current.tone)}" data-music-playing="${musicPlaying}">
-        <section class="extra-music-player">
-          <div class="extra-music-disc${musicPlaying ? " is-playing" : ""}" aria-hidden="true"><span></span></div>
-          <p><small>SOUND TEST / ${escapeHtml(current.number)}</small><strong>${escapeHtml(current.title)}</strong></p>
-          <p class="extra-music-note">${escapeHtml(current.note)}</p>
-          <button class="extra-music-pending" type="button" data-music-toggle aria-pressed="${musicPlaying}">
+      <div class="extra-room extra-music-room" data-music-tone="${escapeHtml(current.tone)}">
+        ${roomHeading({
+          eyebrow: "MUSIC GALLERY",
+          title: "音乐鉴赏",
+          summary: `<b>${musicItems.length}</b> TRACKS`,
+          note: "SOUND TEST",
+        })}
+        <section class="extra-music-now" style="${artStyle(current.cover)}">
+          <span class="extra-music-cover" aria-hidden="true"></span>
+          <div class="extra-music-current">
+            <small>NOW SELECTED</small>
+            <h4>${escapeHtml(current.title)}</h4>
+            <p>${escapeHtml(current.artist)}</p>
+            <blockquote>${escapeHtml(current.note)}</blockquote>
+          </div>
+          ${waveMarkup()}
+          <button class="extra-music-toggle" type="button" data-music-toggle aria-pressed="${musicPlaying}">
             <span aria-hidden="true">${musicPlaying ? "Ⅱ" : "▶"}</span>
-            <strong>${musicPlaying ? "PAUSE PREVIEW" : "PLAY PREVIEW"}</strong>
-            <small>GENERATIVE SOUND TEST</small>
+            <strong>${musicPlaying ? "PAUSE" : "PLAY"}</strong>
           </button>
         </section>
-        <button class="extra-music-compact-toggle" type="button" data-music-toggle aria-pressed="${musicPlaying}">
-          <span aria-hidden="true">${musicPlaying ? "Ⅱ" : "▶"}</span>
-          <strong>${musicPlaying ? "PAUSE PREVIEW" : "PLAY PREVIEW"}</strong>
-          <small>${escapeHtml(current.number)} / ${escapeHtml(current.title)}</small>
-        </button>
         <div class="extra-track-list" aria-label="音乐列表">
           ${musicItems.map((track, index) => `
             <button
               type="button"
               data-music-index="${index}"
               data-focus-title="${escapeHtml(track.title)}"
-              data-focus-action="SELECT SOUND TEST"
+              data-focus-action="SELECT MUSIC"
               aria-pressed="${index === musicIndex}"
             >
-              <b>${escapeHtml(track.number)}</b>
-              <strong>${escapeHtml(track.title)}</strong>
-              <small>${escapeHtml(track.length)}</small>
+              <span>
+                <strong>${escapeHtml(track.title)}</strong>
+                <small>${escapeHtml(track.artist)}</small>
+              </span>
+              <em>${escapeHtml(track.length)}</em>
             </button>
           `).join("")}
         </div>
       </div>
     `;
-  }
-
-  function renderCharacter() {
-    const current = characterItems[characterIndex];
-    extraStage.innerHTML = `
-      <div class="extra-character-room">
-        <figure class="extra-character-art${current.unlocked ? "" : " is-locked"}" style="${artStyle(current.art)}">
-          <span aria-hidden="true"></span>
-        </figure>
-        <section class="extra-character-copy">
-          <small>${escapeHtml(current.reading)}</small>
-          <h3>${escapeHtml(current.unlocked ? current.name : "UNKNOWN")}</h3>
-          <p class="extra-character-role">${escapeHtml(current.role)}</p>
-          <p>${escapeHtml(current.text)}</p>
-          <div class="extra-character-index" aria-label="角色资料">
-            ${characterItems.map((item, index) => `
-              <button
-                type="button"
-                data-character-index="${index}"
-                data-focus-title="${escapeHtml(item.unlocked ? item.name : "LOCKED")}"
-                data-focus-action="${item.unlocked ? "OPEN CHARACTER FILE" : "NOT YET REGISTERED"}"
-                aria-pressed="${index === characterIndex}"
-                ${item.unlocked ? "" : "disabled"}
-              >
-                <span>${String(index + 1).padStart(2, "0")}</span>
-                <strong>${escapeHtml(item.unlocked ? item.name : "LOCKED")}</strong>
-              </button>
-            `).join("")}
-          </div>
-        </section>
-      </div>
-    `;
+    syncMusicState();
   }
 
   function renderProjects() {
+    const start = extraPage * PROJECT_PAGE_SIZE;
+    const items = projectItems.slice(start, start + PROJECT_PAGE_SIZE);
     extraStage.innerHTML = `
-      <div class="extra-project-room">
-        ${projectItems.map((item, index) => `
-          <a
-            class="extra-project-record"
-            href="${escapeHtml(item.href)}"
-            ${externalAttributes()}
-            data-focus-title="${escapeHtml(item.title)}"
-            data-focus-action="OPEN PROJECT"
-            style="${artStyle(item.art)}"
-          >
-            <span class="extra-project-art" aria-hidden="true"></span>
-            <span class="extra-project-number">${String(index + 1).padStart(2, "0")}</span>
-            <span class="extra-project-copy">
-              <small>${escapeHtml(item.state)}</small>
-              <strong>${escapeHtml(item.title)}</strong>
-              <p>${escapeHtml(item.description)}</p>
-            </span>
-            <span class="extra-project-open" aria-hidden="true">OPEN</span>
-          </a>
-        `).join("")}
+      <div class="extra-room extra-project-room">
+        ${roomHeading({
+          eyebrow: "PROJECT ARCHIVE",
+          title: "项目",
+          summary: `<b>${projectItems.length}</b> PROJECTS`,
+          note: "HOVER THE IMAGE FOR LINKS",
+        })}
+        <div class="extra-project-grid">
+          ${items.map((item) => `
+            <article
+              class="extra-project-record"
+              data-focus-title="${escapeHtml(item.title)}"
+              data-focus-action="OPEN PROJECT"
+            >
+              <div class="extra-project-art" style="${artStyle(item.art)}">
+                <span aria-hidden="true"></span>
+                <nav aria-label="${escapeHtml(item.title)} 链接">
+                  <a href="${escapeHtml(item.href)}" ${externalAttributes()}>DETAIL</a>
+                  <a href="${escapeHtml(item.source)}" ${externalAttributes()}>GITHUB</a>
+                </nav>
+              </div>
+              <div class="extra-project-copy">
+                <small>${escapeHtml(item.state)}</small>
+                <strong>${escapeHtml(item.title)}</strong>
+                <p>${item.tags.map((tag) => `<span>${escapeHtml(tag)}</span>`).join("")}</p>
+              </div>
+            </article>
+          `).join("")}
+        </div>
+        <aside class="extra-project-tide">
+          <p><strong>CONTRIBUTION TIDE</strong><small>过去十二周 · 126 次更新</small></p>
+          ${heatmapMarkup("extra-project-heatmap")}
+        </aside>
       </div>
     `;
   }
 
   function renderBangumi() {
-    const current = bangumiItems[bangumiIndex];
+    const items = filteredBangumiItems();
+    const categories = [
+      ["all", "全部"],
+      ["game", "游戏"],
+      ["anime", "动画"],
+      ["book", "书籍"],
+      ["music", "音乐"],
+    ];
+    const statuses = [
+      ["all", "全部"],
+      ["active", "在看 / 在玩"],
+      ["finished", "看过 / 玩过"],
+      ["wishlist", "想看 / 想玩"],
+    ];
     extraStage.innerHTML = `
-      <div class="extra-bangumi-room">
-        <section class="extra-bangumi-feature">
-          <div class="extra-bangumi-cover" style="${artStyle(current.cover)}" aria-hidden="true"></div>
-          <div class="extra-bangumi-copy">
-            <small>${escapeHtml(current.type)}</small>
-            <h3>${escapeHtml(current.title)}</h3>
-            <p>${escapeHtml(current.note)}</p>
-            <a href="${escapeHtml(current.href)}" ${externalAttributes()}>OPEN BANGUMI</a>
+      <div class="extra-room extra-bangumi-room">
+        ${roomHeading({
+          eyebrow: "BANGUMI RECORD",
+          title: "收藏记录",
+          summary: `<b>${items.length}</b> RECORDS`,
+          note: "WHEEL OR DRAG TO BROWSE",
+        })}
+        <section class="extra-bangumi-toolbar">
+          <div class="extra-bangumi-filters">
+            <nav aria-label="Bangumi 类型">
+              ${categories.map(([value, label]) => `
+                <button type="button" data-bangumi-category="${value}" aria-pressed="${bangumiCategory === value}">
+                  ${label}
+                </button>
+              `).join("")}
+            </nav>
+            <nav aria-label="Bangumi 状态">
+              ${statuses.map(([value, label]) => `
+                <button type="button" data-bangumi-status="${value}" aria-pressed="${bangumiStatus === value}">
+                  ${label}
+                </button>
+              `).join("")}
+            </nav>
+          </div>
+          <div class="extra-bangumi-activity">
+            <span><strong>ACTIVITY</strong><small>近十二周</small></span>
+            ${heatmapMarkup("extra-bangumi-heatmap")}
           </div>
         </section>
-        <div class="extra-bangumi-shelf" aria-label="Bangumi 收藏">
-          ${bangumiItems.map((item, index) => `
+        <div class="extra-bangumi-viewport" tabindex="0" aria-label="Bangumi 收藏横向列表">
+          <div class="extra-bangumi-track">
+            ${items.length ? items.map((item) => `
+              <a
+                class="extra-bangumi-card"
+                href="${escapeHtml(item.href)}"
+                ${externalAttributes()}
+                data-focus-title="${escapeHtml(item.title)}"
+                data-focus-action="OPEN BANGUMI"
+              >
+                <span class="extra-bangumi-cover" style="${artStyle(item.cover)}" aria-hidden="true"></span>
+                <span class="extra-bangumi-copy">
+                  <small>${escapeHtml(item.state)} · ${escapeHtml(item.year)}</small>
+                  <strong>${escapeHtml(item.title)}</strong>
+                </span>
+              </a>
+            `).join("") : `
+              <p class="extra-bangumi-empty">这里还没有符合条件的记录。</p>
+            `}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderMovie() {
+    extraStage.innerHTML = `
+      <div class="extra-room extra-movie-room">
+        ${roomHeading({
+          eyebrow: "MOVIE GALLERY",
+          title: "影片鉴赏",
+          summary: `<b>${movieItems.length}</b> MOVIES`,
+          note: "SELECT A MOVIE",
+        })}
+        <div class="extra-movie-stage">
+          ${movieItems.map((item) => `
             <button
+              class="extra-movie-frame"
               type="button"
-              data-bangumi-index="${index}"
+              data-movie-title="${escapeHtml(item.title)}"
               data-focus-title="${escapeHtml(item.title)}"
-              data-focus-action="OPEN RECORD"
-              aria-pressed="${index === bangumiIndex}"
+              data-focus-action="PLAY MOVIE"
+              style="${artStyle(item.art)}"
             >
-              <span style="${artStyle(item.cover)}" aria-hidden="true"></span>
-              <strong>${escapeHtml(item.title)}</strong>
+              <span class="extra-movie-art" aria-hidden="true"></span>
+              <span class="extra-movie-play" aria-hidden="true">▶</span>
+              <span class="extra-movie-copy">
+                <small>${escapeHtml(item.meta)}</small>
+                <strong>${escapeHtml(item.title)}</strong>
+              </span>
             </button>
           `).join("")}
         </div>
@@ -319,26 +450,36 @@ export function initExtraScreen() {
     `;
   }
 
-  function renderDevelopment() {
+  function renderAchievement() {
+    const unlocked = achievementItems.filter((item) => item.unlocked);
+    const latest = unlocked.at(-1);
+    const start = extraPage * ACHIEVEMENT_PAGE_SIZE;
+    const items = achievementItems.slice(start, start + ACHIEVEMENT_PAGE_SIZE);
     extraStage.innerHTML = `
-      <div class="extra-development-room">
-        <header>
-          <strong>THE LONELY SEA</strong>
-          <span>CURRENT DEVELOPMENT RECORD</span>
-          <a href="https://github.com/asashiki/The-Lonely-Sea" ${externalAttributes()}>SOURCE REPOSITORY</a>
-        </header>
-        <div class="extra-development-list">
-          ${developmentItems.map((item, index) => `
+      <div class="extra-room extra-achievement-room">
+        ${roomHeading({
+          eyebrow: "ACHIEVEMENTS",
+          title: "成就",
+          summary: `已解锁 <b>${unlocked.length}</b><i>/</i>${achievementItems.length}`,
+          note: `最近解锁 · ${latest.title}`,
+        })}
+        <div class="extra-achievement-ledger" aria-label="成就列表">
+          ${items.map((item) => `
             <article
+              class="extra-achievement-row${item.unlocked ? " is-unlocked" : " is-locked"}"
               data-focus-title="${escapeHtml(item.title)}"
-              data-focus-action="DEVELOPMENT RECORD"
+              data-focus-action="${item.unlocked ? "ACHIEVEMENT UNLOCKED" : "NOT YET UNLOCKED"}"
             >
-              <time>${escapeHtml(item.date)}</time>
-              <span>${String(index + 1).padStart(2, "0")}</span>
-              <div><small>${escapeHtml(item.state)}</small><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.description)}</p></div>
+              <span class="extra-achievement-mark" aria-hidden="true">${item.unlocked ? "✓" : "—"}</span>
+              <div>
+                <strong>${escapeHtml(item.title)}</strong>
+                <small>${escapeHtml(item.detail)}</small>
+              </div>
+              <em>${escapeHtml(item.unlocked ? item.date : "未解锁")}</em>
             </article>
           `).join("")}
         </div>
+        <p class="extra-achievement-note">成就只记录是否抵达，不计算完成百分比。</p>
       </div>
     `;
   }
@@ -349,6 +490,64 @@ export function initExtraScreen() {
       node.addEventListener("pointerenter", update);
       node.addEventListener("focus", update);
     });
+  }
+
+  function syncBangumiPageFromScroll(viewport) {
+    const total = totalPages();
+    if (total <= 1) {
+      extraPage = 0;
+      updatePageControls();
+      return;
+    }
+    const max = Math.max(1, viewport.scrollWidth - viewport.clientWidth);
+    extraPage = Math.max(0, Math.min(total - 1, Math.round((viewport.scrollLeft / max) * (total - 1))));
+    updatePageControls();
+  }
+
+  function bindBangumiViewport() {
+    const viewport = extraStage.querySelector(".extra-bangumi-viewport");
+    if (!viewport) return;
+    let pointerId = null;
+    let pointerStart = 0;
+    let scrollStart = 0;
+    let dragged = false;
+
+    viewport.addEventListener("wheel", (event) => {
+      if (viewport.scrollWidth <= viewport.clientWidth) return;
+      const delta = Math.abs(event.deltaY) >= Math.abs(event.deltaX) ? event.deltaY : event.deltaX;
+      if (!delta) return;
+      event.preventDefault();
+      viewport.scrollLeft += delta;
+    }, { passive: false });
+    viewport.addEventListener("scroll", () => syncBangumiPageFromScroll(viewport), { passive: true });
+    viewport.addEventListener("pointerdown", (event) => {
+      if (event.button !== 0 || viewport.scrollWidth <= viewport.clientWidth) return;
+      pointerId = event.pointerId;
+      pointerStart = event.clientX;
+      scrollStart = viewport.scrollLeft;
+      dragged = false;
+      viewport.classList.add("is-dragging");
+      viewport.setPointerCapture(pointerId);
+    });
+    viewport.addEventListener("pointermove", (event) => {
+      if (event.pointerId !== pointerId) return;
+      const distance = event.clientX - pointerStart;
+      dragged ||= Math.abs(distance) > 5;
+      viewport.scrollLeft = scrollStart - distance;
+    });
+    const stopDrag = (event) => {
+      if (event.pointerId !== pointerId) return;
+      viewport.classList.remove("is-dragging");
+      pointerId = null;
+    };
+    viewport.addEventListener("pointerup", stopDrag);
+    viewport.addEventListener("pointercancel", stopDrag);
+    viewport.addEventListener("click", (event) => {
+      if (!dragged) return;
+      event.preventDefault();
+      event.stopPropagation();
+      dragged = false;
+    }, true);
   }
 
   function bindStage() {
@@ -364,7 +563,7 @@ export function initExtraScreen() {
         stopMusic({ immediate: true });
         musicIndex = Number(node.dataset.musicIndex);
         renderMode();
-        setFocus(musicItems[musicIndex].title, "SOUND TEST SELECTED");
+        setFocus(musicItems[musicIndex].title, "MUSIC SELECTED");
         if (resume) startMusic();
       });
     });
@@ -373,35 +572,52 @@ export function initExtraScreen() {
       toggle.addEventListener("click", () => {
         if (musicPlaying) {
           stopMusic();
-          setFocus(musicItems[musicIndex].title, "PREVIEW PAUSED");
+          setFocus(musicItems[musicIndex].title, "PAUSED");
         } else {
           startMusic();
         }
       });
     });
 
-    all("[data-character-index]", extraStage).forEach((node) => {
-      node.addEventListener("click", () => {
-        characterIndex = Number(node.dataset.characterIndex);
+    all("[data-bangumi-category]", extraStage).forEach((button) => {
+      button.addEventListener("click", () => {
+        bangumiCategory = button.dataset.bangumiCategory;
+        extraPage = 0;
         renderMode();
-        setFocus(characterItems[characterIndex].name, "CHARACTER FILE");
+      });
+    });
+    all("[data-bangumi-status]", extraStage).forEach((button) => {
+      button.addEventListener("click", () => {
+        bangumiStatus = button.dataset.bangumiStatus;
+        extraPage = 0;
+        renderMode();
       });
     });
 
-    all("[data-bangumi-index]", extraStage).forEach((node) => {
-      node.addEventListener("click", () => {
-        bangumiIndex = Number(node.dataset.bangumiIndex);
-        renderMode();
-        setFocus(bangumiItems[bangumiIndex].title, "OPEN BANGUMI");
+    all("[data-movie-title]", extraStage).forEach((button) => {
+      button.addEventListener("click", () => {
+        setFocus(button.dataset.movieTitle, "MOVIE PREVIEW");
+        button.animate(
+          [
+            { filter: "brightness(1)" },
+            { filter: "brightness(1.12)", offset: .45 },
+            { filter: "brightness(1)" },
+          ],
+          { duration: preferencesReduceMotion() ? 1 : 360, easing: "ease-out" },
+        );
       });
     });
+
+    bindBangumiViewport();
   }
 
   function updatePageControls() {
     const total = totalPages();
+    extraPage = Math.max(0, Math.min(extraPage, total - 1));
     extraCanvas.dataset.hasMultiplePages = String(total > 1);
     extraPageCurrent.textContent = String(extraPage + 1).padStart(2, "0");
     extraPageTotal.textContent = String(total).padStart(2, "0");
+    extraPageProgress.style.width = `${((extraPage + 1) / total) * 100}%`;
     extraPageButtons.forEach((button) => {
       const direction = Number(button.dataset.extraPageDirection);
       button.disabled = direction < 0 ? extraPage === 0 : extraPage >= total - 1;
@@ -411,10 +627,10 @@ export function initExtraScreen() {
   function renderMode() {
     if (extraMode === "cg") renderCg();
     if (extraMode === "music") renderMusic();
-    if (extraMode === "character") renderCharacter();
     if (extraMode === "projects") renderProjects();
     if (extraMode === "bangumi") renderBangumi();
-    if (extraMode === "development") renderDevelopment();
+    if (extraMode === "movie") renderMovie();
+    if (extraMode === "achievement") renderAchievement();
     bindStage();
     updatePageControls();
   }
@@ -444,7 +660,7 @@ export function initExtraScreen() {
     stageTransition = extraStage.animate(
       [
         { opacity: 1, transform: "translate3d(0,0,0)" },
-        { opacity: 0, transform: "translate3d(0,-10px,0)" },
+        { opacity: 0, transform: "translate3d(12px,0,0)" },
       ],
       { duration: 110, easing: "ease-out", fill: "both" },
     );
@@ -458,10 +674,10 @@ export function initExtraScreen() {
     commitMode(mode);
     stageTransition = extraStage.animate(
       [
-        { opacity: 0, transform: "translate3d(0,10px,0)" },
+        { opacity: 0, transform: "translate3d(14px,0,0)" },
         { opacity: 1, transform: "translate3d(0,0,0)" },
       ],
-      { duration: 240, easing: "cubic-bezier(.22,1,.36,1)", fill: "both" },
+      { duration: 260, easing: "cubic-bezier(.22,1,.36,1)", fill: "both" },
     );
     try {
       await stageTransition.finished;
@@ -473,14 +689,26 @@ export function initExtraScreen() {
   }
 
   function openCg(index) {
-    cgIndex = (index + cgItems.length) % cgItems.length;
-    const item = cgItems[cgIndex];
+    const item = cgItems[index];
+    if (!item?.unlocked) return;
+    cgIndex = index;
     cgViewerArt.style.setProperty("--cg-art", `url("${item.art}")`);
     cgViewerArt.classList.toggle("is-portrait", Boolean(item.portrait));
-    required("#cg-viewer-index").textContent = `CG ${String(cgIndex + 1).padStart(2, "0")} / ${String(cgItems.length).padStart(2, "0")}`;
+    const unlocked = cgItems.filter((entry) => entry.unlocked);
+    const unlockedIndex = unlocked.indexOf(item);
+    required("#cg-viewer-index").textContent =
+      `CG ${String(unlockedIndex + 1).padStart(2, "0")} / ${String(unlocked.length).padStart(2, "0")}`;
     required("#cg-viewer-title").textContent = item.title;
     cgViewer.setAttribute("aria-hidden", "false");
     cgViewerClose.focus({ preventScroll: true });
+  }
+
+  function moveCgViewer(direction) {
+    let next = cgIndex;
+    do {
+      next = (next + direction + cgItems.length) % cgItems.length;
+    } while (!cgItems[next].unlocked && next !== cgIndex);
+    openCg(next);
   }
 
   function closeCg() {
@@ -489,14 +717,28 @@ export function initExtraScreen() {
     return true;
   }
 
+  function scrollBangumiToPage(page) {
+    const viewport = extraStage.querySelector(".extra-bangumi-viewport");
+    if (!viewport) return;
+    const total = totalPages();
+    const max = Math.max(0, viewport.scrollWidth - viewport.clientWidth);
+    const left = total <= 1 ? 0 : max * (page / (total - 1));
+    viewport.scrollTo({ left, behavior: preferencesReduceMotion() ? "auto" : "smooth" });
+  }
+
   function changePage(direction) {
     if (cgViewer.getAttribute("aria-hidden") === "false") {
-      openCg(cgIndex + direction);
+      moveCgViewer(direction);
       return;
     }
     const next = Math.max(0, Math.min(extraPage + direction, totalPages() - 1));
     if (next === extraPage) return;
     extraPage = next;
+    if (extraMode === "bangumi") {
+      updatePageControls();
+      scrollBangumiToPage(next);
+      return;
+    }
     renderMode();
   }
 
@@ -509,7 +751,7 @@ export function initExtraScreen() {
     button.addEventListener("click", () => changePage(Number(button.dataset.extraPageDirection)));
   });
   all("[data-cg-direction]", cgViewer).forEach((button) => {
-    button.addEventListener("click", () => openCg(cgIndex + Number(button.dataset.cgDirection)));
+    button.addEventListener("click", () => moveCgViewer(Number(button.dataset.cgDirection)));
   });
   cgViewerClose.addEventListener("click", closeCg);
   document.addEventListener("visibilitychange", () => {
