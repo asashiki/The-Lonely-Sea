@@ -8,3 +8,18 @@ dist/
 
 .DS_Store
 Thumbs.db
+
+# Local-only design references, experiments and generated captures
+.local/
+dev*.log
+shots/
+autonomous-build/
+load-xiv-entry-buttons/
+恋狱/
+lonely-sea-*.html
+sea-cctest2.html
+shot*.mjs
+probe-*.mjs
+galgame-blog-session-summary.md
+docs/design-*.md
+lonely-sea-generation-kit/

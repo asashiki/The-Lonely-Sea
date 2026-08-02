@@ -2,10 +2,6 @@ import { sceneArt, sceneLabels, sceneNames, weatherLabels } from "./experience/c
 import { all, required, updatePressed, wait } from "./experience/dom.js";
 import { initExitDialog } from "./experience/exit.js";
 import { initExtraScreen } from "./experience/extra.js";
-import { initLoadScreen } from "./experience/load.js";
-import { initLoadTracksConcept } from "./experience/load-tracks.js";
-import { initLoadTracksXiConcept } from "./experience/load-tracks-xi.js";
-import { initLoadTracksXiiConcept } from "./experience/load-tracks-xii.js";
 import { initLoadTracksXiiiConcept } from "./experience/load-tracks-xiii.js";
 import { initOptions } from "./experience/options.js";
 import { initStartScreen } from "./experience/start.js";
@@ -102,6 +98,7 @@ function setWeather(nextWeather) {
 
 function setRoute(route) {
   if (route !== "start") startScreen.deactivate();
+  if (route !== "load") loadScreen.deactivate();
   if (route !== "extra") extraScreen.deactivate();
   if (route !== "option") optionScreen.deactivate();
   body.dataset.route = route;
@@ -110,6 +107,7 @@ function setRoute(route) {
   screens.forEach((screen) => {
     screen.setAttribute("aria-hidden", String(screen.dataset.screen !== route));
   });
+  if (route === "load") loadScreen.activate();
   if (route === "title") weather.start();
   else weather.stop();
 }
@@ -209,17 +207,7 @@ function resetExperience() {
   setWeather("snow");
 }
 
-const loadScreen = initLoadScreen({ reduceMotion });
-const loadTracksConcept = initLoadTracksConcept({ reduceMotion });
-const loadTracksXiConcept = initLoadTracksXiConcept({ reduceMotion });
-const loadTracksXiiConcept = initLoadTracksXiiConcept({ reduceMotion });
-const loadTracksXiiiConcept = initLoadTracksXiiiConcept({ reduceMotion });
-loadScreen.registerReferenceControllers({
-  tracks: loadTracksConcept,
-  "tracks-xi": loadTracksXiConcept,
-  "tracks-xii": loadTracksXiiConcept,
-  "tracks-xiii": loadTracksXiiiConcept,
-});
+const loadScreen = initLoadTracksXiiiConcept({ reduceMotion });
 const extraScreen = initExtraScreen();
 const startScreen = initStartScreen({ reduceMotion });
 const optionScreen = initOptions({
@@ -290,8 +278,7 @@ document.addEventListener("keydown", (event) => {
   const key = event.key.toLowerCase();
 
   if (key === "escape") {
-    const activeLoadController = loadScreen.getActiveController() || loadScreen;
-    if (exitDialog.close() || extraScreen.closeCg() || activeLoadController.closeArticle()) {
+    if (exitDialog.close() || extraScreen.closeCg() || loadScreen.closeArticle()) {
       event.preventDefault();
       event.stopImmediatePropagation();
       return;
@@ -309,8 +296,7 @@ document.addEventListener("keydown", (event) => {
 
   if (body.dataset.route === "load" && horizontalDirection) {
     event.preventDefault();
-    const activeLoad = loadScreen.getActiveController() || loadScreen;
-    activeLoad.changePage(horizontalDirection);
+    loadScreen.changePage(horizontalDirection);
     return;
   }
   if (body.dataset.route === "start" && horizontalDirection) {

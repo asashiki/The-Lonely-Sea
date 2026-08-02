@@ -937,15 +937,14 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
 
   function updateStoryScrollbar() {
     const maxScroll = Math.max(0, storyScroll.scrollHeight - storyScroll.clientHeight);
-    const railHeight = storyRail.clientHeight;
-    const ratio = storyScroll.scrollHeight
-      ? storyScroll.clientHeight / storyScroll.scrollHeight
-      : 1;
-    const thumbHeight = Math.max(42, railHeight * Math.min(1, ratio));
-    const available = Math.max(0, railHeight - thumbHeight);
-    const progress = maxScroll ? storyScroll.scrollTop / maxScroll : 0;
-    storyThumb.style.height = thumbHeight + "px";
-    storyThumb.style.transform = `translate3d(-50%, ${available * progress}px, 0)`;
+    const railHeight = storyRail.getBoundingClientRect().height;
+    const progress = maxScroll
+      ? maxScroll - storyScroll.scrollTop <= 1
+        ? 1
+        : storyScroll.scrollTop / maxScroll
+      : 0;
+    storyThumb.style.height = "1px";
+    storyThumb.style.transform = `translate3d(-50%, ${railHeight * progress}px, 0)`;
     storyRail.setAttribute("aria-valuenow", String(Math.round(progress * 100)));
   }
 
@@ -973,15 +972,11 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
     if (event.button !== 0) return;
     event.preventDefault();
     const railRect = storyRail.getBoundingClientRect();
-    const thumbRect = storyThumb.getBoundingClientRect();
-    const pointerOffset = event.target === storyThumb
-      ? event.clientY - thumbRect.top
-      : thumbRect.height / 2;
     storyRail.setPointerCapture?.(event.pointerId);
 
     const move = (moveEvent) => {
-      const available = Math.max(1, railRect.height - thumbRect.height);
-      const thumbTop = Math.max(0, Math.min(moveEvent.clientY - railRect.top - pointerOffset, available));
+      const available = Math.max(1, railRect.height);
+      const thumbTop = Math.max(0, Math.min(moveEvent.clientY - railRect.top, available));
       const maxScroll = Math.max(0, storyScroll.scrollHeight - storyScroll.clientHeight);
       storyScroll.scrollTop = (thumbTop / available) * maxScroll;
     };

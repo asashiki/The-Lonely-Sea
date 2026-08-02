@@ -52,6 +52,7 @@ if (readingSystem) {
     const scrollable = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
     const progress = Math.min(1, Math.max(0, window.scrollY / scrollable));
     readingSystem.style.setProperty("--reading-progress-value", String(progress));
+    readingSystem.classList.toggle("is-reading-body", window.scrollY > Math.min(window.innerHeight * .58, 560));
     if (progressLabel) progressLabel.textContent = String(Math.round(progress * 100)).padStart(3, "0");
     updateToc();
 

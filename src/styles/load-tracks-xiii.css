@@ -3453,7 +3453,7 @@ html.tracks-xiii-diary-open body {
   left: 50%;
   width: 1.1cqw;
   min-height: 0;
-  height: 4.1cqh;
+  height: 1px;
   background: transparent;
   box-shadow: none;
   transform: translateY(0);
@@ -3472,11 +3472,16 @@ html.tracks-xiii-diary-open body {
 }
 
 .tracks-xiii-story-rail > span::before {
-  transform: translateY(-.7cqh);
+  transform: translateY(-50%);
 }
 
 .tracks-xiii-story-rail > span::after {
-  transform: translateY(.7cqh);
+  top: 50%;
+  right: 50%;
+  left: auto;
+  width: 4px;
+  height: 4px;
+  transform: translate(50%, -50%) rotate(45deg);
 }
 
 /* XIII reconstruction: DIARY restores XI's asymmetric monthly memory spread. */

@@ -2269,8 +2269,7 @@ html[data-motion="reduced"] .extra-music-disc {
 
 .extra-canvas .extra-primary button {
   position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  display: flex;
   align-items: center;
   min-width: 0;
   min-height: 7.15cqh;
@@ -2397,6 +2396,35 @@ html[data-motion="reduced"] .extra-music-disc {
   letter-spacing: .08em;
 }
 
+.extra-canvas .extra-edge-turners {
+  z-index: 22;
+}
+
+.extra-canvas .extra-edge-turners button {
+  top: 54%;
+  width: 3.8cqw;
+  height: 13cqh;
+  color: var(--v4-ink);
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--v4-accent) 18%, transparent), transparent);
+  font-size: clamp(32px, 3.1cqw, 54px);
+  opacity: .52;
+}
+
+.extra-canvas .extra-edge-turners button:first-child {
+  left: 19.8cqw;
+}
+
+.extra-canvas .extra-edge-turners button:last-child {
+  right: .25cqw;
+  background:
+    linear-gradient(270deg, color-mix(in srgb, var(--v4-accent) 18%, transparent), transparent);
+}
+
+.extra-canvas:not([data-extra-mode="cg"]):not([data-extra-mode="projects"]) .extra-edge-turners {
+  display: none;
+}
+
 .extra-canvas .extra-page-controls {
   display: flex;
   align-items: center;
@@ -2470,6 +2498,10 @@ html[data-motion="reduced"] .extra-music-disc {
   display: none;
 }
 
+.extra-canvas:is([data-extra-mode="cg"], [data-extra-mode="projects"]) .extra-page-controls button {
+  display: none;
+}
+
 .extra-canvas .extra-room {
   width: 100%;
   height: 100%;
@@ -2501,8 +2533,8 @@ html[data-motion="reduced"] .extra-music-disc {
   grid-row: 2;
   grid-column: 1;
   margin: 0;
-  font: 500 clamp(19px, 1.7cqw, 31px) / 1 "Yu Mincho", "Hiragino Mincho ProN", serif;
-  letter-spacing: .11em;
+  font: 400 clamp(19px, 1.7cqw, 31px) / 1 Baskerville, "Iowan Old Style", serif;
+  letter-spacing: .18em;
 }
 
 .extra-canvas .extra-room-summary {
@@ -2533,7 +2565,7 @@ html[data-motion="reduced"] .extra-music-disc {
   display: none;
 }
 
-/* CG — eight framed scenes per page, with collection count above. */
+/* CG — a plain 3×3 gallery wall; the images are the interface. */
 .extra-canvas .extra-cg-room {
   display: grid;
   grid-template-rows: 8.2cqh minmax(0, 1fr);
@@ -2541,14 +2573,12 @@ html[data-motion="reduced"] .extra-music-disc {
 
 .extra-canvas .extra-cg-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  grid-template-rows: repeat(2, max-content);
-  grid-auto-rows: max-content;
-  align-content: center;
-  gap: 1.6cqh 1.15cqw;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+  gap: 1.15cqh 1cqw;
   width: 100%;
   height: 100%;
-  padding: 1.5cqh .15cqw;
+  padding: 1.6cqh .15cqw 1.25cqh;
 }
 
 .extra-canvas .extra-cg-card {
@@ -2557,15 +2587,17 @@ html[data-motion="reduced"] .extra-music-disc {
   width: 100%;
   min-width: 0;
   min-height: 0;
-  aspect-ratio: 16 / 9;
-  padding: .5cqh .35cqw;
+  height: 100%;
+  padding: .45cqh .3cqw;
   overflow: hidden;
   border: 1px solid var(--extra-line);
   color: #f2f6f7;
-  background: color-mix(in srgb, var(--v4-paper) 28%, transparent);
+  background:
+    linear-gradient(145deg, color-mix(in srgb, white 7%, transparent), transparent 58%),
+    color-mix(in srgb, var(--v4-paper) 34%, transparent);
   box-shadow:
-    inset 0 0 0 1px color-mix(in srgb, white 8%, transparent),
-    0 .35cqh .8cqw color-mix(in srgb, var(--v4-shadow) 25%, transparent);
+    inset 0 0 0 1px color-mix(in srgb, white 11%, transparent),
+    0 .3cqh .75cqw color-mix(in srgb, var(--v4-shadow) 21%, transparent);
   text-align: left;
   cursor: pointer;
   isolation: isolate;
@@ -2598,13 +2630,11 @@ html[data-motion="reduced"] .extra-music-disc {
 
 .extra-canvas .extra-cg-art {
   position: absolute;
-  inset: .5cqh .35cqw;
+  inset: .45cqh .3cqw;
   display: block;
   min-height: 0;
-  background:
-    linear-gradient(180deg, transparent 54%, rgba(5, 13, 19, .62)),
-    var(--extra-art) center / cover no-repeat;
-  box-shadow: inset 0 0 1.7cqw rgba(6, 14, 20, .16);
+  background: var(--extra-art) center / cover no-repeat;
+  box-shadow: inset 0 0 1.2cqw rgba(6, 14, 20, .12);
   filter: var(--v4-cover-filter);
   transform: scale(1.001);
   transition:
@@ -2614,7 +2644,6 @@ html[data-motion="reduced"] .extra-music-disc {
 
 .extra-canvas .extra-cg-card.is-portrait .extra-cg-art {
   background:
-    linear-gradient(180deg, transparent 54%, rgba(5, 13, 19, .62)),
     var(--extra-art) center / contain no-repeat,
     color-mix(in srgb, var(--v4-card) 64%, transparent);
 }
@@ -2655,13 +2684,15 @@ html[data-motion="reduced"] .extra-music-disc {
   filter: none;
 }
 
-.extra-canvas .extra-cg-card.is-locked .extra-cg-copy {
-  text-shadow: none;
-}
-
-.extra-canvas .extra-cg-card.is-locked .extra-cg-copy small,
-.extra-canvas .extra-cg-card.is-locked .extra-cg-copy strong {
+.extra-canvas .extra-cg-lock {
+  position: absolute;
+  z-index: 5;
+  top: 50%;
+  left: 50%;
   color: var(--v4-faint);
+  font: 600 clamp(7px, .45cqw, 9px) / 1 "Yu Gothic", sans-serif;
+  letter-spacing: .26em;
+  transform: translate(-50%, -50%);
 }
 
 /* MUSIC — cover, selected-title field and a plain sound-test list; no disc metaphor. */
@@ -2901,7 +2932,7 @@ html[data-motion="reduced"] .extra-music-disc {
 .extra-canvas .extra-project-room {
   display: grid;
   grid-template-columns: 1fr;
-  grid-template-rows: 8.2cqh minmax(0, 1fr) 8.8cqh;
+  grid-template-rows: 8.2cqh minmax(0, 1fr) 11.5cqh;
   gap: 0;
 }
 
@@ -2919,7 +2950,7 @@ html[data-motion="reduced"] .extra-music-disc {
   position: relative;
   display: grid;
   grid-template-columns: 1fr;
-  grid-template-rows: minmax(0, 1fr) 7.3cqh;
+  grid-template-rows: minmax(0, 1fr) 6.4cqh;
   min-width: 0;
   min-height: 0;
   padding: 0;
@@ -2982,24 +3013,16 @@ html[data-motion="reduced"] .extra-music-disc {
 .extra-canvas .extra-project-copy {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  grid-template-rows: auto auto;
+  grid-template-rows: 1fr;
   align-content: center;
-  gap: .55cqh .8cqw;
+  gap: .8cqw;
   min-width: 0;
   padding: .85cqh .8cqw .7cqh;
   border-top: 1px solid var(--extra-line);
 }
 
-.extra-canvas .extra-project-copy > small {
-  grid-row: 1;
-  grid-column: 1;
-  color: var(--v4-faint);
-  font-size: clamp(6px, .39cqw, 8px);
-  letter-spacing: .16em;
-}
-
 .extra-canvas .extra-project-copy > strong {
-  grid-row: 2;
+  grid-row: 1;
   grid-column: 1;
   margin: 0;
   color: var(--v4-ink);
@@ -3008,7 +3031,7 @@ html[data-motion="reduced"] .extra-music-disc {
 }
 
 .extra-canvas .extra-project-copy > p {
-  grid-row: 1 / 3;
+  grid-row: 1;
   grid-column: 2;
   align-self: center;
   display: flex;
@@ -3017,38 +3040,104 @@ html[data-motion="reduced"] .extra-music-disc {
 }
 
 .extra-canvas .extra-project-copy > p span {
-  padding: .4cqh .4cqw;
-  border: 1px solid color-mix(in srgb, var(--v4-ink) 16%, transparent);
-  color: var(--v4-faint);
-  font: 600 clamp(6px, .36cqw, 7px) / 1 "Yu Gothic", sans-serif;
-  letter-spacing: .1em;
+  position: relative;
+  padding: .45cqh .65cqw .45cqh .8cqw;
+  color: var(--v4-soft);
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--v4-accent) 22%, transparent), transparent);
+  clip-path: polygon(8% 0, 100% 0, 92% 100%, 0 100%);
+  font: 600 clamp(7px, .48cqw, 9px) / 1 "Yu Gothic", sans-serif;
+  letter-spacing: .13em;
 }
 
 .extra-canvas .extra-project-tide {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
+  gap: 2cqw;
   min-width: 0;
-  padding: 1cqh .2cqw 0;
+  padding: 1.3cqh .2cqw;
   border-top: 1px solid var(--extra-line);
 }
 
-.extra-canvas .extra-project-tide > p {
+.extra-canvas .extra-project-filter {
   display: grid;
-  gap: .7cqh;
-  margin: 0;
+  gap: .75cqh;
+  min-width: 0;
 }
 
-.extra-canvas .extra-project-tide > p strong {
-  color: var(--v4-soft);
-  font: 600 clamp(7px, .46cqw, 9px) / 1 "Yu Gothic", sans-serif;
+.extra-canvas .extra-project-filter > small {
+  color: var(--v4-faint);
+  font: 600 clamp(8px, .5cqw, 10px) / 1 "Yu Gothic", sans-serif;
   letter-spacing: .2em;
 }
 
-.extra-canvas .extra-project-tide > p small {
+.extra-canvas .extra-project-filter nav {
+  display: flex;
+  align-items: center;
+  gap: .45cqw;
+  min-width: 0;
+}
+
+.extra-canvas .extra-project-filter button {
+  position: relative;
+  min-height: 3.35cqh;
+  padding: 0 .75cqw;
+  border: 0;
   color: var(--v4-faint);
-  font: 500 clamp(7px, .43cqw, 8px) / 1 "Yu Gothic", sans-serif;
+  background: transparent;
+  font: 600 clamp(8px, .5cqw, 10px) / 1 "Yu Gothic", sans-serif;
   letter-spacing: .11em;
+  cursor: pointer;
+}
+
+.extra-canvas .extra-project-filter button::after {
+  position: absolute;
+  right: .65cqw;
+  bottom: 0;
+  left: .65cqw;
+  height: 1px;
+  background: var(--extra-line-strong);
+  content: "";
+  opacity: 0;
+  transform: scaleX(.35);
+  transition:
+    opacity 180ms ease,
+    transform 220ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.extra-canvas .extra-project-filter button[aria-pressed="true"] {
+  color: var(--v4-ink);
+  background: color-mix(in srgb, var(--v4-accent) 10%, transparent);
+}
+
+.extra-canvas .extra-project-filter button[aria-pressed="true"]::after {
+  opacity: .8;
+  transform: scaleX(1);
+}
+
+.extra-canvas .extra-project-activity {
+  display: flex;
+  align-items: center;
+  gap: 1.3cqw;
+}
+
+.extra-canvas .extra-project-activity > span {
+  display: grid;
+  gap: .65cqh;
+  text-align: right;
+}
+
+.extra-canvas .extra-project-activity strong {
+  color: var(--v4-soft);
+  font: 600 clamp(8px, .48cqw, 10px) / 1 "Yu Gothic", sans-serif;
+  letter-spacing: .18em;
+}
+
+.extra-canvas .extra-project-activity small {
+  color: var(--v4-faint);
+  font: 500 clamp(7px, .44cqw, 9px) / 1 "Yu Gothic", sans-serif;
+  letter-spacing: .1em;
 }
 
 .extra-canvas .extra-heatmap {
@@ -3120,7 +3209,7 @@ html[data-motion="reduced"] .extra-music-disc {
   border: 0;
   color: var(--v4-faint);
   background: transparent;
-  font: 500 clamp(7px, .46cqw, 9px) / 1 "Yu Gothic", sans-serif;
+  font: 600 clamp(8px, .5cqw, 10px) / 1 "Yu Gothic", sans-serif;
   letter-spacing: .11em;
   cursor: pointer;
 }
@@ -3207,8 +3296,8 @@ html[data-motion="reduced"] .extra-music-disc {
 .extra-canvas .extra-bangumi-track {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: 12.55cqw;
-  align-items: start;
+  grid-auto-columns: 14.6cqw;
+  align-items: center;
   gap: 1.35cqw;
   width: max-content;
   min-width: 100%;
@@ -3219,6 +3308,7 @@ html[data-motion="reduced"] .extra-music-disc {
 .extra-canvas .extra-bangumi-card {
   display: grid;
   grid-template-rows: auto 7.3cqh;
+  align-self: center;
   min-width: 0;
   color: var(--v4-soft);
   text-decoration: none;
@@ -3366,31 +3456,91 @@ html[data-motion="reduced"] .extra-music-disc {
   letter-spacing: .11em;
 }
 
-/* ACHIEVEMENT — a binary ledger, never a percentage dashboard. */
+/* ACHIEVEMENT — a scrollable record with compact completion statistics. */
 .extra-canvas .extra-achievement-room {
   display: grid;
-  grid-template-rows: 8.2cqh minmax(0, 1fr) 4.5cqh;
+  grid-template-rows: 8.2cqh 9.4cqh minmax(0, 1fr);
+}
+
+.extra-canvas .extra-achievement-stats {
+  display: grid;
+  grid-template-columns: auto minmax(8cqw, 1fr) auto;
+  align-items: center;
+  gap: 1.5cqw;
+  min-width: 0;
+  padding: 1.3cqh .2cqw;
+  border-bottom: 1px solid var(--extra-line);
+}
+
+.extra-canvas .extra-achievement-stats > p {
+  display: flex;
+  align-items: baseline;
+  gap: .8cqw;
+  min-width: 0;
+  margin: 0;
+}
+
+.extra-canvas .extra-achievement-stats small {
+  color: var(--v4-faint);
+  font: 600 clamp(7px, .43cqw, 8px) / 1 "Yu Gothic", sans-serif;
+  letter-spacing: .17em;
+}
+
+.extra-canvas .extra-achievement-stats strong {
+  overflow: hidden;
+  color: var(--v4-ink);
+  font: italic 400 clamp(14px, 1.05cqw, 20px) / 1 Baskerville, serif;
+  letter-spacing: .08em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.extra-canvas .extra-achievement-stats > span {
+  position: relative;
+  height: 2px;
+  overflow: hidden;
+  background: var(--extra-line);
+}
+
+.extra-canvas .extra-achievement-stats > span i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--extra-line-strong);
 }
 
 .extra-canvas .extra-achievement-ledger {
-  display: grid;
-  grid-template-rows: repeat(6, minmax(0, 1fr));
+  display: block;
   min-width: 0;
   min-height: 0;
-  padding: 1.6cqh .2cqw .7cqh;
+  padding: .9cqh .45cqw 1cqh .2cqw;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-color: var(--extra-line-strong) transparent;
+  scrollbar-width: thin;
+  scroll-snap-type: y proximity;
+}
+
+.extra-canvas .extra-achievement-ledger::-webkit-scrollbar {
+  width: 4px;
+}
+
+.extra-canvas .extra-achievement-ledger::-webkit-scrollbar-thumb {
+  background: var(--extra-line-strong);
 }
 
 .extra-canvas .extra-achievement-row {
   position: relative;
   display: grid;
-  grid-template-columns: 3.6cqw minmax(0, 1fr) 10cqw;
+  grid-template-columns: 7.4cqw minmax(0, 1fr) 10cqw;
   align-items: center;
   min-width: 0;
-  min-height: 0;
-  padding: 0 1.15cqw 0 .75cqw;
+  min-height: 10.1cqh;
+  padding: 0 1.15cqw 0 0;
   border-bottom: 1px solid var(--extra-line);
   color: var(--v4-soft);
-  background: linear-gradient(90deg, color-mix(in srgb, var(--v4-paper) 21%, transparent), transparent 84%);
+  background:
+    linear-gradient(100deg, color-mix(in srgb, var(--v4-paper) 25%, transparent), transparent 78%);
+  scroll-snap-align: start;
   transition:
     color 180ms ease,
     background-color 180ms ease,
@@ -3399,34 +3549,36 @@ html[data-motion="reduced"] .extra-music-disc {
 
 .extra-canvas .extra-achievement-row::before {
   position: absolute;
-  top: 20%;
-  bottom: 20%;
+  top: 17%;
+  bottom: 17%;
   left: 0;
-  width: 2px;
-  background: var(--extra-line-strong);
+  width: .32cqw;
+  min-width: 3px;
+  background:
+    linear-gradient(180deg, transparent, var(--extra-line-strong) 24% 76%, transparent);
   content: "";
-  opacity: 0;
+  opacity: .22;
 }
 
 .extra-canvas .extra-achievement-row.is-unlocked::before {
-  opacity: .82;
+  opacity: .9;
 }
 
-.extra-canvas .extra-achievement-mark {
+.extra-canvas .extra-achievement-state {
   display: grid;
   place-items: center;
-  width: 2.05cqw;
-  min-width: 24px;
-  aspect-ratio: 1;
-  border: 1px solid var(--extra-line);
+  align-self: stretch;
+  margin-right: 1.2cqw;
+  border-right: 1px solid var(--extra-line);
   color: var(--v4-faint);
-  font: 500 clamp(9px, .62cqw, 12px) / 1 "Yu Gothic", sans-serif;
+  font: 600 clamp(6px, .39cqw, 8px) / 1 "Yu Gothic", sans-serif;
+  letter-spacing: .16em;
 }
 
-.extra-canvas .extra-achievement-row.is-unlocked .extra-achievement-mark {
-  border-color: var(--extra-line-strong);
+.extra-canvas .extra-achievement-row.is-unlocked .extra-achievement-state {
   color: var(--v4-ink);
-  background: color-mix(in srgb, var(--v4-accent) 12%, transparent);
+  background:
+    linear-gradient(100deg, color-mix(in srgb, var(--v4-accent) 13%, transparent), transparent);
 }
 
 .extra-canvas .extra-achievement-row > div {
@@ -3438,8 +3590,8 @@ html[data-motion="reduced"] .extra-music-disc {
 .extra-canvas .extra-achievement-row strong {
   overflow: hidden;
   color: var(--v4-ink);
-  font: 500 clamp(12px, .84cqw, 16px) / 1 "Yu Mincho", serif;
-  letter-spacing: .08em;
+  font: 400 clamp(12px, .86cqw, 16px) / 1 Baskerville, "Iowan Old Style", serif;
+  letter-spacing: .12em;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -3461,17 +3613,7 @@ html[data-motion="reduced"] .extra-music-disc {
 }
 
 .extra-canvas .extra-achievement-row.is-locked {
-  opacity: .46;
-}
-
-.extra-canvas .extra-achievement-note {
-  align-self: end;
-  margin: 0;
-  padding: 0 .2cqw 1cqh;
-  color: var(--v4-faint);
-  font: 500 clamp(7px, .45cqw, 9px) / 1 "Yu Gothic", sans-serif;
-  letter-spacing: .14em;
-  text-align: right;
+  opacity: .42;
 }
 
 /* Full-canvas CG viewer keeps the shared game controls. */
@@ -3668,9 +3810,8 @@ html[data-motion="reduced"] .extra-music-disc {
 
   .extra-canvas .extra-cg-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-template-rows: repeat(4, max-content);
+    grid-template-rows: repeat(5, minmax(0, 1fr));
     gap: 1.2cqh 1.2cqw;
-    align-content: start;
   }
 
   .extra-canvas .extra-cg-copy small {
@@ -3773,15 +3914,23 @@ html[data-motion="reduced"] .extra-music-disc {
   }
 
   .extra-canvas .extra-achievement-row {
-    grid-template-columns: 5.2cqw minmax(0, 1fr) 14cqw;
+    grid-template-columns: 10cqw minmax(0, 1fr) 15cqw;
   }
 
-  .extra-canvas .extra-achievement-mark {
-    width: 3.6cqw;
+  .extra-canvas .extra-achievement-stats {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .extra-canvas .extra-achievement-stats > p:last-child {
+    display: none;
   }
 
   .extra-canvas .extra-achievement-row small {
     font-size: clamp(6px, 1.25cqw, 8px);
+  }
+
+  .extra-canvas .extra-edge-turners button:first-child {
+    left: 22cqw;
   }
 }
 

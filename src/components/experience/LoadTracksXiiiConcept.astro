@@ -2,7 +2,6 @@
 import type { ExperienceRecord } from "../../lib/experience-records";
 import { LOAD_SLOT_CAPACITY } from "../../lib/experience-records";
 import "../../styles/load-tracks-xiii.css";
-import LoadVariantSwitcher from "./LoadVariantSwitcher.astro";
 
 interface Props {
   records: ExperienceRecord[];
@@ -227,7 +226,7 @@ const lockedStorySlots = Array.from({ length: 7 }, (_, index) => index);
 
 <div
   class="system-canvas load-canvas load-tracks-xiii-canvas tracks-xiii-canvas"
-  aria-hidden="true"
+  aria-hidden="false"
   data-xiii-page="articles"
   data-xiii-section="all"
   data-xiii-page-mode="articles"
@@ -546,6 +545,5 @@ const lockedStorySlots = Array.from({ length: 7 }, (_, index) => index);
       </div>
     </section>
 
-    <LoadVariantSwitcher active="tracks-xiii" class="tracks-xiii-reference-switcher" />
   </div>
 </div>
