@@ -1,0 +1,1594 @@
+/* EXTRA XVI — line-led gallery UI. Images and records stay unboxed; structure comes from rails. */
+
+.extra-screen {
+  overflow: clip;
+}
+
+.extra-canvas .extra-primary {
+  top: 16cqh;
+  bottom: 16cqh;
+  justify-content: center;
+  height: auto;
+  transform: none;
+}
+
+.extra-canvas .extra-primary::after {
+  display: none;
+}
+
+.extra-canvas .extra-primary button::before {
+  inset: .38cqh -.1cqw .38cqh -.25cqw;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--v4-accent) 25%, var(--v4-paper) 14%) 0,
+    color-mix(in srgb, var(--v4-accent) 14%, transparent) 55%,
+    transparent 100%
+  );
+  clip-path: polygon(0 14%, 100% 0, 100% 100%, 0 86%);
+  opacity: 0;
+  transform: scaleX(.72);
+  transform-origin: left center;
+}
+
+.extra-canvas .extra-primary button[aria-pressed="true"]::before {
+  opacity: .82;
+  transform: scaleX(1);
+}
+
+.extra-canvas .extra-primary button:focus-visible {
+  outline: 0;
+  text-shadow: 0 0 .8cqw color-mix(in srgb, var(--v4-accent) 30%, transparent);
+}
+
+.extra-canvas .extra-primary button:focus-visible::before {
+  opacity: .72;
+  transform: scaleX(1);
+}
+
+.extra-canvas .extra-status {
+  height: 4.6cqh;
+  border-top: 0;
+}
+
+.extra-canvas .extra-status > p {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.extra-canvas .extra-edge-turners button {
+  width: 2.55cqw;
+  height: 11cqh;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  opacity: .46;
+  text-shadow: 0 0 .75cqw color-mix(in srgb, var(--v4-accent) 28%, transparent);
+}
+
+.extra-canvas .extra-edge-turners button:first-child {
+  left: calc(23.2cqw - 2.55cqw - .45cqw);
+  background: transparent;
+}
+
+.extra-canvas .extra-edge-turners button:last-child {
+  right: calc(4.8cqw - 2.55cqw - .45cqw);
+  background: transparent;
+}
+
+.extra-canvas .extra-edge-turners button:disabled {
+  opacity: .11;
+}
+
+.extra-canvas[data-extra-mode="bangumi"] .extra-page-controls {
+  display: none;
+}
+
+/* CG: the frame is the control. No panel, padding block, caption or archive-card treatment. */
+.extra-canvas .extra-cg-grid {
+  gap: 1.25cqh 1.05cqw;
+  padding: 1.45cqh .2cqw 1.1cqh;
+}
+
+.extra-canvas .extra-cg-card {
+  padding: 0;
+  overflow: visible;
+  border: 1px solid color-mix(in srgb, var(--v4-accent) 43%, var(--v4-ink) 12%);
+  background: transparent;
+  box-shadow: none;
+  transition: border-color 180ms ease;
+}
+
+.extra-canvas .extra-cg-card::before {
+  z-index: -1;
+  inset: -2px;
+  width: auto;
+  height: auto;
+  border: 1px solid color-mix(in srgb, var(--v4-accent) 72%, transparent);
+  box-shadow:
+    0 0 .55cqw color-mix(in srgb, var(--v4-accent) 42%, transparent),
+    0 0 1.4cqw color-mix(in srgb, var(--v4-accent) 23%, transparent);
+  opacity: 0;
+  transition: opacity 220ms ease;
+}
+
+.extra-canvas .extra-cg-card::after {
+  display: none;
+}
+
+.extra-canvas .extra-cg-art {
+  inset: 2px;
+  box-shadow: none;
+  transform: scale(1.001);
+  transition:
+    filter 220ms ease,
+    transform 280ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.extra-canvas .extra-cg-card.is-locked {
+  border-color: color-mix(in srgb, var(--v4-ink) 13%, transparent);
+  opacity: .48;
+}
+
+.extra-canvas .extra-cg-card.is-locked::before {
+  display: none;
+}
+
+/* MUSIC: album art is metadata, while the living line and record rail are the main interface. */
+.extra-canvas .extra-music-room {
+  grid-template-columns: minmax(28cqw, 1.08fr) minmax(28cqw, 1.35fr);
+  column-gap: 2.4cqw;
+}
+
+.extra-canvas .extra-music-now {
+  align-self: stretch;
+  grid-template-columns: 10.4cqw minmax(0, 1fr);
+  grid-template-rows: minmax(18cqh, auto) 8.4cqh 7.2cqh;
+  gap: 1.35cqh 1.35cqw;
+  padding: 2.6cqh .4cqw 2cqh 0;
+}
+
+.extra-canvas .extra-music-cover {
+  grid-row: 1;
+  grid-column: 1;
+  align-self: start;
+  width: 10.4cqw;
+  border-color: color-mix(in srgb, var(--v4-accent) 44%, var(--v4-ink) 11%);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, white 12%, transparent),
+    .5cqw .7cqh 1.35cqw color-mix(in srgb, var(--v4-shadow) 27%, transparent);
+}
+
+.extra-canvas .extra-music-current {
+  grid-row: 1;
+  grid-column: 2;
+  align-self: center;
+}
+
+.extra-canvas .extra-music-current h4 {
+  margin-top: 1.15cqh;
+  white-space: normal;
+}
+
+.extra-canvas .extra-music-current blockquote {
+  display: -webkit-box;
+  max-width: 15cqw;
+  margin-top: 1.4cqh;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.extra-canvas canvas.extra-music-wave {
+  grid-row: 2;
+  grid-column: 1 / 3;
+  align-self: center;
+  display: block;
+  width: 100%;
+  height: 7.4cqh;
+  color: color-mix(in srgb, var(--v4-accent) 78%, var(--v4-ink) 18%);
+  opacity: .72;
+  mask-image: linear-gradient(90deg, transparent, #000 8% 86%, transparent);
+}
+
+.extra-canvas .extra-music-transport {
+  position: relative;
+  grid-row: 3;
+  grid-column: 1 / 3;
+  display: grid;
+  grid-template-columns: 1fr minmax(9.5cqw, 1.18fr) 1fr;
+  align-items: center;
+  justify-self: stretch;
+  min-width: 0;
+  isolation: isolate;
+}
+
+.extra-canvas .extra-music-transport::before {
+  position: absolute;
+  z-index: -2;
+  right: 0;
+  left: 0;
+  top: 50%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--extra-line-strong) 12% 88%, transparent);
+  content: "";
+}
+
+.extra-canvas .extra-music-transport > button,
+.extra-canvas .extra-music-transport .extra-music-toggle {
+  grid-row: auto;
+  grid-column: auto;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .7cqw;
+  min-width: 0;
+  min-height: 5.6cqh;
+  padding: 0 .75cqw;
+  border: 0;
+  color: var(--v4-soft);
+  background: transparent;
+  cursor: pointer;
+  transition: color 180ms ease, opacity 180ms ease, transform 140ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.extra-canvas .extra-music-transport .extra-music-toggle {
+  position: relative;
+  justify-self: stretch;
+  color: var(--v4-ink);
+}
+
+.extra-canvas .extra-music-transport .extra-music-toggle::before {
+  position: absolute;
+  z-index: -1;
+  inset: .55cqh -.8cqw;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--v4-accent) 18%, transparent) 26% 74%, transparent);
+  content: "";
+  opacity: .66;
+}
+
+.extra-canvas .extra-music-skip {
+  opacity: .62;
+}
+
+.extra-canvas .extra-music-skip.is-previous {
+  justify-content: flex-start;
+}
+
+.extra-canvas .extra-music-skip.is-next {
+  justify-content: flex-end;
+}
+
+.extra-canvas .extra-music-skip span {
+  font: italic 400 clamp(14px, 1.05cqw, 20px) / 1 Baskerville, serif;
+}
+
+.extra-canvas .extra-music-skip small {
+  color: var(--v4-faint);
+  font: 600 clamp(6px, .39cqw, 8px) / 1 "Yu Gothic", sans-serif;
+  letter-spacing: .18em;
+}
+
+.extra-canvas .extra-music-toggle strong {
+  font: 600 clamp(7px, .46cqw, 9px) / 1 "Yu Gothic", sans-serif;
+  letter-spacing: .2em;
+}
+
+.extra-canvas .extra-play-glyph {
+  display: grid;
+  place-items: center;
+  width: 1.15cqw;
+  min-width: 14px;
+  height: 1.8cqh;
+  min-height: 15px;
+}
+
+.extra-canvas .extra-play-glyph i {
+  grid-area: 1 / 1;
+  display: block;
+  opacity: 0;
+  transform: scale(.78);
+  transition: opacity 150ms ease, transform 180ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.extra-canvas .extra-play-glyph .is-play {
+  width: 0;
+  height: 0;
+  border-top: .55cqh solid transparent;
+  border-bottom: .55cqh solid transparent;
+  border-left: .72cqw solid currentColor;
+}
+
+.extra-canvas .extra-play-glyph .is-pause {
+  position: relative;
+  width: .72cqw;
+  height: 1.2cqh;
+}
+
+.extra-canvas .extra-play-glyph .is-pause::before,
+.extra-canvas .extra-play-glyph .is-pause::after {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: currentColor;
+  content: "";
+}
+
+.extra-canvas .extra-play-glyph .is-pause::before {
+  left: 0;
+}
+
+.extra-canvas .extra-play-glyph .is-pause::after {
+  right: 0;
+}
+
+.extra-canvas [data-music-toggle][aria-pressed="false"] .extra-play-glyph .is-play,
+.extra-canvas [data-music-toggle][aria-pressed="true"] .extra-play-glyph .is-pause {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.extra-canvas .extra-track-browser {
+  position: relative;
+  grid-row: 2;
+  grid-column: 2;
+  min-width: 0;
+  min-height: 0;
+  padding: 1.65cqh 2cqw 1.25cqh 0;
+}
+
+.extra-canvas .extra-track-list {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  position: relative;
+  padding: .7cqh 0 .7cqh 1.3cqw;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border: 0;
+  scrollbar-width: none;
+  overscroll-behavior: contain;
+}
+
+.extra-canvas .extra-track-list::before {
+  position: absolute;
+  top: 1.15cqh;
+  bottom: 1.15cqh;
+  left: .58cqw;
+  width: 1px;
+  background: linear-gradient(transparent, var(--extra-line-strong) 8% 92%, transparent);
+  content: "";
+  opacity: .48;
+}
+
+.extra-canvas .extra-track-list::-webkit-scrollbar {
+  display: none;
+}
+
+.extra-canvas .extra-track-list button {
+  isolation: isolate;
+  grid-template-columns: 2cqw minmax(0, 1fr) auto;
+  width: 100%;
+  min-height: 6.6cqh;
+  padding-inline: 0 1.05cqw;
+  border: 0;
+}
+
+.extra-canvas .extra-track-list button:first-child {
+  border-top: 0;
+}
+
+.extra-canvas .extra-track-list button[aria-pressed="true"] {
+  background: transparent;
+  transform: none;
+}
+
+.extra-canvas .extra-track-list button::before {
+  z-index: -1;
+  inset: .45cqh 0;
+  width: auto;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--v4-accent) 17%, transparent), transparent 78%);
+  opacity: 0;
+  transform: scaleX(.9);
+  transform-origin: left center;
+}
+
+.extra-canvas .extra-track-list button[aria-pressed="true"]::before {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+.extra-canvas .extra-track-list button > .extra-track-signal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-width: 0;
+  opacity: .24;
+  transition: opacity 160ms ease;
+}
+
+.extra-canvas .extra-track-signal i {
+  width: 1px;
+  height: .55cqh;
+  min-height: 4px;
+  background: var(--v4-accent);
+  transform: scaleY(.45);
+  transition: transform 180ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.extra-canvas .extra-track-signal i:nth-child(2) {
+  height: 1.1cqh;
+}
+
+.extra-canvas .extra-track-list button[aria-pressed="true"] .extra-track-signal {
+  opacity: .92;
+}
+
+.extra-canvas .extra-track-list button[aria-pressed="true"] .extra-track-signal i {
+  transform: scaleY(1);
+}
+
+.extra-canvas .extra-track-list button > .extra-track-copy {
+  display: grid;
+  gap: .55cqh;
+}
+
+/* PROJECT: image plates and functional tags, not six nested cards. */
+.extra-canvas .extra-project-record {
+  grid-template-rows: minmax(0, 1fr) 6cqh;
+  overflow: visible;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.extra-canvas .extra-project-art {
+  border: 1px solid color-mix(in srgb, var(--v4-accent) 40%, var(--v4-ink) 12%);
+  box-shadow: 0 .35cqh .9cqw color-mix(in srgb, var(--v4-shadow) 20%, transparent);
+}
+
+.extra-canvas .extra-project-art nav[data-link-count="1"] {
+  grid-template-columns: 1fr;
+}
+
+.extra-canvas .extra-project-art nav a {
+  min-height: 5.2cqh;
+}
+
+.extra-canvas .extra-project-copy {
+  padding: .85cqh .2cqw .3cqh;
+  border-top: 0;
+}
+
+.extra-canvas .extra-project-copy > p {
+  gap: .62cqw;
+}
+
+.extra-canvas .extra-project-copy > p button {
+  position: relative;
+  min-height: 2.4cqh;
+  padding: .1cqh 0 .25cqh;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  color: var(--v4-soft);
+  background: transparent;
+  font: 600 clamp(6px, .4cqw, 8px) / 1 "Yu Gothic", sans-serif;
+  letter-spacing: .14em;
+  cursor: pointer;
+  transition: color 180ms ease, border-color 180ms ease;
+}
+
+.extra-canvas .extra-project-copy > p button + button::before {
+  position: absolute;
+  top: 50%;
+  left: -.38cqw;
+  color: var(--v4-faint);
+  content: "·";
+  transform: translateY(-55%);
+}
+
+.extra-canvas .extra-project-copy > p button[aria-pressed="true"] {
+  color: var(--v4-ink);
+  border-bottom-color: var(--extra-line-strong);
+  background: transparent;
+}
+
+.extra-canvas .extra-project-tide {
+  padding-block: 1.05cqh;
+}
+
+.extra-canvas .extra-project-filter {
+  display: grid;
+  gap: .4cqh;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.extra-canvas .extra-project-filter nav {
+  gap: .42cqw;
+  max-width: 47cqw;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  mask-image: linear-gradient(90deg, #000 0 95%, transparent);
+}
+
+.extra-canvas .extra-project-filter nav::-webkit-scrollbar {
+  display: none;
+}
+
+.extra-canvas .extra-project-filter button {
+  flex: 0 0 auto;
+  min-height: 3.05cqh;
+  padding-inline: .72cqw;
+  border-right: 0;
+  background: transparent;
+}
+
+.extra-canvas .extra-project-filter button[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--v4-accent) 13%, transparent);
+  clip-path: none;
+}
+
+/* BANGUMI: a compact horizontal reel feeds one shared lower focus field. */
+.extra-canvas .extra-bangumi-workspace {
+  display: grid;
+  grid-template-rows: 29cqh minmax(0, 1fr);
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.extra-canvas .extra-bangumi-viewport {
+  position: relative;
+  z-index: 1;
+  padding: 1.45cqh .2cqw .35cqh;
+  border-bottom: 0;
+  mask-image: linear-gradient(90deg, #000 0 96%, transparent);
+}
+
+.extra-canvas .extra-bangumi-track {
+  grid-auto-columns: 8.15cqw;
+  align-items: start;
+  gap: 1.05cqw;
+  height: 100%;
+  padding-right: 5cqw;
+}
+
+.extra-canvas .extra-bangumi-card {
+  display: grid;
+  grid-template-rows: 20.4cqh 5.3cqh;
+  align-self: start;
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  color: var(--v4-soft);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  scroll-snap-align: start;
+  transform: none;
+  transition: color 180ms ease;
+}
+
+.extra-canvas .extra-bangumi-cover {
+  width: 100%;
+  height: 20.4cqh;
+  aspect-ratio: auto;
+  border: 1px solid var(--extra-line);
+  box-shadow: none;
+  transform: translate3d(0, 0, 0) scale(1);
+  transform-origin: center bottom;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    opacity 160ms ease,
+    transform 140ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.extra-canvas .extra-bangumi-copy {
+  align-content: center;
+  gap: .45cqh;
+  padding: .65cqh .15cqw 0;
+}
+
+.extra-canvas .extra-bangumi-copy strong {
+  font-size: clamp(9px, .58cqw, 12px);
+}
+
+.extra-canvas .extra-bangumi-card[aria-pressed="true"] {
+  color: var(--v4-ink);
+}
+
+.extra-canvas .extra-bangumi-card[aria-pressed="true"] .extra-bangumi-cover {
+  border-color: var(--extra-line-strong);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--v4-accent) 28%, transparent),
+    0 0 .85cqw color-mix(in srgb, var(--v4-accent) 30%, transparent);
+}
+
+.extra-canvas .extra-bangumi-focus {
+  position: relative;
+  z-index: 0;
+  display: grid;
+  align-items: center;
+  min-width: 0;
+  min-height: 0;
+  margin-top: -5cqh;
+  padding: 6.3cqh 2.2cqw 1.4cqh;
+  overflow: visible;
+  isolation: isolate;
+}
+
+.extra-canvas .extra-bangumi-focus::before {
+  position: absolute;
+  z-index: -2;
+  inset: 0;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--v4-accent) 9%, transparent), transparent 68%);
+  content: "";
+  mask-image: linear-gradient(180deg, transparent, #000 14% 92%, transparent);
+}
+
+.extra-canvas .extra-bangumi-focus-art {
+  position: absolute;
+  z-index: -1;
+  top: -22%;
+  right: -2%;
+  bottom: -28%;
+  width: 54%;
+  background:
+    linear-gradient(90deg, transparent, color-mix(in srgb, var(--v4-paper) 5%, transparent)),
+    var(--extra-art) center 28% / cover no-repeat;
+  filter: var(--v4-cover-filter);
+  opacity: 0;
+  mask-image:
+    linear-gradient(90deg, transparent, #000 34% 86%, transparent),
+    linear-gradient(180deg, transparent, #000 13% 91%, transparent);
+  mask-composite: intersect;
+  transform: translate3d(8px, 0, 0) scale(1.012);
+  transition: opacity 150ms ease, transform 180ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.extra-canvas .extra-bangumi-focus-art.is-visible {
+  opacity: .36;
+  transform: translate3d(0, 0, 0) scale(1);
+}
+
+.extra-canvas .extra-bangumi-focus-copy {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  justify-items: start;
+  width: min(35cqw, 65%);
+}
+
+.extra-canvas .extra-bangumi-focus-copy > small {
+  color: var(--v4-faint);
+  font: 600 clamp(7px, .44cqw, 9px) / 1 "Yu Gothic", sans-serif;
+  letter-spacing: .19em;
+}
+
+.extra-canvas .extra-bangumi-focus-copy h4 {
+  margin: 1.05cqh 0 1.45cqh;
+  color: var(--v4-ink);
+  font: 400 clamp(20px, 1.75cqw, 33px) / 1.15 Baskerville, "Yu Mincho", serif;
+  letter-spacing: .08em;
+}
+
+.extra-canvas .extra-bangumi-focus-copy a {
+  display: inline-flex;
+  align-items: center;
+  gap: 1.1cqw;
+  min-width: 10.5cqw;
+  min-height: 3.9cqh;
+  padding-inline: .1cqw .7cqw;
+  border-bottom: 1px solid var(--extra-line-strong);
+  color: var(--v4-soft);
+  font: 600 clamp(7px, .46cqw, 9px) / 1 "Yu Gothic", sans-serif;
+  letter-spacing: .17em;
+  text-decoration: none;
+  transition: color 180ms ease, transform 220ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.extra-canvas .extra-bangumi-focus-copy a i {
+  margin-left: auto;
+  font: italic 400 clamp(11px, .75cqw, 14px) / 1 Baskerville, serif;
+}
+
+.extra-canvas .extra-bangumi-focus-ghost {
+  position: absolute;
+  z-index: -1;
+  right: 1cqw;
+  bottom: -2.6cqh;
+  color: color-mix(in srgb, var(--v4-accent) 8%, transparent);
+  font: italic 400 clamp(52px, 6.4cqw, 108px) / 1 Baskerville, serif;
+  letter-spacing: .08em;
+  pointer-events: none;
+}
+
+.extra-canvas .extra-bangumi-empty {
+  align-self: center;
+  width: 45cqw;
+}
+
+/* MUSIC XVII: the waveform is the instrument; cover art stays as a quiet afterimage. */
+.extra-canvas .extra-music-room {
+  grid-template-columns: minmax(34cqw, 1.18fr) minmax(27cqw, .92fr);
+  column-gap: 2.25cqw;
+}
+
+.extra-canvas .extra-music-now {
+  align-self: stretch;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(16cqh, 1fr) 12cqh 5.4cqh;
+  gap: 1.1cqh;
+  padding: 2cqh .4cqw 1.4cqh 0;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.extra-canvas .extra-music-cover {
+  position: absolute;
+  z-index: -1;
+  inset: 1.2cqh auto 1.2cqh -1.4cqw;
+  display: block;
+  width: 18cqw;
+  height: auto;
+  aspect-ratio: auto;
+  border: 0;
+  background: var(--extra-art) center / cover no-repeat;
+  box-shadow: none;
+  filter: var(--v4-cover-filter);
+  opacity: .19;
+  mask-image: radial-gradient(ellipse 78% 72% at 46% 48%, #000 28%, transparent 100%);
+}
+
+.extra-canvas .extra-music-current {
+  position: relative;
+  z-index: 1;
+  grid-row: 1;
+  grid-column: 1;
+  align-self: end;
+  padding: 0 1cqw 1.2cqh 3.6cqw;
+}
+
+.extra-canvas .extra-music-current h4 {
+  margin-top: 1.1cqh;
+  font-size: clamp(26px, 2.25cqw, 42px);
+  white-space: normal;
+}
+
+.extra-canvas .extra-music-current > p {
+  display: flex;
+  align-items: center;
+  gap: 1.2cqw;
+}
+
+.extra-canvas .extra-music-current > p em {
+  position: relative;
+  padding-left: 1.2cqw;
+  font-family: Baskerville, serif;
+  font-style: italic;
+}
+
+.extra-canvas .extra-music-current > p em::before {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: .7cqw;
+  height: 1px;
+  background: var(--extra-line-strong);
+  content: "";
+}
+
+.extra-canvas .extra-music-wave-deck {
+  position: relative;
+  z-index: 1;
+  grid-row: 2;
+  grid-column: 1;
+  display: grid;
+  grid-template-columns: 6.2cqw minmax(0, 1fr);
+  align-items: center;
+  gap: .8cqw;
+  min-width: 0;
+  padding-right: .75cqw;
+}
+
+.extra-canvas .extra-music-wave-deck::before {
+  position: absolute;
+  z-index: -1;
+  top: 50%;
+  right: .75cqw;
+  left: 6.2cqw;
+  height: 1px;
+  background: linear-gradient(90deg, var(--extra-line-strong), transparent 96%);
+  content: "";
+  opacity: .42;
+}
+
+.extra-canvas .extra-music-wave-deck canvas.extra-music-wave {
+  grid-row: 1;
+  grid-column: 2;
+  width: 100%;
+  height: 9.6cqh;
+  opacity: .84;
+  mask-image: linear-gradient(90deg, #000 0 88%, transparent);
+}
+
+.extra-canvas .extra-music-wave-deck .extra-music-toggle {
+  position: relative;
+  grid-row: 1;
+  grid-column: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: .65cqw;
+  min-width: 0;
+  min-height: 7cqh;
+  padding: 0 0 0 .25cqw;
+  border: 0;
+  color: var(--v4-ink);
+  background: transparent;
+  cursor: pointer;
+}
+
+.extra-canvas .extra-music-wave-deck .extra-music-toggle::before {
+  display: none;
+}
+
+.extra-canvas .extra-music-wave-deck .extra-music-toggle strong {
+  color: var(--v4-soft);
+  font-size: clamp(7px, .43cqw, 9px);
+}
+
+.extra-canvas .extra-music-transport {
+  grid-row: 3;
+  grid-column: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 .85cqw 0 6.2cqw;
+}
+
+.extra-canvas .extra-music-transport::before {
+  display: none;
+}
+
+.extra-canvas .extra-music-transport > button {
+  flex: 0 0 auto;
+  min-height: 4.5cqh;
+  padding: 0;
+  gap: .85cqw;
+  opacity: .72;
+}
+
+.extra-canvas .extra-music-skip.is-previous,
+.extra-canvas .extra-music-skip.is-next {
+  justify-content: center;
+}
+
+.extra-canvas .extra-music-skip span {
+  font-size: clamp(18px, 1.25cqw, 24px);
+}
+
+.extra-canvas .extra-track-browser {
+  padding: 1.2cqh 2.1cqw .6cqh .4cqw;
+}
+
+.extra-canvas .extra-track-browser::before {
+  position: absolute;
+  top: 1.1cqh;
+  bottom: .9cqh;
+  left: 0;
+  width: 1px;
+  background: linear-gradient(transparent, var(--extra-line) 9% 91%, transparent);
+  content: "";
+}
+
+.extra-canvas .extra-track-list {
+  padding: .45cqh 0 .45cqh 1.45cqw;
+}
+
+.extra-canvas .extra-track-list::before {
+  left: .68cqw;
+  opacity: .28;
+}
+
+.extra-canvas .extra-track-list button {
+  grid-template-columns: 1.65cqw minmax(0, 1fr) auto;
+  min-height: 6.15cqh;
+  padding-inline: 0 1cqw;
+}
+
+.extra-canvas .extra-track-list button::before {
+  top: .7cqh;
+  right: auto;
+  bottom: .7cqh;
+  left: 0;
+  width: 1px;
+  background: var(--extra-line-strong);
+  opacity: 0;
+  transform: scaleY(.35);
+  transform-origin: center;
+}
+
+.extra-canvas .extra-track-list button[aria-pressed="true"]::before {
+  opacity: .9;
+  transform: scaleY(1);
+}
+
+.extra-canvas .extra-track-list button[aria-pressed="true"] {
+  background: transparent;
+  transform: none;
+}
+
+.extra-canvas .extra-track-cursor {
+  color: var(--v4-accent);
+  font: italic 400 clamp(14px, .9cqw, 18px) / 1 Baskerville, serif;
+  opacity: 0;
+  transform: translate3d(-.35cqw, 0, 0);
+  transition: opacity 140ms ease, transform 160ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.extra-canvas .extra-track-list button[aria-pressed="true"] .extra-track-cursor {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+/* BANGUMI XVII: one continuous shelf with a persistent, edge-faded afterimage behind it. */
+.extra-canvas .extra-bangumi-workspace {
+  position: relative;
+  display: block;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.extra-canvas .extra-bangumi-viewport {
+  position: relative;
+  z-index: 2;
+  height: 38cqh;
+  padding: 1.25cqh .2cqw .4cqh;
+  mask-image: linear-gradient(90deg, #000 0 96%, transparent);
+}
+
+.extra-canvas .extra-bangumi-track {
+  grid-auto-columns: 9.05cqw;
+  gap: 1.05cqw;
+  height: 100%;
+}
+
+.extra-canvas .extra-bangumi-card {
+  grid-template-rows: 28cqh 6.2cqh;
+}
+
+.extra-canvas .extra-bangumi-cover {
+  height: 28cqh;
+}
+
+.extra-canvas .extra-bangumi-copy {
+  align-content: start;
+  padding-top: .8cqh;
+}
+
+.extra-canvas .extra-bangumi-focus {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  display: grid;
+  align-items: end;
+  margin: 0;
+  padding: 38cqh 2.1cqw 1.7cqh;
+  overflow: hidden;
+  isolation: isolate;
+  pointer-events: none;
+}
+
+.extra-canvas .extra-bangumi-focus::before {
+  z-index: -2;
+  inset: 22cqh 0 0;
+  background: radial-gradient(ellipse 82% 84% at 20% 76%, color-mix(in srgb, var(--v4-accent) 11%, transparent), transparent 78%);
+  mask-image: linear-gradient(180deg, transparent, #000 30% 84%, transparent);
+}
+
+.extra-canvas .extra-bangumi-focus-art {
+  z-index: -1;
+  inset: 30cqh 0 0 22cqw;
+  width: auto;
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--v4-paper) 3%, transparent), transparent),
+    var(--extra-art) center 28% / cover no-repeat;
+  opacity: 0;
+  mask-image:
+    linear-gradient(90deg, transparent, #000 16% 84%, transparent),
+    linear-gradient(180deg, transparent, #000 20% 80%, transparent);
+  mask-composite: intersect;
+  transform: translate3d(8px, 0, 0) scale(1.01);
+}
+
+.extra-canvas .extra-bangumi-focus-art.is-visible {
+  opacity: .33;
+}
+
+.extra-canvas .extra-bangumi-focus-copy {
+  align-self: end;
+  width: min(30cqw, 56%);
+  padding-bottom: .3cqh;
+  pointer-events: auto;
+}
+
+.extra-canvas .extra-bangumi-focus-copy h4 {
+  margin: .8cqh 0 1cqh;
+  font-size: clamp(18px, 1.45cqw, 28px);
+}
+
+.extra-canvas .extra-bangumi-focus-copy a {
+  min-height: 3.4cqh;
+}
+
+.extra-canvas .extra-bangumi-focus-ghost {
+  display: none;
+}
+
+/* CHARACTER: two cast files share one quiet stage instead of becoming portrait cards. */
+.extra-canvas .extra-character-room {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 8.2cqh minmax(0, 1fr);
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+  box-shadow: none;
+}
+
+.extra-canvas .extra-character-room .extra-room-heading {
+  grid-row: 1;
+  grid-column: 1;
+}
+
+.extra-canvas .extra-character-stage {
+  position: relative;
+  grid-row: 2;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.extra-canvas .extra-character-stage::before {
+  position: absolute;
+  z-index: -2;
+  inset: 3cqh 0 2cqh;
+  background:
+    radial-gradient(ellipse 42% 72% at 25% 54%, color-mix(in srgb, var(--v4-accent) 12%, transparent), transparent 78%),
+    linear-gradient(90deg, transparent, color-mix(in srgb, var(--v4-paper) 16%, transparent) 54%, transparent);
+  content: "";
+  mask-image: linear-gradient(90deg, transparent, #000 8% 92%, transparent);
+}
+
+.extra-canvas .extra-character-profiles {
+  display: grid;
+  height: 100%;
+}
+
+.extra-canvas .extra-character-profile {
+  grid-area: 1 / 1;
+  display: grid;
+  grid-template-columns: minmax(25cqw, .9fr) minmax(31cqw, 1.1fr);
+  min-width: 0;
+  min-height: 0;
+  opacity: 0;
+  transform: translate3d(10px, 0, 0);
+  transition: opacity 140ms ease, transform 220ms cubic-bezier(.22, 1, .36, 1), visibility 0s linear 220ms;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.extra-canvas .extra-character-profile.is-active {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition-delay: 0s;
+  visibility: visible;
+}
+
+.extra-canvas .extra-character-visual {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+}
+
+.extra-canvas .extra-character-art {
+  position: absolute;
+  inset: 1.5cqh 1cqw 0;
+  display: block;
+  background: var(--extra-art) center bottom / contain no-repeat;
+  filter: var(--v4-cover-filter);
+  mask-image: linear-gradient(180deg, #000 0 88%, transparent);
+}
+
+.extra-canvas [data-character-presentation="portrait"] .extra-character-art {
+  inset: 5cqh 3cqw 5cqh 1cqw;
+  background-position: center;
+  background-size: cover;
+  mask-image: radial-gradient(ellipse 72% 70% at 50% 50%, #000 42%, transparent 100%);
+}
+
+.extra-canvas .extra-character-dossier {
+  position: relative;
+  align-self: center;
+  display: grid;
+  align-content: center;
+  min-width: 0;
+  padding: 2cqh 4cqw 8.5cqh 3.4cqw;
+}
+
+.extra-canvas .extra-character-dossier::before {
+  position: absolute;
+  top: 0;
+  bottom: 6cqh;
+  left: 0;
+  width: 1px;
+  background: linear-gradient(transparent, var(--extra-line-strong) 18% 82%, transparent);
+  content: "";
+}
+
+.extra-canvas .extra-character-dossier > small {
+  color: var(--v4-accent);
+  font: 600 clamp(7px, .44cqw, 9px) / 1 "Yu Gothic", sans-serif;
+  letter-spacing: .22em;
+}
+
+.extra-canvas .extra-character-dossier h4 {
+  margin: 1.2cqh 0 0;
+  color: var(--v4-ink);
+  font: 400 clamp(38px, 4cqw, 70px) / 1 Baskerville, "Yu Mincho", serif;
+  letter-spacing: .08em;
+}
+
+.extra-canvas .extra-character-role {
+  margin: 1.2cqh 0 0;
+  color: var(--v4-faint);
+  font: italic 400 clamp(9px, .58cqw, 11px) / 1 Baskerville, serif;
+  letter-spacing: .16em;
+}
+
+.extra-canvas .extra-character-description {
+  max-width: 29cqw;
+  margin: 2.2cqh 0 0;
+  color: var(--v4-soft);
+  font: 400 clamp(10px, .68cqw, 13px) / 1.9 "Yu Mincho", serif;
+  letter-spacing: .04em;
+}
+
+.extra-canvas .extra-character-selector {
+  position: absolute;
+  z-index: 4;
+  right: 2.2cqw;
+  bottom: 2.4cqh;
+  display: flex;
+  align-items: center;
+  gap: 2.2cqw;
+}
+
+.extra-canvas .extra-character-selector button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: .7cqw;
+  min-height: 4.2cqh;
+  padding: 0 .2cqw;
+  border: 0;
+  color: var(--v4-faint);
+  background: transparent;
+  cursor: pointer;
+}
+
+.extra-canvas .extra-character-selector button > span {
+  width: 1.5cqw;
+  height: 1px;
+  background: var(--v4-accent);
+  opacity: 0;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: opacity 140ms ease, transform 180ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.extra-canvas .extra-character-selector button strong {
+  font: 500 clamp(9px, .62cqw, 12px) / 1 Baskerville, "Yu Mincho", serif;
+  letter-spacing: .12em;
+}
+
+.extra-canvas .extra-character-selector button[aria-pressed="true"] {
+  color: var(--v4-ink);
+}
+
+.extra-canvas .extra-character-selector button[aria-pressed="true"] > span {
+  opacity: .9;
+  transform: scaleX(1);
+}
+
+/* ACHIEVE: a chronicle on one continuous rail, with a scrollbar matching LOAD / STORY. */
+.extra-canvas .extra-achievement-browser {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  padding-right: 2.1cqw;
+}
+
+.extra-canvas .extra-achievement-ledger {
+  height: 100%;
+  padding: .35cqh .1cqw 2cqh 0;
+  scrollbar-width: none;
+}
+
+.extra-canvas .extra-achievement-ledger::-webkit-scrollbar {
+  display: none;
+}
+
+.extra-canvas .extra-achievement-row {
+  grid-template-columns: 8.6cqw minmax(0, 1fr) 10cqw;
+  min-height: 9.4cqh;
+  padding: 0 .9cqw 0 .25cqw;
+  background: transparent;
+  transform: none;
+  transition: color 180ms ease;
+}
+
+.extra-canvas .extra-achievement-row::before {
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  min-width: 0;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--v4-accent) 10%, transparent), transparent 76%);
+  opacity: 0;
+  transform: scaleX(.92);
+  transform-origin: left center;
+  transition: opacity 180ms ease, transform 230ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.extra-canvas .extra-achievement-state {
+  display: flex;
+  place-items: initial;
+  align-items: center;
+  gap: .65cqw;
+  align-self: stretch;
+  margin-right: 1cqw;
+  border-right: 0;
+  background: transparent;
+}
+
+.extra-canvas .extra-achievement-state i {
+  display: block;
+  width: 1.55cqw;
+  height: 1px;
+  background: var(--extra-line-strong);
+  opacity: .35;
+}
+
+.extra-canvas .extra-achievement-row.is-unlocked .extra-achievement-state {
+  color: var(--v4-ink);
+  background: transparent;
+}
+
+.extra-canvas .extra-achievement-row.is-unlocked .extra-achievement-state i {
+  opacity: .9;
+  box-shadow: 0 0 .45cqw color-mix(in srgb, var(--v4-accent) 35%, transparent);
+}
+
+.extra-canvas .extra-achievement-row.is-locked {
+  opacity: .34;
+}
+
+/* Shared custom vertical scroll rail. */
+.extra-canvas .extra-scroll-rail {
+  position: absolute;
+  top: 2.4cqh;
+  right: .55cqw;
+  bottom: 2.4cqh;
+  width: 1px;
+  min-width: 0;
+  background: linear-gradient(transparent, color-mix(in srgb, var(--v4-accent) 29%, transparent) 10% 90%, transparent);
+  cursor: pointer;
+}
+
+.extra-canvas .extra-scroll-rail[hidden] {
+  display: none;
+}
+
+.extra-canvas .extra-scroll-rail:focus-visible {
+  outline: 1px solid var(--extra-line-strong);
+  outline-offset: .55cqw;
+}
+
+.extra-canvas .extra-scroll-rail > span {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 1.1cqw;
+  min-width: 14px;
+  min-height: 0;
+  height: 1px;
+  background: transparent;
+  transform: translate3d(-50%, 0, 0);
+}
+
+.extra-canvas .extra-scroll-rail > span::before,
+.extra-canvas .extra-scroll-rail > span::after {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  left: 0;
+  height: 1px;
+  background: color-mix(in srgb, var(--v4-accent) 78%, transparent);
+  box-shadow: 0 0 .45cqw color-mix(in srgb, var(--v4-accent) 42%, transparent);
+  content: "";
+}
+
+.extra-canvas .extra-scroll-rail > span::before {
+  transform: translateY(-50%);
+}
+
+.extra-canvas .extra-scroll-rail > span::after {
+  top: 50%;
+  right: 50%;
+  left: auto;
+  width: 4px;
+  height: 4px;
+  transform: translate(50%, -50%) rotate(45deg);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .extra-canvas .extra-cg-card:not(.is-locked):hover,
+  .extra-canvas .extra-cg-card:not(.is-locked):focus-visible {
+    border-color: color-mix(in srgb, var(--v4-accent) 82%, var(--v4-ink) 16%);
+    outline: 0;
+  }
+
+  .extra-canvas .extra-cg-card:not(.is-locked):hover::before,
+  .extra-canvas .extra-cg-card:not(.is-locked):focus-visible::before {
+    opacity: 1;
+  }
+
+  .extra-canvas .extra-cg-card:not(.is-locked):hover .extra-cg-art,
+  .extra-canvas .extra-cg-card:not(.is-locked):focus-visible .extra-cg-art {
+    transform: scale(1.008);
+  }
+
+  .extra-canvas .extra-music-transport > button:hover,
+  .extra-canvas .extra-music-transport > button:focus-visible {
+    color: var(--v4-ink);
+    background: transparent;
+    outline: 0;
+    opacity: 1;
+  }
+
+  .extra-canvas .extra-music-transport > button:active {
+    transform: scale(.975);
+  }
+
+  .extra-canvas .extra-music-wave-deck .extra-music-toggle:hover,
+  .extra-canvas .extra-music-wave-deck .extra-music-toggle:focus-visible {
+    color: var(--v4-accent);
+    outline: 0;
+  }
+
+  .extra-canvas .extra-track-list button:hover,
+  .extra-canvas .extra-track-list button:focus-visible {
+    color: var(--v4-ink);
+    background: transparent;
+    outline: 0;
+  }
+
+  .extra-canvas .extra-track-list button:hover::before,
+  .extra-canvas .extra-track-list button:focus-visible::before {
+    opacity: .62;
+    transform: scaleY(1);
+  }
+
+  .extra-canvas .extra-project-record:hover {
+    background: transparent;
+    transform: none;
+  }
+
+  .extra-canvas .extra-project-copy > p button:hover,
+  .extra-canvas .extra-project-copy > p button:focus-visible {
+    color: var(--v4-ink);
+    border-bottom-color: var(--extra-line-strong);
+    background: transparent;
+    outline: 0;
+  }
+
+  .extra-canvas .extra-bangumi-card:hover,
+  .extra-canvas .extra-bangumi-card:focus-visible {
+    color: var(--v4-ink);
+    outline: 0;
+    transform: none;
+  }
+
+  .extra-canvas .extra-bangumi-card:hover .extra-bangumi-cover,
+  .extra-canvas .extra-bangumi-card:focus-visible .extra-bangumi-cover {
+    border-color: var(--extra-line-strong);
+    filter: var(--v4-cover-hover-filter);
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--v4-accent) 30%, transparent),
+      0 0 .95cqw color-mix(in srgb, var(--v4-accent) 34%, transparent);
+    opacity: 1;
+    transform: translate3d(0, -.28cqh, 0) scale(1.012);
+  }
+
+  .extra-canvas .extra-bangumi-focus-copy a:hover,
+  .extra-canvas .extra-bangumi-focus-copy a:focus-visible {
+    color: var(--v4-ink);
+    outline: 0;
+    transform: translate3d(.45cqw, 0, 0);
+  }
+
+  .extra-canvas .extra-character-selector button:hover,
+  .extra-canvas .extra-character-selector button:focus-visible {
+    color: var(--v4-ink);
+    outline: 0;
+  }
+
+  .extra-canvas .extra-achievement-row:hover::before {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+@media (max-width: 900px) and (orientation: portrait) {
+  .extra-canvas .extra-edge-turners button:first-child {
+    left: calc(26cqw - 2.55cqw - .45cqw);
+  }
+
+  .extra-canvas .extra-edge-turners button:last-child {
+    right: calc(3.2cqw - 2.55cqw - .45cqw);
+  }
+
+  .extra-canvas .extra-cg-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(5, minmax(0, 1fr));
+  }
+
+  .extra-canvas .extra-music-room {
+    grid-template-columns: 1fr;
+    grid-template-rows: 8.2cqh 28cqh minmax(0, 1fr);
+    column-gap: 0;
+  }
+
+  .extra-canvas .extra-music-room .extra-room-heading {
+    grid-column: 1;
+  }
+
+  .extra-canvas .extra-music-now {
+    grid-row: 2;
+    grid-column: 1;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: 1fr 8cqh;
+    align-items: center;
+    gap: 1.5cqw;
+    padding: 1.4cqh 0;
+    border-bottom: 0;
+  }
+
+  .extra-canvas .extra-music-cover {
+    width: 22cqw;
+  }
+
+  .extra-canvas .extra-music-current {
+    grid-row: 1;
+    grid-column: 1;
+    padding-left: 4cqw;
+  }
+
+  .extra-canvas .extra-music-wave-deck {
+    grid-row: 2;
+    grid-column: 1;
+    grid-template-columns: 10cqw minmax(0, 1fr);
+  }
+
+  .extra-canvas .extra-music-transport {
+    display: none;
+  }
+
+  .extra-canvas .extra-track-browser {
+    grid-row: 3;
+    grid-column: 1;
+    padding-top: 1cqh;
+  }
+
+  .extra-canvas .extra-project-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(3, minmax(0, 1fr));
+  }
+
+  .extra-canvas .extra-project-tide {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .extra-canvas .extra-project-activity {
+    display: none;
+  }
+
+  .extra-canvas .extra-project-filter nav {
+    max-width: 100%;
+  }
+
+  .extra-canvas .extra-bangumi-workspace {
+    display: block;
+  }
+
+  .extra-canvas .extra-bangumi-viewport {
+    height: 27cqh;
+  }
+
+  .extra-canvas .extra-bangumi-track {
+    grid-auto-columns: 17cqw;
+    gap: 1.5cqw;
+  }
+
+  .extra-canvas .extra-bangumi-card {
+    grid-template-rows: 19cqh 5.3cqh;
+  }
+
+  .extra-canvas .extra-bangumi-cover {
+    height: 19cqh;
+  }
+
+  .extra-canvas .extra-bangumi-focus-copy {
+    width: 72%;
+  }
+
+  .extra-canvas .extra-bangumi-focus-art {
+    right: 0;
+    left: 22cqw;
+    width: auto;
+  }
+
+  .extra-canvas .extra-bangumi-focus {
+    padding-top: 27cqh;
+  }
+
+  .extra-canvas .extra-character-profile {
+    grid-template-columns: 28cqw minmax(0, 1fr);
+  }
+
+  .extra-canvas .extra-character-dossier {
+    padding-right: 2cqw;
+  }
+
+  .extra-canvas .extra-achievement-row {
+    grid-template-columns: 13cqw minmax(0, 1fr) 15cqw;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .extra-canvas .extra-primary button::before,
+  .extra-canvas .extra-cg-card::before,
+  .extra-canvas .extra-play-glyph i,
+  .extra-canvas .extra-track-cursor,
+  .extra-canvas .extra-project-copy > p button,
+  .extra-canvas .extra-bangumi-focus-art,
+  .extra-canvas .extra-bangumi-focus-copy a,
+  .extra-canvas .extra-character-profile,
+  .extra-canvas .extra-character-selector button > span,
+  .extra-canvas .extra-achievement-row::before {
+    transition: none;
+    transform: none;
+  }
+}

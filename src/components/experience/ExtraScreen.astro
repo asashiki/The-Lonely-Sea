@@ -1,0 +1,66 @@
+---
+const modes = [
+  { id: "cg", label: "CG" },
+  { id: "music", label: "MUSIC" },
+  { id: "projects", label: "PROJECT" },
+  { id: "bangumi", label: "BANGUMI" },
+  { id: "movie", label: "MOVIE" },
+  { id: "character", label: "CHARACTER" },
+  { id: "achievement", label: "ACHIEVE" },
+];
+---
+
+<section class="system-screen extra-screen" data-screen="extra" aria-hidden="true" aria-label="Extra archive">
+  <div class="system-canvas extra-canvas special-system-canvas" id="extra-canvas" data-extra-mode="cg">
+    <div class="extra-safe-frame">
+      <button class="system-back" type="button" data-back>BACK</button>
+
+      <header class="special-page-heading extra-heading">
+        <h2>EXTRA</h2>
+        <p>AFTER STORY ARCHIVE</p>
+      </header>
+
+      <nav class="extra-primary" aria-label="Extra archive sections">
+        {modes.map((mode, index) => (
+          <button
+            type="button"
+            data-extra-mode={mode.id}
+            aria-pressed={index === 0}
+            aria-controls="extra-stage"
+          >
+            <span>{mode.label}</span>
+          </button>
+        ))}
+      </nav>
+
+      <section class="extra-stage" id="extra-stage" aria-live="polite"></section>
+
+      <div class="v4-edge-turners extra-edge-turners" aria-label="Archive pages">
+        <button type="button" data-extra-page-direction="-1" aria-label="Previous page">‹</button>
+        <button type="button" data-extra-page-direction="1" aria-label="Next page">›</button>
+      </div>
+
+      <footer class="extra-status">
+        <p id="extra-focus"><span>SELECT</span><strong>SCENE ARCHIVE</strong><small>OPEN CG</small></p>
+        <nav class="extra-page-controls" aria-label="Archive pages">
+          <button type="button" data-extra-page-direction="-1" aria-label="Previous page">‹</button>
+          <span class="extra-page-count"><b id="extra-page-current">01</b><i>/</i><em id="extra-page-total">02</em></span>
+          <span class="extra-page-line" aria-hidden="true"><i id="extra-page-progress"></i></span>
+          <button type="button" data-extra-page-direction="1" aria-label="Next page">›</button>
+        </nav>
+      </footer>
+
+      <section class="cg-viewer" id="cg-viewer" aria-hidden="true" aria-label="CG fullscreen viewer">
+        <div class="cg-viewer-backdrop" aria-hidden="true"></div>
+        <div class="cg-viewer-art" id="cg-viewer-art"></div>
+        <p class="cg-viewer-caption">
+          <small id="cg-viewer-index">CG 01 / 08</small>
+          <strong id="cg-viewer-title">SCENE MEMORY</strong>
+        </p>
+        <button class="cg-viewer-prev" type="button" data-cg-direction="-1" aria-label="Previous CG">‹</button>
+        <button class="cg-viewer-next" type="button" data-cg-direction="1" aria-label="Next CG">›</button>
+        <button type="button" class="cg-viewer-close" id="cg-viewer-close"><span>×</span> CLOSE</button>
+      </section>
+    </div>
+  </div>
+</section>

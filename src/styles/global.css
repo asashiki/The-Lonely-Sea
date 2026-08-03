@@ -1,0 +1,94 @@
+@layer reset, tokens, base, content;
+
+@layer reset {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html,
+  body,
+  h1,
+  h2,
+  h3,
+  h4,
+  p,
+  figure {
+    margin: 0;
+  }
+
+  img,
+  picture,
+  video,
+  canvas,
+  svg {
+    display: block;
+    max-inline-size: 100%;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+}
+
+@layer tokens {
+  :root {
+    color-scheme: dark;
+    --color-ink: #edf5f7;
+    --color-ink-muted: #a8bac1;
+    --color-sea-deep: #071117;
+    --color-sea: #10232c;
+    --color-mist: #7895a0;
+    --color-line: rgb(168 203 214 / 24%);
+    --color-surface: rgb(10 25 32 / 78%);
+    --font-sans: "Noto Sans SC", "Microsoft YaHei", "Yu Gothic", system-ui, sans-serif;
+    --font-display: "Noto Serif SC", "Yu Mincho", "Songti SC", SimSun, serif;
+    --font-latin: Baskerville, "Iowan Old Style", "Times New Roman", serif;
+    --space-page: clamp(1.25rem, 4vw, 4rem);
+    --content-width: 72rem;
+    --radius-panel: 0.25rem;
+  }
+}
+
+@layer base {
+  html {
+    min-block-size: 100%;
+    background: var(--color-sea-deep);
+    font-family: var(--font-sans);
+    line-height: 1.6;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    min-block-size: 100vh;
+    min-block-size: 100svh;
+    color: var(--color-ink);
+    background:
+      radial-gradient(circle at 72% 18%, rgb(120 149 160 / 16%), transparent 34rem),
+      linear-gradient(145deg, var(--color-sea) 0%, var(--color-sea-deep) 72%);
+  }
+
+  a {
+    color: inherit;
+    text-underline-offset: 0.2em;
+  }
+
+  button,
+  a {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-mist);
+    outline-offset: 0.25rem;
+  }
+
+  ::selection {
+    color: var(--color-sea-deep);
+    background: var(--color-mist);
+  }
+}

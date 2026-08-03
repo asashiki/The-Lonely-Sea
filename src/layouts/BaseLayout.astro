@@ -1,0 +1,45 @@
+---
+import { siteConfig } from "../../site.config.mjs";
+import "../styles/global.css";
+import "../styles/cursor.css";
+
+interface Props {
+  title?: string;
+  description?: string;
+  noindex?: boolean;
+}
+
+const {
+  title = siteConfig.name,
+  description = siteConfig.description,
+  noindex = false,
+} = Astro.props;
+
+const documentTitle = title === siteConfig.name ? title : `${title} | ${siteConfig.name}`;
+const canonicalUrl = new URL(Astro.url.pathname, siteConfig.url);
+---
+
+<!doctype html>
+<html lang={siteConfig.locale}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#071117" />
+    {noindex && <meta name="robots" content="noindex" />}
+    <link rel="canonical" href={canonicalUrl} />
+    <title>{documentTitle}</title>
+    <script is:inline>
+      try {
+        const value = JSON.parse(localStorage.getItem("lonely-sea-preferences-v2") || "{}");
+        document.documentElement.classList.toggle("has-special-cursor", value.specialCursor !== false);
+      } catch {
+        document.documentElement.classList.add("has-special-cursor");
+      }
+    </script>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

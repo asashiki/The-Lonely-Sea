@@ -1,0 +1,549 @@
+---
+import type { ExperienceRecord } from "../../lib/experience-records";
+import { LOAD_SLOT_CAPACITY } from "../../lib/experience-records";
+import "../../styles/load-tracks-xiii.css";
+
+interface Props {
+  records: ExperienceRecord[];
+}
+
+const { records } = Astro.props;
+
+const articleCategories = [
+  { id: "all", label: "ALL" },
+  { id: "essay", label: "ESSAY" },
+  { id: "anime", label: "ANIME" },
+  { id: "project", label: "PROJECT" },
+  { id: "note", label: "NOTE" },
+];
+
+const gameSections = [
+  { id: "save", label: "SAVE DATA" },
+  { id: "flow", label: "FLOWCHART" },
+  { id: "story", label: "STORY" },
+];
+
+const demoSaves = [
+  {
+    number: "01",
+    title: "来到孤独之海",
+    chapter: "CHAPTER 00",
+    section: "SECTION 01",
+    progress: "00:18:42",
+    savedAt: "2026.07.26 23:14",
+    art: "/assets/lonely-sea/mist.png",
+  },
+  {
+    number: "02",
+    title: "关于我",
+    chapter: "CHAPTER 01",
+    section: "SECTION 02",
+    progress: "01:06:17",
+    savedAt: "2026.07.27 00:02",
+    art: "/assets/lonely-sea/day.png",
+  },
+  {
+    number: "03",
+    title: "潮声留下的记录",
+    chapter: "CHAPTER 02",
+    section: "SECTION 03",
+    progress: "01:48:05",
+    savedAt: "2026.07.27 00:44",
+    art: "/assets/lonely-sea/night.png",
+  },
+];
+
+const storyScenes = [
+  {
+    number: "01",
+    title: "初次见面",
+    summary: "关于我，以及这片个人档案为什么被保存下来。",
+    art: "/assets/lonely-sea/mist.png",
+  },
+  {
+    number: "02",
+    title: "孤独之海",
+    summary: "从一处个人博客开始，重新整理散落的文章与记忆。",
+    art: "/assets/lonely-sea/day.png",
+  },
+  {
+    number: "03",
+    title: "阅读这份记录",
+    summary: "在文章、故事与日记之间，选择接下来要读取的内容。",
+    art: "/assets/lonely-sea/night.png",
+  },
+  {
+    number: "04",
+    title: "尚未写完的夏天",
+    summary: "一段从流程图中独立取出的短场景，仍留有继续前进的入口。",
+    art: "/assets/lonely-sea/crimson.png",
+  },
+];
+
+const diaryMonths = [
+  {
+    id: "2026-07",
+    year: "2026",
+    month: "JULY",
+    monthNumber: "07",
+    dateLabel: "2026 / 07",
+    title: "雨后的窗边",
+    summary: "七月在潮湿的空气里慢慢展开。窗外的雨声、深夜的屏幕，以及一些终于愿意写下来的想法。",
+    art: "/assets/lonely-sea/mist.png",
+  },
+  {
+    id: "2026-04",
+    year: "2026",
+    month: "APRIL",
+    monthNumber: "04",
+    dateLabel: "2026 / 04",
+    title: "春日归档",
+    summary: "天气开始变暖，旧文章也被重新翻开。这个月记下了整理博客时反复想起的人和事。",
+    art: "/assets/lonely-sea/day.png",
+  },
+  {
+    id: "2026-01",
+    year: "2026",
+    month: "JANUARY",
+    monthNumber: "01",
+    dateLabel: "2026 / 01",
+    title: "新年的第一页",
+    summary: "新年没有宏大的计划，只想先把散落的文字放回它们应该在的位置。",
+    art: "/assets/lonely-sea/night.png",
+  },
+  {
+    id: "2025-12",
+    year: "2025",
+    month: "DECEMBER",
+    monthNumber: "12",
+    dateLabel: "2025 / 12",
+    title: "雪夜与告别",
+    summary: "一年的末尾总像一场缓慢的退潮。雪落下来时，许多事情终于能够安静地告别。",
+    art: "/assets/lonely-sea/night.png",
+  },
+  {
+    id: "2025-08",
+    year: "2025",
+    month: "AUGUST",
+    monthNumber: "08",
+    dateLabel: "2025 / 08",
+    title: "盛夏余波",
+    summary: "白昼很长，蝉鸣也很近。这个月留下的是游戏、旅行，以及被暑气拉长的夜晚。",
+    art: "/assets/lonely-sea/day.png",
+  },
+  {
+    id: "2025-05",
+    year: "2025",
+    month: "MAY",
+    monthNumber: "05",
+    dateLabel: "2025 / 05",
+    title: "五月的月光",
+    summary: "五月读完了一些故事，也重新理解了曾经喜欢它们的自己。月光仍旧照在同一片海上。",
+    art: "/assets/lonely-sea/crimson.png",
+  },
+];
+
+const diaryYears = [...new Set(diaryMonths.map((entry) => entry.year))];
+
+const flowAtlases = [
+  {
+    id: "blue",
+    label: "BLUE",
+    chapters: [
+      { y: 3, label: "0 / PROLOGUE" },
+      { y: 39, label: "1 / OPEN SEA" },
+      { y: 88, label: "2 / MEMORY BRANCH" },
+    ],
+    paths: [
+      "M50 8 V29",
+      "M50 29 V47",
+      "M50 47 V55 H33 V65",
+      "M50 47 V55 H67 V65",
+      "M33 65 V76 H50 V83",
+      "M67 65 V76 H50 V83",
+      "M50 83 V93 H27 V104",
+      "M50 83 V104",
+      "M50 93 H73 V104",
+      "M27 104 V115 H50 V126",
+      "M50 104 V126",
+      "M73 104 V115 H50 V126",
+    ],
+    nodes: [
+      { id: "blue-prologue", number: "00", title: "潮声之前", summary: "一切尚未被分类时，最初的记录从这里开始。", art: "/assets/lonely-sea/mist.png", x: 50, y: 8, unlocked: true },
+      { id: "blue-arrival", number: "01", title: "来到孤独之海", summary: "进入这处介于记忆与潮汐之间的个人档案。", art: "/assets/lonely-sea/day.png", x: 50, y: 29, unlocked: true },
+      { id: "blue-about", number: "02", title: "关于我", summary: "一段可以直接读取的自我介绍，也是故事的第一条公开分支。", art: "/assets/lonely-sea/night.png", x: 50, y: 47, unlocked: true },
+      { id: "blue-archive", number: "03A", title: "文章与记录", summary: "从文章归档进入另一条以阅读为主的轨道。", art: "/assets/lonely-sea/mist.png", x: 33, y: 65, unlocked: true },
+      { id: "blue-story", number: "03B", title: "故事选项", summary: "将重要场景从完整流程中单独拆分出来。", art: "/assets/lonely-sea/day.png", x: 67, y: 65, unlocked: true },
+      { id: "blue-crossing", number: "04", title: "潮汐交点", summary: "两条阅读轨道在这里重新交汇。", art: "/assets/lonely-sea/crimson.png", x: 50, y: 83, unlocked: true },
+      { id: "blue-locked-a", number: "05A", title: "尚未抵达", summary: "这条故事分支仍处于锁定状态。", art: "", x: 27, y: 104, unlocked: false },
+      { id: "blue-locked-b", number: "05B", title: "尚未抵达", summary: "这条故事分支仍处于锁定状态。", art: "", x: 50, y: 104, unlocked: false },
+      { id: "blue-locked-c", number: "05C", title: "尚未抵达", summary: "这条故事分支仍处于锁定状态。", art: "", x: 73, y: 104, unlocked: false },
+      { id: "blue-ending", number: "06", title: "尚未抵达", summary: "结局会在完成对应内容后解锁。", art: "", x: 50, y: 126, unlocked: false },
+    ],
+  },
+  {
+    id: "red",
+    label: "RED",
+    chapters: [
+      { y: 3, label: "0 / CRIMSON TIDE" },
+      { y: 39, label: "1 / AFTERIMAGE" },
+      { y: 88, label: "2 / UNREAD ROUTE" },
+    ],
+    paths: [
+      "M30 8 V28 H50 V46",
+      "M50 46 V55 H26 V66",
+      "M50 46 V55 H74 V66",
+      "M26 66 V88",
+      "M74 66 V91",
+      "M26 88 V101 H50 V111",
+      "M74 91 V101 H50 V111",
+      "M50 111 V128",
+    ],
+    nodes: [
+      { id: "red-prologue", number: "00", title: "赤潮的梦", summary: "另一条仍在成形的记忆轨道，从夜色中的红光开始。", art: "/assets/lonely-sea/crimson.png", x: 30, y: 8, unlocked: true },
+      { id: "red-crossing", number: "01", title: "午夜来信", summary: "一封没有寄件人的来信，将两条轨道短暂连接。", art: "/assets/lonely-sea/night.png", x: 50, y: 46, unlocked: true },
+      { id: "red-left", number: "02A", title: "回望", summary: "选择回到旧日的入口，重新读取已经发生过的场景。", art: "/assets/lonely-sea/day.png", x: 26, y: 66, unlocked: true },
+      { id: "red-right", number: "02B", title: "继续前行", summary: "向尚未写完的故事前进。之后的内容仍被潮雾遮住。", art: "/assets/lonely-sea/crimson.png", x: 74, y: 66, unlocked: true },
+      { id: "red-memory", number: "03A", title: "褪色的照片", summary: "被保留下来的画面，比文字更早想起那一天。", art: "/assets/lonely-sea/mist.png", x: 26, y: 88, unlocked: true },
+      { id: "red-locked-a", number: "03B", title: "尚未抵达", summary: "此处仍未解锁。", art: "", x: 74, y: 91, unlocked: false },
+      { id: "red-confluence", number: "04", title: "残响", summary: "分开的路径在此留下同一段余音。", art: "/assets/lonely-sea/night.png", x: 50, y: 111, unlocked: true },
+      { id: "red-ending", number: "05", title: "尚未抵达", summary: "另一条结局仍沉在海面以下。", art: "", x: 50, y: 128, unlocked: false },
+    ],
+  },
+];
+
+const initialFlowNode = flowAtlases[0]?.nodes.find((node) => node.unlocked);
+const articleEmptySlots = Array.from(
+  { length: LOAD_SLOT_CAPACITY },
+  (_, index) => index,
+);
+const saveEmptySlots = Array.from(
+  { length: LOAD_SLOT_CAPACITY - demoSaves.length },
+  (_, index) => index,
+);
+const lockedStorySlots = Array.from({ length: 7 }, (_, index) => index);
+---
+
+<div
+  class="system-canvas load-canvas load-tracks-xiii-canvas tracks-xiii-canvas"
+  aria-hidden="false"
+  data-xiii-page="articles"
+  data-xiii-section="all"
+  data-xiii-page-mode="articles"
+  data-xiii-flow-theme="blue"
+>
+  <div class="load-safe-frame">
+    <button class="system-back" type="button" data-back>BACK</button>
+
+    <header class="tracks-xiii-heading">
+      <h2>LOAD</h2>
+    </header>
+
+    <div class="tracks-xiii-primary-shell">
+      <nav class="tracks-xiii-primary" aria-label="读取页面">
+        <button type="button" data-xiii-page-entry="articles" aria-current="page" aria-controls="tracks-xiii-panel-articles">
+          <span>ARTICLES</span>
+        </button>
+        <button type="button" data-xiii-page-entry="game" aria-current="false" aria-controls="tracks-xiii-panel-game">
+          <span>GAME</span>
+        </button>
+        <button type="button" data-xiii-page-entry="diary" aria-current="false" aria-controls="tracks-xiii-panel-diary">
+          <span>DIARY</span>
+        </button>
+      </nav>
+    </div>
+
+    <div class="tracks-xiii-stage">
+      <aside class="tracks-xiii-index" aria-label="二级分类">
+        <span class="tracks-xiii-index-spine" aria-hidden="true"></span>
+        <div class="tracks-xiii-index-stack">
+          <div class="tracks-xiii-index-group" data-xiii-index-group="articles" role="tablist" aria-label="文章分类" aria-hidden="false">
+            {articleCategories.map((category, index) => (
+              <button type="button" role="tab" data-xiii-filter={category.id} aria-selected={index === 0}>
+                <span>{category.label}</span>
+              </button>
+            ))}
+          </div>
+
+          <div class="tracks-xiii-index-group" data-xiii-index-group="game" role="tablist" aria-label="游戏记录分类" aria-hidden="true">
+            {gameSections.map((section) => (
+              <button type="button" role="tab" data-xiii-filter={section.id} aria-selected={section.id === "save"}>
+                <span>{section.label}</span>
+              </button>
+            ))}
+          </div>
+
+          <div class="tracks-xiii-index-group tracks-xiii-year-index" data-xiii-index-group="diary" role="tablist" aria-label="日记年份" aria-hidden="true">
+            {diaryYears.map((year, index) => (
+              <button type="button" role="tab" data-xiii-filter={year} aria-selected={index === 0}>
+                <span>{year}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </aside>
+
+      <div class="tracks-xiii-view" data-xiii-view-transition>
+        <section class="tracks-xiii-panel tracks-xiii-articles" id="tracks-xiii-panel-articles" data-xiii-panel="articles" role="region" aria-label="文章记录" aria-hidden="false">
+          <div class="tracks-xiii-record-grid" data-xiii-article-grid>
+            {records.map((record) => (
+              <button
+                class="tracks-xiii-record-slot"
+                type="button"
+                data-xiii-article-slot
+                data-category={record.archiveCategory}
+                data-href={record.url}
+                data-cover={record.coverUrl}
+                aria-label={"读取文章：" + record.title}
+                style={`--record-art:url('${record.coverUrl}')`}
+              >
+                <span class="tracks-xiii-slot-number" aria-hidden="true">{record.number}</span>
+                <span class="tracks-xiii-slot-art" aria-hidden="true"></span>
+                <span class="tracks-xiii-slot-copy">
+                  <strong>{record.title}</strong>
+                  <time datetime={record.date.replaceAll(".", "-")}>{record.date}</time>
+                </span>
+                <span class="tracks-xiii-slot-command" aria-hidden="true">READ</span>
+              </button>
+            ))}
+            {articleEmptySlots.map((index) => (
+              <div class="tracks-xiii-record-slot is-empty" data-xiii-article-empty aria-hidden="true">
+                <span class="tracks-xiii-slot-number">{String(index + 1).padStart(2, "0")}</span>
+                <span class="tracks-xiii-slot-art" aria-hidden="true"></span>
+                <span class="tracks-xiii-slot-copy"><strong>NO RECORD</strong></span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section class="tracks-xiii-panel tracks-xiii-game" id="tracks-xiii-panel-game" data-xiii-panel="game" role="region" aria-label="游戏记录" aria-hidden="true">
+          <div class="tracks-xiii-game-view tracks-xiii-save-view" data-xiii-game-view="save" aria-hidden="false">
+            <div class="tracks-xiii-save-grid">
+              {demoSaves.map((save) => (
+                <button
+                  class="tracks-xiii-save-slot"
+                  type="button"
+                  data-xiii-save-slot
+                  data-save-number={save.number}
+                  data-save-title={save.title}
+                  data-save-chapter={save.chapter}
+                  data-save-section={save.section}
+                  data-save-progress={save.progress}
+                  data-save-saved-at={save.savedAt}
+                  aria-label={`读取游戏存档 ${save.number}：${save.title}`}
+                  style={`--save-art:url('${save.art}')`}
+                >
+                  <span class="tracks-xiii-save-number" aria-hidden="true">{save.number}</span>
+                  <span class="tracks-xiii-save-art" aria-hidden="true"></span>
+                  <span class="tracks-xiii-save-copy">
+                    <small><span>{save.chapter}</span><span>{save.section}</span></small>
+                    <strong>{save.title}</strong>
+                    <span class="tracks-xiii-save-meta">
+                      <time><b>SAVE</b>{save.savedAt}</time>
+                      <span><b>TIME</b>{save.progress}</span>
+                    </span>
+                  </span>
+                  <span class="tracks-xiii-save-command" aria-hidden="true">LOAD</span>
+                </button>
+              ))}
+              {saveEmptySlots.map((index) => (
+                <div class="tracks-xiii-save-slot is-empty" data-xiii-save-empty aria-label="空存档槽位">
+                  <span class="tracks-xiii-save-number">{String(index + demoSaves.length + 1).padStart(2, "0")}</span>
+                  <span class="tracks-xiii-save-art" aria-hidden="true"></span>
+                  <span class="tracks-xiii-save-copy"><small><span>NO SAVE DATA</span></small><strong>EMPTY SLOT</strong></span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div class="tracks-xiii-game-view tracks-xiii-flow-view" data-xiii-game-view="flow" aria-hidden="true">
+            <section class="tracks-xiii-flow-shell" data-xiii-flow-shell aria-label="故事流程图">
+              <div class="tracks-xiii-flow-tools">
+                <div class="tracks-xiii-flow-themes" role="group" aria-label="切换流程图">
+                  {flowAtlases.map((atlas, index) => (
+                    <button type="button" data-xiii-flow-theme-option={atlas.id} aria-pressed={index === 0}>{atlas.label}</button>
+                  ))}
+                </div>
+                <button class="tracks-xiii-flow-expand" type="button" data-xiii-flow-expand aria-label="放大流程图" aria-expanded="false">
+                  <svg class="is-expand-icon" viewBox="0 0 32 32" aria-hidden="true">
+                    <path d="M13 5H5v8M5 5l9 9M19 27h8v-8M27 27l-9-9"></path>
+                  </svg>
+                  <svg class="is-collapse-icon" viewBox="0 0 32 32" aria-hidden="true">
+                    <path d="M14 14H6V6M6 6l9 9M18 18h8v8M26 26l-9-9"></path>
+                  </svg>
+                </button>
+              </div>
+
+              <div class="tracks-xiii-flow-viewport" data-xiii-flow-viewport tabindex="0" aria-label="可拖动的故事流程">
+                {flowAtlases.map((atlas, atlasIndex) => (
+                  <div class="tracks-xiii-flow-map" data-xiii-flow-map={atlas.id} aria-hidden={atlasIndex !== 0}>
+                    <svg viewBox="0 0 100 136" preserveAspectRatio="none" aria-hidden="true">
+                      {atlas.chapters.map((chapter) => (
+                        <path class="tracks-xiii-flow-boundary" d={`M4 ${chapter.y} H96`}></path>
+                      ))}
+                      {atlas.paths.map((path) => <path class="tracks-xiii-flow-path" d={path}></path>)}
+                    </svg>
+                    {atlas.chapters.map((chapter) => (
+                      <span class="tracks-xiii-flow-chapter" style={`--chapter-y:${(chapter.y / 136) * 100}%`}>
+                        <b>{chapter.label}</b>
+                      </span>
+                    ))}
+                    {atlas.nodes.map((node, nodeIndex) => (
+                      <button
+                        class:list={["tracks-xiii-flow-node", { "is-locked": !node.unlocked }]}
+                        type="button"
+                        data-xiii-flow-node={node.unlocked ? node.id : undefined}
+                        data-flow-theme={atlas.id}
+                        data-flow-number={node.number}
+                        data-flow-title={node.title}
+                        data-flow-summary={node.summary}
+                        data-flow-art={node.art}
+                        aria-label={node.unlocked ? node.title : "未解锁场景"}
+                        aria-pressed={node.unlocked ? nodeIndex === 0 : undefined}
+                        disabled={!node.unlocked}
+                        style={`--flow-x:${node.x}%;--flow-y:${(node.y / 136) * 100}%;--node-art:${node.art ? `url('${node.art}')` : "none"}`}
+                      >
+                        <span class="tracks-xiii-flow-node-art" aria-hidden="true"></span>
+                        <span class="tracks-xiii-flow-node-number" aria-hidden="true">{node.unlocked ? node.number : "?"}</span>
+                      </button>
+                    ))}
+                  </div>
+                ))}
+              </div>
+
+              <div class="tracks-xiii-flow-caption" aria-live="polite">
+                <span data-xiii-flow-caption-number>{initialFlowNode?.number}</span>
+                <strong data-xiii-flow-caption-title>{initialFlowNode?.title}</strong>
+              </div>
+
+              <aside class="tracks-xiii-flow-detail" aria-live="polite">
+                <div class="tracks-xiii-flow-detail-paper">
+                  <div class="tracks-xiii-flow-detail-art" data-xiii-flow-detail-art style={`--detail-art:url('${initialFlowNode?.art}')`}></div>
+                  <div class="tracks-xiii-flow-detail-copy">
+                    <small data-xiii-flow-detail-number>SCENE {initialFlowNode?.number}</small>
+                    <h3 data-xiii-flow-detail-title>{initialFlowNode?.title}</h3>
+                    <p data-xiii-flow-detail-summary>{initialFlowNode?.summary}</p>
+                  </div>
+                </div>
+              </aside>
+
+              <div class="tracks-xiii-flow-hints" aria-hidden="true">
+                <span><b>○</b> DECIDE</span><span><b>×</b> BACK</span><span><b>✚</b> MOVE</span><span><b>↕</b> SCROLL</span>
+              </div>
+
+              <div class="tracks-xiii-flow-scroll-indicator" data-xiii-flow-scroll-indicator aria-hidden="true">
+                <span data-xiii-flow-scroll-thumb></span>
+              </div>
+            </section>
+          </div>
+
+          <div class="tracks-xiii-game-view tracks-xiii-story-view" data-xiii-game-view="story" aria-hidden="true">
+            <div class="tracks-xiii-story-scroll" id="tracks-xiii-story-scroll" data-xiii-story-scroll tabindex="0" aria-label="可读取故事场景">
+              <div class="tracks-xiii-story-list">
+                {storyScenes.map((scene) => (
+                  <button
+                    class="tracks-xiii-story-slot"
+                    type="button"
+                    data-xiii-story-slot
+                    data-story-number={scene.number}
+                    data-story-title={scene.title}
+                    style={`--story-art:url('${scene.art}')`}
+                  >
+                    <span class="tracks-xiii-story-node" aria-hidden="true"></span>
+                    <span class="tracks-xiii-story-art" aria-hidden="true"></span>
+                    <span class="tracks-xiii-story-number">{scene.number}</span>
+                    <span class="tracks-xiii-story-copy">
+                      <strong>{scene.title}</strong>
+                      <span>{scene.summary}</span>
+                    </span>
+                  </button>
+                ))}
+                {lockedStorySlots.map((_, index) => (
+                  <div class="tracks-xiii-story-slot is-locked" aria-label="未解锁故事场景">
+                    <span class="tracks-xiii-story-node" aria-hidden="true"></span>
+                    <span class="tracks-xiii-story-number">{String(index + storyScenes.length + 1).padStart(2, "0")}</span>
+                    <span class="tracks-xiii-story-copy"><strong>LOCKED</strong><span>STORY RECORD IS NOT YET AVAILABLE</span></span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div class="tracks-xiii-story-rail" data-xiii-story-rail role="scrollbar" aria-controls="tracks-xiii-story-scroll" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
+              <span data-xiii-story-thumb></span>
+            </div>
+          </div>
+        </section>
+
+        <section class="tracks-xiii-panel tracks-xiii-diary" id="tracks-xiii-panel-diary" data-xiii-panel="diary" role="region" aria-label="日记记录" aria-hidden="true">
+          {diaryMonths.map((entry, index) => (
+            <article
+              class="tracks-xiii-diary-month"
+              data-xiii-diary-month={entry.id}
+              data-diary-year={entry.year}
+              data-diary-date={entry.dateLabel}
+              data-diary-label={`${entry.month} / ${entry.year}`}
+              data-diary-title={entry.title}
+              data-diary-summary={entry.summary}
+              data-diary-art={entry.art}
+              aria-hidden={index !== 0}
+            >
+              <span class="tracks-xiii-diary-ghost" aria-hidden="true">{entry.monthNumber}</span>
+              <div class="tracks-xiii-diary-copy">
+                <time>{entry.dateLabel}</time>
+                <small>{entry.month} — MONTHLY DIARY</small>
+                <h3>{entry.title}</h3>
+                <p>{entry.summary}</p>
+                <span>OPEN THIS MONTH</span>
+              </div>
+              <button class="tracks-xiii-diary-cover" type="button" data-xiii-diary-entry aria-label={`读取 ${entry.dateLabel} 日记`} aria-pressed="false" style={`--diary-art:url('${entry.art}')`}>
+                <span class="tracks-xiii-diary-art" aria-hidden="true"></span>
+                <span class="tracks-xiii-diary-edge" aria-hidden="true"></span>
+                <strong>{entry.month}</strong>
+              </button>
+            </article>
+          ))}
+
+          <section
+            class="tracks-xiii-diary-reader"
+            data-xiii-diary-reader
+            role="dialog"
+            aria-modal="true"
+            aria-hidden="true"
+            aria-label="日记阅读预览"
+          >
+            <div class="tracks-xiii-diary-reader-art" data-xiii-diary-reader-art style={`--diary-reader-art:url('${diaryMonths[0]?.art}')`} aria-hidden="true"></div>
+            <div class="tracks-xiii-diary-reader-copy">
+              <time data-xiii-diary-reader-date>{diaryMonths[0]?.dateLabel}</time>
+              <h3 data-xiii-diary-reader-title>{diaryMonths[0]?.title}</h3>
+              <p data-xiii-diary-reader-summary>{diaryMonths[0]?.summary}</p>
+            </div>
+            <button class="tracks-xiii-diary-reader-close" type="button" data-xiii-diary-reader-close>RETURN</button>
+          </section>
+        </section>
+      </div>
+    </div>
+
+    <div class="tracks-xiii-edge-turners" data-xiii-page-controls aria-label="内容翻页">
+      <button type="button" data-xiii-page-direction="-1" aria-label="上一页"><span>‹</span></button>
+      <button type="button" data-xiii-page-direction="1" aria-label="下一页"><span>›</span></button>
+    </div>
+
+    <nav class="tracks-xiii-page-nav" data-xiii-page-nav aria-label="当前内容页码">
+      <div class="tracks-xiii-page-markers" data-xiii-page-markers></div>
+      <strong data-xiii-page-status></strong>
+    </nav>
+
+    <section class="tracks-xiii-story-confirm" data-xiii-story-confirm role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="tracks-xiii-story-confirm-title">
+      <div class="tracks-xiii-story-confirm-shade" aria-hidden="true"></div>
+      <div class="tracks-xiii-story-confirm-panel">
+        <span data-xiii-story-confirm-number>SCENE 01</span>
+        <h3 id="tracks-xiii-story-confirm-title">ENTER THIS STORY?</h3>
+        <p data-xiii-story-confirm-title>初次见面</p>
+        <div>
+          <button type="button" data-xiii-story-enter>ENTER</button>
+          <button type="button" data-xiii-story-cancel>CANCEL</button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>

@@ -1,0 +1,20 @@
+---
+import type { ExperienceRecord } from "../../lib/experience-records";
+import LoadTracksXiiiConcept from "./LoadTracksXiiiConcept.astro";
+
+interface Props {
+  records: ExperienceRecord[];
+}
+
+const { records } = Astro.props;
+---
+
+<section
+  class="system-screen load-screen"
+  data-screen="load"
+  data-load-reference="tracks-xiii"
+  aria-hidden="true"
+  aria-label="文章存档"
+>
+  <LoadTracksXiiiConcept records={records} />
+</section>
