@@ -1,3 +1,8 @@
+import {
+  GAL_BLOG_SAVE_CHANGE_EVENT,
+  listGalBlogSaves,
+} from "../../lib/gal-blog/save-store";
+
 const LAST_LOAD_STORAGE_KEY = "lonely-sea-last-load";
 const KEYBOARD_CURSOR_STORAGE_KEY = "lonely-sea-load-keyboard-cursor";
 const PAGE_CAPACITY = 6;
@@ -33,7 +38,6 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
   const articleSlots = all("[data-xiii-article-slot]");
   const articleEmptySlots = all("[data-xiii-article-empty]");
   const saveSlots = all("[data-xiii-save-slot]");
-  const saveEmptySlots = all("[data-xiii-save-empty]");
   const articleGrid = required("[data-xiii-article-grid]");
   const saveGrid = required(".tracks-xiii-save-grid");
   const stage = required(".tracks-xiii-stage");
@@ -80,14 +84,12 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
   const firstDiaryYear = required('[data-xiii-index-group="diary"] [data-xiii-filter]').dataset.xiiiFilter;
   const primaryShell = required(".tracks-xiii-primary-shell");
   const systemBack = required(".system-back");
-  const referenceSwitcher = required(".tracks-xiii-reference-switcher");
   const interfaceInertTargets = [
     systemBack,
     primaryShell,
     index,
     pageControls,
     pageNav,
-    referenceSwitcher,
   ];
 
   if (!routeCurtain) throw new Error("Missing route curtain");
@@ -127,6 +129,7 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
   let transitionIndexGhost = null;
   let transitionIncomingIndexGhost = null;
   let transitionAnimations = [];
+  let transitionCleanupTimer = 0;
   let saveFeedbackTimer = 0;
   let keyboardCursorEnabled = true;
   let keyboardCursorItem = null;
@@ -143,8 +146,11 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
   }
 
   function clearTransition() {
+    window.clearTimeout(transitionCleanupTimer);
+    transitionCleanupTimer = 0;
     transitionAnimations.forEach((animation) => animation.cancel());
     transitionAnimations = [];
+    all(".tracks-xiii-view-ghost, .tracks-xiii-index-ghost").forEach((ghost) => ghost.remove());
     transitionGhost?.remove();
     transitionGhost = null;
     transitionIncomingGhost?.remove();
@@ -276,6 +282,9 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
       .then(() => {
         if (serial === transitionSerial) clearTransition();
       });
+    transitionCleanupTimer = window.setTimeout(() => {
+      if (serial === transitionSerial) clearTransition();
+    }, duration + 100);
   }
 
   function runArticleFilterTransition(commit, { animate = true, direction = 1 } = {}) {
@@ -372,7 +381,76 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
   }
 
   function saveItems() {
-    return [...saveSlots, ...saveEmptySlots];
+    return saveSlots;
+  }
+
+  function formatElapsed(elapsedMs) {
+    if (!Number.isFinite(elapsedMs)) return "--:--:--";
+    const seconds = Math.max(0, Math.floor(elapsedMs / 1000));
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    return [hours, minutes, seconds % 60].map((value) => String(value).padStart(2, "0")).join(":");
+  }
+
+  function formatSavedAt(value) {
+    const date = new Date(value);
+    if (Number.isNaN(date.valueOf())) return "----.--.-- --:--";
+    const parts = new Intl.DateTimeFormat("zh-CN", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }).formatToParts(date);
+    const part = (type) => parts.find((item) => item.type === type)?.value || "--";
+    return `${part("year")}.${part("month")}.${part("day")} ${part("hour")}:${part("minute")}`;
+  }
+
+  function syncSaveSlots() {
+    const saves = listGalBlogSaves();
+    saveSlots.forEach((slot, index) => {
+      const save = saves.find((item) => item.slot === index + 1);
+      const copy = required(".tracks-xiii-save-copy", slot);
+      const labels = all("small > span", copy);
+      const title = required("strong", copy);
+      const savedAt = required(".tracks-xiii-save-meta time > span", copy);
+      const elapsed = required(".tracks-xiii-save-meta > span > span", copy);
+      slot.dataset.saveNumber = String(index + 1).padStart(2, "0");
+      if (!save) {
+        slot.classList.add("is-empty");
+        slot.disabled = true;
+        slot.setAttribute("aria-label", "空存档槽位");
+        ["saveId", "saveTitle", "saveChapter", "saveSection", "saveProgress", "saveSavedAt", "gameSlug", "releaseId", "savePointId"]
+          .forEach((key) => delete slot.dataset[key]);
+        slot.style.removeProperty("--save-art");
+        labels[0].textContent = "NO SAVE DATA";
+        labels[1].textContent = "";
+        title.textContent = "EMPTY SLOT";
+        savedAt.textContent = "";
+        elapsed.textContent = "";
+        return;
+      }
+      slot.classList.remove("is-empty");
+      slot.disabled = false;
+      slot.dataset.saveId = save.id;
+      slot.dataset.saveTitle = save.title;
+      slot.dataset.saveChapter = save.chapter || "CHECKPOINT";
+      slot.dataset.saveSection = save.scene || save.target.id;
+      slot.dataset.saveProgress = formatElapsed(save.elapsedMs);
+      slot.dataset.saveSavedAt = formatSavedAt(save.savedAt);
+      slot.dataset.gameSlug = save.gameSlug;
+      slot.dataset.releaseId = save.releaseId;
+      slot.dataset.savePointId = save.target.id;
+      slot.setAttribute("aria-label", `读取游戏存档 ${slot.dataset.saveNumber}：${save.title}`);
+      if (save.thumbnail) slot.style.setProperty("--save-art", `url(${JSON.stringify(save.thumbnail)})`);
+      else slot.style.removeProperty("--save-art");
+      labels[0].textContent = slot.dataset.saveChapter;
+      labels[1].textContent = slot.dataset.saveSection;
+      title.textContent = save.title;
+      savedAt.textContent = slot.dataset.saveSavedAt;
+      elapsed.textContent = slot.dataset.saveProgress;
+    });
   }
 
   function saveTotalPages() {
@@ -386,7 +464,6 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
     const start = savePage * PAGE_CAPACITY;
     const shown = new Set(items.slice(start, start + PAGE_CAPACITY));
     saveSlots.forEach((slot) => setPagedSlotVisible(slot, shown.has(slot)));
-    saveEmptySlots.forEach((slot) => setPagedSlotVisible(slot, shown.has(slot)));
   }
 
   function diaryEntriesForYear(year) {
@@ -930,6 +1007,9 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
       detail: {
         number: storyTrigger.dataset.storyNumber || "",
         title: storyTrigger.dataset.storyTitle || "",
+        gameSlug: storyTrigger.dataset.gameSlug || "",
+        releaseId: storyTrigger.dataset.releaseId || "",
+        sceneId: storyTrigger.dataset.sceneId || "",
       },
     }));
     closeStoryConfirm({ restoreFocus: true, cue: false });
@@ -1315,6 +1395,7 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
   });
 
   function activateSaveSlot(slot, { animate = true } = {}) {
+    if (slot.disabled || !slot.dataset.saveId) return;
     window.clearTimeout(saveFeedbackTimer);
     saveSlots.forEach((candidate) => {
       candidate.classList.remove("is-load-feedback");
@@ -1343,12 +1424,16 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
     window.dispatchEvent(new CustomEvent("lonely-sea:save-select", {
       detail: {
         source: "load-xiii",
+        saveId: slot.dataset.saveId,
         number: slot.dataset.saveNumber || "",
         title: slot.dataset.saveTitle || "",
         chapter: slot.dataset.saveChapter || "",
         section: slot.dataset.saveSection || "",
         progress: slot.dataset.saveProgress || "",
         savedAt: slot.dataset.saveSavedAt || "",
+        gameSlug: slot.dataset.gameSlug || "",
+        releaseId: slot.dataset.releaseId || "",
+        savePointId: slot.dataset.savePointId || "",
       },
     }));
   }
@@ -1434,6 +1519,10 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
     loadCanvas.classList.toggle("is-keyboard-cursor-enabled", keyboardCursorEnabled);
     if (!keyboardCursorEnabled) clearKeyboardCursor({ forget: true });
   });
+  window.addEventListener(GAL_BLOG_SAVE_CHANGE_EVENT, syncSaveSlots);
+  window.addEventListener("storage", (event) => {
+    if (event.key?.startsWith("lonely-sea:gal-blog-saves")) syncSaveSlots();
+  });
 
   const storyResizeObserver = new ResizeObserver(updateStoryScrollbar);
   const flowResizeObserver = new ResizeObserver(updateFlowScrollbar);
@@ -1441,6 +1530,7 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
   flowResizeObserver.observe(flowViewport);
 
   function activate() {
+    syncSaveSlots();
     syncKeyboardCursor();
     window.requestAnimationFrame(() => {
       updateStoryScrollbar();
@@ -1467,6 +1557,7 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
     clearFlowThemeAnimations();
   }
 
+  syncSaveSlots();
   updateSelectionState();
 
   return {

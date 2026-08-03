@@ -7,6 +7,12 @@ import { initOptions } from "./experience/options.js";
 import { initStartScreen } from "./experience/start.js";
 import { createWeatherController } from "./experience/weather.js";
 import { applyPreferences, readPreferences } from "./experience/preferences.js";
+import {
+  createGalBlogLaunchIntent,
+  createGalBlogLaunchUrl,
+  createSaveLaunchUrl,
+} from "../lib/gal-blog/launch-session";
+import { getGalBlogSave } from "../lib/gal-blog/save-store";
 
 const EXPERIENCE_STORAGE_KEY = "lonely-sea-experience-v1";
 const OPENING_STORAGE_KEY = "lonely-sea-opening-seen";
@@ -220,6 +226,31 @@ window.addEventListener("lonely-sea:preferences-change", (event) => {
   preferences = applyPreferences(event.detail?.preferences || readPreferences());
   weather.setDensity(preferences.particleDensity / 100);
   weather.handlePreferenceChange();
+});
+
+window.addEventListener("lonely-sea:story-enter", (event) => {
+  const { gameSlug, releaseId, sceneId } = event.detail || {};
+  if (!gameSlug || !sceneId) return;
+  try {
+    const intent = createGalBlogLaunchIntent({
+      gameSlug,
+      releaseId: releaseId || undefined,
+      target: { kind: "scene", id: sceneId },
+    });
+    window.location.assign(createGalBlogLaunchUrl(intent));
+  } catch {
+    refreshStatus("STORY LAUNCH UNAVAILABLE");
+  }
+});
+
+window.addEventListener("lonely-sea:save-select", (event) => {
+  const save = getGalBlogSave(event.detail?.saveId || "");
+  if (!save) return;
+  try {
+    window.location.assign(createSaveLaunchUrl(save));
+  } catch {
+    refreshStatus("SAVE DATA UNAVAILABLE");
+  }
 });
 
 all("[data-command]").forEach((button) => {

@@ -1,6 +1,7 @@
 ---
 import type { ExperienceRecord } from "../../lib/experience-records";
 import { LOAD_SLOT_CAPACITY } from "../../lib/experience-records";
+import { listPublicStoryScenes } from "../../lib/gal-blog/release-registry";
 import "../../styles/load-tracks-xiii.css";
 
 interface Props {
@@ -23,37 +24,7 @@ const gameSections = [
   { id: "story", label: "STORY" },
 ];
 
-const demoSaves = [
-  {
-    number: "01",
-    title: "来到孤独之海",
-    chapter: "CHAPTER 00",
-    section: "SECTION 01",
-    progress: "00:18:42",
-    savedAt: "2026.07.26 23:14",
-    art: "/assets/lonely-sea/mist.png",
-  },
-  {
-    number: "02",
-    title: "关于我",
-    chapter: "CHAPTER 01",
-    section: "SECTION 02",
-    progress: "01:06:17",
-    savedAt: "2026.07.27 00:02",
-    art: "/assets/lonely-sea/day.png",
-  },
-  {
-    number: "03",
-    title: "潮声留下的记录",
-    chapter: "CHAPTER 02",
-    section: "SECTION 03",
-    progress: "01:48:05",
-    savedAt: "2026.07.27 00:44",
-    art: "/assets/lonely-sea/night.png",
-  },
-];
-
-const storyScenes = [
+const demoStoryScenes = [
   {
     number: "01",
     title: "初次见面",
@@ -79,6 +50,19 @@ const storyScenes = [
     art: "/assets/lonely-sea/crimson.png",
   },
 ];
+
+const publishedStoryScenes = listPublicStoryScenes();
+const storyScenes = publishedStoryScenes.length
+  ? publishedStoryScenes.map((scene, index) => ({
+      number: String(index + 1).padStart(2, "0"),
+      title: scene.title,
+      summary: "",
+      art: scene.thumbnail ?? "/assets/lonely-sea/mist.png",
+      gameSlug: scene.gameSlug,
+      releaseId: scene.releaseId,
+      sceneId: scene.sceneId,
+    }))
+  : demoStoryScenes;
 
 const diaryMonths = [
   {
@@ -217,10 +201,7 @@ const articleEmptySlots = Array.from(
   { length: LOAD_SLOT_CAPACITY },
   (_, index) => index,
 );
-const saveEmptySlots = Array.from(
-  { length: LOAD_SLOT_CAPACITY - demoSaves.length },
-  (_, index) => index,
-);
+const saveSlots = Array.from({ length: LOAD_SLOT_CAPACITY }, (_, index) => index);
 const lockedStorySlots = Array.from({ length: 7 }, (_, index) => index);
 ---
 
@@ -319,39 +300,27 @@ const lockedStorySlots = Array.from({ length: 7 }, (_, index) => index);
         <section class="tracks-xiii-panel tracks-xiii-game" id="tracks-xiii-panel-game" data-xiii-panel="game" role="region" aria-label="游戏记录" aria-hidden="true">
           <div class="tracks-xiii-game-view tracks-xiii-save-view" data-xiii-game-view="save" aria-hidden="false">
             <div class="tracks-xiii-save-grid">
-              {demoSaves.map((save) => (
+              {saveSlots.map((index) => (
                 <button
-                  class="tracks-xiii-save-slot"
+                  class="tracks-xiii-save-slot is-empty"
                   type="button"
                   data-xiii-save-slot
-                  data-save-number={save.number}
-                  data-save-title={save.title}
-                  data-save-chapter={save.chapter}
-                  data-save-section={save.section}
-                  data-save-progress={save.progress}
-                  data-save-saved-at={save.savedAt}
-                  aria-label={`读取游戏存档 ${save.number}：${save.title}`}
-                  style={`--save-art:url('${save.art}')`}
+                  data-save-number={String(index + 1).padStart(2, "0")}
+                  aria-label="空存档槽位"
+                  disabled
                 >
-                  <span class="tracks-xiii-save-number" aria-hidden="true">{save.number}</span>
+                  <span class="tracks-xiii-save-number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
                   <span class="tracks-xiii-save-art" aria-hidden="true"></span>
                   <span class="tracks-xiii-save-copy">
-                    <small><span>{save.chapter}</span><span>{save.section}</span></small>
-                    <strong>{save.title}</strong>
+                    <small><span>NO SAVE DATA</span><span></span></small>
+                    <strong>EMPTY SLOT</strong>
                     <span class="tracks-xiii-save-meta">
-                      <time><b>SAVE</b>{save.savedAt}</time>
-                      <span><b>TIME</b>{save.progress}</span>
+                      <time><b>SAVE</b><span></span></time>
+                      <span><b>TIME</b><span></span></span>
                     </span>
                   </span>
                   <span class="tracks-xiii-save-command" aria-hidden="true">LOAD</span>
                 </button>
-              ))}
-              {saveEmptySlots.map((index) => (
-                <div class="tracks-xiii-save-slot is-empty" data-xiii-save-empty aria-label="空存档槽位">
-                  <span class="tracks-xiii-save-number">{String(index + demoSaves.length + 1).padStart(2, "0")}</span>
-                  <span class="tracks-xiii-save-art" aria-hidden="true"></span>
-                  <span class="tracks-xiii-save-copy"><small><span>NO SAVE DATA</span></small><strong>EMPTY SLOT</strong></span>
-                </div>
               ))}
             </div>
           </div>
@@ -447,6 +416,9 @@ const lockedStorySlots = Array.from({ length: 7 }, (_, index) => index);
                     data-xiii-story-slot
                     data-story-number={scene.number}
                     data-story-title={scene.title}
+                    data-game-slug={"gameSlug" in scene ? scene.gameSlug : undefined}
+                    data-release-id={"releaseId" in scene ? scene.releaseId : undefined}
+                    data-scene-id={"sceneId" in scene ? scene.sceneId : undefined}
                     style={`--story-art:url('${scene.art}')`}
                   >
                     <span class="tracks-xiii-story-node" aria-hidden="true"></span>

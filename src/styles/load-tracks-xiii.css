@@ -3210,6 +3210,11 @@ html.tracks-xiii-diary-open body {
   letter-spacing: .14em;
 }
 
+.tracks-xiii-save-slot.is-empty .tracks-xiii-save-meta,
+.tracks-xiii-save-slot.is-empty .tracks-xiii-save-command {
+  display: none;
+}
+
 @media (hover: hover) and (pointer: fine) {
   .tracks-xiii-save-slot:hover {
     box-shadow:
