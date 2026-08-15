@@ -6,6 +6,9 @@ const BLOG_USER = "asashiki";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const bangumiPath = resolve(root, "src/data/generated/bangumi.json");
 const activityPath = resolve(root, "src/data/generated/activity.json");
+const musicPath = resolve(root, "src/data/generated/music.json");
+const NETEASE_PLAYLIST_ID = "18262393732";
+const METING_PLAYLIST = `https://api.qijieya.cn/meting/?server=netease&type=playlist&id=${NETEASE_PLAYLIST_ID}`;
 const headers = {
   Accept: "application/json",
   "User-Agent": "The-Lonely-Sea/1.0 (https://asashiki.com)",
@@ -77,6 +80,31 @@ function mapCollection(item) {
     summary: typeof subject.short_summary === "string" ? subject.short_summary.trim() : "",
     updatedAt,
   };
+}
+
+function mapMetingTrack(item, index) {
+  if (!isRecord(item) || typeof item.name !== "string" || typeof item.url !== "string") return null;
+  const metingId = Number(String(item.url).match(/[?&]id=(\d+)/)?.[1] || 0);
+  if (!metingId) return null;
+  return {
+    title: item.name.trim(),
+    artist: String(item.artist || "UNKNOWN").trim() || "UNKNOWN",
+    sourceLabel: "NETEASE",
+    tone: index % 2 === 0 ? "night" : "day",
+    cover: typeof item.pic === "string" ? item.pic : "",
+    src: item.url,
+    provider: "meting",
+    server: "netease",
+    metingId,
+  };
+}
+
+async function fetchNeteasePlaylist() {
+  const payload = await fetchJson(METING_PLAYLIST, 20_000);
+  if (!Array.isArray(payload)) throw new Error("网易云歌单响应无效");
+  const items = payload.map(mapMetingTrack).filter(Boolean);
+  if (!items.length) throw new Error("网易云歌单没有可用曲目");
+  return items;
 }
 
 function utcDate(date) {
@@ -151,7 +179,24 @@ async function main() {
     bangumi: bangumiActivity,
     github: githubActivity,
   });
-  console.log(`Bangumi ${items.length} 条；活动热力图各 ${bangumiActivity.length} 天；同步于 ${syncedAt}`);
+  let musicCount = 0;
+  try {
+    const musicItems = await fetchNeteasePlaylist();
+    await writeSnapshot(musicPath, {
+      schema: "lonely-sea-music/v1",
+      playlistId: NETEASE_PLAYLIST_ID,
+      playlistUrl: `https://music.163.com/playlist?id=${NETEASE_PLAYLIST_ID}`,
+      syncedAt,
+      total: musicItems.length,
+      items: musicItems,
+    });
+    musicCount = musicItems.length;
+  } catch (error) {
+    const retained = Boolean(await previous(musicPath));
+    console.error(`网易云歌单同步失败${retained ? "，已保留上次快照" : ""}：${error instanceof Error ? error.message : error}`);
+    if (!retained) process.exitCode = 1;
+  }
+  console.log(`Bangumi ${items.length} 条；活动热力图各 ${bangumiActivity.length} 天；歌单 ${musicCount || "未更新"} 首；同步于 ${syncedAt}`);
 }
 
 main().catch(async (error) => {

@@ -69,6 +69,18 @@ const records = await getExperienceRecords();
     </div>
   </section>
 
+  <aside class="listen-dock" id="listen-dock" hidden aria-hidden="true">
+    <button type="button" data-listen-toggle aria-pressed="false" aria-label="Play playlist">
+      <span class="listen-dock-glyph" aria-hidden="true"></span>
+    </button>
+    <p>
+      <strong data-listen-title></strong>
+      <small data-listen-artist></small>
+    </p>
+    <button type="button" data-listen-next aria-label="Next track">›</button>
+    <button type="button" data-listen-stop aria-label="Stop playlist">×</button>
+  </aside>
+
   <ExitDialog />
 
   <script>

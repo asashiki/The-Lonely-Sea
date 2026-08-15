@@ -6,12 +6,17 @@ import {
   extraDefaults,
   movieItems,
   musicItems,
+  musicPlaylist,
+  projectCategories,
   projectItems,
+  projectTagLabels,
+  projectTagOrder,
 } from "../../data/extra-content.js";
 import { all, required } from "./dom.js";
 import { preferencesReduceMotion, readPreferences } from "./preferences.js";
 import { recordBlogActivity } from "../../lib/blog-activity";
 import { resolveAchievements } from "../../lib/experience-achievements";
+import { writeArticleContinue } from "../../lib/experience-continue";
 
 const CG_PAGE_SIZE = 9;
 const PROJECT_PAGE_SIZE = 6;
@@ -59,10 +64,71 @@ function waveMarkup() {
   return '<canvas class="extra-music-wave" data-music-wave aria-hidden="true"></canvas>';
 }
 
+function projectLanguage() {
+  const language = readPreferences().language;
+  return language === "JA-JP" || language === "EN-US" ? language : "ZH-CN";
+}
+
+function projectText(value) {
+  if (typeof value === "string") return value;
+  const language = projectLanguage();
+  return value?.[language] || value?.["ZH-CN"] || "";
+}
+
+function projectTagText(tag) {
+  return projectText(projectTagLabels[tag]) || tag;
+}
+
+function projectTitle(item) {
+  return projectText(item.title);
+}
+
+function projectRoomCopy() {
+  const language = projectLanguage();
+  if (language === "JA-JP") {
+    return {
+      all: "すべて",
+      empty: "この条件に合う項目はない。",
+      note: "項目は src/data/extra-content.js で直せる",
+      github: "GitHub",
+      visit: "訪問",
+      source: "ソース",
+      article: "紹介",
+    };
+  }
+  if (language === "EN-US") {
+    return {
+      all: "ALL",
+      empty: "NO PROJECTS MATCH THIS FILTER.",
+      note: "Edit entries in src/data/extra-content.js",
+      github: "GitHub",
+      visit: "Visit",
+      source: "Source",
+      article: "Note",
+    };
+  }
+  return {
+    all: "全部",
+    empty: "没有符合筛选的项目。",
+    note: "条目可在 src/data/extra-content.js 修改",
+    github: "GitHub",
+    visit: "访问",
+    source: "源码",
+    article: "介绍",
+  };
+}
+
 function projectLinks(item) {
+  const labels = projectRoomCopy();
   const links = [];
-  if (item.href) links.push([item.href.includes("github.com") ? "GITHUB" : "VISIT", item.href]);
-  if (item.source && item.source !== item.href) links.push(["SOURCE", item.source]);
+  if (item.github) links.push([labels.github, item.github, "external"]);
+  if (item.href && item.href !== item.github) {
+    links.push([item.href.includes("github.com") ? labels.github : labels.visit, item.href, "external"]);
+  }
+  if (item.source && item.source !== item.href && item.source !== item.github) {
+    links.push([labels.source, item.source, "external"]);
+  }
+  if (item.note) links.push([labels.article, item.note, "internal"]);
   return links;
 }
 
@@ -83,9 +149,14 @@ export function initExtraScreen() {
   let extraPage = 0;
   let cgIndex = 0;
   let musicIndex = 0;
+  let musicShuffle = false;
+  let musicShuffleOrder = [];
+  let listenSession = false;
   let bangumiCategory = "all";
   let bangumiStatus = "all";
   let bangumiIndex = 0;
+  let projectCategory = "all";
+  let projectTag = "all";
   let characterExpressionIndex = 0;
   let stageTransition = null;
   let transitionToken = 0;
@@ -105,6 +176,8 @@ export function initExtraScreen() {
   let cgViewerAnimation = null;
   let bangumiFocusLayer = 0;
   let bangumiFocusToken = 0;
+  let bangumiShelfToken = 0;
+  let projectGridToken = 0;
 
   function setFocus(title, action) {
     required("strong", extraFocus).textContent = title;
@@ -115,13 +188,68 @@ export function initExtraScreen() {
     extraCanvas.dataset.musicPlaying = String(musicPlaying);
     extraCanvas.dataset.musicMuted = String(musicMuted);
     extraStage.querySelector(".extra-music-room")?.classList.toggle("is-playing", musicPlaying);
+    extraCanvas.dataset.musicShuffle = String(musicShuffle);
+    window.dispatchEvent(new CustomEvent("lonely-sea:listen-hold", { detail: { active: listenSession } }));
+    syncListenDock();
+    all("[data-music-shuffle]", extraStage).forEach((button) => {
+      button.setAttribute("aria-pressed", String(musicShuffle));
+    });
     all("[data-music-toggle]", extraStage).forEach((toggle) => {
       toggle.setAttribute("aria-pressed", String(musicPlaying));
-      required("strong", toggle).textContent = musicPlaying ? "PAUSE" : "PLAY";
+      const label = toggle.querySelector("strong");
+      if (label) label.textContent = musicPlaying ? "PAUSE" : "PLAY";
     });
   }
 
-  function stopMusic({ immediate = false } = {}) {
+  function rebuildMusicShuffle() {
+    const order = musicItems.map((_, index) => index);
+    for (let index = order.length - 1; index > 0; index -= 1) {
+      const swap = Math.floor(Math.random() * (index + 1));
+      [order[index], order[swap]] = [order[swap], order[index]];
+    }
+    const current = order.indexOf(musicIndex);
+    if (current > 0) {
+      order.splice(current, 1);
+      order.unshift(musicIndex);
+    }
+    musicShuffleOrder = order;
+  }
+
+  function nextMusicIndex(step) {
+    if (!musicShuffle) {
+      return (musicIndex + step + musicItems.length) % musicItems.length;
+    }
+    if (musicShuffleOrder.length !== musicItems.length) rebuildMusicShuffle();
+    const at = musicShuffleOrder.indexOf(musicIndex);
+    return musicShuffleOrder[(at + step + musicShuffleOrder.length) % musicShuffleOrder.length];
+  }
+
+  function toggleMusicShuffle() {
+    musicShuffle = !musicShuffle;
+    if (musicShuffle) rebuildMusicShuffle();
+    else musicShuffleOrder = [];
+    syncMusicState();
+    setFocus(musicItems[musicIndex].title, musicShuffle ? "SHUFFLE ON" : "SHUFFLE OFF");
+  }
+
+  function pauseMusic() {
+    if (!musicPlayer || !musicPlaying) {
+      musicPlaying = false;
+      syncMusicState();
+      return;
+    }
+    musicPlaying = false;
+    musicPlayer.pause();
+    syncMusicState();
+    setFocus(musicItems[musicIndex].title, "PAUSED");
+  }
+
+  function toggleMusic() {
+    if (musicPlaying) pauseMusic();
+    else startMusic();
+  }
+
+  function stopMusic({ immediate = false, releaseSession = true } = {}) {
     const player = musicPlayer;
     const context = audioContext;
     const output = musicOutput;
@@ -133,6 +261,7 @@ export function initExtraScreen() {
     musicGraph = [];
     musicOutputVolume = 0;
     musicPlaying = false;
+    if (releaseSession) listenSession = false;
     syncMusicState();
 
     if (player) {
@@ -160,14 +289,31 @@ export function initExtraScreen() {
 
   async function startMusic() {
     const current = musicItems[musicIndex];
+    if (musicPlayer && !musicPlaying && musicPlayer.src) {
+      try {
+        await musicPlayer.play();
+      } catch {
+        setFocus(current.title, "CLICK PLAY TO START");
+        return;
+      }
+      musicPlaying = true;
+      listenSession = true;
+      syncMusicState();
+      setFocus(current.title, "PLAYING");
+      return;
+    }
     stopMusic({ immediate: true });
 
     if (current.src) {
       const player = new Audio(current.src);
       player.preload = "auto";
-      player.loop = true;
+      player.loop = false;
       player.volume = Math.min(1, Math.max(0, readPreferences().bgmVolume / 100 * .58));
       player.muted = musicMuted;
+      player.addEventListener("ended", () => {
+        if (musicPlayer !== player) return;
+        changeMusicSelection(nextMusicIndex(1), { animate: true });
+      });
       musicPlayer = player;
       try {
         await player.play();
@@ -181,6 +327,7 @@ export function initExtraScreen() {
       }
       if (musicPlayer !== player) return;
       musicPlaying = true;
+      listenSession = true;
       syncMusicState();
       setFocus(current.title, "PLAYING");
       recordBlogActivity("musicTracks", current.title);
@@ -239,6 +386,7 @@ export function initExtraScreen() {
     musicSources = sources;
     musicGraph = graph;
     musicPlaying = true;
+    listenSession = true;
     syncMusicState();
     setFocus(current.title, "PLAYING");
     recordBlogActivity("musicTracks", current.title);
@@ -285,7 +433,7 @@ export function initExtraScreen() {
 
       const elapsed = previousTime ? Math.min(48, time - previousTime) : 16;
       previousTime = time;
-      const targetAmplitude = musicPlaying ? 1 : .16;
+      const targetAmplitude = musicPlaying ? 1 : .3;
       const blend = reduceMotion ? 1 : 1 - Math.exp(-(elapsed / 1000) * 5.8);
       musicWaveAmplitude += (targetAmplitude - musicWaveAmplitude) * blend;
       musicWavePhase += (elapsed / 1000) * (musicPlaying ? 2.1 : .32);
@@ -294,8 +442,9 @@ export function initExtraScreen() {
       const center = height / 2;
       for (let line = 0; line < 3; line += 1) {
         context.beginPath();
-        for (let x = 0; x <= width; x += 3) {
-          const progress = x / width;
+        const inset = Math.min(18, width * .045);
+        for (let x = inset; x <= width - inset; x += 3) {
+          const progress = (x - inset) / Math.max(1, width - inset * 2);
           const envelope = Math.sin(Math.PI * progress) ** .72;
           const primary = Math.sin(x * (.025 + line * .0028) + musicWavePhase * (1 + line * .16));
           const secondary = Math.sin(x * .009 - musicWavePhase * (1.35 - line * .12) + line * 1.9);
@@ -323,6 +472,11 @@ export function initExtraScreen() {
       const viewport = shell?.querySelector("[data-extra-scroll]");
       const thumb = rail.querySelector("span");
       if (!viewport || !thumb) return;
+      if (rail.dataset.scrollBound === "true") {
+        viewport.dispatchEvent(new Event("scroll"));
+        return;
+      }
+      rail.dataset.scrollBound = "true";
 
       const update = () => {
         const maxScroll = Math.max(0, viewport.scrollHeight - viewport.clientHeight);
@@ -391,7 +545,35 @@ export function initExtraScreen() {
   }
 
   function filteredProjectItems() {
-    return projectItems;
+    return projectItems.filter((item) => {
+      const categoryMatches = projectCategory === "all" || item.category === projectCategory;
+      const tagMatches = projectTag === "all" || item.tags.includes(projectTag);
+      return categoryMatches && tagMatches;
+    });
+  }
+
+  function visibleProjectTags() {
+    const used = new Set(projectItems.flatMap((item) => item.tags));
+    return projectTagOrder.filter((tag) => used.has(tag));
+  }
+
+  function openProjectArticle(href, title) {
+    if (!href) return;
+    writeArticleContinue(href, title);
+    if (preferencesReduceMotion() || !readPreferences().articleTransition) {
+      window.location.assign(href);
+      return;
+    }
+    const curtain = document.querySelector("#route-curtain");
+    if (!(curtain instanceof HTMLElement)) {
+      window.location.assign(href);
+      return;
+    }
+    const label = curtain.querySelector("strong");
+    if (label) label.textContent = "NOW LOADING";
+    curtain.setAttribute("aria-hidden", "false");
+    window.setTimeout(() => curtain.classList.add("is-covering"), 40);
+    window.setTimeout(() => window.location.assign(href), 520);
   }
 
   function totalPages() {
@@ -448,31 +630,34 @@ export function initExtraScreen() {
         ${roomHeading({
           eyebrow: "SOUND TEST",
           title: "MUSIC",
-          summary: "FROM YEARLY NOTES",
-          note: "真实封面与音源由 METING 接入",
+          summary: `${musicItems.length} TRACKS`,
         })}
         <section class="extra-music-now" style="${artStyle(current.cover)}">
-          <span class="extra-music-cover" aria-hidden="true"><img src="${escapeHtml(current.cover)}" alt="" referrerpolicy="no-referrer"></span>
+          <button class="extra-music-cover" type="button" data-music-toggle aria-label="Play or pause" aria-pressed="${musicPlaying}">
+            <img src="${escapeHtml(current.cover)}" alt="" referrerpolicy="no-referrer" data-music-cover>
+          </button>
           <div class="extra-music-current">
             <small>NOW PLAYING</small>
             <h4>${escapeHtml(current.title)}</h4>
-            <p><span data-music-current-artist>${escapeHtml(current.artist)}</span><em data-music-current-length>${escapeHtml(current.sourceLabel)}</em></p>
+            <p><span data-music-current-artist>${escapeHtml(current.artist)}</span></p>
+            <p class="extra-music-source">
+              <button type="button" class="extra-music-source-mark" aria-expanded="false" aria-controls="extra-music-source-copy">SOURCE</button>
+              <span class="extra-music-source-copy" id="extra-music-source-copy">
+                音源来自网易云。本 blog 无任何版权。
+                <a href="${escapeHtml(musicPlaylist.url)}" ${externalAttributes()}>打开歌单</a>
+              </span>
+            </p>
           </div>
           <div class="extra-music-wave-deck">
+            <button class="extra-music-skip is-previous" type="button" data-music-step="-1" aria-label="Previous track">‹</button>
             <button class="extra-music-toggle" type="button" data-music-toggle aria-pressed="${musicPlaying}">
               <span class="extra-play-glyph" aria-hidden="true"><i class="is-play"></i><i class="is-pause"></i></span>
               <strong>${musicPlaying ? "PAUSE" : "PLAY"}</strong>
             </button>
             ${waveMarkup()}
+            <button class="extra-music-shuffle" type="button" data-music-shuffle aria-pressed="${musicShuffle}" aria-label="Shuffle playlist">SHUFFLE</button>
+            <button class="extra-music-skip is-next" type="button" data-music-step="1" aria-label="Next track">›</button>
           </div>
-          <nav class="extra-music-transport" aria-label="Music playback">
-            <button class="extra-music-skip is-previous" type="button" data-music-step="-1" aria-label="Previous track">
-              <span aria-hidden="true">‹</span><small>PREVIOUS TRACK</small>
-            </button>
-            <button class="extra-music-skip is-next" type="button" data-music-step="1" aria-label="Next track">
-              <small>NEXT TRACK</small><span aria-hidden="true">›</span>
-            </button>
-          </nav>
         </section>
         <div class="extra-track-browser extra-scroll-shell">
           <div class="extra-track-list" id="extra-track-scroll" data-extra-scroll tabindex="0" aria-label="Music tracks">
@@ -489,7 +674,6 @@ export function initExtraScreen() {
                   <strong>${escapeHtml(track.title)}</strong>
                   <small>${escapeHtml(track.artist)}</small>
                 </span>
-                <em>${escapeHtml(track.sourceLabel)}</em>
               </button>
             `).join("")}
           </div>
@@ -499,83 +683,452 @@ export function initExtraScreen() {
     `;
     syncMusicState();
     initMusicWave();
+    extraStage.querySelector("[data-music-cover]")?.addEventListener("error", () => {
+      extraStage.querySelector(".extra-music-cover")?.classList.add("is-missing");
+    });
+    bindMusicSource();
+  }
+
+  function bindMusicSource() {
+    const source = extraStage.querySelector(".extra-music-source");
+    const mark = extraStage.querySelector(".extra-music-source-mark");
+    if (!source || !mark) return;
+    const setOpen = (open) => {
+      source.classList.toggle("is-open", open);
+      mark.setAttribute("aria-expanded", String(open));
+    };
+    source.addEventListener("pointerenter", () => setOpen(true));
+    source.addEventListener("pointerleave", () => setOpen(false));
+    mark.addEventListener("focus", () => setOpen(true));
+    source.addEventListener("focusout", (event) => {
+      if (!source.contains(event.relatedTarget)) setOpen(false);
+    });
+    mark.addEventListener("click", () => setOpen(!source.classList.contains("is-open")));
+  }
+
+  function syncListenDock() {
+    const dock = document.querySelector("#listen-dock");
+    if (!(dock instanceof HTMLElement)) return;
+    const extraOpen = extraCanvas.closest("[data-screen]")?.getAttribute("aria-hidden") === "false";
+    const hide = !listenSession || (extraOpen && extraMode === "music");
+    dock.hidden = hide;
+    dock.setAttribute("aria-hidden", String(hide));
+    if (hide) return;
+    const current = musicItems[musicIndex];
+    const title = dock.querySelector("[data-listen-title]");
+    const artist = dock.querySelector("[data-listen-artist]");
+    const toggle = dock.querySelector("[data-listen-toggle]");
+    if (title) title.textContent = current.title;
+    if (artist) artist.textContent = current.artist;
+    if (toggle instanceof HTMLElement) {
+      toggle.setAttribute("aria-pressed", String(musicPlaying));
+      toggle.setAttribute("aria-label", musicPlaying ? "Pause playlist" : "Play playlist");
+    }
   }
 
   function projectCardsMarkup(items) {
+    if (!items.length) return `<p class="extra-project-empty">${escapeHtml(projectRoomCopy().empty)}</p>`;
     return items.map((item) => {
       const links = projectLinks(item);
+      const title = projectTitle(item);
       return `
         <article
           class="extra-project-record${links.length ? " has-links" : ""}"
-          data-focus-title="${escapeHtml(item.title)}"
+          data-focus-title="${escapeHtml(title)}"
           data-focus-action="${links.length ? "OPEN PROJECT" : "PROJECT RECORD"}"
         >
           <div class="extra-project-art${item.art ? " has-art" : ""}"${item.art ? ` style="${artStyle(item.art)}"` : ""}>
             <span aria-hidden="true"></span>
-            <strong class="extra-project-mark" aria-hidden="true">${escapeHtml(item.mark || item.title)}</strong>
             ${links.length ? `
-              <nav aria-label="${escapeHtml(item.title)} links" data-link-count="${links.length}">
-                ${links.map(([label, href]) => `
-                  <a href="${escapeHtml(href)}" ${externalAttributes()}>${escapeHtml(label)}</a>
+              <nav aria-label="${escapeHtml(title)} links" data-link-count="${links.length}">
+                ${links.map(([label, href, kind]) => `
+                  <a href="${escapeHtml(href)}" ${kind === "internal" ? 'data-project-article="true"' : externalAttributes()}>${escapeHtml(label)}</a>
                 `).join("")}
               </nav>
             ` : ""}
           </div>
           <div class="extra-project-copy">
-            <div>
-              <strong>${escapeHtml(item.title)}</strong>
-              <small>${escapeHtml(item.description)}</small>
-            </div>
-            <p>${item.tags.map((tag) => `<span>${escapeHtml(tag)}</span>`).join("")}</p>
+            <strong>${escapeHtml(title)}</strong>
+            <p>
+              ${item.tags.map((tag) => `
+                <button type="button" data-project-card-tag="${escapeHtml(tag)}" aria-pressed="${tag === projectTag}">
+                  ${escapeHtml(projectTagText(tag))}
+                </button>
+              `).join("")}
+            </p>
           </div>
         </article>
       `;
     }).join("");
   }
 
-  function renderProjects() {
-    const filteredItems = projectItems;
+  function syncProjectFilters() {
+    all("[data-project-category]", extraStage).forEach((button) => {
+      button.setAttribute("aria-pressed", String(button.dataset.projectCategory === projectCategory));
+    });
+    all("[data-project-tag]", extraStage).forEach((button) => {
+      button.setAttribute("aria-pressed", String(button.dataset.projectTag === projectTag));
+    });
+  }
+
+  function paintProjectGrid({ animate = true } = {}) {
+    const filteredItems = filteredProjectItems();
+    extraPage = Math.max(0, Math.min(extraPage, Math.max(1, Math.ceil(filteredItems.length / PROJECT_PAGE_SIZE)) - 1));
     const start = extraPage * PROJECT_PAGE_SIZE;
     const items = filteredItems.slice(start, start + PROJECT_PAGE_SIZE);
+    const grid = extraStage.querySelector(".extra-project-grid");
+    if (!grid) return;
+    const token = ++projectGridToken;
+
+    const replace = () => {
+      if (token !== projectGridToken) return;
+      grid.innerHTML = projectCardsMarkup(items);
+      const count = extraStage.querySelector("[data-project-count]");
+      if (count) count.textContent = String(filteredItems.length);
+      bindProjectCards();
+      bindFocusNodes(grid);
+      updatePageControls();
+    };
+
+    if (!animate || preferencesReduceMotion()) {
+      replace();
+      return;
+    }
+
+    const outgoing = grid.animate(
+      [
+        { opacity: 1, transform: "translate3d(0,0,0)" },
+        { opacity: 0, transform: "translate3d(.6cqw,0,0)" },
+      ],
+      { duration: 110, easing: "ease-out", fill: "both" },
+    );
+    outgoing.finished
+      .then(() => {
+        outgoing.cancel();
+        replace();
+        if (token !== projectGridToken) return;
+        grid.animate(
+          [
+            { opacity: 0, transform: "translate3d(-.6cqw,0,0)" },
+            { opacity: 1, transform: "translate3d(0,0,0)" },
+          ],
+          { duration: 180, easing: "cubic-bezier(.22,1,.36,1)" },
+        );
+      })
+      .catch(() => {
+        outgoing.cancel();
+        replace();
+      });
+  }
+
+  function revealProjectTag(tag) {
+    const rail = extraStage.querySelector("[data-project-tag-rail]");
+    const button = rail?.querySelector(`[data-project-tag="${CSS.escape(tag)}"]`);
+    if (!rail || !button) return;
+    const left = button.offsetLeft;
+    const right = left + button.offsetWidth;
+    const viewLeft = rail.scrollLeft;
+    const viewRight = viewLeft + rail.clientWidth;
+    if (left < viewLeft + 8) rail.scrollLeft = Math.max(0, left - 12);
+    else if (right > viewRight - 8) rail.scrollLeft = right - rail.clientWidth + 12;
+  }
+
+  function selectProjectTag(next) {
+    if (!next || next === projectTag) return;
+    projectTag = next;
+    extraPage = 0;
+    syncProjectFilters();
+    paintProjectGrid();
+    revealProjectTag(next);
+  }
+
+  function bindProjectTagRail() {
+    const rail = extraStage.querySelector("[data-project-tag-rail]");
+    if (!rail || rail.dataset.projectRailBound === "true") return;
+    rail.dataset.projectRailBound = "true";
+    let pointerId = null;
+    let startX = 0;
+    let startScroll = 0;
+    let dragged = false;
+    let suppressClick = null;
+
+    const syncFade = () => {
+      const max = rail.scrollWidth - rail.clientWidth;
+      rail.classList.toggle("has-overflow", max > 4);
+      rail.classList.toggle("has-left-fade", rail.scrollLeft > 6);
+      rail.classList.toggle("has-right-fade", max > 4 && rail.scrollLeft < max - 6);
+    };
+
+    const clearSuppress = () => {
+      if (!suppressClick) return;
+      rail.removeEventListener("click", suppressClick, true);
+      suppressClick = null;
+    };
+
+    rail.addEventListener("pointerdown", (event) => {
+      if (event.button !== 0 || rail.scrollWidth <= rail.clientWidth) return;
+      pointerId = event.pointerId;
+      startX = event.clientX;
+      startScroll = rail.scrollLeft;
+      dragged = false;
+    });
+    rail.addEventListener("pointermove", (event) => {
+      if (event.pointerId !== pointerId) return;
+      const distance = event.clientX - startX;
+      if (!dragged && Math.abs(distance) < 12) return;
+      if (!dragged) {
+        dragged = true;
+        rail.classList.add("is-dragging");
+        rail.setPointerCapture(pointerId);
+      }
+      rail.scrollLeft = startScroll - distance;
+    });
+    const endDrag = (event) => {
+      if (event.pointerId !== pointerId) return;
+      rail.classList.remove("is-dragging");
+      pointerId = null;
+      if (!dragged) return;
+      clearSuppress();
+      suppressClick = (clickEvent) => {
+        clickEvent.preventDefault();
+        clickEvent.stopPropagation();
+        clearSuppress();
+      };
+      rail.addEventListener("click", suppressClick, true);
+      window.setTimeout(clearSuppress, 0);
+      dragged = false;
+    };
+    rail.addEventListener("pointerup", endDrag);
+    rail.addEventListener("pointercancel", endDrag);
+    rail.addEventListener("wheel", (event) => {
+      if (rail.scrollWidth <= rail.clientWidth) return;
+      const delta = Math.abs(event.deltaY) >= Math.abs(event.deltaX) ? event.deltaY : event.deltaX;
+      if (!delta) return;
+      event.preventDefault();
+      rail.scrollLeft += delta;
+    }, { passive: false });
+    rail.addEventListener("scroll", syncFade, { passive: true });
+    window.requestAnimationFrame(syncFade);
+  }
+
+  function bindProjectCards() {
+    all("[data-project-card-tag]", extraStage).forEach((button) => {
+      if (button.dataset.projectBound === "true") return;
+      button.dataset.projectBound = "true";
+      button.addEventListener("click", () => selectProjectTag(button.dataset.projectCardTag));
+    });
+    all("[data-project-article]", extraStage).forEach((link) => {
+      if (link.dataset.projectBound === "true") return;
+      link.dataset.projectBound = "true";
+      const href = link.getAttribute("href") || "";
+      link.addEventListener("pointerenter", () => {
+        const preferences = readPreferences();
+        if (!href || !preferences.smartPreload || preferences.dataSaver) return;
+        if (document.head.querySelector(`link[rel="prefetch"][href="${href}"]`)) return;
+        const prefetch = document.createElement("link");
+        prefetch.rel = "prefetch";
+        prefetch.href = href;
+        document.head.append(prefetch);
+      }, { once: true });
+      link.addEventListener("click", (event) => {
+        if (
+          event.defaultPrevented
+          || event.button !== 0
+          || event.metaKey
+          || event.ctrlKey
+          || event.shiftKey
+          || event.altKey
+        ) return;
+        event.preventDefault();
+        const card = link.closest("[data-focus-title]");
+        openProjectArticle(href, card?.dataset.focusTitle || "");
+      });
+    });
+  }
+
+  function renderProjects() {
+    const filteredItems = filteredProjectItems();
+    extraPage = Math.max(0, Math.min(extraPage, Math.max(1, Math.ceil(filteredItems.length / PROJECT_PAGE_SIZE)) - 1));
+    const start = extraPage * PROJECT_PAGE_SIZE;
+    const items = filteredItems.slice(start, start + PROJECT_PAGE_SIZE);
+    const copy = projectRoomCopy();
     extraStage.innerHTML = `
       <div class="extra-room extra-project-room">
         ${roomHeading({
           eyebrow: "PROJECT ARCHIVE",
           title: "PROJECT",
-          summary: "SELECTED PUBLIC WORK",
-          note: "内容来自公开仓库，不再使用演示项目",
+          summary: `<b data-project-count>${filteredItems.length}</b> / ${projectItems.length}`,
+          note: copy.note,
         })}
-        <div class="extra-project-grid">
-          ${projectCardsMarkup(items)}
-        </div>
-        <aside class="extra-project-tide">
-          <div class="extra-project-note">
-            <strong>PUBLIC REPOSITORIES</strong>
-            <small>只陈列已有内容；项目更新以 GitHub 为准</small>
+        <section class="extra-project-toolbar">
+          <div class="extra-project-filter">
+            <nav aria-label="Project category">
+              <button type="button" data-project-category="all" aria-pressed="${projectCategory === "all"}">${copy.all}</button>
+              ${projectCategories.map((entry) => `
+                <button type="button" data-project-category="${entry.id}" aria-pressed="${projectCategory === entry.id}">
+                  ${escapeHtml(projectText(entry.labels))}
+                </button>
+              `).join("")}
+            </nav>
+            <nav aria-label="Project tags" data-project-tag-rail>
+              <button type="button" data-project-tag="all" aria-pressed="${projectTag === "all"}">${copy.all}</button>
+              ${visibleProjectTags().map((tag) => `
+                <button type="button" data-project-tag="${escapeHtml(tag)}" aria-pressed="${projectTag === tag}">
+                  ${escapeHtml(projectTagText(tag))}
+                </button>
+              `).join("")}
+            </nav>
           </div>
           <div class="extra-project-activity">
             <span><strong>CONTRIBUTION TIDE</strong><small>LAST 12 WEEKS</small></span>
             ${heatmapMarkup(externalActivity.github, "extra-project-heatmap")}
           </div>
-        </aside>
+        </section>
+        <div class="extra-project-grid">
+          ${projectCardsMarkup(items)}
+        </div>
       </div>
     `;
+  }
+
+  function listedBangumiItems() {
+    return filteredBangumiItems().map((item) => ({
+      item,
+      index: bangumiItems.indexOf(item),
+    }));
+  }
+
+  function bangumiCardsMarkup(items) {
+    if (!items.length) return '<p class="extra-bangumi-empty">NO RECORDS MATCH THIS FILTER.</p>';
+    return items.map(({ item, index }, itemPosition) => `
+      <button
+        class="extra-bangumi-card"
+        type="button"
+        data-bangumi-index="${index}"
+        data-focus-title="${escapeHtml(item.title)}"
+        data-focus-action="SELECT RECORD"
+        aria-pressed="${index === bangumiIndex}"
+      >
+        <span class="extra-bangumi-cover" aria-hidden="true"><img src="${escapeHtml(item.cover)}" alt="" loading="${itemPosition < 8 ? "eager" : "lazy"}" decoding="async" draggable="false"></span>
+        <span class="extra-bangumi-copy">
+          <strong>${escapeHtml(item.title)}</strong>
+        </span>
+      </button>
+    `).join("");
+  }
+
+  function bangumiFocusMarkup(selected) {
+    if (!selected) return "";
+    return `
+      <aside class="extra-bangumi-focus" data-bangumi-focus data-preview-index="${selected.index}">
+        <span class="extra-bangumi-focus-art is-visible" data-bangumi-focus-art style="${artStyle(selected.item.cover)}" aria-hidden="true"></span>
+        <span class="extra-bangumi-focus-art" data-bangumi-focus-art aria-hidden="true"></span>
+        <div class="extra-bangumi-focus-copy">
+          <h4 data-bangumi-focus-title>${escapeHtml(selected.item.title)}</h4>
+          <p class="extra-bangumi-focus-note" data-bangumi-focus-note${selected.item.total ? "" : " hidden"}>${escapeHtml(selected.item.total ? `PROGRESS ${selected.item.progress} / ${selected.item.total}` : "")}</p>
+          <div class="extra-bangumi-nvl extra-scroll-shell" data-bangumi-nvl>
+            <div class="extra-bangumi-nvl-body" data-extra-scroll tabindex="0">
+              <p data-bangumi-nvl-text>${escapeHtml(selected.item.comment || "")}</p>
+            </div>
+            <div class="extra-scroll-rail" data-extra-scroll-rail role="scrollbar" aria-controls="bangumi-nvl-scroll" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0"><span></span></div>
+          </div>
+          <nav class="extra-bangumi-focus-actions">
+            <a data-bangumi-focus-link href="${escapeHtml(selected.item.href)}" ${externalAttributes()}>
+              <span>OPEN RECORD</span><i aria-hidden="true">↗</i>
+            </a>
+            <button type="button" data-bangumi-comment-open${selected.item.comment ? "" : " hidden"}>READ NOTE</button>
+            <button type="button" data-bangumi-nvl-close>CLOSE</button>
+          </nav>
+        </div>
+        <strong class="extra-bangumi-focus-ghost" data-bangumi-focus-state aria-hidden="true">${escapeHtml(selected.item.state)}</strong>
+      </aside>
+    `;
+  }
+
+  function syncBangumiFilters() {
+    all("[data-bangumi-category]", extraStage).forEach((button) => {
+      button.setAttribute("aria-pressed", String(button.dataset.bangumiCategory === bangumiCategory));
+    });
+    all("[data-bangumi-status]", extraStage).forEach((button) => {
+      button.setAttribute("aria-pressed", String(button.dataset.bangumiStatus === bangumiStatus));
+    });
+  }
+
+  function paintBangumiShelf({ animate = true } = {}) {
+    const token = ++bangumiShelfToken;
+    const items = listedBangumiItems();
+    const selected = items.find((entry) => entry.index === bangumiIndex) ?? items[0] ?? null;
+    if (selected) bangumiIndex = selected.index;
+    bangumiFocusLayer = 0;
+    bangumiFocusToken += 1;
+    closeBangumiReader();
+
+    const track = extraStage.querySelector(".extra-bangumi-track");
+    const workspace = extraStage.querySelector(".extra-bangumi-workspace");
+    const count = extraStage.querySelector("[data-bangumi-count]");
+    if (!track || !workspace) return;
+
+    const replace = () => {
+      if (token !== bangumiShelfToken) return;
+      track.innerHTML = bangumiCardsMarkup(items);
+      const existingFocus = workspace.querySelector("[data-bangumi-focus]");
+      const nextFocus = bangumiFocusMarkup(selected);
+      if (existingFocus) {
+        if (nextFocus) existingFocus.outerHTML = nextFocus;
+        else existingFocus.remove();
+      } else if (nextFocus) {
+        workspace.insertAdjacentHTML("beforeend", nextFocus);
+      }
+      if (count) count.textContent = String(items.length);
+      bindBangumiCards();
+      bindFocusNodes(track);
+      bindScrollRails();
+      const viewport = extraStage.querySelector(".extra-bangumi-viewport");
+      if (viewport) {
+        viewport.scrollLeft = 0;
+        syncBangumiEdgeFade(viewport);
+      }
+      updatePageControls();
+      if (selected) setFocus(selected.item.title, "OPEN BANGUMI");
+      else setFocus(...extraDefaults.bangumi);
+    };
+
+    if (!animate || preferencesReduceMotion()) {
+      replace();
+      return;
+    }
+
+    const viewport = extraStage.querySelector(".extra-bangumi-viewport");
+    const outgoing = viewport?.animate(
+      [{ opacity: 1 }, { opacity: 0 }],
+      { duration: 110, easing: "ease", fill: "both" },
+    );
+    outgoing?.finished
+      .then(() => {
+        outgoing.cancel();
+        replace();
+        if (token !== bangumiShelfToken) return;
+        extraStage.querySelector(".extra-bangumi-viewport")?.animate(
+          [{ opacity: 0 }, { opacity: 1 }],
+          { duration: 180, easing: "cubic-bezier(.22,1,.36,1)" },
+        );
+      })
+      .catch(() => {
+        outgoing?.cancel();
+        replace();
+      });
   }
 
   function renderBangumi() {
     bangumiFocusLayer = 0;
     bangumiFocusToken += 1;
-    const filteredItems = filteredBangumiItems();
-    const items = filteredItems.map((item) => ({
-      item,
-      index: bangumiItems.indexOf(item),
-    }));
+    const items = listedBangumiItems();
     const selected = items.find((entry) => entry.index === bangumiIndex) ?? items[0] ?? null;
     if (selected) bangumiIndex = selected.index;
     const categories = [
       ["all", "ALL"],
-      ["game", "GAMES"],
       ["anime", "ANIME"],
+      ["game", "GAMES"],
     ];
     const statuses = [
       ["all", "ALL"],
@@ -588,7 +1141,7 @@ export function initExtraScreen() {
         ${roomHeading({
           eyebrow: "BANGUMI RECORD",
           title: "BANGUMI",
-          summary: `<b>${filteredItems.length}</b> / ${bangumiItems.length} RECORDS`,
+          summary: `<b data-bangumi-count>${items.length}</b> / ${bangumiItems.length} RECORDS`,
           note: `SYNCED ${new Date(externalActivity.syncedAt).toLocaleDateString("zh-CN", { timeZone: "Asia/Tokyo" })}`,
         })}
         <section class="extra-bangumi-toolbar">
@@ -616,41 +1169,10 @@ export function initExtraScreen() {
         <section class="extra-bangumi-workspace">
           <div class="extra-bangumi-viewport" tabindex="0" aria-label="Horizontal Bangumi archive">
             <div class="extra-bangumi-track">
-              ${items.length ? items.map(({ item, index }, itemPosition) => `
-                <button
-                  class="extra-bangumi-card"
-                  type="button"
-                  data-bangumi-index="${index}"
-                  data-focus-title="${escapeHtml(item.title)}"
-                  data-focus-action="SELECT RECORD"
-                  aria-pressed="${index === bangumiIndex}"
-                >
-                  <span class="extra-bangumi-cover" aria-hidden="true"><img src="${escapeHtml(item.cover)}" alt="" loading="${itemPosition < 8 ? "eager" : "lazy"}" decoding="async"></span>
-                  <span class="extra-bangumi-copy">
-                    <small>${escapeHtml(item.state)} · ${escapeHtml(item.year)}</small>
-                    <strong>${escapeHtml(item.title)}</strong>
-                  </span>
-                </button>
-              `).join("") : `
-                <p class="extra-bangumi-empty">NO RECORDS MATCH THIS FILTER.</p>
-              `}
+              ${bangumiCardsMarkup(items)}
             </div>
           </div>
-          ${selected ? `
-            <aside class="extra-bangumi-focus" data-bangumi-focus data-preview-index="${selected.index}">
-              <span class="extra-bangumi-focus-art is-visible" data-bangumi-focus-art style="${artStyle(selected.item.cover)}" aria-hidden="true"></span>
-              <span class="extra-bangumi-focus-art" data-bangumi-focus-art aria-hidden="true"></span>
-              <div class="extra-bangumi-focus-copy">
-                <small data-bangumi-focus-meta>${escapeHtml(selected.item.category.toUpperCase())} · ${escapeHtml(selected.item.state)} · ${escapeHtml(selected.item.year)}${selected.item.userScore ? ` · MY ${selected.item.userScore}` : ""}</small>
-                <h4 data-bangumi-focus-title>${escapeHtml(selected.item.title)}</h4>
-                <p class="extra-bangumi-focus-note" data-bangumi-focus-note>${escapeHtml(selected.item.comment || (selected.item.total ? `PROGRESS ${selected.item.progress} / ${selected.item.total}` : "NO PERSONAL NOTE"))}</p>
-                <a data-bangumi-focus-link href="${escapeHtml(selected.item.href)}" ${externalAttributes()}>
-                  <span>OPEN RECORD</span><i aria-hidden="true">↗</i>
-                </a>
-              </div>
-              <strong class="extra-bangumi-focus-ghost" data-bangumi-focus-state aria-hidden="true">${escapeHtml(selected.item.state)}</strong>
-            </aside>
-          ` : ""}
+          ${bangumiFocusMarkup(selected)}
         </section>
       </div>
     `;
@@ -763,6 +1285,18 @@ export function initExtraScreen() {
     `;
   }
 
+  function openBangumiReader(item) {
+    if (!item?.comment) return;
+    const text = extraStage.querySelector("[data-bangumi-nvl-text]");
+    if (text) text.textContent = item.comment;
+    extraCanvas.classList.add("is-reading-note");
+    window.requestAnimationFrame(() => bindScrollRails());
+  }
+
+  function closeBangumiReader() {
+    extraCanvas.classList.remove("is-reading-note");
+  }
+
   function bindFocusNodes(root = extraStage) {
     all("[data-focus-title]", root).forEach((node) => {
       if (node.dataset.extraFocusBound === "true") return;
@@ -771,6 +1305,31 @@ export function initExtraScreen() {
       node.addEventListener("pointerenter", update);
       node.addEventListener("focus", update);
     });
+  }
+
+  function bindBangumiCards() {
+    all("[data-bangumi-index]", extraStage).forEach((button) => {
+      if (button.dataset.bangumiBound === "true") return;
+      button.dataset.bangumiBound = "true";
+      button.addEventListener("click", (event) => {
+        selectBangumi(Number(button.dataset.bangumiIndex), { animate: event.detail > 0 });
+      });
+      button.addEventListener("pointerenter", () => {
+        selectBangumi(Number(button.dataset.bangumiIndex), { animate: true });
+      });
+      button.addEventListener("focus", () => {
+        selectBangumi(Number(button.dataset.bangumiIndex), { animate: false });
+      });
+    });
+    extraStage.querySelector("[data-bangumi-comment-open]")?.addEventListener("click", () => {
+      const item = bangumiItems[bangumiIndex];
+      if (item?.comment) openBangumiReader(item);
+    });
+    extraStage.querySelector("[data-bangumi-nvl-close]")?.addEventListener("click", () => closeBangumiReader());
+  }
+
+  function syncBangumiEdgeFade(viewport) {
+    viewport.classList.toggle("has-left-fade", viewport.scrollLeft > 6);
   }
 
   function syncBangumiPageFromScroll(viewport) {
@@ -787,17 +1346,28 @@ export function initExtraScreen() {
 
   function bindBangumiViewport() {
     const viewport = extraStage.querySelector(".extra-bangumi-viewport");
-    if (!viewport) return;
+    if (!viewport || viewport.dataset.bangumiViewportBound === "true") return;
+    viewport.dataset.bangumiViewportBound = "true";
     let pointerId = null;
     let pointerStart = 0;
     let scrollStart = 0;
+    let lastX = 0;
+    let lastTime = 0;
+    let velocity = 0;
     let dragged = false;
+    let inertia = 0;
+
+    const stopInertia = () => {
+      if (inertia) cancelAnimationFrame(inertia);
+      inertia = 0;
+    };
 
     viewport.addEventListener("wheel", (event) => {
       if (viewport.scrollWidth <= viewport.clientWidth) return;
       const delta = Math.abs(event.deltaY) >= Math.abs(event.deltaX) ? event.deltaY : event.deltaX;
       if (!delta) return;
       event.preventDefault();
+      stopInertia();
       viewport.scrollLeft += delta;
     }, { passive: false });
     viewport.addEventListener("keydown", (event) => {
@@ -805,12 +1375,19 @@ export function initExtraScreen() {
       event.preventDefault();
       changePage(event.key === "ArrowLeft" ? -1 : 1, { animate: false });
     });
-    viewport.addEventListener("scroll", () => syncBangumiPageFromScroll(viewport), { passive: true });
+    viewport.addEventListener("scroll", () => {
+      syncBangumiPageFromScroll(viewport);
+      syncBangumiEdgeFade(viewport);
+    }, { passive: true });
     viewport.addEventListener("pointerdown", (event) => {
       if (event.button !== 0 || viewport.scrollWidth <= viewport.clientWidth) return;
+      if (event.target.closest("a, [data-bangumi-comment-open]")) return;
+      stopInertia();
       pointerId = event.pointerId;
-      pointerStart = event.clientX;
+      pointerStart = lastX = event.clientX;
+      lastTime = event.timeStamp;
       scrollStart = viewport.scrollLeft;
+      velocity = 0;
       dragged = false;
       viewport.classList.add("is-dragging");
       viewport.setPointerCapture(pointerId);
@@ -818,13 +1395,28 @@ export function initExtraScreen() {
     viewport.addEventListener("pointermove", (event) => {
       if (event.pointerId !== pointerId) return;
       const distance = event.clientX - pointerStart;
-      dragged ||= Math.abs(distance) > 5;
+      const dt = Math.max(1, event.timeStamp - lastTime);
+      velocity = (lastX - event.clientX) / dt * 16;
+      lastX = event.clientX;
+      lastTime = event.timeStamp;
+      dragged ||= Math.abs(distance) > 4;
       viewport.scrollLeft = scrollStart - distance;
     });
     const stopDrag = (event) => {
       if (event.pointerId !== pointerId) return;
       viewport.classList.remove("is-dragging");
       pointerId = null;
+      if (Math.abs(velocity) < .35) return;
+      const tick = () => {
+        viewport.scrollLeft += velocity;
+        velocity *= .92;
+        if (Math.abs(velocity) < .18) {
+          inertia = 0;
+          return;
+        }
+        inertia = window.requestAnimationFrame(tick);
+      };
+      inertia = window.requestAnimationFrame(tick);
     };
     viewport.addEventListener("pointerup", stopDrag);
     viewport.addEventListener("pointercancel", stopDrag);
@@ -834,6 +1426,7 @@ export function initExtraScreen() {
       event.stopPropagation();
       dragged = false;
     }, true);
+    syncBangumiEdgeFade(viewport);
   }
 
   async function refreshCurrentMode(mutator, { animate = true, direction = 1 } = {}) {
@@ -906,13 +1499,17 @@ export function initExtraScreen() {
         }
       }
 
-      required("[data-bangumi-focus-meta]", focus).textContent =
-        `${item.category.toUpperCase()} · ${item.state} · ${item.year}${item.userScore ? ` · MY ${item.userScore}` : ""}`;
       required("[data-bangumi-focus-title]", focus).textContent = item.title;
-      required("[data-bangumi-focus-note]", focus).textContent =
-        item.comment || (item.total ? `PROGRESS ${item.progress} / ${item.total}` : "NO PERSONAL NOTE");
+      const note = required("[data-bangumi-focus-note]", focus);
+      note.textContent = item.total ? `PROGRESS ${item.progress} / ${item.total}` : "";
+      note.hidden = !note.textContent;
       required("[data-bangumi-focus-link]", focus).href = item.href;
       required("[data-bangumi-focus-state]", focus).textContent = item.state;
+      const commentOpen = focus.querySelector("[data-bangumi-comment-open]");
+      if (commentOpen) commentOpen.hidden = !item.comment;
+      const nvlText = focus.querySelector("[data-bangumi-nvl-text]");
+      if (nvlText) nvlText.textContent = item.comment || "";
+      closeBangumiReader();
       focus.dataset.previewIndex = String(index);
     }
 
@@ -953,7 +1550,8 @@ export function initExtraScreen() {
     const next = (index + musicItems.length) % musicItems.length;
     if (next === musicIndex) return;
     const resume = musicPlaying;
-    stopMusic({ immediate: true });
+    const keepSession = listenSession;
+    stopMusic({ immediate: true, releaseSession: false });
     musicIndex = next;
     const current = musicItems[musicIndex];
     const room = extraStage.querySelector(".extra-music-room");
@@ -963,11 +1561,15 @@ export function initExtraScreen() {
 
     room.dataset.musicTone = current.tone;
     now.style.setProperty("--extra-art", `url("${current.cover}")`);
-    const coverImage = now.querySelector(".extra-music-cover img");
-    if (coverImage) coverImage.src = current.cover;
+    const cover = now.querySelector(".extra-music-cover");
+    const coverImage = now.querySelector("[data-music-cover]");
+    if (coverImage) {
+      cover?.classList.remove("is-missing");
+      coverImage.onerror = () => cover?.classList.add("is-missing");
+      coverImage.src = current.cover;
+    }
     required("h4", copy).textContent = current.title;
     required("[data-music-current-artist]", copy).textContent = current.artist;
-    required("[data-music-current-length]", copy).textContent = current.sourceLabel;
     all("[data-music-index]", extraStage).forEach((button) => {
       button.setAttribute("aria-pressed", String(Number(button.dataset.musicIndex) === musicIndex));
     });
@@ -989,7 +1591,9 @@ export function initExtraScreen() {
         list.scrollTop = Math.max(0, top);
       }
     });
+    listenSession = keepSession || resume;
     if (resume) startMusic();
+    else syncListenDock();
   }
 
   function bindStage() {
@@ -1001,59 +1605,65 @@ export function initExtraScreen() {
 
     all("[data-music-index]", extraStage).forEach((node) => {
       node.addEventListener("click", (event) => {
-        changeMusicSelection(Number(node.dataset.musicIndex), { animate: event.detail > 0 });
+        const index = Number(node.dataset.musicIndex);
+        if (index === musicIndex) {
+          toggleMusic();
+          return;
+        }
+        changeMusicSelection(index, { animate: event.detail > 0 });
       });
     });
 
     all("[data-music-step]", extraStage).forEach((button) => {
       button.addEventListener("click", (event) => {
-        changeMusicSelection(musicIndex + Number(button.dataset.musicStep), { animate: event.detail > 0 });
+        changeMusicSelection(nextMusicIndex(Number(button.dataset.musicStep)), { animate: event.detail > 0 });
       });
     });
 
+    extraStage.querySelector("[data-music-shuffle]")?.addEventListener("click", () => toggleMusicShuffle());
+
     all("[data-music-toggle]", extraStage).forEach((toggle) => {
-      toggle.addEventListener("click", () => {
-        if (musicPlaying) {
-          stopMusic();
-          setFocus(musicItems[musicIndex].title, "PAUSED");
-        } else {
-          startMusic();
-        }
+      toggle.addEventListener("click", () => toggleMusic());
+    });
+
+    all("[data-project-category]", extraStage).forEach((button) => {
+      button.addEventListener("click", () => {
+        const next = button.dataset.projectCategory;
+        if (next === projectCategory) return;
+        projectCategory = next;
+        extraPage = 0;
+        syncProjectFilters();
+        paintProjectGrid({ animate: true });
       });
     });
+    all("[data-project-tag]", extraStage).forEach((button) => {
+      button.addEventListener("click", () => selectProjectTag(button.dataset.projectTag));
+    });
+    bindProjectTagRail();
+    bindProjectCards();
 
     all("[data-bangumi-category]", extraStage).forEach((button) => {
       button.addEventListener("click", (event) => {
         const nextCategory = button.dataset.bangumiCategory;
         if (nextCategory === bangumiCategory) return;
-        refreshCurrentMode(() => {
-          bangumiCategory = nextCategory;
-          extraPage = 0;
-        }, { animate: event.detail > 0, direction: 1 });
+        bangumiCategory = nextCategory;
+        extraPage = 0;
+        syncBangumiFilters();
+        paintBangumiShelf({ animate: event.detail > 0 });
       });
     });
     all("[data-bangumi-status]", extraStage).forEach((button) => {
       button.addEventListener("click", (event) => {
         const nextStatus = button.dataset.bangumiStatus;
         if (nextStatus === bangumiStatus) return;
-        refreshCurrentMode(() => {
-          bangumiStatus = nextStatus;
-          extraPage = 0;
-        }, { animate: event.detail > 0, direction: 1 });
+        bangumiStatus = nextStatus;
+        extraPage = 0;
+        syncBangumiFilters();
+        paintBangumiShelf({ animate: event.detail > 0 });
       });
     });
 
-    all("[data-bangumi-index]", extraStage).forEach((button) => {
-      button.addEventListener("click", (event) => {
-        selectBangumi(Number(button.dataset.bangumiIndex), { animate: event.detail > 0 });
-      });
-      button.addEventListener("pointerenter", () => {
-        selectBangumi(Number(button.dataset.bangumiIndex), { animate: true });
-      });
-      button.addEventListener("focus", () => {
-        selectBangumi(Number(button.dataset.bangumiIndex), { animate: false });
-      });
-    });
+    bindBangumiCards();
 
     all("[data-character-expression]", extraStage).forEach((button) => {
       button.addEventListener("click", () => selectCharacterExpression(Number(button.dataset.characterExpression)));
@@ -1098,7 +1708,7 @@ export function initExtraScreen() {
   }
 
   function commitMode(mode) {
-    if (extraMode === "music" && mode !== "music") stopMusic();
+    if (mode !== "bangumi") closeBangumiReader();
     extraMode = mode;
     extraPage = 0;
     extraCanvas.dataset.extraMode = mode;
@@ -1110,6 +1720,7 @@ export function initExtraScreen() {
     });
     renderMode();
     setFocus(...extraDefaults[mode]);
+    syncListenDock();
   }
 
   async function setMode(mode, { animate = true } = {}) {
@@ -1329,19 +1940,52 @@ export function initExtraScreen() {
       changePage(Number(button.dataset.extraPageDirection), { animate: event.detail > 0 });
     });
   });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && extraCanvas.classList.contains("is-reading-note")) {
+      event.preventDefault();
+      closeBangumiReader();
+      return;
+    }
+    if (
+      event.code === "Space"
+      && extraMode === "music"
+      && extraCanvas.closest("[data-screen]")?.getAttribute("aria-hidden") === "false"
+      && !(event.target instanceof HTMLElement && event.target.closest("input, textarea, [contenteditable='true']"))
+    ) {
+      event.preventDefault();
+      toggleMusic();
+    }
+  });
   all("[data-cg-direction]", cgViewer).forEach((button) => {
     button.addEventListener("click", () => moveCgViewer(Number(button.dataset.cgDirection)));
   });
   cgViewerClose.addEventListener("click", closeCg);
   document.addEventListener("visibilitychange", () => {
-    if (document.hidden) stopMusic({ immediate: true });
+    if (document.hidden) {
+      if (musicPlaying) musicPlayer?.pause();
+      return;
+    }
+    if (listenSession && musicPlaying) musicPlayer?.play()?.catch(() => {});
   });
   window.addEventListener("lonely-sea:audio-mute-change", (event) => {
     musicMuted = event.detail?.muted === true;
     applyMusicMute();
     syncMusicState();
   });
+  window.addEventListener("lonely-sea:preferences-change", () => {
+    if (extraMode !== "projects") return;
+    renderProjects();
+    bindStage();
+    updatePageControls();
+  });
   window.addEventListener("pagehide", () => stopMusic({ immediate: true }));
+
+  const listenDock = document.querySelector("#listen-dock");
+  listenDock?.querySelector("[data-listen-toggle]")?.addEventListener("click", () => toggleMusic());
+  listenDock?.querySelector("[data-listen-next]")?.addEventListener("click", () => {
+    changeMusicSelection(nextMusicIndex(1), { animate: false });
+  });
+  listenDock?.querySelector("[data-listen-stop]")?.addEventListener("click", () => stopMusic());
 
   commitMode("cg");
 
@@ -1349,6 +1993,7 @@ export function initExtraScreen() {
     activate() {
       recordBlogActivity("extraModes", extraMode);
       if (extraMode === "achievement") renderMode();
+      syncListenDock();
     },
     changePage,
     closeCg,
@@ -1360,7 +2005,7 @@ export function initExtraScreen() {
       musicWaveFrame = 0;
       cgViewerAnimation?.cancel();
       cgViewerAnimation = null;
-      stopMusic({ immediate: true });
+      syncListenDock();
     },
   };
 }

@@ -1,6 +1,7 @@
 import { sceneArt } from "../scripts/experience/config.js";
 import activitySnapshot from "./generated/activity.json";
 import bangumiSnapshot from "./generated/bangumi.json";
+import musicSnapshot from "./generated/music.json";
 
 const generatedCgItems = Array.from({ length: 20 }, (_, index) => ({
   title: "SCENE MEMORY",
@@ -15,77 +16,265 @@ const lockedCgItems = Array.from({ length: 7 }, () => ({
 
 export const cgItems = Object.freeze([...generatedCgItems, ...lockedCgItems]);
 
-export const musicItems = Object.freeze([
-  {
-    title: "星が瞬くこんな夜に",
-    artist: "supercell",
-    sourceLabel: "NETEASE",
-    tone: "night",
-    cover: "https://api.qijieya.cn/meting/?server=netease&type=pic&id=109951166200380956",
-    src: "https://api.qijieya.cn/meting/?server=netease&type=url&id=825522",
-    provider: "meting",
-    server: "netease",
-    metingId: 825522,
-    note: "收录于 2025 游戏随想录。",
-  },
-  {
-    title: "カプセル",
-    artist: "aiko",
-    sourceLabel: "NETEASE",
-    tone: "day",
-    cover: "https://api.qijieya.cn/meting/?server=netease&type=pic&id=109951170632955978",
-    src: "https://api.qijieya.cn/meting/?server=netease&type=url&id=2686870666",
-    provider: "meting",
-    server: "netease",
-    metingId: 2686870666,
-    note: "收录于 2025 动画摄入日志。",
-  },
+export const musicItems = Object.freeze([...musicSnapshot.items].reverse());
+
+export const musicPlaylist = Object.freeze({
+  id: musicSnapshot.playlistId,
+  url: musicSnapshot.playlistUrl || `https://music.163.com/playlist?id=${musicSnapshot.playlistId}`,
+});
+
+export const projectCategories = Object.freeze([
+  { id: "main", labels: Object.freeze({ "ZH-CN": "主项目", "EN-US": "MAIN", "JA-JP": "主軸" }) },
+  { id: "tool", labels: Object.freeze({ "ZH-CN": "小工具", "EN-US": "TOOLS", "JA-JP": "小物" }) },
+  { id: "web", labels: Object.freeze({ "ZH-CN": "Web", "EN-US": "WEB", "JA-JP": "Web" }) },
+  { id: "docs", labels: Object.freeze({ "ZH-CN": "文档", "EN-US": "DOCS", "JA-JP": "資料" }) },
 ]);
 
+export const projectTagOrder = Object.freeze([
+  "Python", "Java", "Kotlin", "TypeScript", "WebGAL", "Docker", "Playwright",
+  "Galgame", "MCP", "DevOps", "AIGC", "i18n", "Game",
+  "进行中", "维护中", "已归档", "想法",
+]);
+
+export const projectTagLabels = Object.freeze({
+  进行中: Object.freeze({ "ZH-CN": "进行中", "EN-US": "WIP", "JA-JP": "進行中" }),
+  维护中: Object.freeze({ "ZH-CN": "维护中", "EN-US": "MAINTAINED", "JA-JP": "維持中" }),
+  已归档: Object.freeze({ "ZH-CN": "已归档", "EN-US": "ARCHIVED", "JA-JP": "アーカイブ" }),
+  想法: Object.freeze({ "ZH-CN": "想法", "EN-US": "IDEA", "JA-JP": "構想" }),
+});
+
+function copy(zh, en, ja) {
+  return Object.freeze({ "ZH-CN": zh, "EN-US": en, "JA-JP": ja });
+}
+
+// PROJECT 条目只改这里。
+// category: main | tool | web | docs
+// tags: 多对多属性。github / href / note 有值才出按钮；note 为站内文章路径。
 export const projectItems = Object.freeze([
   {
-    title: "mcp-switch",
-    description: "把本地与远程 MCP 服务汇总到同一个 OAuth 入口。",
-    tags: ["TYPESCRIPT", "MCP"],
-    mark: "MCP / SWITCH",
-    href: "https://github.com/asashiki/mcp-switch",
+    title: "The-Lonely-Sea",
+    mark: "LONELY / SEA",
+    category: "main",
+    tags: Object.freeze(["WebGAL", "Galgame", "i18n", "进行中"]),
+    art: "/assets/cg/generated/scene-17.webp",
+    description: copy(
+      "视觉小说式的个人站点：文章、存档与 Extra 收在同一片海里。",
+      "A visual-novel-shaped personal site: essays, saves, and Extra in one sea.",
+      "ビジュアルノベル型の個人サイト。文章・セーブ・Extra を同じ海に収める。",
+    ),
+    github: "https://github.com/asashiki/The-Lonely-Sea",
+    note: "/posts/2026/the-lonely-sea/",
   },
   {
-    title: "music-mcp",
-    description: "带检索、歌单与同步歌词的对话内音乐播放器。",
-    tags: ["TYPESCRIPT", "MCP"],
-    mark: "MUSIC / MCP",
-    href: "https://github.com/asashiki/music-mcp",
+    title: "MCP Switch",
+    mark: "MCP / SWITCH",
+    category: "main",
+    tags: Object.freeze(["MCP", "TypeScript", "Docker", "进行中"]),
+    art: "/assets/cg/generated/scene-13.webp",
+    description: copy(
+      "自托管 MCP 聚合网关：本地 stdio 与远程 HTTP 挂到同一扇 OAuth 门后。",
+      "Self-hosted MCP gateway: local stdio and remote HTTP behind one OAuth door.",
+      "自前ホストの MCP 集約。ローカル stdio とリモート HTTP を一つの OAuth にまとめる。",
+    ),
+    github: "https://github.com/asashiki/mcp-switch",
+    href: "https://show.asashiki.com/console/",
+    note: "/posts/2026/mcp-switch/",
+  },
+  {
+    title: copy("日付きのない日墓", "Dateless Grave", "日付きのない日墓"),
+    mark: "DATELESS / GRAVE",
+    category: "web",
+    tags: Object.freeze(["Game", "维护中"]),
+    art: "/assets/cg/generated/scene-19.webp",
+    description: copy(
+      "没有日期的墓碑页，按形态就是一个独立网页。",
+      "A dateless grave page: a standalone web piece.",
+      "日付のない墓。独立したウェブ作品。",
+    ),
+    href: "https://bpm.asashiki.com/",
+  },
+  {
+    title: copy("MCP工具合集", "MCP Showcase", "MCP 展示集"),
+    mark: "MCP / SHOW",
+    category: "main",
+    tags: Object.freeze(["MCP", "维护中"]),
+    art: "/assets/cg/generated/scene-08.webp",
+    description: copy(
+      "浅仪式 MCP 与小工具的在线展示集合。",
+      "A live showcase of Asashiki MCP tools and small utilities.",
+      "浅儀式の MCP と小物を並べた展示ページ。",
+    ),
+    href: "https://show.asashiki.com/",
+  },
+  {
+    title: "device-timeline-mcp",
+    mark: "TIMELINE / MCP",
+    category: "main",
+    tags: Object.freeze(["MCP", "Kotlin", "i18n", "进行中"]),
+    art: "/assets/cg/generated/scene-01.webp",
+    description: copy(
+      "Android / iOS / Windows / macOS 实时时间线上传，并给 Agent 留 MCP 入口。",
+      "Live timelines from Android, iOS, Windows, and macOS, with an MCP door for agents.",
+      "Android / iOS / Windows / macOS のタイムラインを上げ、Agent 向けの MCP 口を残す。",
+    ),
+    github: "https://github.com/asashiki/device-timeline-mcp",
+  },
+  {
+    title: "oblivion-haven",
+    mark: "OBLIVION / HAVEN",
+    category: "docs",
+    tags: Object.freeze(["想法", "TypeScript"]),
+    art: "/assets/cg/generated/scene-20.webp",
+    description: copy(
+      "遗忘港湾：一份还在堆起来的资料与备忘。",
+      "Oblivion Haven: notes and materials still being gathered.",
+      "忘却の港。まだ積み上げている資料と覚え書き。",
+    ),
+    github: "https://github.com/asashiki/oblivion-haven",
   },
   {
     title: "X2Video",
-    description: "把 X 内容转为视频的多 Agent 协作项目。",
-    tags: ["PYTHON", "AGENT"],
     mark: "X → VIDEO",
-    href: "https://github.com/asashiki/X2Video",
+    category: "tool",
+    tags: Object.freeze(["Python", "AIGC", "进行中"]),
+    art: "/assets/cg/generated/scene-04.webp",
+    description: copy(
+      "把 X 内容转成视频的多 Agent 协作实验。",
+      "A multi-agent experiment that turns X posts into video.",
+      "X の内容を動画にする、複数 Agent の実験。",
+    ),
+    github: "https://github.com/asashiki/X2Video",
+  },
+  {
+    title: "Xmarks",
+    mark: "X / MARKS",
+    category: "tool",
+    tags: Object.freeze(["维护中"]),
+    art: "/assets/cg/generated/scene-11.webp",
+    description: copy(
+      "导出 X 书签，当前文件夹或全部，没有付费墙。",
+      "Export X bookmarks, one folder or all, without a paywall.",
+      "X のブックマークを書き出す。フォルダ単位でも全部でも、課金壁なし。",
+    ),
+    github: "https://github.com/asashiki/xmarks",
+  },
+  {
+    title: copy("死了没？", "Still Up?", "死んでる？"),
+    mark: "BPM / ALIVE",
+    category: "web",
+    tags: Object.freeze(["维护中"]),
+    art: "/assets/cg/generated/scene-06.webp",
+    description: copy(
+      "给 bpm.asashiki.com 用的只读健康看板，语气不太正经。",
+      "A darkly comic readonly health board for bpm.asashiki.com.",
+      "bpm.asashiki.com の読み取り専用ヘルス看板。口調は真面目じゃない。",
+    ),
+    href: "https://bpm.asashiki.com/",
   },
   {
     title: "rhythm-game",
-    description: "公开运行的节奏游戏实验。",
-    tags: ["TYPESCRIPT", "GAME"],
     mark: "RHYTHM",
-    href: "https://hana.714.fyi/",
-    source: "https://github.com/asashiki/rhythm-game",
-  },
-  {
-    title: "asagi-grave",
-    description: "记录 vibe coding 与 AI 网页气味的项目墓地。",
-    tags: ["JAVASCRIPT", "SITE"],
-    mark: "GRAVE",
-    href: "https://rip.714.fyi",
-    source: "https://github.com/asashiki/asagi-grave",
+    category: "web",
+    tags: Object.freeze(["Game", "TypeScript", "维护中"]),
+    art: "/assets/cg/generated/scene-02.webp",
+    description: copy(
+      "公开跑着的节奏游戏实验。",
+      "A public rhythm-game experiment.",
+      "公開して走らせているリズムゲームの実験。",
+    ),
+    href: "https://github.com/asashiki/rhythm-game",
   },
   {
     title: "asashiki-design",
-    description: "浅仪式的配色、主视觉与界面规范。",
-    tags: ["JAVASCRIPT", "DESIGN"],
     mark: "ASASHIKI / DESIGN",
+    category: "docs",
+    tags: Object.freeze(["维护中"]),
+    art: "/assets/cg/generated/scene-15.webp",
+    description: copy(
+      "浅仪式设计系统：樱羽主视觉、四季配色、面向 AI / Agent 的视觉规范。",
+      "Asashiki design system: sakura key visual, seasonal palette, rules for AI and agents.",
+      "浅儀式のデザインシステム。桜羽の主視覚、四季の配色、AI / Agent 向けの決まり。",
+    ),
     href: "https://github.com/asashiki/asashiki-design",
+  },
+  {
+    title: "vibegame",
+    mark: "VIBE / GAME",
+    category: "docs",
+    tags: Object.freeze(["AIGC", "Game", "想法"]),
+    art: "/assets/cg/generated/scene-10.webp",
+    description: copy(
+      "用 AI 做游戏的文档与个人想法整理。",
+      "Notes and ideas on making games with AI.",
+      "AI でゲームを作るための資料と個人メモ。",
+    ),
+    href: "https://github.com/asashiki/vibe-game",
+  },
+  {
+    title: "sticker-mcp",
+    mark: "STICKER / MCP",
+    category: "tool",
+    tags: Object.freeze(["MCP", "TypeScript", "维护中"]),
+    art: "/assets/cg/generated/scene-18.webp",
+    description: copy(
+      "让 AI 在对话里发表情包：内联组件和网页管理后台。",
+      "Let the AI send stickers in chat, with an inline widget and a web admin.",
+      "会話のなかで AI がスタンプを送る。インライン部品と管理ページつき。",
+    ),
+    github: "https://github.com/asashiki/sticker-mcp",
+    href: "https://show.asashiki.com/projects/sticker-mcp",
+  },
+  {
+    title: "voice-send-mcp",
+    mark: "VOICE / MCP",
+    category: "tool",
+    tags: Object.freeze(["MCP", "TypeScript", "维护中"]),
+    art: "/assets/cg/generated/scene-03.webp",
+    description: copy(
+      "对话内语音气泡，MiniMax / OpenAI / ElevenLabs / Edge 可切换。",
+      "In-chat voice bubbles with MiniMax, OpenAI, ElevenLabs, or Edge.",
+      "会話内の音声バブル。MiniMax / OpenAI / ElevenLabs / Edge を切り替えられる。",
+    ),
+    github: "https://github.com/asashiki/voice-send-mcp",
+  },
+  {
+    title: "music-mcp",
+    mark: "MUSIC / MCP",
+    category: "tool",
+    tags: Object.freeze(["MCP", "TypeScript", "维护中"]),
+    art: "/assets/cg/generated/scene-12.webp",
+    description: copy(
+      "对话内音乐播放器：检索、歌单、同步歌词。",
+      "An in-chat music player with search, playlists, and synced lyrics.",
+      "会話内の音楽プレイヤー。検索・プレイリスト・同期歌詞。",
+    ),
+    github: "https://github.com/asashiki/music-mcp",
+  },
+  {
+    title: "reel-rando-mcp",
+    mark: "REEL / RANDO",
+    category: "tool",
+    tags: Object.freeze(["MCP", "TypeScript", "维护中"]),
+    art: "/assets/cg/generated/scene-16.webp",
+    description: copy(
+      "把选项变成对话里的老虎机、转盘或抽卡。",
+      "Turn choices into a slot machine, wheel, or card draw in chat.",
+      "選択肢を会話のなかのスロット・ルーレット・抽選にする。",
+    ),
+    github: "https://github.com/asashiki/reel-rando-mcp",
+  },
+  {
+    title: "nico-danmaku-api",
+    mark: "DANMAKU",
+    category: "tool",
+    tags: Object.freeze(["Python", "已归档"]),
+    art: "/assets/cg/generated/scene-07.webp",
+    description: copy(
+      "给播放器弹幕源加一条链接，就能看 niconico 弹幕。",
+      "Add one URL to a player danmaku source and get niconico comments.",
+      "プレイヤーの弾幕源に一本リンクを足すと、niconico の弾幕が見られる。",
+    ),
+    github: "https://github.com/asashiki/nico-danmaku-api",
   },
 ]);
 

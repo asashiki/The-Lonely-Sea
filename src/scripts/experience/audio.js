@@ -247,6 +247,7 @@ export function initExperienceAudio() {
   try { localStorage.removeItem(AUDIO_MUTE_STORAGE_KEY); } catch {}
 
   let titleActive = false;
+  let listenHold = false;
   let trackIndex = 0;
   let bgm = null;
   let cueContext = null;
@@ -292,7 +293,7 @@ export function initExperienceAudio() {
   }
 
   function startBgm() {
-    if (!titleActive || document.hidden) return;
+    if (!titleActive || listenHold || document.hidden) return;
     const player = ensureBgm();
     setBgmVolume();
     if (!player.paused) return;
@@ -618,6 +619,11 @@ export function initExperienceAudio() {
     else startBgm();
   });
   window.addEventListener("lonely-sea:preferences-change", handlePreferences);
+  window.addEventListener("lonely-sea:listen-hold", (event) => {
+    listenHold = event.detail?.active === true;
+    if (listenHold) stopBgm();
+    else startBgm();
+  });
   window.addEventListener("pagehide", stopBgm);
 
   const controller = {

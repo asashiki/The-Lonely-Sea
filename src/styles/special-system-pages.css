@@ -3257,39 +3257,43 @@ html[data-motion="reduced"] .extra-music-disc {
 
 .extra-canvas .extra-bangumi-filters button {
   position: relative;
+  isolation: isolate;
   min-height: 3.35cqh;
-  padding: 0 .75cqw;
+  padding: 0 .85cqw;
   border: 0;
   color: var(--v4-faint);
   background: transparent;
   font: 600 clamp(8px, .5cqw, 10px) / 1 "Yu Gothic", sans-serif;
   letter-spacing: .11em;
   cursor: pointer;
+  transition: color 160ms ease, text-shadow 180ms ease;
+}
+
+.extra-canvas .extra-bangumi-filters button::before {
+  position: absolute;
+  z-index: -1;
+  inset: 8% -20%;
+  background: radial-gradient(ellipse 70% 55% at 50% 50%, color-mix(in srgb, var(--v4-accent) 34%, transparent), transparent 72%);
+  content: "";
+  opacity: 0;
+  filter: blur(.35cqw);
+  transition: opacity 180ms ease;
 }
 
 .extra-canvas .extra-bangumi-filters button::after {
-  position: absolute;
-  right: .65cqw;
-  bottom: 0;
-  left: .65cqw;
-  height: 1px;
-  background: var(--extra-line-strong);
-  content: "";
-  opacity: 0;
-  transform: scaleX(.35);
-  transition:
-    opacity 180ms ease,
-    transform 220ms cubic-bezier(.22, 1, .36, 1);
+  content: none;
 }
 
 .extra-canvas .extra-bangumi-filters button[aria-pressed="true"] {
   color: var(--v4-ink);
-  background: color-mix(in srgb, var(--v4-accent) 10%, transparent);
+  background: transparent;
+  text-shadow:
+    0 0 .55cqw color-mix(in srgb, var(--v4-accent) 42%, transparent),
+    0 0 1.3cqw color-mix(in srgb, var(--v4-accent) 22%, transparent);
 }
 
-.extra-canvas .extra-bangumi-filters button[aria-pressed="true"]::after {
-  opacity: .8;
-  transform: scaleX(1);
+.extra-canvas .extra-bangumi-filters button[aria-pressed="true"]::before {
+  opacity: 1;
 }
 
 .extra-canvas .extra-bangumi-activity {
@@ -3324,11 +3328,15 @@ html[data-motion="reduced"] .extra-music-disc {
   overflow-y: hidden;
   cursor: grab;
   scrollbar-width: none;
-  scroll-behavior: smooth;
-  scroll-snap-type: x proximity;
+  scroll-behavior: auto;
+  scroll-snap-type: none;
   overscroll-behavior: contain;
-  touch-action: pan-y;
+  touch-action: none;
   mask-image: linear-gradient(90deg, #000 0 94%, transparent 100%);
+}
+
+.extra-canvas .extra-bangumi-viewport.has-left-fade {
+  mask-image: linear-gradient(90deg, transparent, #000 3.4% 94%, transparent 100%);
 }
 
 .extra-canvas .extra-bangumi-viewport::-webkit-scrollbar {
@@ -3365,7 +3373,8 @@ html[data-motion="reduced"] .extra-music-disc {
   min-width: 0;
   color: var(--v4-soft);
   text-decoration: none;
-  scroll-snap-align: start;
+  user-select: none;
+  scroll-snap-align: none;
   transform: translate3d(0, 0, 0);
   transition:
     color 180ms ease,

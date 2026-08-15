@@ -18,11 +18,19 @@
   -webkit-line-clamp: 2;
 }
 
-/* Album art is a real part of the music record, not a background afterimage. */
+.extra-canvas .extra-bangumi-focus-note[hidden] {
+  display: none;
+}
+
+/* MUSIC: one listen plate — sleeve, title, then a single play rail. */
 .extra-canvas .extra-music-now {
-  grid-template-columns: 12.5cqw minmax(0, 1fr);
-  grid-template-rows: minmax(16cqh, 1fr) 9cqh 5.4cqh;
-  column-gap: 1.4cqw;
+  align-self: stretch;
+  align-content: center;
+  grid-template-columns: 13.6cqw minmax(0, 1fr);
+  grid-template-rows: auto 8.8cqh;
+  column-gap: 1.7cqw;
+  row-gap: 1.8cqh;
+  padding: 1.6cqh .2cqw 1.2cqh 0;
   overflow: visible;
 }
 
@@ -32,16 +40,21 @@
   inset: auto;
   grid-row: 1;
   grid-column: 1;
-  align-self: center;
-  width: 12.5cqw;
+  align-self: start;
+  width: 13.6cqw;
   height: auto;
   aspect-ratio: 1;
-  border: 1px solid var(--extra-line-strong);
-  background: var(--extra-art) center / cover no-repeat;
-  box-shadow: .7cqw .9cqh 1.8cqw color-mix(in srgb, var(--v4-shadow) 30%, transparent);
-  filter: none;
+  overflow: hidden;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--v4-accent) 36%, var(--v4-ink) 10%);
+  background:
+    var(--extra-art) center / cover no-repeat,
+    color-mix(in srgb, var(--v4-paper) 48%, transparent);
+  box-shadow: .45cqw .6cqh 1.2cqw color-mix(in srgb, var(--v4-shadow) 22%, transparent);
+  filter: var(--v4-cover-filter);
   opacity: 1;
   mask-image: none;
+  cursor: pointer;
 }
 
 .extra-canvas .extra-music-cover img {
@@ -49,22 +62,191 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  pointer-events: none;
+}
+
+.extra-canvas .extra-music-cover.is-missing {
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--v4-paper) 38%, transparent), transparent 64%),
+    color-mix(in srgb, var(--v4-paper) 28%, transparent);
+}
+
+.extra-canvas .extra-music-cover.is-missing img {
+  display: none;
 }
 
 .extra-canvas .extra-music-current {
   grid-row: 1;
   grid-column: 2;
   align-self: center;
-  padding: 0 .4cqw 0 0;
+  min-width: 0;
+  padding: 0 .2cqw 0 0;
 }
 
 .extra-canvas .extra-music-current h4 {
-  font-size: clamp(21px, 1.75cqw, 32px);
+  overflow: hidden;
+  margin-top: 1cqh;
+  font-size: clamp(22px, 1.85cqw, 34px);
+  line-height: 1.22;
+  white-space: normal;
 }
 
-.extra-canvas .extra-music-wave-deck,
-.extra-canvas .extra-music-transport {
+.extra-canvas .extra-music-current blockquote {
+  display: none;
+}
+
+.extra-canvas .extra-music-wave-deck {
+  grid-row: 2;
   grid-column: 1 / 3;
+  display: flex;
+  align-items: center;
+  gap: .45cqw;
+  height: 6.2cqh;
+  min-width: 0;
+  padding: 0;
+}
+
+.extra-canvas .extra-music-wave-deck::before {
+  content: none;
+}
+
+.extra-canvas .extra-music-wave-deck .extra-music-skip,
+.extra-canvas .extra-music-wave-deck .extra-music-toggle {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  height: 6.2cqh;
+  min-height: 6.2cqh;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.extra-canvas .extra-music-wave-deck .extra-music-skip {
+  width: 3.1cqw;
+  color: var(--v4-soft);
+  font: 400 clamp(18px, 1.2cqw, 24px) / 1 Baskerville, serif;
+  opacity: .68;
+}
+
+.extra-canvas .extra-music-wave-deck .extra-music-skip.is-previous,
+.extra-canvas .extra-music-wave-deck .extra-music-skip.is-next {
+  justify-content: center;
+}
+
+.extra-canvas .extra-music-wave-deck .extra-music-toggle {
+  width: 7.2cqw;
+  color: var(--v4-ink);
+  gap: .5cqw;
+  grid-auto-flow: column;
+}
+
+.extra-canvas .extra-music-wave-deck .extra-music-shuffle {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  height: 6.2cqh;
+  min-height: 6.2cqh;
+  padding: 0 .35cqw;
+  border: 0;
+  color: var(--v4-faint);
+  background: transparent;
+  font: 600 clamp(7px, .42cqw, 9px) / 1 "Yu Gothic", sans-serif;
+  letter-spacing: .16em;
+  cursor: pointer;
+}
+
+.extra-canvas .extra-music-wave-deck .extra-music-shuffle[aria-pressed="true"] {
+  color: var(--v4-ink);
+  text-shadow:
+    0 0 .45cqw color-mix(in srgb, var(--v4-accent) 38%, transparent),
+    0 0 1.1cqw color-mix(in srgb, var(--v4-accent) 16%, transparent);
+}
+
+.extra-canvas .extra-music-wave-deck canvas.extra-music-wave {
+  display: block;
+  flex: 1 1 auto;
+  align-self: center;
+  width: auto;
+  height: 2.8cqh;
+  min-width: 0;
+  opacity: .88;
+  mask-image: linear-gradient(90deg, transparent, #000 7% 91%, transparent);
+}
+
+.extra-canvas .extra-music-transport {
+  display: none;
+}
+
+.extra-canvas .extra-track-browser::before {
+  top: 8%;
+  bottom: 10%;
+  background: linear-gradient(transparent, var(--extra-line) 18% 82%, transparent);
+  opacity: .7;
+}
+
+.extra-canvas .extra-track-list {
+  display: flex;
+  flex-direction: column;
+  grid-template-rows: none;
+  justify-content: flex-start;
+  gap: 0;
+  height: 100%;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 1.4cqh 0 1cqh 1.2cqw;
+  border-bottom: 0;
+  scrollbar-width: none;
+}
+
+.extra-canvas .extra-track-list::before {
+  content: none;
+}
+
+.extra-canvas .extra-track-list button {
+  position: relative;
+  flex: 0 0 auto;
+  min-height: 6.8cqh;
+  padding: .85cqh 1cqw .85cqh 1.15cqw;
+  border: 0;
+  border-top: 0;
+  background: transparent;
+  transform: none;
+}
+
+.extra-canvas .extra-track-list button + button::after {
+  position: absolute;
+  top: 0;
+  right: 8%;
+  left: 6%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--extra-line) 18% 82%, transparent);
+  content: "";
+  opacity: .7;
+}
+
+.extra-canvas .extra-track-list button::before {
+  content: none;
+}
+
+.extra-canvas .extra-track-list button[aria-pressed="true"] {
+  color: var(--v4-ink);
+  background: transparent;
+  transform: none;
+  text-shadow:
+    0 0 .55cqw color-mix(in srgb, var(--v4-accent) 36%, transparent),
+    0 0 1.2cqw color-mix(in srgb, var(--v4-accent) 16%, transparent);
+}
+
+.extra-canvas .extra-track-list button[aria-pressed="true"]::before {
+  content: none;
+}
+
+.extra-canvas .extra-track-list button[aria-pressed="true"] strong {
+  color: var(--v4-ink);
 }
 
 .extra-canvas .extra-achievement-room {
@@ -262,7 +444,7 @@
 
   .extra-canvas .extra-music-now {
     grid-template-columns: 22cqw minmax(0, 1fr);
-    grid-template-rows: minmax(0, 1fr) 7cqh;
+    grid-template-rows: auto auto;
     column-gap: 3cqw;
   }
 
@@ -281,6 +463,7 @@
   .extra-canvas .extra-music-wave-deck {
     grid-row: 2;
     grid-column: 1 / 3;
+    display: flex;
   }
 
   .extra-canvas .extra-character-stage::before {
@@ -357,5 +540,148 @@
   .extra-canvas .extra-character-art,
   .extra-canvas .extra-character-expressions button {
     transition: none;
+  }
+}
+
+.extra-canvas .extra-music-now {
+  position: relative;
+}
+
+.extra-canvas .extra-music-source {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: .45cqh .9cqw;
+  margin: 1.05cqh 0 0;
+}
+
+.extra-canvas .extra-music-source-mark {
+  padding: 0;
+  border: 0;
+  color: var(--v4-faint);
+  background: transparent;
+  font: 600 clamp(7px, .44cqw, 9px) / 1 "Yu Gothic", sans-serif;
+  letter-spacing: .2em;
+  cursor: pointer;
+}
+
+.extra-canvas .extra-music-source-mark:hover,
+.extra-canvas .extra-music-source-mark:focus-visible,
+.extra-canvas .extra-music-source.is-open .extra-music-source-mark {
+  color: var(--v4-ink);
+  outline: 0;
+}
+
+.extra-canvas .extra-music-source-copy {
+  overflow: hidden;
+  max-width: 0;
+  color: var(--v4-soft);
+  font: 400 clamp(10px, .62cqw, 12px) / 1.7 "Yu Mincho", serif;
+  opacity: 0;
+  pointer-events: none;
+  white-space: nowrap;
+  transition:
+    opacity 180ms ease,
+    max-width 220ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.extra-canvas .extra-music-source:hover .extra-music-source-copy,
+.extra-canvas .extra-music-source:focus-within .extra-music-source-copy,
+.extra-canvas .extra-music-source.is-open .extra-music-source-copy {
+  max-width: 28cqw;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.extra-canvas .extra-music-source-copy a {
+  margin-left: .55cqw;
+  color: var(--v4-ink);
+  font: 600 clamp(8px, .46cqw, 10px) / 1 "Yu Gothic", sans-serif;
+  letter-spacing: .12em;
+  text-decoration: none;
+  border-bottom: 1px solid var(--extra-line-strong);
+}
+
+.listen-dock {
+  position: fixed;
+  z-index: 40;
+  left: 2.4cqw;
+  bottom: 3.2cqh;
+  display: grid;
+  grid-template-columns: 3.2cqw minmax(0, 13cqw) 2.4cqw 2.4cqw;
+  align-items: center;
+  gap: .7cqw;
+  min-width: 18cqw;
+  max-width: 26cqw;
+  padding: .7cqh .7cqw .7cqh .75cqw;
+  border: 1px solid color-mix(in srgb, var(--v4-line) 80%, transparent);
+  color: var(--v4-ink);
+  background: color-mix(in srgb, var(--v4-paper) 78%, transparent);
+  box-shadow: 0 .35cqh .8cqw color-mix(in srgb, var(--v4-shadow) 20%, transparent);
+}
+
+.listen-dock[hidden] {
+  display: none;
+}
+
+.listen-dock button {
+  display: grid;
+  place-items: center;
+  min-height: 3.4cqh;
+  padding: 0;
+  border: 0;
+  color: var(--v4-soft);
+  background: transparent;
+  cursor: pointer;
+}
+
+.listen-dock [data-listen-stop] {
+  font: 400 clamp(16px, 1.1cqw, 20px) / 1 Baskerville, serif;
+}
+
+.listen-dock p {
+  min-width: 0;
+  margin: 0;
+}
+
+.listen-dock strong {
+  display: block;
+  overflow: hidden;
+  font: 400 clamp(11px, .72cqw, 14px) / 1.3 Baskerville, "Yu Mincho", serif;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.listen-dock small {
+  display: block;
+  overflow: hidden;
+  margin-top: .25cqh;
+  color: var(--v4-faint);
+  font: 500 clamp(7px, .42cqw, 9px) / 1 "Yu Gothic", sans-serif;
+  letter-spacing: .08em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.listen-dock-glyph {
+  width: .7cqw;
+  height: .9cqh;
+  border-style: solid;
+  border-width: .55cqh 0 .55cqh .85cqw;
+  border-color: transparent transparent transparent currentColor;
+}
+
+.listen-dock [data-listen-toggle][aria-pressed="true"] .listen-dock-glyph {
+  width: .72cqw;
+  height: 1.15cqh;
+  border: 0;
+  box-shadow: inset .22cqw 0 0 currentColor, inset -.22cqw 0 0 currentColor;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .listen-dock button:hover,
+  .listen-dock button:focus-visible {
+    color: var(--v4-ink);
+    outline: 0;
   }
 }
