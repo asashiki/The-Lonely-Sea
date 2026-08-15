@@ -1,12 +1,24 @@
 import { applyPreferences, readPreferences } from "./experience/preferences.js";
+import { initExperienceAudio } from "./experience/audio.js";
+import { writeArticleContinue } from "../lib/experience-continue";
+import { recordBlogActivity } from "../lib/blog-activity";
+import { initAchievementSystem } from "../lib/experience-achievements";
+import { initBlogInteractionScene } from "./blog-interactions";
 
 const readingSystem = document.querySelector(".reading-system");
 
 if (readingSystem) {
+  initExperienceAudio();
+  initAchievementSystem();
+  const interactionControllers = [...readingSystem.querySelectorAll("[data-blog-interaction]")]
+    .map((element) => initBlogInteractionScene(element));
   const preferences = applyPreferences(readPreferences());
   const transitionLayer = readingSystem.querySelector("[data-reading-transition-layer]");
   const readingContent = readingSystem.querySelector("[data-reading-content]");
   const progressLabel = readingSystem.querySelector("[data-reading-percent]");
+  const termDialog = readingSystem.querySelector("[data-reading-term-dialog]");
+  const termTitle = termDialog?.querySelector("[data-reading-term-title]");
+  const termDefinition = termDialog?.querySelector("[data-reading-term-definition]");
   const tocLinks = [...readingSystem.querySelectorAll("[data-reading-toc]")];
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
     || preferences.reducedMotion;
@@ -15,6 +27,7 @@ if (readingSystem) {
   let scrollFrame = 0;
 
   function saveReadingPosition() {
+    writeArticleContinue(`${window.location.pathname}${window.location.search}`, document.title);
     if (!preferences.autoSavePosition) return;
     try {
       localStorage.setItem(positionKey, String(Math.max(0, Math.round(window.scrollY))));
@@ -117,6 +130,15 @@ if (readingSystem) {
     anchor.rel = "noreferrer";
   });
 
+  readingSystem.addEventListener("click", (event) => {
+    const term = event.target instanceof Element ? event.target.closest("[data-reading-term]") : null;
+    if (!(term instanceof HTMLButtonElement) || !(termDialog instanceof HTMLDialogElement)) return;
+    event.preventDefault();
+    if (termTitle) termTitle.textContent = term.dataset.readingTerm || term.textContent?.trim() || "术语";
+    if (termDefinition) termDefinition.textContent = term.dataset.readingDefinition || "文章没有为这个术语补充注释。";
+    if (!termDialog.open) termDialog.showModal();
+  });
+
   if (preferences.smartPreload && !preferences.dataSaver) {
     const preload = () => {
       readingSystem.querySelectorAll(".record-neighbours a[href]").forEach((anchor) => {
@@ -132,7 +154,10 @@ if (readingSystem) {
 
   window.addEventListener("scroll", requestProgressUpdate, { passive: true });
   window.addEventListener("resize", requestProgressUpdate, { passive: true });
-  window.addEventListener("pagehide", saveReadingPosition);
+  window.addEventListener("pagehide", () => {
+    saveReadingPosition();
+    interactionControllers.forEach((controller) => controller.destroy());
+  });
   window.addEventListener("load", () => {
     restoreReadingPosition();
     updateProgress();
@@ -144,5 +169,7 @@ if (readingSystem) {
   }
 
   updateProgress();
+  writeArticleContinue(`${window.location.pathname}${window.location.search}`, document.title);
+  recordBlogActivity("articles", window.location.pathname);
   finishEntryTransition();
 }

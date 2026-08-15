@@ -2,6 +2,7 @@
 import { siteConfig } from "../../site.config.mjs";
 import "../styles/global.css";
 import "../styles/cursor.css";
+import "../styles/achievement-toast.css";
 
 interface Props {
   title?: string;
@@ -29,6 +30,7 @@ const canonicalUrl = new URL(Astro.url.pathname, siteConfig.url);
     <meta name="theme-color" content="#071117" />
     {noindex && <meta name="robots" content="noindex" />}
     <link rel="canonical" href={canonicalUrl} />
+    <link rel="alternate" type="application/rss+xml" title={`${siteConfig.name} RSS`} href="/rss.xml" />
     <title>{documentTitle}</title>
     <script is:inline>
       try {
@@ -41,5 +43,10 @@ const canonicalUrl = new URL(Astro.url.pathname, siteConfig.url);
   </head>
   <body>
     <slot />
+    <script>
+      import { initExperienceAudio } from "../scripts/experience/audio.js";
+
+      initExperienceAudio();
+    </script>
   </body>
 </html>

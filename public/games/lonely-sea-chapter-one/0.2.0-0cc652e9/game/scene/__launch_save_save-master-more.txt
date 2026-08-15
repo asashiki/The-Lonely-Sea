@@ -1,0 +1,6 @@
+; Story IR bootstrap
+setVar:player_name=("客人") -next -when=__galblog_resume!=true;
+setVar:__galblog_resume_point=0 -next -when=__galblog_resume!=true;
+setVar:__story_choice_group=0 -next -when=__galblog_resume!=true;
+setVar:__galblog_inline_dialogue=0 -next -when=__galblog_resume!=true;
+changeScene:scene_master-more.txt;

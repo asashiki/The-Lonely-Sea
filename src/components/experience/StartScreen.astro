@@ -1,6 +1,7 @@
 ---
 import type { ExperienceRecord } from "../../lib/experience-records";
 import { startTopics } from "../../data/start-content";
+import { siteConfig } from "../../../site.config.mjs";
 
 interface Props {
   records: ExperienceRecord[];
@@ -15,7 +16,7 @@ const randomRecord = records[2] ?? records[0];
     <button class="system-back" type="button" data-back>BACK</button>
     <header class="special-page-heading start-heading">
       <h2>START</h2>
-      <p>WELCOME TO THE LONELY SEA</p>
+      <p>WELCOME TO {siteConfig.latinName}</p>
     </header>
 
     <div class="start-stage">

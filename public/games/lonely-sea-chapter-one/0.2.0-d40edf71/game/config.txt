@@ -1,0 +1,8 @@
+Game_name:孤独之海 · 第一章：灯塔导览;
+Game_key:lonely-sea-chapter-one;
+Game_version:0.2.0;
+Default_Language:ja;
+Enable_Appreciation:false;
+TypingSoundEnabled:false;
+Figure_Default_Enter_Duration:350;
+Figure_Default_Exit_Duration:350;

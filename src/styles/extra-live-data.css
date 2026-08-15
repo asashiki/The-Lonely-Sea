@@ -1,0 +1,361 @@
+/* Live archive data and the Alice character room. Imported after the EXTRA skin. */
+
+.extra-canvas .extra-heatmap {
+  grid-template-rows: repeat(7, .46cqw);
+  grid-auto-columns: .46cqw;
+  gap: .14cqw;
+}
+
+.extra-canvas .extra-bangumi-focus-note {
+  display: -webkit-box;
+  max-width: 30cqw;
+  margin: .65cqh 0 1.15cqh;
+  overflow: hidden;
+  color: var(--v4-soft);
+  font: 400 clamp(8px, .53cqw, 11px) / 1.55 "Yu Mincho", serif;
+  letter-spacing: .03em;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+/* Album art is a real part of the music record, not a background afterimage. */
+.extra-canvas .extra-music-now {
+  grid-template-columns: 12.5cqw minmax(0, 1fr);
+  grid-template-rows: minmax(16cqh, 1fr) 9cqh 5.4cqh;
+  column-gap: 1.4cqw;
+  overflow: visible;
+}
+
+.extra-canvas .extra-music-cover {
+  position: relative;
+  z-index: 1;
+  inset: auto;
+  grid-row: 1;
+  grid-column: 1;
+  align-self: center;
+  width: 12.5cqw;
+  height: auto;
+  aspect-ratio: 1;
+  border: 1px solid var(--extra-line-strong);
+  background: var(--extra-art) center / cover no-repeat;
+  box-shadow: .7cqw .9cqh 1.8cqw color-mix(in srgb, var(--v4-shadow) 30%, transparent);
+  filter: none;
+  opacity: 1;
+  mask-image: none;
+}
+
+.extra-canvas .extra-music-cover img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.extra-canvas .extra-music-current {
+  grid-row: 1;
+  grid-column: 2;
+  align-self: center;
+  padding: 0 .4cqw 0 0;
+}
+
+.extra-canvas .extra-music-current h4 {
+  font-size: clamp(21px, 1.75cqw, 32px);
+}
+
+.extra-canvas .extra-music-wave-deck,
+.extra-canvas .extra-music-transport {
+  grid-column: 1 / 3;
+}
+
+.extra-canvas .extra-achievement-room {
+  grid-template-rows: 8.2cqh minmax(0, 1fr);
+}
+
+.extra-canvas .extra-achievement-browser {
+  align-self: stretch;
+  height: auto;
+  min-height: 0;
+}
+
+.extra-canvas .extra-achievement-state::after,
+.extra-canvas .extra-achievement-row.is-unlocked .extra-achievement-state::after {
+  content: none;
+}
+
+.extra-canvas .extra-character-room {
+  grid-template-rows: 8.2cqh minmax(0, 1fr);
+}
+
+.extra-canvas .extra-character-stage {
+  position: relative;
+  overflow: visible;
+}
+
+.extra-canvas .extra-character-stage::before {
+  inset: 1.2cqh 0 0;
+  background:
+    linear-gradient(90deg, transparent 0 41%, var(--extra-line) 41% calc(41% + 1px), transparent calc(41% + 1px)),
+    radial-gradient(ellipse 34% 76% at 21% 58%, color-mix(in srgb, var(--v4-accent) 14%, transparent), transparent 76%);
+}
+
+.extra-canvas .extra-character-profile {
+  grid-template-columns: minmax(25cqw, 41%) minmax(0, 1fr);
+  height: 100%;
+  opacity: 1;
+  transform: none;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.extra-canvas .extra-character-visual {
+  position: relative;
+  align-self: stretch;
+  overflow: visible;
+}
+
+.extra-canvas .extra-character-art {
+  inset: -2.5cqh -1cqw -8cqh 0;
+  background-position: center bottom;
+  background-size: contain;
+  filter: drop-shadow(1.1cqw 1.4cqh 1.2cqw color-mix(in srgb, var(--v4-shadow) 24%, transparent));
+  mask-image: linear-gradient(180deg, #000 0 91%, transparent 100%);
+  transition: background-image 180ms ease;
+}
+
+.extra-canvas .extra-character-dossier {
+  position: relative;
+  align-self: stretch;
+  align-content: center;
+  padding: 1.5cqh 1cqw 3.2cqh 3.4cqw;
+}
+
+.extra-canvas .extra-character-dossier::before {
+  display: none;
+}
+
+.extra-canvas .extra-character-file {
+  margin: 0;
+  color: var(--v4-accent);
+  font: 600 clamp(7px, .44cqw, 9px) / 1 "Yu Gothic", sans-serif;
+  letter-spacing: .22em;
+}
+
+.extra-canvas .extra-character-dossier h4 {
+  display: flex;
+  align-items: baseline;
+  gap: 1cqw;
+  margin: 1.2cqh 0 0;
+  color: var(--v4-ink);
+  font: 400 clamp(42px, 4.25cqw, 74px) / .9 Baskerville, "Iowan Old Style", "Yu Mincho", serif;
+  letter-spacing: .04em;
+}
+
+.extra-canvas .extra-character-dossier h4 small {
+  color: var(--v4-faint);
+  font: 400 clamp(9px, .7cqw, 13px) / 1 "Yu Mincho", serif;
+  letter-spacing: .14em;
+}
+
+.extra-canvas .extra-character-role {
+  margin: 1.25cqh 0 0;
+  color: var(--v4-soft);
+  font: 600 clamp(7px, .46cqw, 9px) / 1 "Yu Gothic", sans-serif;
+  letter-spacing: .16em;
+}
+
+.extra-canvas .extra-character-dossier blockquote {
+  position: relative;
+  max-width: 32cqw;
+  min-height: 4.8cqh;
+  margin: 2.2cqh 0 0;
+  padding: 0 0 0 1.35cqw;
+  border-left: 1px solid var(--extra-line-strong);
+  color: var(--v4-ink);
+  font: 400 clamp(11px, .72cqw, 14px) / 1.7 "Yu Mincho", serif;
+}
+
+.extra-canvas .extra-character-dossier blockquote::before {
+  content: none;
+}
+
+.extra-canvas .extra-character-description {
+  max-width: 32cqw;
+  margin: 1.35cqh 0 0;
+  color: var(--v4-faint);
+  font: 400 clamp(8px, .52cqw, 10px) / 1.75 "Yu Gothic", sans-serif;
+  letter-spacing: .05em;
+}
+
+.extra-canvas .extra-character-expressions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .55cqw;
+  max-width: 33cqw;
+  margin-top: 1.8cqh;
+}
+
+.extra-canvas .extra-character-expressions button {
+  min-height: 3.6cqh;
+  padding: 0 .85cqw;
+  border: 0;
+  border-bottom: 1px solid var(--extra-line);
+  color: var(--v4-faint);
+  background: transparent;
+  font: 600 clamp(7px, .43cqw, 9px) / 1 "Yu Gothic", sans-serif;
+  letter-spacing: .13em;
+  cursor: pointer;
+  transition: color 160ms ease, border-color 160ms ease, background-color 160ms ease;
+}
+
+.extra-canvas .extra-character-expressions button[aria-pressed="true"] {
+  border-color: var(--v4-accent);
+  color: var(--v4-ink);
+  background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--v4-accent) 10%, transparent));
+}
+
+.extra-canvas .extra-character-intro {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: min(33cqw, 100%);
+  min-height: 4.8cqh;
+  margin-top: 1.6cqh;
+  padding: 0 1cqw;
+  border: 1px solid color-mix(in srgb, var(--v4-accent) 38%, var(--extra-line));
+  color: var(--v4-ink);
+  background: color-mix(in srgb, var(--v4-paper) 18%, transparent);
+  cursor: pointer;
+}
+
+.extra-canvas .extra-character-intro span,
+.extra-canvas .extra-character-intro small {
+  font: 600 clamp(7px, .46cqw, 10px) / 1 "Yu Gothic", sans-serif;
+  letter-spacing: .15em;
+}
+
+.extra-canvas .extra-character-intro small {
+  color: var(--v4-accent);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .extra-canvas .extra-character-expressions button:hover,
+  .extra-canvas .extra-character-expressions button:focus-visible,
+  .extra-canvas .extra-character-intro:hover,
+  .extra-canvas .extra-character-intro:focus-visible {
+    border-color: var(--v4-accent);
+    color: var(--v4-ink);
+    outline: 0;
+  }
+}
+
+@media (max-width: 900px) and (orientation: portrait) {
+  .extra-canvas .extra-primary button span {
+    font-size: clamp(7px, 1.85cqw, 9px);
+    letter-spacing: .06em;
+  }
+
+  .extra-canvas .extra-heatmap {
+    grid-template-rows: repeat(7, .8cqw);
+    grid-auto-columns: .8cqw;
+    gap: .22cqw;
+  }
+
+  .extra-canvas .extra-music-now {
+    grid-template-columns: 22cqw minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) 7cqh;
+    column-gap: 3cqw;
+  }
+
+  .extra-canvas .extra-music-cover {
+    grid-row: 1;
+    grid-column: 1;
+    width: 22cqw;
+  }
+
+  .extra-canvas .extra-music-current {
+    grid-row: 1;
+    grid-column: 2;
+    padding: 0;
+  }
+
+  .extra-canvas .extra-music-wave-deck {
+    grid-row: 2;
+    grid-column: 1 / 3;
+  }
+
+  .extra-canvas .extra-character-stage::before {
+    background: radial-gradient(ellipse 72% 38% at 50% 18%, color-mix(in srgb, var(--v4-accent) 13%, transparent), transparent 75%);
+  }
+
+  .extra-canvas .extra-character-profile {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: 27cqh minmax(0, 1fr);
+  }
+
+  .extra-canvas .extra-character-art {
+    inset: -1cqh 0 -2cqh;
+    background-position: center 10%;
+    background-size: auto 43cqh;
+    filter: drop-shadow(1.5cqw 1.8cqh 1.8cqw color-mix(in srgb, var(--v4-shadow) 26%, transparent));
+    mask-image: linear-gradient(180deg, #000 0 82%, transparent 100%);
+  }
+
+  .extra-canvas .extra-character-dossier {
+    grid-row: 2;
+    align-content: start;
+    padding: 1cqh 0 3cqh;
+  }
+
+  .extra-canvas .extra-character-dossier h4 {
+    margin-top: .7cqh;
+    font-size: clamp(31px, 8.6cqw, 46px);
+  }
+
+  .extra-canvas .extra-character-role {
+    margin-top: .75cqh;
+  }
+
+  .extra-canvas .extra-character-dossier blockquote {
+    max-width: none;
+    min-height: 0;
+    margin-top: 1.1cqh;
+    font-size: clamp(8px, 2.2cqw, 11px);
+  }
+
+  .extra-canvas .extra-character-description {
+    display: -webkit-box;
+    max-width: none;
+    margin-top: .8cqh;
+    overflow: hidden;
+    font-size: clamp(8px, 2.05cqw, 10px);
+    line-height: 1.5;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .extra-canvas .extra-character-expressions {
+    gap: 1.2cqw;
+    max-width: none;
+    margin-top: 1cqh;
+  }
+
+  .extra-canvas .extra-character-expressions button {
+    min-height: 3.8cqh;
+    padding-inline: 1.6cqw;
+    font-size: clamp(7px, 1.75cqw, 9px);
+  }
+
+  .extra-canvas .extra-character-intro {
+    width: 100%;
+    min-height: 4.6cqh;
+    margin-top: 1cqh;
+    padding-inline: 2cqw;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .extra-canvas .extra-character-art,
+  .extra-canvas .extra-character-expressions button {
+    transition: none;
+  }
+}

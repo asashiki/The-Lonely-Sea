@@ -1186,10 +1186,6 @@
   left: 2.1cqw;
 }
 
-.tracks-xiii-flow-shell.is-expanded .tracks-xiii-flow-map {
-  height: max(960px, 142cqh);
-}
-
 .tracks-xiii-flow-shell.is-expanded .tracks-xiii-flow-node {
   width: clamp(86px, 7.6cqw, 148px);
 }
@@ -1789,6 +1785,75 @@ html.tracks-xiii-diary-open body {
   margin: 0;
   color: rgba(225, 235, 238, .78);
   font: 400 clamp(14px, .9cqw, 18px) / 2 "Yu Mincho", serif;
+}
+
+.tracks-xiii-flow-shell.is-expanded .tracks-xiii-flow-map {
+  height: max(960px, 142cqh);
+}
+
+.tracks-xiii-flow-node-number,
+.tracks-xiii-flow-caption > span,
+.tracks-xiii-flow-detail-copy small {
+  display: none;
+}
+
+.tracks-xiii-diary-reader-links {
+  display: grid;
+  gap: .45cqh;
+  max-height: 27cqh;
+  margin-top: 2.5cqh;
+  padding-right: .8cqw;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(174, 211, 224, .45) transparent;
+}
+
+.tracks-xiii-diary-reader-links a {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 1cqw;
+  min-height: 4.6cqh;
+  padding: .7cqh .3cqw .7cqh 1.2cqw;
+  color: rgba(230, 239, 242, .84);
+  text-decoration: none;
+}
+
+.tracks-xiii-diary-reader-links a::before {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: .55cqw;
+  height: 1px;
+  background: rgba(157, 204, 221, .7);
+  content: "";
+  transform: translateY(-50%);
+  transition: width 180ms ease;
+}
+
+.tracks-xiii-diary-reader-links strong {
+  overflow: hidden;
+  font: 500 clamp(11px, .72cqw, 14px) / 1.35 "Yu Mincho", serif;
+  letter-spacing: .05em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tracks-xiii-diary-reader-links small {
+  color: rgba(195, 216, 224, .58);
+  font: 500 clamp(8px, .5cqw, 10px) / 1 Baskerville, serif;
+  letter-spacing: .1em;
+}
+
+.tracks-xiii-diary-reader-links a:hover::before,
+.tracks-xiii-diary-reader-links a:focus-visible::before {
+  width: .9cqw;
+}
+
+.tracks-xiii-diary-reader-links a:focus-visible {
+  color: #fff;
+  outline: 0;
 }
 
 .tracks-xiii-diary-reader-close {

@@ -1,0 +1,94 @@
+{
+  "entry": "assets/index-BuN51U1e.js",
+  "files": [
+    {
+      "bytes": 13706,
+      "path": "assets/cherryBlossoms-DzBBkOW8.webp",
+      "sha256": "56cf09c9a41863994f7000786d8972b03dcc214f692c479b78962608109bb0e3"
+    },
+    {
+      "bytes": 517,
+      "path": "assets/conentsCash-BBWvsVB4.js",
+      "sha256": "a3405a060bac043a6b0e60c02f9c91aee4aaba64d26ff8aeb4375873eb0c68ee"
+    },
+    {
+      "bytes": 14881,
+      "path": "assets/dialog-BDvwibdp.mp3",
+      "sha256": "d5b912353085e44e2fd975dfbfbe6561c38d1c3705687b22bb9bd065791e6bfe"
+    },
+    {
+      "bytes": 1453555,
+      "path": "assets/index-BuN51U1e.js",
+      "sha256": "495fb4f343b1734f6891b6b2760476a597f7f09e317dd330c3329e797817c4f5"
+    },
+    {
+      "bytes": 47833,
+      "path": "assets/index-Dch1g2w9.css",
+      "sha256": "ea9ea5a2be73a70eb62a83976394862149755450ca84d20870d76b6192299cb7"
+    },
+    {
+      "bytes": 127904,
+      "path": "assets/index.es-DgrcV8Ww.js",
+      "sha256": "20b95fdc59b882b46b40b514e91085bbcdba8d725243900db245701f9291324e"
+    },
+    {
+      "bytes": 6183,
+      "path": "assets/initRegister-BhLmMkYX.js",
+      "sha256": "7bd88249222f5ee50a560ff63c689ec34cdc565bcf299660d60f4dc07d0078b8"
+    },
+    {
+      "bytes": 10152780,
+      "path": "assets/OPPOSans-R-tAcFw8I3.ttf",
+      "sha256": "ea92535935f8b5da18b64bb23e5ffbfef1417b7ae4ff3fc15372a65ee95a9580"
+    },
+    {
+      "bytes": 14965,
+      "path": "assets/page-flip-1-CZ8VQh4O.mp3",
+      "sha256": "7df32409e65c6c56707f030a59327de24865e24ad38e243a9ad4a604f4a19161"
+    },
+    {
+      "bytes": 37390,
+      "path": "assets/rain-Bd8ZRQ7x.png",
+      "sha256": "e0935c5335c65986437f2c2e0e7c7cdc3c6bd1e603edf6acf6bf8d232331bb4a"
+    },
+    {
+      "bytes": 14663464,
+      "path": "assets/ResourceHanRoundedCN-Regular-C1HdCLVq.ttf",
+      "sha256": "1c5c623f008eabef10c45135a48b01b46311f9369c28857355872cfe05f48dc0"
+    },
+    {
+      "bytes": 27182,
+      "path": "assets/snow-CJh9m2KR.png",
+      "sha256": "5313a7b0259c483f1329b57c2d2744fe4ee506163a7876b3c8a6111ba8e01978"
+    },
+    {
+      "bytes": 13013172,
+      "path": "assets/SourceHanSerifCN-Regular-B_f-kQ2u.ttf",
+      "sha256": "1e60cc2eedfa25bf5e4ecaa794402f581ad770d4c8be46d338bf52064b307ec7"
+    },
+    {
+      "bytes": 9325,
+      "path": "assets/switch-1-DI-7VpPw.mp3",
+      "sha256": "99b576bc49cf679b735460e30f1b97f7a07e9f3dc053c266a27d6b719f5e8b5b"
+    },
+    {
+      "bytes": 16725,
+      "path": "LICENSE",
+      "sha256": "1f256ecad192880510e84ad60474eab7589218784b9a50bc7ceee34c2b91f1d5"
+    },
+    {
+      "bytes": 1284,
+      "path": "webgal-engine.json",
+      "sha256": "bbd7b1a5a141d7fd7f0d25431b3e3699d69f714ed0aa9c8da5b0c9bcfc0a1a10"
+    },
+    {
+      "bytes": 1830,
+      "path": "webgal-serviceworker.js",
+      "sha256": "317a4d6599c5d97c82ad18faa2b216457e9eff4f6e256a1f92acd1ec0f86fa42"
+    }
+  ],
+  "package": "webgal-engine",
+  "schema": "gal-blog-webgal-runtime/v1",
+  "stylesheet": "assets/index-Dch1g2w9.css",
+  "version": "4.6.2"
+}

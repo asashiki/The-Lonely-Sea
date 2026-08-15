@@ -1,22 +1,39 @@
 import { sceneArt, sceneLabels, sceneNames, weatherLabels } from "./experience/config.js";
-import { all, required, updatePressed, wait } from "./experience/dom.js";
+import { all, required, updatePressed } from "./experience/dom.js";
 import { initExitDialog } from "./experience/exit.js";
 import { initExtraScreen } from "./experience/extra.js";
 import { initLoadTracksXiiiConcept } from "./experience/load-tracks-xiii.js";
 import { initOptions } from "./experience/options.js";
 import { initStartScreen } from "./experience/start.js";
 import { createWeatherController } from "./experience/weather.js";
-import { applyPreferences, readPreferences } from "./experience/preferences.js";
+import {
+  PREFERENCES_STORAGE_KEY,
+  applyPreferences,
+  publishPreferences,
+  readPreferences,
+} from "./experience/preferences.js";
+import { initExperienceAudio } from "./experience/audio.js";
 import {
   createGalBlogLaunchIntent,
   createGalBlogLaunchUrl,
   createSaveLaunchUrl,
 } from "../lib/gal-blog/launch-session";
-import { getGalBlogSave } from "../lib/gal-blog/save-store";
+import { getGalBlogSave, listGalBlogSaves } from "../lib/gal-blog/save-store";
+import { resolveContinueTarget } from "../lib/experience-continue";
+import { recordBlogActivity } from "../lib/blog-activity";
+import { initAchievementSystem } from "../lib/experience-achievements";
 
 const EXPERIENCE_STORAGE_KEY = "lonely-sea-experience-v1";
 const OPENING_STORAGE_KEY = "lonely-sea-opening-seen";
 const ROUTES = new Set(["start", "load", "extra", "option"]);
+
+const freshResetBoot = (() => {
+  const url = new URL(window.location.href);
+  if (url.searchParams.get("freshReset") !== "1") return false;
+  url.searchParams.delete("freshReset");
+  window.history.replaceState(window.history.state, "", `${url.pathname}${url.search}${url.hash}`);
+  return true;
+})();
 
 const body = document.body;
 const stage = required(".stage");
@@ -25,11 +42,19 @@ const fxPanel = required("#fx-panel");
 const showFx = required("#show-fx");
 const status = required("#menu-status");
 const opening = required("#opening");
+const routeCurtain = required("#route-curtain");
 const openingSteps = all("[data-opening-step]");
-const curtain = required("#route-curtain");
 const screens = all("[data-screen]");
 const systemReduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 let preferences = applyPreferences(readPreferences());
+const experienceAudio = initExperienceAudio();
+initAchievementSystem();
+const bgmButton = required("#toggle-bgm");
+const continueButton = required('[data-command="CONTINUE"]');
+const languageGate = required("[data-first-language-gate]");
+const languageButtons = all("[data-first-language]", languageGate);
+const startCommand = required('[data-command="START"]');
+let continueTarget = null;
 const reduceMotion = {
   get matches() {
     return systemReduceMotion.matches || preferences.reducedMotion;
@@ -39,11 +64,80 @@ const reduceMotion = {
   },
 };
 
-let requestedRoute = new URLSearchParams(window.location.search).get("screen");
+const routeQuery = new URLSearchParams(window.location.search);
+let requestedRoute = routeQuery.get("screen");
 if (!ROUTES.has(requestedRoute)) requestedRoute = null;
+const requestedLoadPage = ["articles", "game", "diary"].includes(routeQuery.get("loadPage"))
+  ? routeQuery.get("loadPage")
+  : "game";
+const requestedGameFilter = ["save", "flow", "story"].includes(routeQuery.get("loadFilter"))
+  ? routeQuery.get("loadFilter")
+  : "save";
 let routeBusy = false;
-let routeTransitionToken = 0;
 let openingTimers = [];
+
+function beginExternalNavigation(url, label = "NOW LOADING") {
+  if (routeBusy) return false;
+  routeBusy = true;
+  const active = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  active?.setAttribute("aria-busy", "true");
+  routeCurtain.querySelector("strong").textContent = label;
+  routeCurtain.classList.add("is-covering");
+  routeCurtain.setAttribute("aria-hidden", "false");
+  body.dataset.gameLaunchPending = "true";
+  stage.inert = true;
+  window.requestAnimationFrame(() => window.requestAnimationFrame(() => window.location.assign(url)));
+  return true;
+}
+
+function hasStoredPreferences() {
+  try { return localStorage.getItem(PREFERENCES_STORAGE_KEY) !== null; } catch { return false; }
+}
+
+function closeLanguageGate({ focusStart = true } = {}) {
+  languageGate.hidden = true;
+  languageGate.setAttribute("aria-hidden", "true");
+  stage.inert = false;
+  if (focusStart) startCommand.focus({ preventScroll: true });
+}
+
+function openLanguageGate() {
+  languageGate.hidden = false;
+  languageGate.setAttribute("aria-hidden", "false");
+  stage.inert = true;
+  languageButtons[0]?.focus({ preventScroll: true });
+}
+
+function launchFirstChapter() {
+  try {
+    const intent = createGalBlogLaunchIntent({
+      gameSlug: "lonely-sea-chapter-one",
+      target: { kind: "start", id: "start" },
+    });
+    beginExternalNavigation(createGalBlogLaunchUrl(intent), "CONNECTING STORY");
+  } catch {
+    refreshStatus("GAME LAUNCH UNAVAILABLE");
+  }
+}
+
+languageButtons.forEach((button, index) => {
+  button.addEventListener("click", () => {
+    preferences = publishPreferences({ ...readPreferences(), language: button.dataset.firstLanguage });
+    closeLanguageGate({ focusStart: false });
+    launchFirstChapter();
+  });
+  button.addEventListener("keydown", (event) => {
+    const direction = ["ArrowUp", "ArrowLeft"].includes(event.key)
+      ? -1
+      : ["ArrowDown", "ArrowRight"].includes(event.key)
+        ? 1
+        : 0;
+    if (!direction) return;
+    event.preventDefault();
+    languageButtons[(index + direction + languageButtons.length) % languageButtons.length]
+      ?.focus({ preventScroll: true });
+  });
+});
 
 function readExperience() {
   try {
@@ -95,6 +189,7 @@ function setScene(scene) {
   updateSceneLabels();
   refreshStatus();
   persistExperience();
+  recordBlogActivity("scenes", scene);
 }
 
 function setWeather(nextWeather) {
@@ -108,44 +203,26 @@ function setRoute(route) {
   if (route !== "extra") extraScreen.deactivate();
   if (route !== "option") optionScreen.deactivate();
   body.dataset.route = route;
+  experienceAudio.setTitleActive(route === "title" && opening.classList.contains("is-dismissed"));
   titleMenu.inert = route !== "title";
   fxPanel.inert = route !== "title";
   screens.forEach((screen) => {
     screen.setAttribute("aria-hidden", String(screen.dataset.screen !== route));
   });
   if (route === "load") loadScreen.activate();
+  if (route === "extra") extraScreen.activate?.();
+  if (route === "option") optionScreen.activate();
   if (route === "title") weather.start();
   else weather.stop();
 }
 
-async function navigateTo(route, { instant = false } = {}) {
+function navigateTo(route, { instant = false } = {}) {
   if (!routeBusy && route === body.dataset.route) return;
-  const transitionToken = ++routeTransitionToken;
   routeBusy = true;
-  const coverDuration = instant || reduceMotion.matches || !preferences.sceneCrossfade ? 0 : 240;
-  const revealDuration = instant || reduceMotion.matches || !preferences.sceneCrossfade ? 0 : 260;
-
-  if (coverDuration) {
-    curtain.setAttribute("aria-hidden", "false");
-    curtain.classList.add("is-covering");
-    await wait(coverDuration);
-    if (transitionToken !== routeTransitionToken) return;
-  } else {
-    curtain.classList.remove("is-covering");
-    curtain.setAttribute("aria-hidden", "true");
-  }
-
+  const useTransition = !instant && !reduceMotion.matches && preferences.sceneCrossfade;
+  if (!useTransition) body.classList.add("is-route-instant");
   setRoute(route);
-
-  if (coverDuration) {
-    await wait(20);
-    if (transitionToken !== routeTransitionToken) return;
-    curtain.classList.remove("is-covering");
-    await wait(revealDuration);
-    if (transitionToken !== routeTransitionToken) return;
-    curtain.setAttribute("aria-hidden", "true");
-  }
-
+  if (!useTransition) window.requestAnimationFrame(() => body.classList.remove("is-route-instant"));
   routeBusy = false;
   if (route !== "title") {
     const routeScreen = required(`[data-screen="${route}"]`);
@@ -176,21 +253,25 @@ function hasSeenOpening() {
   try { return sessionStorage.getItem(OPENING_STORAGE_KEY) === "1"; } catch { return false; }
 }
 
-function dismissOpening({ remember = true } = {}) {
+function dismissOpening({ remember = true, instant = false } = {}) {
   clearOpeningTimers();
+  if (instant) opening.style.transition = "none";
   opening.classList.add("is-dismissed");
   opening.setAttribute("aria-hidden", "true");
   stage.inert = false;
+  experienceAudio.setTitleActive(true);
   if (remember) rememberOpening();
   if (requestedRoute) {
     const route = requestedRoute;
     requestedRoute = null;
     navigateTo(route, { instant: true });
   }
+  if (instant) window.requestAnimationFrame(() => opening.style.removeProperty("transition"));
 }
 
 function playOpening() {
   clearOpeningTimers();
+  experienceAudio.setTitleActive(false);
   opening.classList.remove("is-dismissed");
   opening.setAttribute("aria-hidden", "false");
   stage.inert = true;
@@ -202,8 +283,8 @@ function playOpening() {
   );
 }
 
-async function replayOpeningFromTitle() {
-  if (body.dataset.route !== "title") await navigateTo("title");
+function replayOpeningFromTitle() {
+  if (body.dataset.route !== "title") navigateTo("title");
   playOpening();
 }
 
@@ -213,7 +294,18 @@ function resetExperience() {
   setWeather("snow");
 }
 
-const loadScreen = initLoadTracksXiiiConcept({ reduceMotion });
+function syncBgmButton(event) {
+  const enabled = event?.detail?.enabled ?? experienceAudio.isBgmEnabled();
+  bgmButton.setAttribute("aria-pressed", String(enabled));
+  bgmButton.setAttribute("aria-label", enabled ? "关闭背景音乐" : "开启背景音乐");
+  bgmButton.textContent = enabled ? "ON" : "OFF";
+}
+
+const loadScreen = initLoadTracksXiiiConcept({
+  reduceMotion,
+  initialPage: requestedLoadPage,
+  initialGameFilter: requestedGameFilter,
+});
 const extraScreen = initExtraScreen();
 const startScreen = initStartScreen({ reduceMotion });
 const optionScreen = initOptions({
@@ -222,10 +314,34 @@ const optionScreen = initOptions({
 });
 const exitDialog = initExitDialog();
 
+function syncContinueButton() {
+  continueTarget = resolveContinueTarget(listGalBlogSaves());
+  continueButton.disabled = !continueTarget;
+  continueButton.setAttribute("aria-label", continueTarget?.kind === "game"
+    ? "继续最近游戏存档"
+    : continueTarget?.kind === "article"
+      ? `继续阅读${continueTarget.title ? `：${continueTarget.title}` : ""}`
+      : "没有可继续的记录");
+}
+
+syncBgmButton();
+bgmButton.addEventListener("click", () => experienceAudio.setBgmEnabled(!experienceAudio.isBgmEnabled()));
+window.addEventListener("lonely-sea:bgm-state-change", syncBgmButton);
+window.addEventListener("lonely-sea:gal-blog-save-change", syncContinueButton);
+
 window.addEventListener("lonely-sea:preferences-change", (event) => {
+  const previousPreferences = preferences;
   preferences = applyPreferences(event.detail?.preferences || readPreferences());
-  weather.setDensity(preferences.particleDensity / 100);
-  weather.handlePreferenceChange();
+  const densityChanged = preferences.particleDensity !== previousPreferences.particleDensity;
+  const motionChanged = preferences.reducedMotion !== previousPreferences.reducedMotion;
+  if (densityChanged) weather.setDensity(preferences.particleDensity / 100);
+  else if (motionChanged) weather.handlePreferenceChange();
+});
+
+window.addEventListener("lonely-sea:experience-preference-change", (event) => {
+  const next = event.detail || {};
+  if (sceneLabels[next.scene]) setScene(next.scene);
+  if (weatherLabels[next.weather]) setWeather(next.weather);
 });
 
 window.addEventListener("lonely-sea:story-enter", (event) => {
@@ -237,7 +353,7 @@ window.addEventListener("lonely-sea:story-enter", (event) => {
       releaseId: releaseId || undefined,
       target: { kind: "scene", id: sceneId },
     });
-    window.location.assign(createGalBlogLaunchUrl(intent));
+    beginExternalNavigation(createGalBlogLaunchUrl(intent), "OPENING STORY");
   } catch {
     refreshStatus("STORY LAUNCH UNAVAILABLE");
   }
@@ -247,7 +363,7 @@ window.addEventListener("lonely-sea:save-select", (event) => {
   const save = getGalBlogSave(event.detail?.saveId || "");
   if (!save) return;
   try {
-    window.location.assign(createSaveLaunchUrl(save));
+    beginExternalNavigation(createSaveLaunchUrl(save), "READING SAVE DATA");
   } catch {
     refreshStatus("SAVE DATA UNAVAILABLE");
   }
@@ -256,7 +372,22 @@ window.addEventListener("lonely-sea:save-select", (event) => {
 all("[data-command]").forEach((button) => {
   button.addEventListener("click", (event) => {
     const command = button.dataset.command;
-    const route = { START: "start", LOAD: "load", EXTRA: "extra", OPTION: "option" }[command];
+    if (command === "START") {
+      if (!hasStoredPreferences()) openLanguageGate();
+      else launchFirstChapter();
+      return;
+    }
+    if (command === "CONTINUE" && continueTarget) {
+      if (continueTarget.kind === "article") {
+        beginExternalNavigation(continueTarget.path, "OPENING RECORD");
+        return;
+      }
+      const save = getGalBlogSave(continueTarget.saveId);
+      if (save) beginExternalNavigation(createSaveLaunchUrl(save), "CONTINUING STORY");
+      else syncContinueButton();
+      return;
+    }
+    const route = { LOAD: "load", EXTRA: "extra", OPTION: "option" }[command];
     if (route) {
       navigateTo(route, { instant: event.detail === 0 });
       return;
@@ -304,6 +435,14 @@ function moveTitleFocus(direction) {
 
 document.addEventListener("keydown", (event) => {
   if (event.repeat || event.ctrlKey || event.metaKey || event.altKey) return;
+  if (!languageGate.hidden) {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      closeLanguageGate();
+    }
+    return;
+  }
   const target = event.target;
   const editing = target instanceof Element && target.closest("input, textarea, select, [contenteditable='true']");
   const key = event.key.toLowerCase();
@@ -388,9 +527,11 @@ updatePressed("[data-scene-option]", body.dataset.scene, "sceneOption");
 updatePressed("[data-weather-option]", weather.value, "weatherOption");
 updateSceneLabels();
 refreshStatus();
+if (!freshResetBoot) recordBlogActivity("scenes", body.dataset.scene);
+syncContinueButton();
 weather.start();
 
-if (hasSeenOpening()) dismissOpening({ remember: false });
+if (hasSeenOpening()) dismissOpening({ remember: false, instant: true });
 else playOpening();
 
 const initialImage = new Image();

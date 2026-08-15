@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { siteConfig } from "../../site.config.mjs";
 ---
 
 <BaseLayout title="页面未找到" description="请求的路线不存在。" noindex>
@@ -8,7 +9,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     <p class="lost-route-number" aria-hidden="true">404</p>
     <header>
       <span>ROUTE NOT FOUND</span>
-      <strong>THE LONELY SEA</strong>
+      <strong>{siteConfig.latinName}</strong>
     </header>
 
     <figure aria-hidden="true">

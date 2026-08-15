@@ -1,7 +1,7 @@
 ---
 import type { ExperienceRecord } from "../../lib/experience-records";
 import { LOAD_SLOT_CAPACITY } from "../../lib/experience-records";
-import { listPublicStoryScenes } from "../../lib/gal-blog/release-registry";
+import { listPublicStoryFlows, listPublicStoryScenes } from "../../lib/gal-blog/release-registry";
 import "../../styles/load-tracks-xiii.css";
 
 interface Props {
@@ -24,177 +24,127 @@ const gameSections = [
   { id: "story", label: "STORY" },
 ];
 
-const demoStoryScenes = [
-  {
-    number: "01",
-    title: "初次见面",
-    summary: "关于我，以及这片个人档案为什么被保存下来。",
-    art: "/assets/lonely-sea/mist.png",
-  },
-  {
-    number: "02",
-    title: "孤独之海",
-    summary: "从一处个人博客开始，重新整理散落的文章与记忆。",
-    art: "/assets/lonely-sea/day.png",
-  },
-  {
-    number: "03",
-    title: "阅读这份记录",
-    summary: "在文章、故事与日记之间，选择接下来要读取的内容。",
-    art: "/assets/lonely-sea/night.png",
-  },
-  {
-    number: "04",
-    title: "尚未写完的夏天",
-    summary: "一段从流程图中独立取出的短场景，仍留有继续前进的入口。",
-    art: "/assets/lonely-sea/crimson.png",
-  },
-];
-
 const publishedStoryScenes = listPublicStoryScenes();
-const storyScenes = publishedStoryScenes.length
-  ? publishedStoryScenes.map((scene, index) => ({
-      number: String(index + 1).padStart(2, "0"),
-      title: scene.title,
-      summary: "",
-      art: scene.thumbnail ?? "/assets/lonely-sea/mist.png",
-      gameSlug: scene.gameSlug,
-      releaseId: scene.releaseId,
-      sceneId: scene.sceneId,
-    }))
-  : demoStoryScenes;
+const storyScenes = publishedStoryScenes.map((scene, index) => ({
+  number: String(index + 1).padStart(2, "0"),
+  title: scene.title,
+  summary: "",
+  art: scene.thumbnail ?? "/assets/lonely-sea/mist.png",
+  gameSlug: scene.gameSlug,
+  releaseId: scene.releaseId,
+  sceneId: scene.sceneId,
+}));
 
-const diaryMonths = [
-  {
-    id: "2026-07",
-    year: "2026",
-    month: "JULY",
-    monthNumber: "07",
-    dateLabel: "2026 / 07",
-    title: "雨后的窗边",
-    summary: "七月在潮湿的空气里慢慢展开。窗外的雨声、深夜的屏幕，以及一些终于愿意写下来的想法。",
-    art: "/assets/lonely-sea/mist.png",
-  },
-  {
-    id: "2026-04",
-    year: "2026",
-    month: "APRIL",
-    monthNumber: "04",
-    dateLabel: "2026 / 04",
-    title: "春日归档",
-    summary: "天气开始变暖，旧文章也被重新翻开。这个月记下了整理博客时反复想起的人和事。",
-    art: "/assets/lonely-sea/day.png",
-  },
-  {
-    id: "2026-01",
-    year: "2026",
-    month: "JANUARY",
-    monthNumber: "01",
-    dateLabel: "2026 / 01",
-    title: "新年的第一页",
-    summary: "新年没有宏大的计划，只想先把散落的文字放回它们应该在的位置。",
-    art: "/assets/lonely-sea/night.png",
-  },
-  {
-    id: "2025-12",
-    year: "2025",
-    month: "DECEMBER",
-    monthNumber: "12",
-    dateLabel: "2025 / 12",
-    title: "雪夜与告别",
-    summary: "一年的末尾总像一场缓慢的退潮。雪落下来时，许多事情终于能够安静地告别。",
-    art: "/assets/lonely-sea/night.png",
-  },
-  {
-    id: "2025-08",
-    year: "2025",
-    month: "AUGUST",
-    monthNumber: "08",
-    dateLabel: "2025 / 08",
-    title: "盛夏余波",
-    summary: "白昼很长，蝉鸣也很近。这个月留下的是游戏、旅行，以及被暑气拉长的夜晚。",
-    art: "/assets/lonely-sea/day.png",
-  },
-  {
-    id: "2025-05",
-    year: "2025",
-    month: "MAY",
-    monthNumber: "05",
-    dateLabel: "2025 / 05",
-    title: "五月的月光",
-    summary: "五月读完了一些故事，也重新理解了曾经喜欢它们的自己。月光仍旧照在同一片海上。",
-    art: "/assets/lonely-sea/crimson.png",
-  },
+const diaryMonthNames = [
+  "JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE",
+  "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER",
 ];
+const diaryGroups = new Map<string, ExperienceRecord[]>();
+records.forEach((record) => {
+  const [year, month] = record.date.split(".");
+  if (!year || !month) return;
+  const id = `${year}-${month}`;
+  diaryGroups.set(id, [...(diaryGroups.get(id) ?? []), record]);
+});
+const diaryMonths = [...diaryGroups.entries()].map(([id, entries]) => {
+  const [year, monthNumber] = id.split("-");
+  const first = entries[0];
+  const monthIndex = Math.max(0, Math.min(11, Number(monthNumber) - 1));
+  const title = entries.length === 1
+    ? first.title
+    : `${year}年${Number(monthNumber)}月归档`;
+  const summary = entries.length === 1
+    ? first.excerpt
+    : `本月共收录 ${entries.length} 篇文章：${entries.map((entry) => entry.title).join("、")}。`;
+  return {
+    id,
+    year,
+    month: diaryMonthNames[monthIndex],
+    monthNumber,
+    dateLabel: `${year} / ${monthNumber}`,
+    title,
+    summary,
+    art: first.coverUrl,
+    records: entries.map((entry) => ({
+      title: entry.title,
+      date: entry.date,
+      url: entry.url,
+    })),
+  };
+});
 
 const diaryYears = [...new Set(diaryMonths.map((entry) => entry.year))];
 
-const flowAtlases = [
-  {
+const flowAtlases = listPublicStoryFlows().map((flow, flowIndex) => {
+  const nodeById = new Map(flow.nodes.map((node) => [node.id, node]));
+  const incoming = new Map(flow.nodes.map((node) => [node.id, 0]));
+  flow.edges.forEach((edge) => incoming.set(edge.target, (incoming.get(edge.target) ?? 0) + 1));
+  const roots = flow.nodes.filter((node) => node.kind === "start" || incoming.get(node.id) === 0);
+  const depths = new Map<string, number>();
+  const queue = roots.map((node) => ({ id: node.id, depth: 0 }));
+  while (queue.length) {
+    const current = queue.shift();
+    if (!current || (depths.has(current.id) && (depths.get(current.id) ?? 0) <= current.depth)) continue;
+    depths.set(current.id, current.depth);
+    flow.edges.filter((edge) => edge.source === current.id).forEach((edge) => {
+      queue.push({ id: edge.target, depth: current.depth + 1 });
+    });
+  }
+  flow.nodes.forEach((node) => {
+    if (!depths.has(node.id)) depths.set(node.id, Math.max(0, ...depths.values()) + 1);
+  });
+  const maxDepth = Math.max(1, ...depths.values());
+  const positioned = new Map<string, { x: number; y: number }>();
+  for (let depth = 0; depth <= maxDepth; depth += 1) {
+    const layer = flow.nodes.filter((node) => depths.get(node.id) === depth);
+    layer.forEach((node, index) => positioned.set(node.id, {
+      x: ((index + 1) * 100) / (layer.length + 1),
+      y: 10 + (depth / maxDepth) * 112,
+    }));
+  }
+  return {
+    id: flowIndex === 0 ? "blue" : `story-${flowIndex + 1}`,
+    label: flow.title,
+    chapters: Array.from({ length: maxDepth + 1 }, (_, depth) => ({
+      y: Math.max(3, 10 + (depth / maxDepth) * 112 - 9),
+      label: depth === 0 ? "0 / START" : `${depth} / ${depth === 1 ? "MAIN BRANCH" : "DETAIL BRANCH"}`,
+    })),
+    paths: flow.edges.flatMap((edge) => {
+      const source = positioned.get(edge.source);
+      const target = positioned.get(edge.target);
+      if (!source || !target) return [];
+      const middle = (source.y + target.y) / 2;
+      return [`M${source.x} ${source.y} V${middle} H${target.x} V${target.y}`];
+    }),
+    nodes: flow.nodes.map((node, index) => {
+      const position = positioned.get(node.id) ?? { x: 50, y: 68 };
+      const branchLabels = flow.edges
+        .filter((edge) => edge.source === node.id)
+        .map((edge) => edge.label || nodeById.get(edge.target)?.title)
+        .filter(Boolean);
+      return {
+        id: node.id,
+        number: String(index + 1).padStart(2, "0"),
+        title: node.title,
+        summary: branchLabels.length ? `后续：${branchLabels.join(" / ")}` : "当前公开路线的终点。",
+        art: node.thumbnail ?? "/assets/lonely-sea/mist.png",
+        x: position.x,
+        y: position.y,
+        unlocked: true,
+      };
+    }),
+  };
+});
+
+if (!flowAtlases.length) {
+  flowAtlases.push({
     id: "blue",
-    label: "BLUE",
-    chapters: [
-      { y: 3, label: "0 / PROLOGUE" },
-      { y: 39, label: "1 / OPEN SEA" },
-      { y: 88, label: "2 / MEMORY BRANCH" },
-    ],
-    paths: [
-      "M50 8 V29",
-      "M50 29 V47",
-      "M50 47 V55 H33 V65",
-      "M50 47 V55 H67 V65",
-      "M33 65 V76 H50 V83",
-      "M67 65 V76 H50 V83",
-      "M50 83 V93 H27 V104",
-      "M50 83 V104",
-      "M50 93 H73 V104",
-      "M27 104 V115 H50 V126",
-      "M50 104 V126",
-      "M73 104 V115 H50 V126",
-    ],
-    nodes: [
-      { id: "blue-prologue", number: "00", title: "潮声之前", summary: "一切尚未被分类时，最初的记录从这里开始。", art: "/assets/lonely-sea/mist.png", x: 50, y: 8, unlocked: true },
-      { id: "blue-arrival", number: "01", title: "来到孤独之海", summary: "进入这处介于记忆与潮汐之间的个人档案。", art: "/assets/lonely-sea/day.png", x: 50, y: 29, unlocked: true },
-      { id: "blue-about", number: "02", title: "关于我", summary: "一段可以直接读取的自我介绍，也是故事的第一条公开分支。", art: "/assets/lonely-sea/night.png", x: 50, y: 47, unlocked: true },
-      { id: "blue-archive", number: "03A", title: "文章与记录", summary: "从文章归档进入另一条以阅读为主的轨道。", art: "/assets/lonely-sea/mist.png", x: 33, y: 65, unlocked: true },
-      { id: "blue-story", number: "03B", title: "故事选项", summary: "将重要场景从完整流程中单独拆分出来。", art: "/assets/lonely-sea/day.png", x: 67, y: 65, unlocked: true },
-      { id: "blue-crossing", number: "04", title: "潮汐交点", summary: "两条阅读轨道在这里重新交汇。", art: "/assets/lonely-sea/crimson.png", x: 50, y: 83, unlocked: true },
-      { id: "blue-locked-a", number: "05A", title: "尚未抵达", summary: "这条故事分支仍处于锁定状态。", art: "", x: 27, y: 104, unlocked: false },
-      { id: "blue-locked-b", number: "05B", title: "尚未抵达", summary: "这条故事分支仍处于锁定状态。", art: "", x: 50, y: 104, unlocked: false },
-      { id: "blue-locked-c", number: "05C", title: "尚未抵达", summary: "这条故事分支仍处于锁定状态。", art: "", x: 73, y: 104, unlocked: false },
-      { id: "blue-ending", number: "06", title: "尚未抵达", summary: "结局会在完成对应内容后解锁。", art: "", x: 50, y: 126, unlocked: false },
-    ],
-  },
-  {
-    id: "red",
-    label: "RED",
-    chapters: [
-      { y: 3, label: "0 / CRIMSON TIDE" },
-      { y: 39, label: "1 / AFTERIMAGE" },
-      { y: 88, label: "2 / UNREAD ROUTE" },
-    ],
-    paths: [
-      "M30 8 V28 H50 V46",
-      "M50 46 V55 H26 V66",
-      "M50 46 V55 H74 V66",
-      "M26 66 V88",
-      "M74 66 V91",
-      "M26 88 V101 H50 V111",
-      "M74 91 V101 H50 V111",
-      "M50 111 V128",
-    ],
-    nodes: [
-      { id: "red-prologue", number: "00", title: "赤潮的梦", summary: "另一条仍在成形的记忆轨道，从夜色中的红光开始。", art: "/assets/lonely-sea/crimson.png", x: 30, y: 8, unlocked: true },
-      { id: "red-crossing", number: "01", title: "午夜来信", summary: "一封没有寄件人的来信，将两条轨道短暂连接。", art: "/assets/lonely-sea/night.png", x: 50, y: 46, unlocked: true },
-      { id: "red-left", number: "02A", title: "回望", summary: "选择回到旧日的入口，重新读取已经发生过的场景。", art: "/assets/lonely-sea/day.png", x: 26, y: 66, unlocked: true },
-      { id: "red-right", number: "02B", title: "继续前行", summary: "向尚未写完的故事前进。之后的内容仍被潮雾遮住。", art: "/assets/lonely-sea/crimson.png", x: 74, y: 66, unlocked: true },
-      { id: "red-memory", number: "03A", title: "褪色的照片", summary: "被保留下来的画面，比文字更早想起那一天。", art: "/assets/lonely-sea/mist.png", x: 26, y: 88, unlocked: true },
-      { id: "red-locked-a", number: "03B", title: "尚未抵达", summary: "此处仍未解锁。", art: "", x: 74, y: 91, unlocked: false },
-      { id: "red-confluence", number: "04", title: "残响", summary: "分开的路径在此留下同一段余音。", art: "/assets/lonely-sea/night.png", x: 50, y: 111, unlocked: true },
-      { id: "red-ending", number: "05", title: "尚未抵达", summary: "另一条结局仍沉在海面以下。", art: "", x: 50, y: 128, unlocked: false },
-    ],
-  },
-];
+    label: "NO STORY DATA",
+    chapters: [{ y: 3, label: "0 / EMPTY" }],
+    paths: [],
+    nodes: [{ id: "empty", number: "--", title: "暂无公开流程", summary: "游戏包尚未提供路线图。", art: "", x: 50, y: 18, unlocked: false }],
+  });
+}
 
 const initialFlowNode = flowAtlases[0]?.nodes.find((node) => node.unlocked);
 const articleEmptySlots = Array.from(
@@ -456,12 +406,13 @@ const lockedStorySlots = Array.from({ length: 7 }, (_, index) => index);
               data-diary-title={entry.title}
               data-diary-summary={entry.summary}
               data-diary-art={entry.art}
+              data-diary-records={JSON.stringify(entry.records)}
               aria-hidden={index !== 0}
             >
               <span class="tracks-xiii-diary-ghost" aria-hidden="true">{entry.monthNumber}</span>
               <div class="tracks-xiii-diary-copy">
                 <time>{entry.dateLabel}</time>
-                <small>{entry.month} — MONTHLY DIARY</small>
+                <small>{entry.month} — MONTHLY ARCHIVE</small>
                 <h3>{entry.title}</h3>
                 <p>{entry.summary}</p>
                 <span>OPEN THIS MONTH</span>
@@ -487,6 +438,7 @@ const lockedStorySlots = Array.from({ length: 7 }, (_, index) => index);
               <time data-xiii-diary-reader-date>{diaryMonths[0]?.dateLabel}</time>
               <h3 data-xiii-diary-reader-title>{diaryMonths[0]?.title}</h3>
               <p data-xiii-diary-reader-summary>{diaryMonths[0]?.summary}</p>
+              <nav class="tracks-xiii-diary-reader-links" data-xiii-diary-reader-links aria-label="本月文章"></nav>
             </div>
             <button class="tracks-xiii-diary-reader-close" type="button" data-xiii-diary-reader-close>RETURN</button>
           </section>

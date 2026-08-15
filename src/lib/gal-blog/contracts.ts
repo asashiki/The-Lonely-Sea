@@ -8,9 +8,23 @@ export type GalBlogScalar = boolean | number | string;
 export type GalBlogAction =
   | "return-menu"
   | "open-article"
+  | "open-settings"
+  | "open-load"
   | "open-comment-form"
   | "save-progress"
   | "get-runtime-data";
+export type GalBlogSettingKey =
+  | "audio.muted"
+  | "audio.bgm"
+  | "audio.ambient"
+  | "audio.effects"
+  | "audio.voice"
+  | "text.scale"
+  | "text.speed"
+  | "accessibility.reducedMotion"
+  | "interface.scale"
+  | "interface.cursor"
+  | "interface.language";
 export type GalBlogResultStatus = "success" | "failure" | "cancel" | "unsupported";
 export type GalBlogMessageType =
   | "hello"
@@ -69,7 +83,7 @@ export interface GalBlogPackageManifestV1 {
       id: string;
       title: string;
       sceneId: string;
-      resumeMode: "scene-entry";
+      resumeMode: "scene-entry" | "authored-block";
       thumbnail?: string;
     }>;
   };
@@ -82,6 +96,10 @@ export interface GalBlogPackageManifestV1 {
     launchVariables: string[];
     persistVariables: string[];
     records: string[];
+  };
+  settingsContract?: {
+    schema: "gal-blog-settings/v1";
+    accepts: GalBlogSettingKey[];
   };
   bridge: {
     protocol: typeof GAL_BLOG_PROTOCOL;
@@ -105,6 +123,7 @@ export interface GalBlogSaveRecordV1 {
   gameSlug: string;
   releaseId: string;
   target: { kind: "save-point"; id: string };
+  mode?: "auto" | "manual";
   title: string;
   chapter?: string;
   scene?: string;

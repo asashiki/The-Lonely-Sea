@@ -9,11 +9,20 @@ import {
   type GalBlogScalar,
 } from "../../lib/gal-blog/contracts";
 import { saveGalBlogProgress, type SaveProgressInput } from "../../lib/gal-blog/save-store";
+import {
+  projectRuntimePreferences,
+  readPreferences,
+  runtimePreferenceValue,
+} from "./preferences.js";
 
 const IMPLEMENTED_REQUIRED_ACTIONS = new Set<GalBlogAction>([
   "return-menu",
   "open-article",
+  "open-settings",
+  "open-load",
+  "open-comment-form",
   "save-progress",
+  "get-runtime-data",
 ]);
 const HANDSHAKE_TIMEOUT_MS = 20_000;
 
@@ -28,6 +37,18 @@ type HostOptions = {
   target: GalBlogLaunchTarget;
   state?: { variables: Record<string, GalBlogScalar>; records: string[] };
   articlePaths: ReadonlyMap<string, string>;
+  onOpenCommentForm: (input: Record<string, unknown>) => Promise<{
+    status: "success" | "cancel" | "failure";
+    value?: string;
+    message?: string;
+  }>;
+  onOpenSettings: () => Promise<{ status: "success" | "cancel" }>;
+  onOpenLoad: (input: Record<string, unknown>) => Promise<{
+    status: "success" | "cancel" | "failure";
+    slot?: number;
+    navigateTo?: string;
+    message?: string;
+  }>;
   onStateChange: (state: HostState, message: string) => void;
   onNavigate: (path: string) => void;
 };
@@ -40,6 +61,20 @@ function targetExists(manifest: GalBlogPackageManifestV1, target: GalBlogLaunchT
   if (target.kind === "start") return target.id === manifest.launchTargets.start.id;
   if (target.kind === "scene") return manifest.launchTargets.scenes.some((item) => item.id === target.id);
   return manifest.launchTargets.savePoints.some((item) => item.id === target.id);
+}
+
+function returnPath(target: GalBlogLaunchTarget, input: Record<string, unknown>): string {
+  if (input.screen === "title") return "/";
+  const defaultFilter = target.kind === "scene" ? "story" : "save";
+  const loadPage = ["articles", "game", "diary"].includes(String(input.loadPage))
+    ? String(input.loadPage)
+    : "game";
+  const loadFilter = ["save", "flow", "story"].includes(String(input.loadFilter))
+    ? String(input.loadFilter)
+    : defaultFilter;
+  const params = new URLSearchParams({ screen: "load", loadPage });
+  if (loadPage === "game") params.set("loadFilter", loadFilter);
+  return `/?${params.toString()}`;
 }
 
 function validateLaunchState(
@@ -88,8 +123,13 @@ export class GalBlogHost {
   private handshakeTimer = 0;
   private sequence = 0;
   private launchSent = false;
+  private gameReady = false;
   private disposed = false;
   private listener = (event: MessageEvent) => void this.receive(event);
+  private preferencesListener = (event: Event) => {
+    const preferences = (event as CustomEvent).detail?.preferences ?? readPreferences();
+    this.sendSettings(preferences);
+  };
 
   constructor(private readonly options: HostOptions) {
     this.gameOrigin = new URL(options.entryUrl, window.location.href).origin;
@@ -99,9 +139,10 @@ export class GalBlogHost {
 
   start(): void {
     window.addEventListener("message", this.listener);
+    window.addEventListener("lonely-sea:preferences-change", this.preferencesListener);
     this.options.onStateChange("loading", "LOADING GAME PACKAGE");
     this.handshakeTimer = window.setTimeout(() => {
-      this.fail("游戏握手超时；当前导出包可能尚未支持 gal-blog-bridge/v1");
+      this.fail("故事暂时没有回应，请返回后重新进入。");
     }, HANDSHAKE_TIMEOUT_MS);
     const url = new URL(this.options.entryUrl, window.location.href);
     url.searchParams.set("session", this.options.sessionId);
@@ -111,9 +152,10 @@ export class GalBlogHost {
   reload(): void {
     if (this.disposed) return;
     this.launchSent = false;
+    this.gameReady = false;
     this.resultCache.clear();
     window.clearTimeout(this.handshakeTimer);
-    this.handshakeTimer = window.setTimeout(() => this.fail("游戏握手超时"), HANDSHAKE_TIMEOUT_MS);
+    this.handshakeTimer = window.setTimeout(() => this.fail("故事暂时没有回应，请返回后重新进入。"), HANDSHAKE_TIMEOUT_MS);
     this.options.onStateChange("loading", "RELOADING GAME PACKAGE");
     this.options.iframe.src = this.options.iframe.src;
   }
@@ -123,6 +165,7 @@ export class GalBlogHost {
     this.disposed = true;
     window.clearTimeout(this.handshakeTimer);
     window.removeEventListener("message", this.listener);
+    window.removeEventListener("lonely-sea:preferences-change", this.preferencesListener);
     this.resultCache.clear();
     this.options.iframe.src = "about:blank";
   }
@@ -160,11 +203,36 @@ export class GalBlogHost {
       payload: {
         target: this.options.target,
         state: this.launchState ?? { variables: {}, records: [] },
+        ...(this.options.manifest.settingsContract ? {
+          settings: projectRuntimePreferences(
+            this.options.manifest.settingsContract.accepts,
+            readPreferences(),
+          ),
+        } : {}),
       },
     };
     this.launchSent = true;
     this.options.onStateChange("waiting", "WAITING FOR WEBGAL");
     this.send(launch);
+  }
+
+  private sendSettings(preferences = readPreferences()): void {
+    const contract = this.options.manifest.settingsContract;
+    if (!this.gameReady || !contract) return;
+    this.send({
+      protocol: GAL_BLOG_PROTOCOL,
+      channel: GAL_BLOG_CHANNEL,
+      source: "gal-blog",
+      gameId: this.options.manifest.game.id,
+      releaseId: this.options.manifest.game.releaseId,
+      sessionId: this.options.sessionId,
+      type: "event",
+      payload: {
+        name: "settings-change",
+        schema: contract.schema,
+        settings: projectRuntimePreferences(contract.accepts, preferences),
+      },
+    });
   }
 
   private async receive(event: MessageEvent): Promise<void> {
@@ -183,6 +251,7 @@ export class GalBlogHost {
     }
     if (message.type === "ready" && this.launchSent) {
       window.clearTimeout(this.handshakeTimer);
+      this.gameReady = true;
       this.options.onStateChange("ready", "GAME READY");
       return;
     }
@@ -209,7 +278,10 @@ export class GalBlogHost {
     const action = request.payload.action;
     const input = isRecord(request.payload.input) ? request.payload.input : {};
     if (action === "return-menu") {
-      return makeResult(request, { status: "success", navigateTo: "/?screen=load" });
+      return makeResult(request, {
+        status: "success",
+        navigateTo: returnPath(this.options.target, input),
+      });
     }
     if (action === "open-article") {
       const slug = typeof input.slug === "string" ? input.slug : "";
@@ -217,6 +289,36 @@ export class GalBlogHost {
       return path
         ? makeResult(request, { status: "success", slug, navigateTo: path })
         : makeResult(request, { status: "failure", code: "ARTICLE_NOT_FOUND" });
+    }
+    if (action === "open-settings") {
+      return makeResult(request, await this.options.onOpenSettings());
+    }
+    if (action === "open-load") {
+      const result = await this.options.onOpenLoad(input);
+      if (input.operation !== "save" || result.status !== "success") {
+        return makeResult(request, result);
+      }
+      const snapshot = isRecord(input.snapshot) ? input.snapshot : null;
+      if (!snapshot || !Number.isInteger(result.slot)) {
+        return makeResult(request, { status: "failure", code: "INVALID_SAVE_SELECTION" });
+      }
+      try {
+        const save = saveGalBlogProgress(
+          this.options.manifest,
+          { ...snapshot, mode: "manual", slot: result.slot } as unknown as SaveProgressInput,
+          this.options.packageUrl,
+        );
+        return makeResult(request, { status: "success", saveId: save.id, savedAt: save.savedAt });
+      } catch (error) {
+        return makeResult(request, {
+          status: "failure",
+          code: "SAVE_REJECTED",
+          message: error instanceof Error ? error.message : "存档失败",
+        });
+      }
+    }
+    if (action === "open-comment-form") {
+      return makeResult(request, await this.options.onOpenCommentForm(input));
     }
     if (action === "save-progress") {
       try {
@@ -234,8 +336,12 @@ export class GalBlogHost {
         });
       }
     }
-    if (action === "open-comment-form" || action === "get-runtime-data") {
-      return makeResult(request, { status: "unsupported", action });
+    if (action === "get-runtime-data") {
+      const key = typeof input.key === "string" ? input.key : "";
+      const value = runtimePreferenceValue(key);
+      return value === undefined
+        ? makeResult(request, { status: "unsupported", action, key })
+        : makeResult(request, { status: "success", value });
     }
     return makeResult(request, { status: "unsupported", action: String(action ?? "") });
   }

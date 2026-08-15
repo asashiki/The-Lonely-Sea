@@ -11,6 +11,9 @@ import "../styles/experience.css";
 import "../styles/cursor.css";
 import "../styles/special-system-pages.css";
 import "../styles/extra-refinement.css";
+import "../styles/option-refinement.css";
+import "../styles/extra-live-data.css";
+import "../styles/achievement-toast.css";
 import { siteConfig } from "../../site.config.mjs";
 
 const canonicalUrl = new URL(Astro.url.pathname, siteConfig.url);
@@ -26,6 +29,7 @@ const records = await getExperienceRecords();
   <meta name="theme-color" content="#bfc4cb">
   <meta name="description" content={siteConfig.description}>
   <link rel="canonical" href={canonicalUrl}>
+  <link rel="alternate" type="application/rss+xml" title={`${siteConfig.name} RSS`} href="/rss.xml">
   <title>{siteConfig.name}</title>
   <link rel="preload" as="image" href="/assets/lonely-sea/mist.png">
   <script is:inline>
@@ -41,16 +45,29 @@ const records = await getExperienceRecords();
   <OpeningSequence />
   <div class="route-curtain" id="route-curtain" aria-hidden="true">
     <span aria-hidden="true"></span>
-    <p><small>THE LONELY SEA</small><strong>NOW LOADING</strong></p>
+    <p><small>{siteConfig.latinName}</small><strong>NOW LOADING</strong></p>
   </div>
 
-  <main class="stage" aria-label="孤独之海现代 Galgame 交互界面">
+  <main class="stage" aria-label={`${siteConfig.name}现代 Galgame 交互界面`}>
     <TitleStage />
     <StartScreen records={records} />
     <LoadScreen records={records} />
     <ExtraScreen />
     <OptionScreen />
   </main>
+
+  <section class="first-language" data-first-language-gate aria-hidden="true" hidden>
+    <div class="first-language__copy">
+      <small>FIRST START / LANGUAGE</small>
+      <h2>选择语言</h2>
+      <p>此项会同时用于 Blog 与游戏，也可以稍后在 OPTION 中修改。</p>
+      <div role="radiogroup" aria-label="首次启动语言">
+        <button type="button" data-first-language="ZH-CN"><b>简体中文</b><span>CHINESE</span></button>
+        <button type="button" data-first-language="EN-US"><b>English</b><span>ENGLISH</span></button>
+        <button type="button" data-first-language="JA-JP"><b>日本語</b><span>JAPANESE</span></button>
+      </div>
+    </div>
+  </section>
 
   <ExitDialog />
 

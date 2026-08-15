@@ -1,0 +1,986 @@
+/* OPTION — one branded visual-novel configuration board. */
+.option-screen {
+  overflow: clip;
+}
+
+.option-canvas {
+  --option-board: color-mix(in srgb, var(--v4-paper) 94%, transparent);
+  --option-board-deep: color-mix(in srgb, var(--v4-card) 94%, var(--v4-outer) 6%);
+  --option-rest: color-mix(in srgb, var(--v4-card) 72%, transparent);
+  --option-rest-strong: color-mix(in srgb, var(--v4-card) 92%, var(--v4-outer) 8%);
+  --option-edge: color-mix(in srgb, var(--v4-accent) 58%, var(--v4-ink) 22%);
+  --option-shadow: color-mix(in srgb, var(--v4-shadow) 76%, transparent);
+  --option-soft: color-mix(in srgb, var(--v4-ink) 76%, var(--v4-outer));
+  --option-on-accent: #f7fafb;
+  font-family: "Yu Mincho", "Hiragino Mincho ProN", serif;
+}
+
+body:is([data-scene="night"], [data-scene="crimson"]) .option-canvas {
+  --option-on-accent: #17212a;
+  --option-soft: color-mix(in srgb, var(--v4-ink) 82%, var(--v4-outer));
+}
+
+.option-canvas .option-safe-frame {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  overflow: clip;
+  isolation: isolate;
+}
+
+.option-canvas .option-safe-frame::before {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--v4-ink) 24%, transparent), transparent 68%) 5cqw 14.2cqh / 90cqw 1px no-repeat,
+    radial-gradient(circle at 84% 43%, transparent 0 18%, color-mix(in srgb, var(--v4-outer) 20%, transparent) 54%, transparent 76%),
+    linear-gradient(90deg, color-mix(in srgb, var(--v4-outer) 14%, transparent), transparent 58%);
+  content: "";
+  pointer-events: none;
+}
+
+.option-canvas .option-heading {
+  top: 4.4cqh;
+  left: 5cqw;
+  z-index: 8;
+}
+
+.option-canvas .option-heading h2 {
+  margin: 0;
+  color: var(--v4-ink);
+  font: 400 clamp(40px, 4.25cqw, 70px) / 1 Baskerville, "Iowan Old Style", "Yu Mincho", serif;
+  letter-spacing: .1em;
+  text-shadow: 0 1px 1.4cqw var(--option-shadow);
+}
+
+.option-canvas .option-heading p {
+  display: block;
+  margin: 1cqh 0 0 .2cqw;
+  color: var(--option-soft);
+  font: 600 clamp(10px, .68cqw, 13px) / 1 "Yu Gothic", sans-serif;
+  letter-spacing: .2em;
+}
+
+.option-canvas .option-primary {
+  position: absolute;
+  z-index: 9;
+  top: 5.2cqh;
+  right: 5cqw;
+  left: 29cqw;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  width: auto;
+  height: 7.2cqh;
+  padding: .55cqh .38cqw;
+  border: 1px solid color-mix(in srgb, var(--option-edge) 45%, transparent);
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--option-board-deep) 76%, transparent);
+  box-shadow:
+    inset 0 1px color-mix(in srgb, white 20%, transparent),
+    0 .45cqh 1.2cqw color-mix(in srgb, var(--option-shadow) 24%, transparent);
+  filter: none;
+}
+
+.option-canvas .option-primary::after {
+  content: none;
+}
+
+.option-canvas .option-primary button {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: auto;
+  min-width: 0;
+  min-height: 0;
+  padding: 0 1cqw;
+  overflow: hidden;
+  border: 0;
+  border-radius: 0;
+  color: var(--option-soft);
+  background: transparent;
+  box-shadow: none;
+  font: 500 clamp(16px, 1.25cqw, 23px) / 1 "Yu Mincho", serif;
+  letter-spacing: .22em;
+  text-align: center;
+  opacity: 1;
+  transform: none;
+  transition: color 140ms ease, background-color 140ms ease, border-color 140ms ease, transform 160ms ease;
+}
+
+.option-canvas .option-primary button::before {
+  content: none;
+}
+
+.option-canvas .option-primary button[aria-selected="true"] {
+  border-color: transparent;
+  color: var(--option-on-accent);
+  background:
+    linear-gradient(145deg, color-mix(in srgb, white 17%, transparent), transparent 48%),
+    var(--v4-accent);
+  box-shadow:
+    inset 0 1px color-mix(in srgb, white 32%, transparent),
+    0 .65cqh 1.3cqw color-mix(in srgb, var(--v4-accent) 28%, var(--option-shadow));
+  clip-path: polygon(4% 0, 100% 0, 96% 100%, 0 100%);
+}
+
+.option-canvas .option-primary button:focus-visible,
+.option-canvas .option-secondary button:focus-visible,
+.option-canvas .option-choice-group button:focus-visible,
+.option-canvas .option-switch:focus-visible,
+.option-canvas .option-command:focus-visible,
+.option-canvas .option-range input:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--v4-accent) 84%, white 16%);
+  outline-offset: 3px;
+}
+
+.option-canvas .option-book {
+  position: absolute;
+  z-index: 5;
+  top: 16.4cqh;
+  right: 5cqw;
+  bottom: 10.2cqh;
+  left: 5cqw;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: 7.4cqh minmax(0, 1fr);
+  gap: 0;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--option-edge) 54%, transparent);
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--option-board) 84%, transparent);
+  box-shadow:
+    inset 0 1px color-mix(in srgb, white 13%, transparent),
+    0 .8cqh 2.4cqw color-mix(in srgb, var(--option-shadow) 58%, transparent);
+  backdrop-filter: blur(9px) saturate(.88);
+}
+
+.option-canvas .option-book::before,
+.option-canvas .option-book::after {
+  position: absolute;
+  z-index: 12;
+  width: 1.1cqw;
+  min-width: 12px;
+  aspect-ratio: 1;
+  border-color: var(--option-edge);
+  border-style: solid;
+  content: "";
+  pointer-events: none;
+}
+
+.option-canvas .option-book::before {
+  top: .55cqh;
+  left: .45cqw;
+  border-width: 2px 0 0 2px;
+}
+
+.option-canvas .option-book::after {
+  right: .45cqw;
+  bottom: .55cqh;
+  border-width: 0 2px 2px 0;
+}
+
+.option-canvas .option-secondary-shell {
+  position: relative;
+  z-index: 2;
+  min-width: 0;
+  min-height: 0;
+  padding: .72cqh 1.05cqw;
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--v4-accent) 12%, transparent), transparent 72%),
+    color-mix(in srgb, var(--v4-outer) 15%, var(--option-board-deep));
+  box-shadow: inset 0 -1.2cqh 2.4cqw color-mix(in srgb, var(--v4-shadow) 12%, transparent);
+}
+
+.option-canvas .option-secondary {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-content: stretch;
+  gap: .45cqw;
+  height: 100%;
+  padding: 0;
+  background: transparent;
+}
+
+.option-canvas .option-secondary[hidden] {
+  display: none;
+}
+
+.option-canvas .option-secondary::before {
+  content: none;
+}
+
+.option-canvas .option-secondary button {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-height: 0;
+  padding: .5cqh 1cqw;
+  border: 0;
+  border-radius: 0;
+  color: var(--option-soft);
+  background: transparent;
+  box-shadow: none;
+  font: 600 clamp(12px, .82cqw, 16px) / 1.35 "Yu Gothic", sans-serif;
+  letter-spacing: .1em;
+  text-align: center;
+  transform: none;
+  transition: color 140ms ease, background-color 140ms ease, border-color 140ms ease, transform 160ms ease;
+}
+
+.option-canvas .option-secondary button::before {
+  content: none;
+}
+
+.option-canvas .option-secondary button[aria-selected="true"] {
+  border-color: transparent;
+  color: var(--option-on-accent);
+  background:
+    linear-gradient(145deg, color-mix(in srgb, white 16%, transparent), transparent 48%),
+    var(--v4-accent);
+  box-shadow:
+    inset 0 1px color-mix(in srgb, white 28%, transparent),
+    0 .5cqh 1.2cqw color-mix(in srgb, var(--v4-accent) 22%, transparent);
+  transform: none;
+}
+
+.option-canvas .option-main {
+  position: relative;
+  inset: auto;
+  z-index: 1;
+  display: block;
+  min-width: 0;
+  min-height: 0;
+  height: auto;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.option-canvas .option-panel {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-rows: 9.4cqh minmax(0, 1fr) auto;
+  min-width: 0;
+  min-height: 0;
+  height: auto;
+  padding: 0 3.2cqw 2.2cqh;
+  overflow: hidden;
+  border: 0;
+  background: transparent;
+  opacity: 1;
+  transform: none;
+}
+
+.option-canvas .option-panel[hidden] {
+  display: none;
+}
+
+.option-canvas .option-panel-intro {
+  display: flex;
+  align-items: center;
+  gap: 1.2cqw;
+  min-width: 0;
+  margin: 0 -3.2cqw;
+  padding: 0 3.2cqw;
+  border: 0;
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--v4-accent) 17%, transparent), transparent 72%);
+}
+
+.option-canvas .option-panel-intro h3 {
+  flex: none;
+  margin: 0;
+  color: var(--v4-ink);
+  font: 500 clamp(22px, 1.68cqw, 31px) / 1 "Yu Mincho", serif;
+  letter-spacing: .12em;
+}
+
+.option-canvas .option-panel-intro p {
+  min-width: 0;
+  margin: 0;
+  color: var(--option-soft);
+  font: 600 clamp(10px, .66cqw, 13px) / 1.35 "Yu Gothic", sans-serif;
+  letter-spacing: .08em;
+}
+
+.option-canvas .option-settings {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: .45cqh;
+  min-width: 0;
+  min-height: 0;
+  padding-top: 1.15cqh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--v4-accent) 70%, transparent) transparent;
+}
+
+.option-canvas .option-settings::before {
+  content: none;
+}
+
+.option-canvas .option-setting {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(13.5cqw, 16.2cqw) minmax(0, 1fr);
+  align-items: center;
+  min-width: 0;
+  min-height: 8.4cqh;
+  padding: .65cqh .6cqw;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  isolation: isolate;
+}
+
+.option-canvas .option-setting::before {
+  position: absolute;
+  z-index: -1;
+  inset: .25cqh 0;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--v4-accent) 10%, transparent);
+  content: "";
+  opacity: 0;
+  transform: none;
+  transition: opacity 120ms ease;
+}
+
+.option-canvas .option-setting:focus-within::before {
+  opacity: .78;
+}
+
+.option-canvas .option-setting-copy {
+  display: grid;
+  gap: .5cqh;
+  min-width: 0;
+  padding: 0 1.4cqw 0 0;
+}
+
+.option-canvas .option-setting-copy strong {
+  min-width: 0;
+  color: var(--v4-ink);
+  font: 600 clamp(14px, .98cqw, 19px) / 1.25 "Yu Mincho", serif;
+  letter-spacing: .06em;
+  overflow-wrap: anywhere;
+}
+
+.option-canvas .option-setting-copy span {
+  min-width: 0;
+  color: var(--option-soft);
+  font: 600 clamp(10px, .63cqw, 12px) / 1.4 "Yu Gothic", sans-serif;
+  letter-spacing: .045em;
+  overflow-wrap: anywhere;
+}
+
+.option-canvas .option-setting-control {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1cqw;
+  min-width: 0;
+  padding-left: 1cqw;
+}
+
+.option-canvas .option-choice-group {
+  display: inline-flex;
+  align-items: stretch;
+  justify-content: flex-end;
+  gap: .45cqw;
+  max-width: 100%;
+}
+
+.option-canvas .option-choice-group button {
+  position: relative;
+  min-width: 5.6cqw;
+  min-height: 4.9cqh;
+  padding: .4cqh 1cqw;
+  border: 1px solid color-mix(in srgb, var(--option-edge) 52%, transparent);
+  border-radius: 2px;
+  color: var(--option-soft);
+  background:
+    linear-gradient(145deg, color-mix(in srgb, white 12%, transparent), transparent 48%),
+    var(--option-rest);
+  box-shadow: inset 0 1px color-mix(in srgb, white 22%, transparent);
+  font: 600 clamp(11px, .73cqw, 14px) / 1.2 "Yu Gothic", sans-serif;
+  letter-spacing: .07em;
+  white-space: nowrap;
+  transition: color 120ms ease, background-color 120ms ease, border-color 120ms ease, transform 120ms ease;
+}
+
+.option-canvas .option-choice-group button::before,
+.option-canvas .option-choice-group button::after {
+  content: none;
+}
+
+.option-canvas .option-choice-group button[aria-checked="true"] {
+  border-color: color-mix(in srgb, var(--v4-accent) 76%, var(--v4-ink));
+  color: var(--option-on-accent);
+  background: var(--v4-accent);
+  box-shadow:
+    inset 0 1px color-mix(in srgb, white 28%, transparent),
+    0 .35cqh .9cqw color-mix(in srgb, var(--v4-accent) 20%, transparent);
+}
+
+.option-canvas .option-choice-group-wide button {
+  min-width: 4.6cqw;
+  padding-inline: .65cqw;
+}
+
+.option-canvas .option-range {
+  display: grid;
+  grid-template-columns: auto minmax(9cqw, 16.5cqw) auto;
+  align-items: center;
+  gap: .75cqw;
+  min-width: 0;
+}
+
+.option-canvas .option-range > span {
+  color: var(--option-soft);
+  font: 600 clamp(9px, .57cqw, 11px) / 1 "Yu Gothic", sans-serif;
+  letter-spacing: .06em;
+}
+
+.option-canvas .option-range input {
+  width: 100%;
+  height: 3.4cqh;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  appearance: none;
+  background: transparent;
+  touch-action: pan-y;
+}
+
+.option-canvas .option-range input::-webkit-slider-runnable-track {
+  height: 6px;
+  border: 1px solid color-mix(in srgb, var(--option-edge) 52%, transparent);
+  border-radius: 2px;
+  background:
+    linear-gradient(90deg, var(--v4-accent) var(--option-range-progress, 50%), var(--option-rest-strong) 0);
+  box-shadow: inset 0 1px 2px color-mix(in srgb, var(--v4-shadow) 30%, transparent);
+}
+
+.option-canvas .option-range input::-webkit-slider-thumb {
+  width: 15px;
+  height: 15px;
+  margin-top: -5px;
+  border: 2px solid color-mix(in srgb, var(--v4-accent) 76%, var(--v4-ink));
+  border-radius: 2px;
+  appearance: none;
+  background: var(--option-board-deep);
+  box-shadow: 0 1px 5px var(--option-shadow);
+  transform: rotate(45deg);
+}
+
+.option-canvas .option-range input::-moz-range-track {
+  height: 6px;
+  border: 1px solid var(--option-edge);
+  border-radius: 2px;
+  background: var(--option-rest-strong);
+}
+
+.option-canvas .option-range input::-moz-range-progress {
+  height: 6px;
+  background: var(--v4-accent);
+}
+
+.option-canvas .option-range input::-moz-range-thumb {
+  width: 13px;
+  height: 13px;
+  border: 2px solid var(--v4-accent);
+  border-radius: 2px;
+  background: var(--option-board-deep);
+  transform: rotate(45deg);
+}
+
+.option-canvas .setting-value {
+  flex: 0 0 4.1cqw;
+  min-width: 4.1cqw;
+  color: var(--v4-ink);
+  font: italic 500 clamp(12px, .8cqw, 15px) / 1 Baskerville, "Yu Mincho", serif;
+  letter-spacing: .03em;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.option-canvas .option-switch {
+  position: relative;
+  display: grid;
+  grid-template-columns: 2.2cqw 3.5cqw;
+  align-items: center;
+  min-width: 7.2cqw;
+  min-height: 4.9cqh;
+  padding: 0 .75cqw;
+  border: 1px solid color-mix(in srgb, var(--option-edge) 55%, transparent);
+  border-radius: 2px;
+  color: var(--option-soft);
+  background: var(--option-rest);
+  box-shadow: inset 0 1px color-mix(in srgb, white 22%, transparent);
+  transition: color 120ms ease, background-color 120ms ease, border-color 120ms ease;
+}
+
+.option-canvas .option-switch i {
+  position: relative;
+  width: 1.05cqw;
+  min-width: 11px;
+  aspect-ratio: 1;
+  border: 1px solid var(--option-edge);
+  background: transparent;
+  transform: rotate(45deg);
+}
+
+.option-canvas .option-switch i::before {
+  position: absolute;
+  inset: 3px;
+  width: auto;
+  aspect-ratio: auto;
+  border: 0;
+  background: transparent;
+  content: "";
+  transform: none;
+  transition: background-color 120ms ease;
+}
+
+.option-canvas .option-switch[aria-pressed="true"] {
+  border-color: color-mix(in srgb, var(--v4-accent) 76%, var(--v4-ink));
+  color: var(--option-on-accent);
+  background: var(--v4-accent);
+}
+
+.option-canvas .option-switch[aria-pressed="true"] i {
+  border-color: var(--option-on-accent);
+}
+
+.option-canvas .option-switch[aria-pressed="true"] i::before {
+  background: var(--option-on-accent);
+  transform: none;
+}
+
+.option-canvas .option-switch .setting-value {
+  min-width: 0;
+  color: currentColor;
+  text-align: right;
+}
+
+.option-canvas .option-command {
+  position: relative;
+  min-width: 9.6cqw;
+  min-height: 4.9cqh;
+  padding: .4cqh 1.2cqw;
+  border: 1px solid color-mix(in srgb, var(--option-edge) 58%, transparent);
+  border-radius: 2px;
+  color: var(--v4-ink);
+  background:
+    linear-gradient(145deg, color-mix(in srgb, white 12%, transparent), transparent 48%),
+    var(--option-rest);
+  box-shadow: inset 0 1px color-mix(in srgb, white 22%, transparent);
+  font: 600 clamp(11px, .74cqw, 14px) / 1.2 "Yu Gothic", sans-serif;
+  letter-spacing: .08em;
+  text-align: center;
+}
+
+.option-canvas .option-command::before {
+  content: none;
+}
+
+.option-canvas .option-command[data-confirm="true"] {
+  border-color: var(--v4-accent);
+  color: var(--option-on-accent);
+  background: var(--v4-accent);
+}
+
+.option-canvas .option-panel-note {
+  align-self: end;
+  max-width: none;
+  margin: 1.2cqh .6cqw 0;
+  padding: 1.3cqh .25cqw;
+  border: 0;
+  border-radius: 0;
+  color: var(--option-soft);
+  background: transparent;
+  font: 600 clamp(10px, .64cqw, 12px) / 1.55 "Yu Gothic", sans-serif;
+  letter-spacing: .04em;
+}
+
+.option-canvas .option-actions {
+  position: absolute;
+  z-index: 10;
+  right: 5cqw;
+  bottom: 3.5cqh;
+  left: 20.4cqw;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: auto;
+  height: 5cqh;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  pointer-events: auto;
+}
+
+.option-canvas .option-state {
+  display: flex;
+  align-items: center;
+  gap: .7cqw;
+  margin: 0;
+  color: var(--option-soft);
+  font: 600 clamp(10px, .65cqw, 12px) / 1 "Yu Gothic", sans-serif;
+  letter-spacing: .1em;
+}
+
+.option-canvas .option-state i {
+  width: .56cqw;
+  min-width: 6px;
+  aspect-ratio: 1;
+  border: 1px solid var(--option-edge);
+  background: transparent;
+  transform: rotate(45deg);
+  transition: background-color 120ms ease, box-shadow 120ms ease;
+}
+
+.option-canvas[data-option-sync="active"] .option-state i {
+  background: var(--v4-accent);
+  box-shadow: 0 0 .7cqw color-mix(in srgb, var(--v4-accent) 56%, transparent);
+}
+
+.option-canvas .option-actions .system-back {
+  position: relative;
+  top: auto;
+  right: auto;
+  bottom: auto;
+  left: auto;
+  min-width: 8.2cqw;
+  min-height: 4.7cqh;
+  padding: 0 1cqw 0 2.7cqw;
+  border: 1px solid color-mix(in srgb, var(--option-edge) 56%, transparent);
+  border-radius: 2px;
+  color: var(--v4-ink);
+  background: var(--option-rest);
+  box-shadow: inset 0 1px color-mix(in srgb, white 22%, transparent);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.option-canvas .option-actions .system-back::before {
+  left: .65cqw;
+  width: 1.35cqw;
+  min-width: 16px;
+  border-color: var(--option-edge);
+  background: color-mix(in srgb, var(--v4-accent) 10%, transparent);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .option-canvas .option-primary button:hover,
+  .option-canvas .option-secondary button:hover,
+  .option-canvas .option-choice-group button:hover,
+  .option-canvas .option-switch:hover,
+  .option-canvas .option-command:hover,
+  .option-canvas .option-actions .system-back:hover {
+    border-color: var(--v4-accent);
+    color: var(--v4-ink);
+    transform: translateY(-1px);
+  }
+
+  .option-canvas .option-primary button[aria-selected="true"]:hover,
+  .option-canvas .option-secondary button[aria-selected="true"]:hover,
+  .option-canvas .option-choice-group button[aria-checked="true"]:hover,
+  .option-canvas .option-switch[aria-pressed="true"]:hover {
+    color: var(--option-on-accent);
+  }
+}
+
+@media (max-width: 1050px) and (orientation: landscape) {
+  .option-canvas .option-primary {
+    right: 5cqw;
+    left: 31cqw;
+  }
+
+  .option-canvas .option-book {
+    top: 16.8cqh;
+    right: 5cqw;
+    bottom: 9.2cqh;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: 7.4cqh minmax(0, 1fr);
+  }
+
+  .option-canvas .option-panel {
+    grid-template-rows: 9cqh minmax(0, 1fr) auto;
+  }
+
+  .option-canvas .option-setting {
+    min-height: 8.8cqh;
+  }
+
+  .option-canvas .option-actions {
+    right: 5cqw;
+    bottom: 2.1cqh;
+    left: 5cqw;
+  }
+}
+
+@media (max-width: 900px) and (orientation: portrait) {
+  .option-canvas .option-safe-frame {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .option-canvas .option-safe-frame::before {
+    background:
+      linear-gradient(90deg, color-mix(in srgb, var(--v4-ink) 20%, transparent), transparent 76%) 5vw 17.2vh / 90vw 1px no-repeat,
+      linear-gradient(180deg, color-mix(in srgb, var(--v4-outer) 9%, transparent), transparent 58%);
+  }
+
+  .option-canvas .option-heading {
+    top: max(2.4vh, env(safe-area-inset-top));
+    left: 5vw;
+  }
+
+  .option-canvas .option-heading h2 {
+    font-size: clamp(34px, 10.8vw, 48px);
+  }
+
+  .option-canvas .option-heading p {
+    margin-top: .65vh;
+    font-size: 10px;
+  }
+
+  .option-canvas .option-primary {
+    top: max(10.4vh, calc(env(safe-area-inset-top) + 8.2vh));
+    right: 5vw;
+    left: 5vw;
+    gap: 2vw;
+    height: 6.8vh;
+  }
+
+  .option-canvas .option-primary button {
+    padding: 0 2vw;
+    font-size: clamp(15px, 4.4vw, 19px);
+    letter-spacing: .15em;
+  }
+
+  .option-canvas .option-primary button::before {
+    left: 2vw;
+    width: 1.5vw;
+  }
+
+  .option-canvas .option-book {
+    top: max(18.4vh, calc(env(safe-area-inset-top) + 15.6vh));
+    right: 4vw;
+    bottom: max(8.8vh, calc(env(safe-area-inset-bottom) + 6.8vh));
+    left: 4vw;
+    grid-template-columns: 1fr;
+    grid-template-rows: 8.2vh minmax(0, 1fr);
+    border-width: 1px;
+  }
+
+  .option-canvas .option-secondary-shell {
+    padding: 1vh 2vw;
+    box-shadow: inset 0 -1.2vh 2.4vw color-mix(in srgb, var(--v4-shadow) 12%, transparent);
+  }
+
+  .option-canvas .option-secondary {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5vw;
+    height: 100%;
+  }
+
+  .option-canvas .option-secondary button {
+    place-items: center;
+    min-height: 0;
+    padding: .5vh 1vw;
+    font-size: clamp(10px, 3vw, 13px);
+    line-height: 1.25;
+    letter-spacing: .04em;
+    text-align: center;
+  }
+
+  .option-canvas .option-secondary button::before {
+    display: none;
+  }
+
+  .option-canvas .option-secondary button[aria-selected="true"] {
+    transform: none;
+  }
+
+  .option-canvas .option-main {
+    min-height: 0;
+  }
+
+  .option-canvas .option-panel {
+    grid-template-rows: 7.2vh minmax(0, 1fr) auto;
+    padding: 0 3.5vw 1.8vh;
+  }
+
+  .option-canvas .option-panel-intro {
+    gap: 3vw;
+    margin: 0 -3.5vw;
+    padding: 0 3.5vw;
+  }
+
+  .option-canvas .option-panel-intro h3 {
+    font-size: clamp(19px, 5.4vw, 24px);
+  }
+
+  .option-canvas .option-panel-intro p {
+    overflow: hidden;
+    font-size: 9.5px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .option-canvas .option-settings {
+    gap: .2vh;
+    padding-top: .8vh;
+    scrollbar-width: none;
+    touch-action: pan-y;
+  }
+
+  .option-canvas .option-settings::-webkit-scrollbar {
+    display: none;
+  }
+
+  .option-canvas .option-setting {
+    grid-template-columns: 39% minmax(0, 61%);
+    min-height: 9.2vh;
+    padding: .65vh 0;
+  }
+
+  .option-canvas .option-setting-copy {
+    gap: .45vh;
+    padding-right: 3vw;
+  }
+
+  .option-canvas .option-setting-copy strong {
+    font-size: clamp(13px, 3.7vw, 16px);
+  }
+
+  .option-canvas .option-setting-copy span {
+    font-size: 9.5px;
+  }
+
+  .option-canvas .option-setting-control {
+    gap: 2vw;
+    padding-left: 2.5vw;
+  }
+
+  .option-canvas .option-choice-group {
+    width: 100%;
+    gap: 1.3vw;
+  }
+
+  .option-canvas .option-choice-group button {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 5.1vh;
+    padding: .4vh 1.2vw;
+    font-size: clamp(10px, 2.85vw, 12px);
+    white-space: normal;
+  }
+
+  .option-canvas .option-choice-group-wide {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .option-canvas .option-choice-group-wide button {
+    min-height: 4.5vh;
+  }
+
+  .option-canvas .option-range {
+    grid-template-columns: auto minmax(13vw, 1fr) auto;
+    gap: 1.5vw;
+    width: 100%;
+  }
+
+  .option-canvas .option-range > span {
+    font-size: 9px;
+  }
+
+  .option-canvas .setting-value {
+    flex-basis: 12vw;
+    min-width: 12vw;
+    font-size: clamp(11px, 3.1vw, 13px);
+  }
+
+  .option-canvas .option-switch {
+    grid-template-columns: 6vw 9vw;
+    min-width: 19vw;
+    min-height: 5.2vh;
+    padding: 0 2vw;
+  }
+
+  .option-canvas .option-switch i {
+    width: 3vw;
+  }
+
+  .option-canvas .option-command {
+    min-width: 26vw;
+    min-height: 5.2vh;
+    padding-inline: 2vw;
+    font-size: clamp(10px, 3vw, 13px);
+  }
+
+  .option-canvas .option-panel-note {
+    margin: 1vh 0 0;
+    padding: 1vh .5vw;
+    font-size: 9.5px;
+  }
+
+  .option-canvas .option-actions {
+    right: 4vw;
+    bottom: max(2vh, env(safe-area-inset-bottom));
+    left: 4vw;
+    height: 5.2vh;
+  }
+
+  .option-canvas .option-state {
+    gap: 2vw;
+    font-size: 9.5px;
+  }
+
+  .option-canvas .option-state i {
+    width: 1.7vw;
+  }
+
+  .option-canvas .option-actions .system-back {
+    min-width: 27vw;
+    min-height: 5.2vh;
+    padding-left: 8vw;
+  }
+
+  .option-canvas .option-actions .system-back::before {
+    left: 2vw;
+    width: 5vw;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .option-canvas *,
+  .option-canvas *::before,
+  .option-canvas *::after {
+    scroll-behavior: auto !important;
+    transition: none !important;
+  }
+}
+
+html[data-motion="reduced"] .option-canvas *,
+html[data-motion="reduced"] .option-canvas *::before,
+html[data-motion="reduced"] .option-canvas *::after {
+  scroll-behavior: auto !important;
+  transition: none !important;
+}

@@ -1,13 +1,27 @@
 # Studio 游戏包接入
 
-当前 Blog 已准备好 `gal-blog-bridge/v1` 宿主，但没有提交演示游戏或旧版 Studio ZIP。
+当前正式第一章：
 
-Studio 交付正式包后：
+- 游戏：`lonely-sea-chapter-one`
+- 当前版本：`0.2.0-083634d3`
+- Blog 目录：`public/games/lonely-sea-chapter-one/0.2.0-083634d3/`
+- Studio 导出命令：`npm run export:chapter-one`
 
-1. 确认包内 `gal-blog.embed.json` 的 schema 为 `gal-blog-game-package/v1`，WebGAL 运行时已内置，且宿主 origin 不含 `*`。
-2. 将完整包放入 `public/games/<slug>/<releaseId>/`，不得覆盖已有发布版本。
-3. 在 `src/lib/gal-blog/release-registry.ts` 的对应游戏中登记目录，并设置 `currentReleaseId`。
-4. 运行 `pnpm check` 与 `pnpm build`；清单或目录不一致会直接中止构建。
-5. 用 `/start/stories/<slug>/` 验证 `hello → launch → ready`，再验证保存检查点后可从 LOAD 重新进入。
+## 最省事的更新流程
 
-当前明确返回 `unsupported` 的能力是评论表单和运行时数据；在真实 Blog Provider 接入前不会伪装成功。旧版 `oblivion-haven@063d9eb` 导出包不符合 v1 握手与安全要求，不应登记为正式发布版本。
+1. 只在 Studio 修改 Story IR、编译器、主题或 Bridge。
+2. 运行 `npm run test:core` 与 `npx tsc --noEmit`。
+3. 运行 `npm run export:chapter-one`，生成内容寻址的新 ZIP 和解压目录。
+4. 将新目录复制到 Blog 的 `public/games/lonely-sea-chapter-one/`，在 `release-registry.ts` 新增 release 并切换 `currentReleaseId`。
+5. 运行 Blog 构建和 `.local/qa-game-integration.mjs`。旧 release 不删除、不覆盖，旧存档继续按原版本读取。
+
+Blog 会在构建期验证 manifest、完整文件集合、字节数和 SHA-256。任何剧情、CSS、Bridge 或扩展变化都必须重新导出，不能手改已登记 release。
+
+## 当前 v1 行为
+
+- 游戏包自己适配 WebGAL 的 SAVE、LOAD、OPTION、TITLE、ESC 与运行控制栏；Blog 不跨 iframe 操作引擎 DOM。
+- TITLE 固定回 Blog 标题；ESC 隐藏 / 恢复对白框；STORY 在声明的片段边界返回来源页面。
+- OPTION 在宿主层覆盖打开，9 项共享设置实时进入当前 iframe。
+- SAVE 捕获 480×270 WebP 实时画面；自动续玩点与手动槽分开；LOAD 固定 release 与检查点。
+- 当前 manifest 有 8 个 save point、2 个公开 STORY scene、8 个流程图节点。
+- 对话内联动作目前支持 LOAD、OPTION、留言与友链；留言和友链仍是本机 Provider。

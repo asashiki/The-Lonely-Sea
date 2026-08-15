@@ -4,6 +4,13 @@
   overflow: clip;
 }
 
+/* EXTRA sits over detailed scene art, so secondary labels must remain readable
+   instead of inheriting the intentionally faint title-screen ink. */
+.extra-canvas {
+  --v4-soft: color-mix(in srgb, var(--v4-ink) 76%, transparent);
+  --v4-faint: color-mix(in srgb, var(--v4-ink) 58%, transparent);
+}
+
 .extra-canvas .extra-primary {
   top: 16cqh;
   bottom: 16cqh;
@@ -84,10 +91,6 @@
 
 .extra-canvas .extra-edge-turners button:disabled {
   opacity: .11;
-}
-
-.extra-canvas[data-extra-mode="bangumi"] .extra-page-controls {
-  display: none;
 }
 
 /* CG: the frame is the control. No panel, padding block, caption or archive-card treatment. */
@@ -596,6 +599,14 @@
     box-shadow 160ms ease,
     opacity 160ms ease,
     transform 140ms cubic-bezier(.22, 1, .36, 1);
+  overflow: hidden;
+}
+
+.extra-canvas .extra-bangumi-cover img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .extra-canvas .extra-bangumi-copy {
@@ -1221,7 +1232,29 @@
   transform: scaleX(1);
 }
 
-/* ACHIEVE: a chronicle on one continuous rail, with a scrollbar matching LOAD / STORY. */
+/* ACHIEVE: a continuous game record, separated by rhythm instead of cards or edge rules. */
+.extra-canvas .extra-achievement-room {
+  grid-template-rows: 8.2cqh 8.2cqh minmax(0, 1fr);
+}
+
+.extra-canvas .extra-achievement-stats {
+  grid-template-columns: auto minmax(8cqw, 1fr) auto;
+  gap: 1.5cqw;
+  padding: .9cqh .2cqw;
+  border: 0;
+}
+
+.extra-canvas .extra-achievement-stats > span {
+  height: 3px;
+  border-radius: 99px;
+  background: color-mix(in srgb, var(--v4-ink) 12%, transparent);
+}
+
+.extra-canvas .extra-achievement-stats > span i {
+  border-radius: inherit;
+  background: color-mix(in srgb, var(--v4-accent) 82%, var(--v4-ink));
+}
+
 .extra-canvas .extra-achievement-browser {
   position: relative;
   min-width: 0;
@@ -1230,6 +1263,9 @@
 }
 
 .extra-canvas .extra-achievement-ledger {
+  display: grid;
+  align-content: start;
+  gap: .2cqh;
   height: 100%;
   padding: .35cqh .1cqw 2cqh 0;
   scrollbar-width: none;
@@ -1240,44 +1276,47 @@
 }
 
 .extra-canvas .extra-achievement-row {
-  grid-template-columns: 8.6cqw minmax(0, 1fr) 10cqw;
-  min-height: 9.4cqh;
-  padding: 0 .9cqw 0 .25cqw;
+  grid-template-columns: 5.6cqw minmax(0, 1fr) 9.5cqw;
+  min-height: 8.55cqh;
+  padding: .45cqh .9cqw .45cqh 0;
+  border: 0;
   background: transparent;
   transform: none;
-  transition: color 180ms ease;
+  transition: color 160ms ease, opacity 160ms ease;
 }
 
 .extra-canvas .extra-achievement-row::before {
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  min-width: 0;
-  background: linear-gradient(90deg, color-mix(in srgb, var(--v4-accent) 10%, transparent), transparent 76%);
-  opacity: 0;
-  transform: scaleX(.92);
-  transform-origin: left center;
-  transition: opacity 180ms ease, transform 230ms cubic-bezier(.22, 1, .36, 1);
+  content: none;
 }
 
 .extra-canvas .extra-achievement-state {
-  display: flex;
-  place-items: initial;
-  align-items: center;
-  gap: .65cqw;
-  align-self: stretch;
-  margin-right: 1cqw;
+  position: relative;
+  display: grid;
+  place-items: center;
+  align-self: center;
+  margin: 0 1.1cqw 0 0;
   border-right: 0;
   background: transparent;
+  color: var(--v4-faint);
+  font: italic 400 clamp(18px, 1.55cqw, 28px) / 1 Baskerville, "Iowan Old Style", serif;
+  letter-spacing: -.04em;
 }
 
-.extra-canvas .extra-achievement-state i {
-  display: block;
-  width: 1.55cqw;
-  height: 1px;
-  background: var(--extra-line-strong);
-  opacity: .35;
+.extra-canvas .extra-achievement-state::after {
+  position: absolute;
+  right: -.15cqw;
+  bottom: -.2cqh;
+  display: grid;
+  place-items: center;
+  width: 1.15cqw;
+  min-width: 13px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  color: var(--v4-outer);
+  background: var(--v4-accent);
+  content: none;
+  font: 700 clamp(7px, .46cqw, 9px) / 1 "Yu Gothic", sans-serif;
+  opacity: 0;
 }
 
 .extra-canvas .extra-achievement-row.is-unlocked .extra-achievement-state {
@@ -1285,13 +1324,44 @@
   background: transparent;
 }
 
-.extra-canvas .extra-achievement-row.is-unlocked .extra-achievement-state i {
-  opacity: .9;
-  box-shadow: 0 0 .45cqw color-mix(in srgb, var(--v4-accent) 35%, transparent);
+.extra-canvas .extra-achievement-row.is-unlocked .extra-achievement-state::after {
+  content: "✓";
+  opacity: .92;
+}
+
+.extra-canvas .extra-achievement-row > div {
+  gap: .48cqh;
+}
+
+.extra-canvas .extra-achievement-row strong {
+  font-family: "Yu Mincho", "Hiragino Mincho ProN", serif;
+  font-size: clamp(13px, .92cqw, 18px);
+  letter-spacing: .08em;
+}
+
+.extra-canvas .extra-achievement-row small {
+  display: flex;
+  align-items: baseline;
+  gap: .75cqw;
+  color: var(--v4-soft);
+  font-size: clamp(8px, .5cqw, 10px);
+  letter-spacing: .045em;
+}
+
+.extra-canvas .extra-achievement-row small b {
+  flex: none;
+  color: var(--v4-faint);
+  font: 500 clamp(7px, .44cqw, 9px) / 1 Baskerville, serif;
+  letter-spacing: .12em;
+}
+
+.extra-canvas .extra-achievement-row em {
+  font-size: clamp(9px, .58cqw, 11px);
+  letter-spacing: .08em;
 }
 
 .extra-canvas .extra-achievement-row.is-locked {
-  opacity: .34;
+  opacity: .5;
 }
 
 /* Shared custom vertical scroll rail. */
@@ -1444,9 +1514,21 @@
     outline: 0;
   }
 
-  .extra-canvas .extra-achievement-row:hover::before {
+  .extra-canvas .extra-achievement-row:hover {
+    color: var(--v4-ink);
     opacity: 1;
-    transform: scaleX(1);
+  }
+}
+
+/* Compact landscape windows keep the title column and room heading separate. */
+@media (max-width: 880px) and (orientation: landscape) {
+  .extra-canvas .extra-heading h2 {
+    font-size: clamp(30px, 4.1cqw, 38px);
+  }
+
+  .extra-canvas .extra-heading p {
+    font-size: clamp(7px, .9cqw, 9px);
+    letter-spacing: .14em;
   }
 }
 
@@ -1573,7 +1655,27 @@
   }
 
   .extra-canvas .extra-achievement-row {
-    grid-template-columns: 13cqw minmax(0, 1fr) 15cqw;
+    grid-template-columns: 10cqw minmax(0, 1fr) 15cqw;
+    min-height: 8.2cqh;
+  }
+
+  .extra-canvas .extra-achievement-row strong {
+    font-size: clamp(13px, 3.5cqw, 17px);
+  }
+
+  .extra-canvas .extra-achievement-row small {
+    display: block;
+    font-size: clamp(8px, 2.15cqw, 10px);
+    line-height: 1.3;
+    white-space: nowrap;
+  }
+
+  .extra-canvas .extra-achievement-row small b {
+    display: none;
+  }
+
+  .extra-canvas .extra-achievement-row em {
+    font-size: clamp(8px, 2cqw, 10px);
   }
 }
 
@@ -1587,8 +1689,5 @@
   .extra-canvas .extra-bangumi-focus-copy a,
   .extra-canvas .extra-character-profile,
   .extra-canvas .extra-character-selector button > span,
-  .extra-canvas .extra-achievement-row::before {
-    transition: none;
-    transform: none;
-  }
+  .extra-canvas .extra-achievement-row { transition: none; }
 }

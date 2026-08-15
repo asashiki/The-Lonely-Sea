@@ -494,7 +494,7 @@ body.is-ready .fx-panel:not([hidden]) {
   #weather-canvas { display: none; }
 }
 
-/* Revised title menu — text alone, with an enlarged ghost on selection. */
+/* Revised title menu — keep the hover magnification, remove only the outer focus box. */
 .menu-note { justify-content: flex-start; margin-left: 0; }
 .menu-note::before { display: none; }
 .menu-list { gap: clamp(2px, .45vh, 7px); }
@@ -516,6 +516,7 @@ body.is-ready .fx-panel:not([hidden]) {
   display: inline-block;
   isolation: isolate;
 }
+.title-menu .menu-button:focus-visible { outline: 0; outline-offset: 0; }
 .menu-name::before {
   content: attr(data-text);
   position: absolute;
@@ -649,16 +650,33 @@ body.is-ready .fx-panel:not([hidden]) {
 .route-curtain.is-covering { opacity: 1; visibility: visible; }
 .route-curtain > span {
   position: absolute;
-  width: min(64vw,52rem);
-  height: 1px;
-  background: linear-gradient(90deg,transparent,rgba(114,158,184,.45),transparent);
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 50%;
+  background: radial-gradient(circle,rgba(151,205,225,.2) 0 8%,transparent 9% 100%);
+  box-shadow: 0 0 0 1px rgba(154,205,225,.16),0 0 34px rgba(80,151,182,.18);
+  animation: route-tide 1.5s cubic-bezier(.22,1,.36,1) infinite;
 }
+.route-curtain > span::before,
+.route-curtain > span::after {
+  content: "";
+  position: absolute;
+  inset: 50%;
+  border: 1px solid rgba(171,218,234,.28);
+  border-radius: 50%;
+  transform: translate(-50%,-50%);
+  animation: route-ripple 1.5s ease-out infinite;
+}
+.route-curtain > span::after { animation-delay: .5s; }
+@keyframes route-tide { 50% { opacity: .58; transform: scale(.9); } }
+@keyframes route-ripple { to { width: 7rem; height: 7rem; opacity: 0; } }
 .route-curtain > p {
   position: relative;
   display: grid;
   justify-items: center;
   gap: .8rem;
   margin: 0;
+  transform: translateY(5.2rem);
 }
 .route-curtain small {
   color: rgba(213,228,234,.4);
@@ -679,8 +697,17 @@ body.is-ready .fx-panel:not([hidden]) {
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
+  transition:
+    opacity 260ms cubic-bezier(.22, 1, .36, 1),
+    visibility 0s linear 260ms;
 }
-.system-screen[aria-hidden="false"] { opacity: 1; visibility: visible; pointer-events: auto; }
+.system-screen[aria-hidden="false"] {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition-delay: 0s;
+}
+body.is-route-instant .system-screen { transition: none; }
 .system-back {
   position: absolute;
   z-index: 5;
@@ -5022,3 +5049,108 @@ html[data-motion="reduced"] .system-screen *::after {
 }
 .load-canvas:is([data-load-kind="player"],[data-load-kind="diary"]) .load-page-turner,
 .load-canvas:is([data-load-kind="player"],[data-load-kind="diary"]) .load-edge-turners { display: none; }
+/* First start language gate: a full-screen VN choice, not a form card. */
+.first-language {
+  position: fixed;
+  z-index: 900;
+  inset: 0;
+  display: grid;
+  align-items: center;
+  color: rgb(239 245 247 / 96%);
+  background:
+    linear-gradient(90deg, rgb(4 9 13 / 88%) 0 34%, rgb(4 9 13 / 48%) 58%, rgb(4 9 13 / 72%)),
+    url("/assets/lonely-sea/night.png") center / cover;
+}
+
+.first-language[hidden] { display: none; }
+
+.first-language__copy {
+  width: min(42rem, calc(100vw - 3rem));
+  margin-inline-start: clamp(1.5rem, 9vw, 10rem);
+}
+
+.first-language small {
+  color: rgb(223 237 241 / 62%);
+  font: 600 .66rem / 1.2 var(--font-sans);
+  letter-spacing: .25em;
+}
+
+.first-language h2 {
+  margin: .7rem 0 .6rem;
+  font: 400 clamp(2.3rem, 5vw, 5rem) / 1 var(--font-display);
+  letter-spacing: .1em;
+  text-shadow: 0 .5rem 2rem rgb(0 0 0 / 46%);
+}
+
+.first-language p {
+  max-width: 36rem;
+  margin: 0;
+  color: rgb(229 239 242 / 70%);
+  font: 500 clamp(.75rem, 1vw, .92rem) / 1.75 var(--font-sans);
+  letter-spacing: .06em;
+}
+
+.first-language [role="radiogroup"] {
+  display: grid;
+  width: min(30rem, 100%);
+  gap: .2rem;
+  margin-block-start: clamp(1.8rem, 5vh, 3.5rem);
+}
+
+.first-language button {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  min-height: 3.4rem;
+  padding: .7rem 1rem;
+  border: 0;
+  color: rgb(232 241 243 / 76%);
+  background: transparent;
+  text-align: start;
+  cursor: pointer;
+  transition: color 140ms ease, background-color 140ms ease, transform 140ms ease;
+}
+
+.first-language button b {
+  font: 400 clamp(1.1rem, 2vw, 1.55rem) / 1.2 var(--font-display);
+  letter-spacing: .08em;
+}
+
+.first-language button span {
+  font: 600 .58rem / 1 var(--font-sans);
+  letter-spacing: .2em;
+  opacity: .68;
+}
+
+.first-language button:hover,
+.first-language button:focus-visible {
+  color: #fff;
+  background: rgb(216 234 239 / 9%);
+  transform: translateX(.45rem);
+}
+
+.first-language button:focus-visible {
+  outline: 2px solid rgb(196 220 228 / 72%);
+  outline-offset: 2px;
+}
+
+@media (max-width: 42rem) {
+  .first-language {
+    align-items: end;
+    background:
+      linear-gradient(0deg, rgb(4 9 13 / 94%) 0 46%, rgb(4 9 13 / 30%) 88%),
+      url("/assets/lonely-sea/night.png") 58% center / cover;
+  }
+
+  .first-language__copy {
+    width: auto;
+    margin: 0;
+    padding: 2rem 1.4rem max(2.2rem, env(safe-area-inset-bottom));
+  }
+
+  .first-language [role="radiogroup"] { width: 100%; margin-block-start: 1.5rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .first-language button { transition: none; }
+}

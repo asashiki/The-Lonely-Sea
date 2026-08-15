@@ -1,0 +1,116 @@
+---
+interface Props {
+  contextKey: string;
+  variant?: "page" | "bridge";
+  title?: string;
+  prompt?: string;
+  includeFriends?: boolean;
+}
+
+const {
+  contextKey,
+  variant = "page",
+  title = "访客对话",
+  prompt = "这里的声音只会留在你正在使用的浏览器里。",
+  includeFriends = variant === "page",
+} = Astro.props;
+---
+
+<section
+  class:list={["blog-interaction-scene", `is-${variant}`]}
+  data-blog-interaction
+  data-context-key={contextKey}
+  data-source={variant === "bridge" ? "game" : "article"}
+  data-include-friends={String(includeFriends)}
+  aria-labelledby={`blog-interaction-title-${variant}`}
+>
+  <header class="blog-interaction-heading">
+    <p>
+      <small>LOCAL SCENE</small>
+      <strong id={`blog-interaction-title-${variant}`} data-blog-scene-title>{title}</strong>
+    </p>
+    {includeFriends && (
+      <nav aria-label="交互内容" role="tablist">
+        <button type="button" role="tab" aria-selected="true" data-blog-view="comments">访客留言</button>
+        <button type="button" role="tab" aria-selected="false" data-blog-view="friends">友链来信</button>
+      </nav>
+    )}
+  </header>
+
+  <div class="blog-interaction-prompt" aria-live="polite">
+    <span data-blog-prompt-speaker>潮汐记录</span>
+    <p data-blog-prompt>{prompt}</p>
+  </div>
+
+  <section class="blog-interaction-panel" data-blog-panel="comments" role="tabpanel">
+    <div class="blog-dialogue-memory" data-blog-comment-memory aria-live="polite">
+      <p class="blog-dialogue-speaker" data-blog-comment-author>潮汐记录</p>
+      <blockquote data-blog-comment-message>还没有本机留言。可以从这里留下第一句话。</blockquote>
+      <p class="blog-dialogue-meta">
+        <time data-blog-comment-time></time>
+        <span data-blog-comment-position>0 / 0</span>
+      </p>
+    </div>
+
+    <nav class="blog-dialogue-stepper" aria-label="切换留言">
+      <button type="button" data-blog-previous aria-label="上一条留言">上一句</button>
+      <button type="button" data-blog-next aria-label="下一条留言">下一句</button>
+    </nav>
+
+    <form class="blog-dialogue-composer" data-blog-comment-form novalidate>
+      <label class="blog-dialogue-name">
+        <span>称呼</span>
+        <input name="author" type="text" maxlength="40" autocomplete="nickname" placeholder="匿名访客" />
+      </label>
+      <label class="blog-dialogue-line">
+        <span>台词</span>
+        <textarea name="message" rows="3" maxlength="1000" required placeholder="写下想留在这段场景里的话"></textarea>
+      </label>
+      <p class="blog-dialogue-local-note">仅保存在本机，不会伪装成已经公开发布。</p>
+      <p class="blog-dialogue-feedback" data-blog-comment-feedback role="status"></p>
+      <div class="blog-dialogue-actions">
+        {variant === "bridge" && <button type="button" data-host-dialog-cancel>返回游戏</button>}
+        <button type="submit">留下这句话</button>
+      </div>
+    </form>
+  </section>
+
+  {includeFriends && (
+    <section class="blog-interaction-panel" data-blog-panel="friends" role="tabpanel" hidden>
+      <div class="blog-dialogue-memory" data-blog-friend-memory aria-live="polite">
+        <p class="blog-dialogue-speaker" data-blog-friend-title>潮汐记录</p>
+        <blockquote data-blog-friend-note>这里还没有已公开的友链数据。你可以先保存一封本机申请草稿。</blockquote>
+        <p class="blog-dialogue-meta">
+          <a data-blog-friend-url href="" target="_blank" rel="noreferrer" hidden>前往对方站点</a>
+          <span data-blog-friend-position>0 / 0</span>
+        </p>
+      </div>
+
+      <nav class="blog-dialogue-stepper" aria-label="切换友链草稿">
+        <button type="button" data-blog-friend-previous aria-label="上一封友链草稿">上一封</button>
+        <button type="button" data-blog-friend-next aria-label="下一封友链草稿">下一封</button>
+      </nav>
+
+      <form class="blog-dialogue-composer" data-blog-friend-form novalidate>
+        <label class="blog-dialogue-name">
+          <span>站点名称</span>
+          <input name="title" type="text" maxlength="80" required placeholder="站点名称" />
+        </label>
+        <label class="blog-dialogue-name">
+          <span>网址</span>
+          <input name="url" type="url" maxlength="500" inputmode="url" required placeholder="https://example.com" />
+        </label>
+        <label class="blog-dialogue-line">
+          <span>想说的话</span>
+          <textarea name="note" rows="2" maxlength="280" placeholder="简短介绍或交换友链的留言"></textarea>
+        </label>
+        <p class="blog-dialogue-local-note">保存的是本机草稿，不会向站长发送申请。</p>
+        <p class="blog-dialogue-feedback" data-blog-friend-feedback role="status"></p>
+        <div class="blog-dialogue-actions">
+          {variant === "bridge" && <button type="button" data-host-dialog-cancel>返回游戏</button>}
+          <button type="submit">保存这封草稿</button>
+        </div>
+      </form>
+    </section>
+  )}
+</section>
