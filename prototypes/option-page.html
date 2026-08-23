@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OPTION · 环境设定原型 — 孤独之海</title>
+<style>
+/* ============================================================
+   孤独之海 · OPTION 原型
+   16:9 安全框舞台 · 玻璃面板 · 连体铭牌 · 从属竖线二级索引
+   ============================================================ */
+:root {
+  --bg-0: #04090d;
+  --ink: #e8eef2;
+  --ink-dim: #c9d6dc;
+  --muted: #93a8b2;
+  --faint: rgba(147, 168, 178, .4);
+  --line: rgba(150, 185, 198, .16);
+  --line-strong: rgba(150, 185, 198, .36);
+  --accent: #8fb6c6;
+  --accent-rgb: 143, 182, 198;
+  --accent-soft: rgba(var(--accent-rgb), .13);
+  --panel: rgba(9, 19, 25, .58);
+  --danger: #c98d84;
+  --mincho: "Yu Mincho", "Hiragino Mincho ProN", "Noto Serif SC", "Songti SC", "SimSun", serif;
+  --latin: Baskerville, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  min-height: 100vh; overflow: hidden;
+  background: var(--bg-0); color: var(--ink);
+  font-family: var(--mincho);
+  display: grid; place-items: center;
+}
+::selection { background: rgba(var(--accent-rgb), .3); color: #fff; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+:focus-visible { outline: 1.5px solid var(--accent); outline-offset: 3px; }
+
+/* ---------- 海面氛围 ---------- */
+.sea-scene { position: fixed; inset: 0; z-index: -2; overflow: hidden; background:
+  linear-gradient(180deg, #03080c 0%, #08141b 42%, #0d2029 62%, #081219 78%, #04090d 100%); }
+.sea-scene .moon { position: absolute; top: 10%; right: 15%; width: 84px; height: 84px; border-radius: 50%;
+  background: radial-gradient(circle at 38% 34%, #f2f7f8, #dce9ed 55%, #b9cdd4 100%);
+  box-shadow: 0 0 56px 20px rgba(220, 233, 237, .13), 0 0 150px 64px rgba(180, 205, 214, .06); opacity: .9; }
+.sea-scene .horizon { position: absolute; left: 0; right: 0; top: 62%; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(190, 214, 222, .32) 30%, rgba(220, 236, 240, .48) 50%, rgba(190, 214, 222, .32) 70%, transparent); }
+.sea-scene .moon-road { position: absolute; top: 62%; right: 11%; width: 200px; height: 38%;
+  background: linear-gradient(180deg, rgba(220, 236, 240, .12), transparent 85%);
+  clip-path: polygon(38% 0, 62% 0, 100% 100%, 0 100%); filter: blur(6px); }
+.sea-scene .swell { position: absolute; left: -10%; right: -10%; height: 120px;
+  background: repeating-linear-gradient(180deg, transparent 0 14px, rgba(var(--accent-rgb), .045) 14px 15px);
+  animation: swell-drift 26s linear infinite; }
+.sea-scene .swell.one { top: 64%; }
+.sea-scene .swell.two { top: 76%; animation-duration: 38s; animation-direction: reverse; opacity: .7; }
+@keyframes swell-drift { to { transform: translateY(15px); } }
+.sea-scene .mist { position: absolute; left: -30%; width: 160%; height: 22vh; border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(159, 187, 198, .07), transparent 65%);
+  filter: blur(10px); animation: mist-drift 70s ease-in-out infinite alternate; }
+.sea-scene .mist.a { top: 28%; }
+.sea-scene .mist.b { top: 58%; animation-duration: 95s; animation-delay: -30s; }
+@keyframes mist-drift { from { transform: translateX(-6%); } to { transform: translateX(6%); } }
+.sea-scene .grain { position: absolute; inset: 0; opacity: .5; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.16'/%3E%3C/svg%3E"); }
+.sea-scene .vignette { position: absolute; inset: 0; background: radial-gradient(ellipse 90% 82% at 50% 44%, transparent 52%, rgba(2, 6, 9, .6) 100%); }
+
+/* ---------- 16:9 舞台 ---------- */
+.stage {
+  position: relative;
+  width: min(100vw, 177.78vh);
+  height: min(100vh, 56.25vw);
+  container-type: size;
+  overflow: hidden;
+}
+.stage .corner { position: absolute; width: 2.2cqw; height: 2.2cqw; border: 0 solid rgba(190, 214, 222, .4); z-index: 5; pointer-events: none; }
+.stage .corner.tl { top: 2.2cqh; left: 1.6cqw; border-top-width: 1px; border-left-width: 1px; }
+.stage .corner.tr { top: 2.2cqh; right: 1.6cqw; border-top-width: 1px; border-right-width: 1px; }
+.stage .corner.bl { bottom: 2.2cqh; left: 1.6cqw; border-bottom-width: 1px; border-left-width: 1px; }
+.stage .corner.br { bottom: 2.2cqh; right: 1.6cqw; border-bottom-width: 1px; border-right-width: 1px; }
+
+/* ---------- 标题 ---------- */
+.opt-heading { position: absolute; top: 6.4cqh; left: 6cqw; z-index: 6; }
+.opt-heading h2 {
+  font-family: var(--latin); font-weight: 400;
+  font-size: clamp(34px, 4.4cqw, 64px); line-height: .9; letter-spacing: .1em;
+  text-shadow: 0 .4cqh 1.6cqw rgba(0, 0, 0, .55);
+}
+.opt-heading p { margin-top: 1.4cqh; display: flex; align-items: center; gap: 1.2cqw; }
+.opt-heading p::before { content: ""; width: 3.4cqw; height: 1px; background: linear-gradient(90deg, var(--accent), transparent); }
+.opt-heading p span { font-size: clamp(10px, 1.05cqw, 14px); letter-spacing: .5em; color: var(--muted); }
+.opt-heading p small { font-family: var(--latin); font-size: clamp(8px, .8cqw, 11px); letter-spacing: .34em; color: var(--faint); }
+
+/* ---------- 一级分类:连体铭牌 ---------- */
+.opt-primary {
+  position: absolute; top: 6.6cqh; right: 6cqw; z-index: 6;
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  width: clamp(240px, 30cqw, 430px); height: 6.4cqh; min-height: 38px;
+  border: 1px solid var(--line-strong);
+  background: rgba(6, 13, 18, .5);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+}
+.opt-primary button {
+  position: relative; font-size: clamp(11px, 1.15cqw, 15px); letter-spacing: .34em; text-indent: .34em;
+  color: var(--muted); transition: color .25s, background .25s;
+}
+.opt-primary button + button { border-left: 1px solid var(--line); }
+.opt-primary button small { display: block; font-family: var(--latin); font-size: .5em; letter-spacing: .3em; color: var(--faint); margin-top: .2em; transition: color .25s; }
+.opt-primary button:hover { color: var(--ink-dim); }
+.opt-primary button[aria-selected="true"] { background: var(--accent-soft); color: var(--ink); }
+.opt-primary button[aria-selected="true"] small { color: var(--accent); }
+.opt-primary button[aria-selected="true"]::after {
+  content: ""; position: absolute; left: 18%; right: 18%; bottom: -1px; height: 1px; background: var(--accent);
+  box-shadow: 0 0 8px rgba(var(--accent-rgb), .7);
+}
+
+/* ---------- 设置书(玻璃面板) ---------- */
+.opt-book {
+  position: absolute; z-index: 4;
+  top: 21cqh; left: 6cqw; right: 6cqw; bottom: 13.5cqh;
+  display: grid; grid-template-columns: clamp(130px, 17cqw, 240px) 1fr;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  backdrop-filter: blur(20px) saturate(1.1); -webkit-backdrop-filter: blur(20px) saturate(1.1);
+  box-shadow: 0 3cqh 8cqw rgba(0, 0, 0, .45);
+}
+
+/* 二级索引:从属竖线 */
+.opt-secondary { position: relative; padding: 5.5cqh 0 5.5cqh 2.6cqw; border-right: 1px solid var(--line); overflow-y: auto; }
+.opt-secondary::before { content: ""; position: absolute; left: 2.6cqw; top: 5.5cqh; bottom: 5.5cqh; width: 1px; background: var(--line-strong); }
+.opt-secondary[hidden] { display: none; }
+.opt-secondary button {
+  position: relative; display: block; width: 100%; text-align: left;
+  padding: 1.35cqh 0 1.35cqh 1.6cqw;
+  font-size: clamp(11px, 1.12cqw, 15px); letter-spacing: .22em; color: var(--muted);
+  transition: color .25s, padding-left .25s;
+}
+.opt-secondary button small { display: block; font-family: var(--latin); font-size: .58em; letter-spacing: .3em; color: var(--faint); margin-top: .35em; transition: color .25s; }
+.opt-secondary button::before {
+  content: ""; position: absolute; left: 0; top: 50%; height: 1px; width: 0;
+  background: var(--accent); transition: width .3s cubic-bezier(.2, .8, .2, 1);
+}
+.opt-secondary button:hover { color: var(--ink-dim); }
+.opt-secondary button[aria-selected="true"] { color: var(--ink); padding-left: 2.3cqw; }
+.opt-secondary button[aria-selected="true"] small { color: var(--accent); }
+.opt-secondary button[aria-selected="true"]::before { width: 1.7cqw; box-shadow: 0 0 6px rgba(var(--accent-rgb), .7); }
+
+/* ---------- 设置面板 ---------- */
+.opt-main { position: relative; overflow-y: auto; padding: 5cqh 4.2cqw 5.5cqh; scrollbar-width: thin; scrollbar-color: rgba(var(--accent-rgb), .3) transparent; }
+.opt-main::-webkit-scrollbar { width: 4px; }
+.opt-main::-webkit-scrollbar-thumb { background: rgba(var(--accent-rgb), .3); }
+.opt-panel[hidden] { display: none; }
+.opt-panel { animation: panel-in .45s cubic-bezier(.2, .8, .2, 1); }
+@keyframes panel-in { from { opacity: 0; transform: translateY(1.2cqh); } to { opacity: 1; transform: none; } }
+
+.panel-intro { display: flex; align-items: baseline; gap: 1.6cqw; padding-bottom: 2.2cqh; border-bottom: 1px solid var(--line-strong); }
+.panel-intro h3 { font-size: clamp(16px, 1.7cqw, 24px); font-weight: 600; letter-spacing: .24em; }
+.panel-intro p { font-size: clamp(9px, .85cqw, 12px); letter-spacing: .18em; color: var(--faint); }
+.panel-note { margin-top: 2.4cqh; font-size: clamp(9px, .88cqw, 12.5px); letter-spacing: .1em; line-height: 1.9; color: var(--faint); }
+.panel-note::before { content: "※ "; color: var(--accent); }
+
+.opt-settings { display: grid; }
+.opt-setting {
+  display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 2cqw;
+  padding: 2.5cqh 0; border-bottom: 1px solid var(--line);
+}
+.setting-copy strong { display: block; font-size: clamp(12px, 1.2cqw, 16.5px); font-weight: 600; letter-spacing: .14em; color: var(--ink); }
+.setting-copy span { display: block; margin-top: .55cqh; font-size: clamp(9px, .85cqw, 12px); letter-spacing: .1em; color: var(--muted); }
+.setting-control { display: flex; align-items: center; gap: 1.2cqw; }
+.setting-value { font-family: var(--latin); font-size: clamp(10px, .95cqw, 13px); letter-spacing: .14em; color: var(--accent); min-width: 3.2em; text-align: right; font-variant-numeric: tabular-nums; }
+
+/* 开关 */
+.opt-switch {
+  position: relative; width: clamp(42px, 4.4cqw, 58px); height: clamp(20px, 2.5cqh, 26px);
+  border: 1px solid var(--line-strong); border-radius: 999px;
+  background: rgba(6, 13, 18, .5); transition: background .3s, border-color .3s; flex: none;
+}
+.opt-switch i {
+  position: absolute; top: 50%; left: 3px; transform: translateY(-50%);
+  width: calc(100% * .36); aspect-ratio: 1; max-height: calc(100% - 6px); border-radius: 50%;
+  background: var(--muted); transition: left .3s cubic-bezier(.2, .8, .2, 1), background .3s;
+}
+.opt-switch[aria-pressed="true"] { background: rgba(var(--accent-rgb), .28); border-color: var(--accent); }
+.opt-switch[aria-pressed="true"] i { left: calc(100% + 3px - clamp(20px, 2.5cqh, 26px)); background: var(--accent); box-shadow: 0 0 10px rgba(var(--accent-rgb), .7); }
+
+/* 分段选择 */
+.opt-choice { display: flex; border: 1px solid var(--line-strong); background: rgba(6, 13, 18, .5); }
+.opt-choice button {
+  padding: .9cqh 1.5cqw; font-size: clamp(10px, .98cqw, 13.5px); letter-spacing: .14em; color: var(--muted);
+  transition: background .25s, color .25s; white-space: nowrap;
+}
+.opt-choice button + button { border-left: 1px solid var(--line); }
+.opt-choice button:hover { color: var(--ink-dim); }
+.opt-choice button[aria-checked="true"] { background: var(--accent-soft); color: var(--ink); box-shadow: inset 0 0 0 1px rgba(var(--accent-rgb), .45); }
+
+/* 滑杆 */
+.opt-range { display: flex; align-items: center; gap: 1cqw; }
+.opt-range > span { font-size: clamp(9px, .8cqw, 11px); letter-spacing: .2em; color: var(--faint); }
+.opt-range input[type="range"] {
+  -webkit-appearance: none; appearance: none; width: clamp(110px, 13cqw, 190px); height: 2px;
+  background: linear-gradient(90deg, var(--accent) var(--fill, 50%), rgba(var(--accent-rgb), .2) var(--fill, 50%));
+  border-radius: 2px; cursor: pointer;
+}
+.opt-range input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 13px; height: 13px; border-radius: 50%;
+  background: var(--ink); border: 2px solid var(--accent);
+  box-shadow: 0 0 8px rgba(var(--accent-rgb), .6); transition: transform .2s;
+}
+.opt-range input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+.opt-range input[type="range"]::-moz-range-thumb {
+  width: 11px; height: 11px; border-radius: 50%; background: var(--ink); border: 2px solid var(--accent);
+  box-shadow: 0 0 8px rgba(var(--accent-rgb), .6);
+}
+
+/* 指令按钮 */
+.opt-command {
+  padding: .95cqh 2.2cqw; border: 1px solid var(--line-strong);
+  font-size: clamp(10px, .95cqw, 13px); letter-spacing: .28em; text-indent: .28em; color: var(--ink-dim);
+  transition: background .25s, color .25s, border-color .25s; white-space: nowrap;
+}
+.opt-command:hover { background: var(--accent); border-color: var(--accent); color: #08131a; }
+.opt-command.is-danger { color: var(--danger); border-color: rgba(201, 141, 132, .4); }
+.opt-command.is-danger:hover { background: var(--danger); border-color: var(--danger); color: #160b0a; }
+
+/* ---------- 底部操作层 ---------- */
+.opt-actions {
+  position: absolute; z-index: 6; left: 6cqw; right: 6cqw; bottom: 5cqh;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.opt-state { display: flex; align-items: center; gap: .9cqw; font-size: clamp(9px, .9cqw, 12.5px); letter-spacing: .22em; color: var(--muted); }
+.opt-state i {
+  width: 7px; height: 7px; border-radius: 50%; background: var(--accent); flex: none;
+  box-shadow: 0 0 10px rgba(var(--accent-rgb), .8); animation: state-breathe 3.2s ease-in-out infinite;
+}
+.opt-state.is-saved i { animation: state-flash .6s ease-out; }
+@keyframes state-breathe { 0%, 100% { opacity: .45; } 50% { opacity: 1; } }
+@keyframes state-flash { 0% { transform: scale(2); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+.opt-state b { font-weight: 400; color: var(--ink-dim); font-variant-numeric: tabular-nums; }
+
+.opt-back {
+  position: relative; padding: 1.1cqh 2.8cqw; border: 1px solid var(--line-strong);
+  font-family: var(--latin); font-size: clamp(11px, 1.05cqw, 14px); letter-spacing: .5em; text-indent: .5em;
+  color: var(--ink-dim); overflow: hidden; transition: color .3s;
+}
+.opt-back::before {
+  content: ""; position: absolute; inset: 0; background: var(--accent);
+  transform: scaleX(0); transform-origin: right; transition: transform .35s cubic-bezier(.2, .8, .2, 1); z-index: -1;
+}
+.opt-back:hover { color: #08131a; }
+.opt-back:hover::before { transform: scaleX(1); transform-origin: left; }
+.opt-back { z-index: 0; }
+
+/* 左下铭牌 */
+.stage-plate { position: absolute; left: 6cqw; top: 16.6cqh; z-index: 6; display: flex; gap: 1.4cqw; align-items: baseline;
+  font-family: var(--latin); font-size: clamp(8px, .72cqw, 10.5px); letter-spacing: .34em; color: var(--faint); }
+
+/* ---------- 窄屏兜底 ---------- */
+@media (max-aspect-ratio: 1/1) {
+  body { overflow-y: auto; display: block; }
+  .stage { width: 100vw; height: auto; min-height: 100vh; container-type: inline-size; padding: 14cqw 6cqw 20cqw; }
+  .opt-heading, .opt-primary, .opt-book, .opt-actions, .stage-plate { position: static; }
+  .opt-heading { margin-bottom: 10cqw; }
+  .opt-heading h2 { font-size: 13cqw; }
+  .opt-primary { width: 100%; height: auto; margin-bottom: 6cqw; }
+  .opt-primary button { padding: 3.4cqw 0; font-size: 3.6cqw; }
+  .opt-book { display: block; }
+  .opt-secondary { display: flex; flex-wrap: wrap; gap: 2cqw 6cqw; padding: 5cqw 6cqw; border-right: 0; border-bottom: 1px solid var(--line); }
+  .opt-secondary::before { display: none; }
+  .opt-secondary button { width: auto; padding: 2cqw 0; font-size: 3.8cqw; }
+  .opt-secondary button::before { display: none; }
+  .opt-secondary button[aria-selected="true"] { padding-left: 0; color: var(--accent); }
+  .opt-main { padding: 6cqw; overflow: visible; }
+  .panel-intro h3 { font-size: 5.4cqw; }
+  .opt-setting { grid-template-columns: 1fr; gap: 3.4cqw; padding: 5cqw 0; }
+  .setting-copy strong { font-size: 4.2cqw; }
+  .setting-copy span { font-size: 3.2cqw; }
+  .opt-range input[type="range"] { flex: 1; width: auto; }
+  .opt-actions { margin-top: 8cqw; }
+  .opt-back { font-size: 3.4cqw; padding: 3cqw 6cqw; }
+  .stage .corner, .stage-plate { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- 海面场景 -->
+<div class="sea-scene" aria-hidden="true">
+  <div class="moon"></div>
+  <div class="horizon"></div>
+  <div class="moon-road"></div>
+  <div class="swell one"></div>
+  <div class="swell two"></div>
+  <div class="mist a"></div>
+  <div class="mist b"></div>
+  <div class="grain"></div>
+  <div class="vignette"></div>
+</div>
+
+<div class="stage" id="stage">
+  <span class="corner tl" aria-hidden="true"></span>
+  <span class="corner tr" aria-hidden="true"></span>
+  <span class="corner bl" aria-hidden="true"></span>
+  <span class="corner br" aria-hidden="true"></span>
+
+  <header class="opt-heading">
+    <h2>OPTION</h2>
+    <p><span>环境设定</span><small>SYSTEM · GAME · BLOG</small></p>
+  </header>
+
+  <p class="stage-plate" aria-hidden="true"><span>LONELY SEA</span><span>—</span><span>SCENE · MIST</span></p>
+
+  <!-- 一级分类:连体铭牌 -->
+  <nav class="opt-primary" role="tablist" aria-label="设置分类" id="primaryNav">
+    <button type="button" role="tab" data-category="system" aria-selected="true"><span>系统</span><small>SYSTEM</small></button>
+    <button type="button" role="tab" data-category="game" aria-selected="false" tabindex="-1"><span>游戏</span><small>GAME</small></button>
+    <button type="button" role="tab" data-category="blog" aria-selected="false" tabindex="-1"><span>博客</span><small>BLOG</small></button>
+  </nav>
+
+  <!-- 设置书 -->
+  <div class="opt-book">
+
+    <!-- 二级索引(从属竖线) -->
+    <nav class="opt-secondary" role="tablist" data-secondary-group="system" aria-label="系统设置">
+      <button type="button" role="tab" data-panel="language" aria-selected="true"><span>语言</span><small>LANGUAGE</small></button>
+      <button type="button" role="tab" data-panel="accessibility" aria-selected="false" tabindex="-1"><span>操作与无障碍</span><small>ACCESS</small></button>
+      <button type="button" role="tab" data-panel="data" aria-selected="false" tabindex="-1"><span>本机数据</span><small>LOCAL DATA</small></button>
+    </nav>
+    <nav class="opt-secondary" role="tablist" data-secondary-group="game" aria-label="游戏设置" hidden>
+      <button type="button" role="tab" data-panel="text" aria-selected="false"><span>文字</span><small>TEXT</small></button>
+      <button type="button" role="tab" data-panel="sound" aria-selected="false" tabindex="-1"><span>声音</span><small>SOUND</small></button>
+    </nav>
+    <nav class="opt-secondary" role="tablist" data-secondary-group="blog" aria-label="博客设置" hidden>
+      <button type="button" role="tab" data-panel="reading" aria-selected="false"><span>阅读</span><small>READING</small></button>
+      <button type="button" role="tab" data-panel="atmosphere" aria-selected="false" tabindex="-1"><span>海景</span><small>SEASCAPE</small></button>
+      <button type="button" role="tab" data-panel="behaviour" aria-selected="false" tabindex="-1"><span>页面行为</span><small>BEHAVIOUR</small></button>
+    </nav>
+
+    <!-- 面板 -->
+    <main class="opt-main" id="optMain">
+
+      <section class="opt-panel" data-panel="language" role="tabpanel">
+        <header class="panel-intro"><h3>语言</h3><p>当前 Blog 内容版本</p></header>
+        <div class="opt-settings">
+          <div class="opt-setting">
+            <div class="setting-copy"><strong>显示语言</strong><span>当前内容版本</span></div>
+            <div class="setting-control">
+              <div class="opt-choice" role="radiogroup" aria-label="语言">
+                <button type="button" role="radio" aria-checked="true">简体中文</button>
+                <button type="button" role="radio" aria-checked="false">English</button>
+                <button type="button" role="radio" aria-checked="false">日本語</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="panel-note">语言选择会同步给 Blog 与游戏;尚未翻译的正文暂时保留原文。</p>
+      </section>
+
+      <section class="opt-panel" data-panel="accessibility" role="tabpanel" hidden>
+        <header class="panel-intro"><h3>操作与无障碍</h3><p>对 Blog 与游戏宿主即时生效</p></header>
+        <div class="opt-settings">
+          <div class="opt-setting">
+            <div class="setting-copy"><strong>海潮指针</strong><span>Blog 标题与系统页面</span></div>
+            <div class="setting-control">
+              <button class="opt-switch" type="button" aria-pressed="true" aria-label="海潮指针"><i aria-hidden="true"></i></button>
+              <output class="setting-value">开</output>
+            </div>
+          </div>
+          <div class="opt-setting">
+            <div class="setting-copy"><strong>LOAD 键盘焦点</strong><span>索引与存档槽</span></div>
+            <div class="setting-control">
+              <button class="opt-switch" type="button" aria-pressed="true" aria-label="LOAD 键盘焦点"><i aria-hidden="true"></i></button>
+              <output class="setting-value">开</output>
+            </div>
+          </div>
+          <div class="opt-setting">
+            <div class="setting-copy"><strong>减少动态效果</strong><span>转场与游戏演出</span></div>
+            <div class="setting-control">
+              <button class="opt-switch" type="button" aria-pressed="false" aria-label="减少动态效果"><i aria-hidden="true"></i></button>
+              <output class="setting-value">关</output>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="opt-panel" data-panel="data" role="tabpanel" hidden>
+        <header class="panel-intro"><h3>本机数据</h3><p>仅保存在这台设备</p></header>
+        <div class="opt-settings">
+          <div class="opt-setting">
+            <div class="setting-copy"><strong>预先读取相邻文章</strong><span>空闲时载入上一篇与下一篇</span></div>
+            <div class="setting-control">
+              <button class="opt-switch" type="button" aria-pressed="true" aria-label="预先读取相邻文章"><i aria-hidden="true"></i></button>
+              <output class="setting-value">开</output>
+            </div>
+          </div>
+          <div class="opt-setting">
+            <div class="setting-copy"><strong>停用文章预读</strong><span>减少相邻文章预取流量</span></div>
+            <div class="setting-control">
+              <button class="opt-switch" type="button" aria-pressed="false" aria-label="停用文章预读"><i aria-hidden="true"></i></button>
+              <output class="setting-value">关</output>
+            </div>
+          </div>
+          <div class="opt-setting">
+            <div class="setting-copy"><strong>恢复默认设置</strong><span>不会删除文章进度与游戏存档</span></div>
+            <div class="setting-control"><button class="opt-command" type="button">恢复默认</button></div>
+          </div>
+          <div class="opt-setting">
+            <div class="setting-copy"><strong>清除本浏览器数据</strong><span>删除设置、阅读进度、存档与离线缓存</span></div>
+            <div class="setting-control"><button class="opt-command is-danger" type="button">清除全部</button></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="opt-panel" data-panel="text" role="tabpanel" hidden>
+        <header class="panel-intro"><h3>文字</h3><p>视觉小说对话</p></header>
+        <div class="opt-settings">
+          <div class="opt-setting">
+            <div class="setting-copy"><strong>对话文字大小</strong><span>同时用于文章正文</span></div>
+            <div class="setting-control">
+              <label class="opt-range"><span>小</span><input type="range" min="80" max="120" value="100" step="1" aria-label="对话文字大小"><span>大</span></label>
+              <output class="setting-value">100%</output>
+            </div>
+          </div>
+          <div class="opt-setting">
+            <div class="setting-copy"><strong>文字推进速度</strong><span>WebGAL 文字显示速度</span></div>
+            <div class="setting-control">
+              <label class="opt-range"><span>慢</span><input type="range" min="1" max="10" value="6" step="1" aria-label="文字推进速度"><span>快</span></label>
+              <output class="setting-value">第 6 档</output>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="opt-panel" data-panel="sound" role="tabpanel" hidden>
+        <header class="panel-intro"><h3>声音</h3><p>Blog 与游戏共用音量</p></header>
+        <div class="opt-settings">
+          <div class="opt-setting">
+            <div class="setting-copy"><strong>全部静音</strong><span>所有音轨</span></div>
+            <div class="setting-control">
+              <button class="opt-switch" type="button" aria-pressed="false" aria-label="全部静音"><i aria-hidden="true"></i></button>
+              <output class="setting-value">关</output>
+            </div>
+          </div>
+          <div class="opt-setting">
+            <div class="setting-copy"><strong>背景音乐</strong><span>标题与游戏 BGM</span></div>
+            <div class="setting-control">
+              <button class="opt-switch" type="button" aria-pressed="true" aria-label="背景音乐"><i aria-hidden="true"></i></button>
+              <output class="setting-value">开</output>
+            </div>
+          </div>
+          <div class="opt-setting">
+            <div class="setting-copy"><strong>音乐音量</strong><span>BGM</span></div>
+            <div class="setting-control">
+              <label class="opt-range"><span>小</span><input type="range" min="0" max="100" value="60" aria-label="音乐音量"><span>大</span></label>
+              <output class="setting-value">60%</output>
+            </div>
+          </div>
+          <div class="opt-setting">
+            <div class="setting-copy"><strong>界面音效</strong><span>确认、返回与推进</span></div>
+            <div class="setting-control">
+              <label class="opt-range"><span>小</span><input type="range" min="0" max="100" value="70" aria-label="界面音效音量"><span>大</span></label>
+              <output class="setting-value">70%</output>
+            </div>
+          </div>
+          <div class="opt-setting">
+            <div class="setting-copy"><strong>角色语音</strong><span>VOICE</span></div>
+            <div class="setting-control">
+              <label class="opt-range"><span>小</span><input type="range" min="0" max="100" value="80" aria-label="角色语音音量"><span>大</span></label>
+              <output class="setting-value">80%</output>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="opt-panel" data-panel="reading" role="tabpanel" hidden>
+        <header class="panel-intro"><h3>阅读</h3><p>文章 PAGE</p></header>
+        <div class="opt-settings">
+          <div class="opt-setting">
+            <div class="setting-copy"><strong>正文排版</strong><span>长文或小说式留白</span></div>
+            <div class="setting-control">
+              <div class="opt-choice" role="radiogroup" aria-label="正文排版">
+                <button type="button" role="radio" aria-checked="true">长文</button>
+                <button type="button" role="radio" aria-checked="false">小说</button>
+              </div>
+            </div>
+          </div>
+          <div class="opt-setting">
+            <div class="setting-copy"><strong>正文行距</strong><span>仅影响文章</span></div>
+            <div class="setting-control">
+              <label class="opt-range"><span>紧</span><input type="range" min="150" max="210" value="180" step="5" aria-label="正文行距"><span>松</span></label>
+              <output class="setting-value">180%</output>
+            </div>
+          </div>
+          <div class="opt-setting">
+            <div class="setting-copy"><strong>记录阅读位置</strong><span>供 CONTINUE 继续阅读</span></div>
+            <div class="setting-control">
+              <button class="opt-switch" type="button" aria-pressed="true" aria-label="记录阅读位置"><i aria-hidden="true"></i></button>
+              <output class="setting-value">开</output>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="opt-panel" data-panel="atmosphere" role="tabpanel" hidden>
+        <header class="panel-intro"><h3>海景</h3><p>标题与系统页面共用</p></header>
+        <div class="opt-settings">
+          <div class="opt-setting">
+            <div class="setting-copy"><strong>背景时段</strong><span>四种主场景</span></div>
+            <div class="setting-control">
+              <div class="opt-choice" role="radiogroup" aria-label="背景时段">
+                <button type="button" role="radio" aria-checked="true">灰霭</button>
+                <button type="button" role="radio" aria-checked="false">晴昼</button>
+                <button type="button" role="radio" aria-checked="false">暗夜</button>
+                <button type="button" role="radio" aria-checked="false">赤夜</button>
+              </div>
+            </div>
+          </div>
+          <div class="opt-setting">
+            <div class="setting-copy"><strong>天气</strong><span>标题与系统页共用</span></div>
+            <div class="setting-control">
+              <div class="opt-choice" role="radiogroup" aria-label="天气">
+                <button type="button" role="radio" aria-checked="true">无</button>
+                <button type="button" role="radio" aria-checked="false">雪</button>
+                <button type="button" role="radio" aria-checked="false">雨</button>
+              </div>
+            </div>
+          </div>
+          <div class="opt-setting">
+            <div class="setting-copy"><strong>系统页延续天气</strong><span>LOAD、EXTRA、OPTION 继续下雨或下雪</span></div>
+            <div class="setting-control">
+              <button class="opt-switch" type="button" aria-pressed="true" aria-label="系统页延续天气"><i aria-hidden="true"></i></button>
+              <output class="setting-value">开</output>
+            </div>
+          </div>
+          <div class="opt-setting">
+            <div class="setting-copy"><strong>天气密度</strong><span>雪与雨的数量</span></div>
+            <div class="setting-control">
+              <label class="opt-range"><span>少</span><input type="range" min="0" max="100" value="72" aria-label="天气密度"><span>多</span></label>
+              <output class="setting-value">72%</output>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="opt-panel" data-panel="behaviour" role="tabpanel" hidden>
+        <header class="panel-intro"><h3>页面行为</h3><p>打开、离开与外部链接</p></header>
+        <div class="opt-settings">
+          <div class="opt-setting">
+            <div class="setting-copy"><strong>系统页面转场</strong><span>标题、LOAD、EXTRA 与 OPTION</span></div>
+            <div class="setting-control">
+              <button class="opt-switch" type="button" aria-pressed="true" aria-label="系统页面转场"><i aria-hidden="true"></i></button>
+              <output class="setting-value">开</output>
+            </div>
+          </div>
+          <div class="opt-setting">
+            <div class="setting-copy"><strong>文章转场</strong><span>LOAD 与 PAGE 之间</span></div>
+            <div class="setting-control">
+              <button class="opt-switch" type="button" aria-pressed="true" aria-label="文章转场"><i aria-hidden="true"></i></button>
+              <output class="setting-value">开</output>
+            </div>
+          </div>
+          <div class="opt-setting">
+            <div class="setting-copy"><strong>开场演出</strong><span>进入标题时</span></div>
+            <div class="setting-control">
+              <div class="opt-choice" role="radiogroup" aria-label="开场演出">
+                <button type="button" role="radio" aria-checked="true">每次会话</button>
+                <button type="button" role="radio" aria-checked="false">每次进入</button>
+              </div>
+            </div>
+          </div>
+          <div class="opt-setting">
+            <div class="setting-copy"><strong>站外链接</strong><span>离开当前文章时</span></div>
+            <div class="setting-control">
+              <div class="opt-choice" role="radiogroup" aria-label="站外链接">
+                <button type="button" role="radio" aria-checked="true">新标签页</button>
+                <button type="button" role="radio" aria-checked="false">当前页面</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- 底部操作层 -->
+  <footer class="opt-actions">
+    <p class="opt-state" id="optState" aria-live="polite"><i aria-hidden="true"></i><span data-state-text>设置即时保存</span></p>
+    <button class="opt-back" type="button" aria-label="返回标题">BACK</button>
+  </footer>
+</div>
+
+<script>
+(function () {
+  var stage = document.getElementById("stage");
+
+  /* ---- 保存状态反馈 ---- */
+  var state = document.getElementById("optState");
+  var stateText = state.querySelector("[data-state-text]");
+  var stateTimer = null;
+  function flashSaved() {
+    var now = new Date();
+    var hh = String(now.getHours()).padStart(2, "0");
+    var mm = String(now.getMinutes()).padStart(2, "0");
+    var ss = String(now.getSeconds()).padStart(2, "0");
+    stateText.innerHTML = "已保存 <b>" + hh + ":" + mm + ":" + ss + "</b>";
+    state.classList.remove("is-saved");
+    void state.offsetWidth;
+    state.classList.add("is-saved");
+    clearTimeout(stateTimer);
+    stateTimer = setTimeout(function () { stateText.textContent = "设置即时保存"; }, 3200);
+  }
+
+  /* ---- 一级分类 ---- */
+  var primaryBtns = Array.prototype.slice.call(document.querySelectorAll("#primaryNav button"));
+  var secondaryGroups = Array.prototype.slice.call(document.querySelectorAll(".opt-secondary"));
+  var panels = Array.prototype.slice.call(document.querySelectorAll(".opt-panel"));
+
+  function activateSecondary(btn) {
+    var group = btn.closest(".opt-secondary");
+    group.querySelectorAll("button").forEach(function (b) {
+      b.setAttribute("aria-selected", b === btn ? "true" : "false");
+      b.tabIndex = b === btn ? 0 : -1;
+    });
+    panels.forEach(function (p) { p.hidden = p.dataset.panel !== btn.dataset.panel; });
+  }
+
+  primaryBtns.forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      primaryBtns.forEach(function (b) {
+        b.setAttribute("aria-selected", b === btn ? "true" : "false");
+        b.tabIndex = b === btn ? 0 : -1;
+      });
+      secondaryGroups.forEach(function (g) { g.hidden = g.dataset.secondaryGroup !== btn.dataset.category; });
+      var activeGroup = secondaryGroups.find(function (g) { return g.dataset.secondaryGroup === btn.dataset.category; });
+      var first = activeGroup.querySelector("button");
+      activeGroup.querySelectorAll("button").forEach(function (b) { b.setAttribute("aria-selected", "false"); });
+      first.setAttribute("aria-selected", "true");
+      first.tabIndex = 0;
+      panels.forEach(function (p) { p.hidden = p.dataset.panel !== first.dataset.panel; });
+    });
+  });
+
+  /* ---- 二级索引 ---- */
+  document.querySelectorAll(".opt-secondary button").forEach(function (btn) {
+    btn.addEventListener("click", function () { activateSecondary(btn); });
+  });
+
+  /* ---- 开关 ---- */
+  document.querySelectorAll(".opt-switch").forEach(function (sw) {
+    sw.addEventListener("click", function () {
+      var on = sw.getAttribute("aria-pressed") !== "true";
+      sw.setAttribute("aria-pressed", String(on));
+      var out = sw.parentElement.querySelector(".setting-value");
+      if (out) out.textContent = on ? "开" : "关";
+      flashSaved();
+    });
+  });
+
+  /* ---- 分段选择 ---- */
+  document.querySelectorAll(".opt-choice").forEach(function (group) {
+    group.querySelectorAll("button").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        group.querySelectorAll("button").forEach(function (b) { b.setAttribute("aria-checked", "false"); });
+        btn.setAttribute("aria-checked", "true");
+        flashSaved();
+      });
+    });
+  });
+
+  /* ---- 滑杆 ---- */
+  document.querySelectorAll(".opt-range input[type=range]").forEach(function (input) {
+    var out = input.closest(".setting-control").querySelector(".setting-value");
+    function render() {
+      var min = +input.min, max = +input.max, val = +input.value;
+      input.style.setProperty("--fill", ((val - min) / (max - min) * 100) + "%");
+      if (max === 10) out.textContent = "第 " + val + " 档";
+      else out.textContent = val + "%";
+    }
+    input.addEventListener("input", render);
+    input.addEventListener("change", flashSaved);
+    render();
+  });
+
+  /* ---- 指令按钮 ---- */
+  document.querySelectorAll(".opt-command").forEach(function (btn) {
+    btn.addEventListener("click", flashSaved);
+  });
+
+  /* ---- BACK ---- */
+  document.querySelector(".opt-back").addEventListener("click", function () {
+    stage.style.transition = "opacity .5s ease";
+    stage.style.opacity = "0";
+    setTimeout(function () { stage.style.opacity = "1"; }, 650);
+  });
+})();
+</script>
+</body>
+</html>

@@ -11,6 +11,7 @@ export type GalBlogAction =
   | "open-settings"
   | "open-load"
   | "open-comment-form"
+  | "open-blog-scene"
   | "save-progress"
   | "get-runtime-data";
 export type GalBlogSettingKey =

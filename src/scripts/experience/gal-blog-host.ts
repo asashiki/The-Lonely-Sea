@@ -21,6 +21,7 @@ const IMPLEMENTED_REQUIRED_ACTIONS = new Set<GalBlogAction>([
   "open-settings",
   "open-load",
   "open-comment-form",
+  "open-blog-scene",
   "save-progress",
   "get-runtime-data",
 ]);
@@ -317,7 +318,7 @@ export class GalBlogHost {
         });
       }
     }
-    if (action === "open-comment-form") {
+    if (action === "open-comment-form" || action === "open-blog-scene") {
       return makeResult(request, await this.options.onOpenCommentForm(input));
     }
     if (action === "save-progress") {

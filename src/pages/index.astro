@@ -12,7 +12,9 @@ import "../styles/cursor.css";
 import "../styles/special-system-pages.css";
 import "../styles/extra-refinement.css";
 import "../styles/option-refinement.css";
+import "../styles/sound-laboratory.css";
 import "../styles/extra-live-data.css";
+import "../styles/listen-dock.css";
 import "../styles/achievement-toast.css";
 import { siteConfig } from "../../site.config.mjs";
 
@@ -36,6 +38,14 @@ const records = await getExperienceRecords();
     try {
       const value = JSON.parse(localStorage.getItem("lonely-sea-preferences-v2") || "{}");
       document.documentElement.classList.toggle("has-special-cursor", value.specialCursor !== false);
+      document.documentElement.dataset.weatherLayer = value.weatherLayer === "OVERLAY" ? "overlay" : "inside";
+      document.documentElement.dataset.mobileLandscape = String(value.mobileLandscape !== false);
+      const phonePortrait = window.matchMedia("(max-width: 900px) and (orientation: portrait)").matches;
+      if (value.mobileLandscape !== false && phonePortrait) {
+        document.documentElement.dataset.forcedLandscape = "true";
+        document.documentElement.style.setProperty("--forced-stage-width", `${window.innerHeight}px`);
+        document.documentElement.style.setProperty("--forced-stage-height", `${window.innerWidth}px`);
+      }
     } catch {
       document.documentElement.classList.add("has-special-cursor");
     }
@@ -70,15 +80,28 @@ const records = await getExperienceRecords();
   </section>
 
   <aside class="listen-dock" id="listen-dock" hidden aria-hidden="true">
-    <button type="button" data-listen-toggle aria-pressed="false" aria-label="Play playlist">
-      <span class="listen-dock-glyph" aria-hidden="true"></span>
+    <p class="listen-dock-kicker">
+      <span>SOUND TEST</span>
+      <span class="listen-dock-modes">
+        <button type="button" data-listen-loop aria-pressed="false" aria-label="Repeat this track">LOOP</button>
+        <button type="button" data-listen-shuffle aria-pressed="false" aria-label="Shuffle playlist">SHUFFLE</button>
+        <button type="button" class="listen-dock-close" data-listen-stop aria-label="Stop playlist">CLOSE</button>
+      </span>
+    </p>
+    <button type="button" class="listen-dock-sleeve" data-listen-toggle aria-pressed="false" aria-label="Play playlist">
+      <img data-listen-cover alt="" referrerpolicy="no-referrer">
     </button>
-    <p>
+    <p class="listen-dock-copy">
       <strong data-listen-title></strong>
       <small data-listen-artist></small>
     </p>
-    <button type="button" data-listen-next aria-label="Next track">›</button>
-    <button type="button" data-listen-stop aria-label="Stop playlist">×</button>
+    <div class="listen-dock-transport">
+      <button type="button" data-listen-prev aria-label="Previous track">‹</button>
+      <button type="button" data-listen-toggle aria-pressed="false" aria-label="Play playlist">
+        <span class="listen-dock-glyph" aria-hidden="true"></span>
+      </button>
+      <button type="button" data-listen-next aria-label="Next track">›</button>
+    </div>
   </aside>
 
   <ExitDialog />

@@ -1,5 +1,4 @@
 ---
-import { Image } from "astro:assets";
 import { type CollectionEntry, render } from "astro:content";
 import { siteConfig } from "../../../site.config.mjs";
 import BaseLayout from "../../layouts/BaseLayout.astro";
@@ -15,6 +14,7 @@ import {
 import "../../styles/markdown.css";
 import "../../styles/reading-page.css";
 import "../../styles/blog-interaction-scene.css";
+import "../../styles/listen-dock.css";
 
 export async function getStaticPaths() {
   const posts = await getPublishedPosts();
@@ -40,17 +40,19 @@ const olderPost = posts[postIndex + 1];
 const newerPost = posts[postIndex - 1];
 const olderRecord = records[postIndex + 1];
 const newerRecord = records[postIndex - 1];
-const tableOfContents = headings.filter((heading) => heading.depth === 2 || heading.depth === 3);
+const tableOfContents = headings.filter((heading) => heading.depth === 2);
 const hasTableOfContents = tableOfContents.length >= 3;
 const readingScene = currentRecord?.scene ?? "mist";
 const sceneArt = `/assets/lonely-sea/${readingScene}.png`;
+const heroArt = data.cover?.src ?? currentRecord?.coverUrl ?? sceneArt;
 const sceneLabels: Record<string, string> = {
-  mist: "MIST",
-  day: "DAYLIGHT",
-  night: "NIGHT",
-  crimson: "CRIMSON",
+  mist: "灰霭",
+  day: "晴昼",
+  night: "暗夜",
+  crimson: "赤夜",
 };
-const readingSceneLabel = sceneLabels[readingScene] ?? readingScene.toUpperCase();
+const readingSceneLabel = sceneLabels[readingScene] ?? readingScene;
+const recordLabel = currentRecord?.label ?? data.category ?? "文章";
 ---
 
 <BaseLayout title={data.title} description={data.description}>
@@ -60,115 +62,79 @@ const readingSceneLabel = sceneLabels[readingScene] ?? readingScene.toUpperCase(
     data-reading-record={currentRecord?.number ?? "01"}
     style={`--reading-scene-art:url('${sceneArt}')`}
   >
-    <div class="reading-atmosphere" aria-hidden="true"></div>
-    <div class="reading-progress" aria-hidden="true"><span></span></div>
+    <div class="reading-horizon" aria-hidden="true"></div>
 
-    <header class="reading-chrome" id="reading-top">
-      <a class="reading-brand" href="/" data-reading-transition>
-        <span>{siteConfig.name}</span>
-        <small>{siteConfig.latinName}</small>
-      </a>
-      <p class="reading-scene-cue">
-        <small>SCENE</small>
-        <strong>{readingSceneLabel}</strong>
-        <span>RECORD {currentRecord?.number ?? "01"}</span>
-      </p>
-      <nav class="reading-route-nav" aria-label="阅读页面导航">
-        <a class="is-load" href="/?screen=load" data-reading-transition>文章归档</a>
-        {olderPost && <a class="is-previous" href={postHref(olderPost)} data-reading-transition>上一篇</a>}
-        {newerPost && <a class="is-next" href={postHref(newerPost)} data-reading-transition>下一篇</a>}
-        <a class="is-top" href="#reading-top">页首</a>
-      </nav>
+    <header class="reading-bar" id="reading-top">
+      <div class="reading-bar-inner">
+        <a class="reading-back" href="/?screen=load" data-reading-transition>× 返回读取</a>
+        <small class="reading-bar-brand">{siteConfig.name}</small>
+      </div>
     </header>
 
-    <main class="reading-main">
-      <article lang={normalizePostLocale(data.lang)}>
-        <header class="record-opening">
-          <div class="record-opening-copy">
-            <p class="record-kicker">
-              <span>{currentRecord?.label ?? data.category ?? "ESSAY"}</span>
-              <i aria-hidden="true"></i>
-              <small>{readingSceneLabel}</small>
-            </p>
-            <h1>{data.title}</h1>
-            <p class="record-description">{data.description}</p>
-            <div class="record-meta">
-              <time datetime={data.published.toISOString()}>{formatPostDate(data.published, data.lang)}</time>
-              {data.updated && (
-                <span>
-                  UPDATE <time datetime={data.updated.toISOString()}>{formatPostDate(data.updated, data.lang)}</time>
-                </span>
-              )}
-              {data.category && <span>{data.category}</span>}
-            </div>
-            {data.tags.length > 0 && (
-              <ul class="record-tags" aria-label="标签">
-                {data.tags.map((tag) => <li>{tag}</li>)}
-              </ul>
+    <div class="reading-ledger">
+      {hasTableOfContents && (
+        <nav class="reading-toc" aria-label="页内索引">
+          {tableOfContents.map((heading) => (
+            <a href={`#${heading.slug}`} data-reading-toc={heading.slug}>
+              {heading.text}
+            </a>
+          ))}
+        </nav>
+      )}
+
+      <main class="reading-main">
+        <article lang={normalizePostLocale(data.lang)}>
+          <p class="record-kicker">
+            <span>{recordLabel} · PAGE · {readingSceneLabel}</span>
+            <time datetime={data.published.toISOString()}>{formatPostDate(data.published, data.lang)}</time>
+          </p>
+          <h1>{data.title}</h1>
+          <p class="record-description">{data.description}</p>
+          <p class="record-meta">
+            {data.updated && (
+              <span>UPDATE <time datetime={data.updated.toISOString()}>{formatPostDate(data.updated, data.lang)}</time></span>
             )}
-          </div>
-
-          {data.cover && (
-            <figure class="record-cover">
-              <Image src={data.cover} alt="" format="webp" quality={88} loading="eager" />
-            </figure>
-          )}
-        </header>
-
-        <div class="reading-layout" id="reading-contents">
-          {hasTableOfContents && (
-            <details class="reading-toc">
-              <summary>文章目录</summary>
-              <nav>
-                {tableOfContents.map((heading) => (
-                  <a
-                    href={`#${heading.slug}`}
-                    data-reading-toc={heading.slug}
-                    data-depth={heading.depth}
-                  >
-                    {heading.text}
-                  </a>
-                ))}
-              </nav>
-              <span class="reading-position"><b data-reading-percent>000</b>%</span>
-            </details>
-          )}
+            {data.tags.map((tag) => <span>#{tag}</span>)}
+          </p>
 
           <section class="reading-paper" id="reading-content" data-reading-content>
+            <figure class="record-print" data-cg={heroArt}>
+              <img src={heroArt} alt={`${data.title} 封面`} loading="eager" />
+              <figcaption>封面 · 展开</figcaption>
+            </figure>
             <div class="prose">
               <Content />
             </div>
           </section>
-        </div>
 
-        <footer class="record-ending">
-          <p class="record-end-mark"><span>RECORD END</span></p>
-          <nav class="record-neighbours" aria-label="相邻文章">
-            {olderPost && olderRecord ? (
-              <a href={postHref(olderPost)} data-reading-transition>
-                <small>上一篇 · {olderRecord.number}</small>
-                <strong>{olderPost.data.title}</strong>
-                <span>{olderRecord.date}</span>
-              </a>
-            ) : (
-              <span class="is-empty"><small>上一篇</small><strong>没有更早的文章</strong></span>
-            )}
-            {newerPost && newerRecord ? (
-              <a href={postHref(newerPost)} data-reading-transition>
-                <small>下一篇 · {newerRecord.number}</small>
-                <strong>{newerPost.data.title}</strong>
-                <span>{newerRecord.date}</span>
-              </a>
-            ) : (
-              <span class="is-empty"><small>下一篇</small><strong>已经是最新文章</strong></span>
-            )}
-          </nav>
-          <a class="return-to-load" href="/?screen=load" data-reading-transition>返回文章归档</a>
-        </footer>
+          <footer class="record-ending">
+            <p class="record-end-mark">—— 终 ——</p>
+            <nav class="record-neighbours" aria-label="相邻文章">
+              {olderPost && olderRecord ? (
+                <a href={postHref(olderPost)} data-reading-transition>
+                  <small>上一篇 · RECORD {olderRecord.number}</small>
+                  <strong>{olderPost.data.title}</strong>
+                  <span>{olderRecord.date}</span>
+                </a>
+              ) : (
+                <span class="is-empty"><small>上一篇</small><strong>没有更早的文章</strong></span>
+              )}
+              {newerPost && newerRecord ? (
+                <a href={postHref(newerPost)} data-reading-transition>
+                  <small>下一篇 · RECORD {newerRecord.number}</small>
+                  <strong>{newerPost.data.title}</strong>
+                  <span>{newerRecord.date}</span>
+                </a>
+              ) : (
+                <span class="is-empty"><small>下一篇</small><strong>已经是最新文章</strong></span>
+              )}
+            </nav>
+          </footer>
 
-        <BlogInteractionScene contextKey={`article:${postHref(post)}`} />
-      </article>
-    </main>
+          <BlogInteractionScene contextKey={`article:${postHref(post)}`} />
+        </article>
+      </main>
+    </div>
 
     <dialog class="reading-term-dialog" data-reading-term-dialog aria-labelledby="reading-term-title">
       <form method="dialog">
@@ -180,6 +146,36 @@ const readingSceneLabel = sceneLabels[readingScene] ?? readingScene.toUpperCase(
         <button type="submit">继续阅读</button>
       </form>
     </dialog>
+
+    <dialog class="reading-cg" data-reading-cg-dialog aria-label="封面 CG">
+      <img data-reading-cg-img alt="" />
+      <form method="dialog"><button type="submit">关闭</button></form>
+    </dialog>
+
+    <aside class="listen-dock" id="listen-dock" hidden aria-hidden="true">
+      <p class="listen-dock-kicker">
+        <span>SOUND TEST</span>
+        <span class="listen-dock-modes">
+          <button type="button" data-listen-loop aria-pressed="false" aria-label="Repeat this track">LOOP</button>
+          <button type="button" data-listen-shuffle aria-pressed="false" aria-label="Shuffle playlist">SHUFFLE</button>
+          <button type="button" class="listen-dock-close" data-listen-stop aria-label="Stop playlist">CLOSE</button>
+        </span>
+      </p>
+      <button type="button" class="listen-dock-sleeve" data-listen-toggle aria-pressed="false" aria-label="Play playlist">
+        <img data-listen-cover alt="" referrerpolicy="no-referrer">
+      </button>
+      <p class="listen-dock-copy">
+        <strong data-listen-title></strong>
+        <small data-listen-artist></small>
+      </p>
+      <div class="listen-dock-transport">
+        <button type="button" data-listen-prev aria-label="Previous track">‹</button>
+        <button type="button" data-listen-toggle aria-pressed="false" aria-label="Play playlist">
+          <span class="listen-dock-glyph" aria-hidden="true"></span>
+        </button>
+        <button type="button" data-listen-next aria-label="Next track">›</button>
+      </div>
+    </aside>
 
     <div class="reading-transition" data-reading-transition-layer aria-hidden="false">
       <span aria-hidden="true"></span>

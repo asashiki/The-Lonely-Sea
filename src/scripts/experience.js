@@ -11,6 +11,7 @@ import {
   applyPreferences,
   publishPreferences,
   readPreferences,
+  syncForcedLandscape,
 } from "./experience/preferences.js";
 import { initExperienceAudio } from "./experience/audio.js";
 import {
@@ -203,7 +204,7 @@ function setRoute(route) {
   if (route !== "extra") extraScreen.deactivate();
   if (route !== "option") optionScreen.deactivate();
   body.dataset.route = route;
-  experienceAudio.setTitleActive(route === "title" && opening.classList.contains("is-dismissed"));
+  experienceAudio.setTitleActive(opening.classList.contains("is-dismissed"));
   titleMenu.inert = route !== "title";
   fxPanel.inert = route !== "title";
   screens.forEach((screen) => {
@@ -212,8 +213,7 @@ function setRoute(route) {
   if (route === "load") loadScreen.activate();
   if (route === "extra") extraScreen.activate?.();
   if (route === "option") optionScreen.activate();
-  if (route === "title") weather.start();
-  else weather.stop();
+  weather.start();
 }
 
 function navigateTo(route, { instant = false } = {}) {
@@ -334,8 +334,10 @@ window.addEventListener("lonely-sea:preferences-change", (event) => {
   preferences = applyPreferences(event.detail?.preferences || readPreferences());
   const densityChanged = preferences.particleDensity !== previousPreferences.particleDensity;
   const motionChanged = preferences.reducedMotion !== previousPreferences.reducedMotion;
+  const landscapeChanged = preferences.mobileLandscape !== previousPreferences.mobileLandscape;
   if (densityChanged) weather.setDensity(preferences.particleDensity / 100);
   else if (motionChanged) weather.handlePreferenceChange();
+  if (landscapeChanged) weather.resize();
 });
 
 window.addEventListener("lonely-sea:experience-preference-change", (event) => {
@@ -520,7 +522,14 @@ document.addEventListener("visibilitychange", () => {
   else weather.start();
 });
 reduceMotion.addEventListener("change", weather.handlePreferenceChange);
-window.addEventListener("resize", weather.resize, { passive: true });
+window.addEventListener("resize", () => {
+  syncForcedLandscape(preferences);
+  weather.resize();
+}, { passive: true });
+window.matchMedia("(orientation: portrait)").addEventListener("change", () => {
+  syncForcedLandscape(preferences);
+  weather.resize();
+});
 
 weather.resize();
 updatePressed("[data-scene-option]", body.dataset.scene, "sceneOption");

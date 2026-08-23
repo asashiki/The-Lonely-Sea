@@ -1,7 +1,14 @@
 import { publishPreferences, readPreferences } from "./preferences.js";
+import {
+  createSoundDesignPlayer,
+  getSoundPreset,
+  readSoundSelection,
+  writeSoundSelection,
+} from "./sound-design.js";
 
 const AUDIO_MUTE_STORAGE_KEY = "lonely-sea-audio-muted";
 const AUDIO_CONTROLLER_KEY = "__lonelySeaAudioController";
+const BGM_SESSION_KEY = "lonely-sea-bgm-session-v1";
 const BGM_TRACKS = Object.freeze([
   "/assets/lonely-sea/quiet-tide.mp3",
   "/assets/lonely-sea/tidal-drift.mp3",
@@ -239,6 +246,7 @@ export function initExperienceAudio() {
   if (existing) return existing;
 
   let preferences = readPreferences();
+  let soundSelection = readSoundSelection();
   let muted = readMuted(preferences);
   let bgmEnabled = preferences.bgmEnabled !== false;
   if (preferences.masterMuted !== muted) {
@@ -249,11 +257,18 @@ export function initExperienceAudio() {
   let titleActive = false;
   let listenHold = false;
   let trackIndex = 0;
+  try {
+    const storedBgm = JSON.parse(sessionStorage.getItem(BGM_SESSION_KEY) || "null");
+    if (storedBgm && Number.isInteger(storedBgm.trackIndex)) {
+      trackIndex = ((storedBgm.trackIndex % BGM_TRACKS.length) + BGM_TRACKS.length) % BGM_TRACKS.length;
+    }
+  } catch {}
   let bgm = null;
   let cueContext = null;
   let cueInput = null;
   let cueMaster = null;
   let noiseBuffer = null;
+  let soundDesigner = null;
   let hoveredTarget = null;
   let lastPointerDownAt = -Infinity;
   let lastManualCueAt = -Infinity;
@@ -261,18 +276,38 @@ export function initExperienceAudio() {
   const cueTimes = new Map();
   document.documentElement.dataset.audioMuted = String(muted);
 
+  function persistBgm() {
+    if (!bgm) return;
+    try {
+      sessionStorage.setItem(BGM_SESSION_KEY, JSON.stringify({
+        trackIndex,
+        currentTime: bgm.currentTime || 0,
+      }));
+    } catch {}
+  }
+
+  function restoreBgmTime() {
+    try {
+      const storedBgm = JSON.parse(sessionStorage.getItem(BGM_SESSION_KEY) || "null");
+      const storedTime = Number(storedBgm?.currentTime);
+      if (bgm && Number.isFinite(storedTime) && storedTime > 0.4) bgm.currentTime = storedTime;
+    } catch {}
+  }
+
   function ensureBgm() {
     if (bgm) return bgm;
     bgm = new Audio(BGM_TRACKS[trackIndex]);
     bgm.preload = "auto";
     bgm.loop = false;
     bgm.muted = muted || !bgmEnabled;
+    restoreBgmTime();
     bgm.addEventListener("ended", () => {
       if (!titleActive) return;
       trackIndex = (trackIndex + 1) % BGM_TRACKS.length;
       bgm.src = BGM_TRACKS[trackIndex];
       bgm.muted = muted || !bgmEnabled;
       bgm.load();
+      persistBgm();
       startBgm();
     });
     bgm.addEventListener("error", () => {
@@ -307,10 +342,19 @@ export function initExperienceAudio() {
   }
 
   function updateCueVolume() {
+    const volume = muted ? 0 : Math.pow(clampVolume(preferences.interfaceVolume), 1.18) * 0.48;
+    soundDesigner?.setVolume(volume);
     if (!cueContext || !cueMaster) return;
-    const volume = muted ? 0 : Math.pow(clampVolume(preferences.interfaceVolume), 1.24) * 0.34;
     cueMaster.gain.cancelScheduledValues(cueContext.currentTime);
     cueMaster.gain.setTargetAtTime(volume, cueContext.currentTime, 0.012);
+  }
+
+  function ensureSoundDesigner() {
+    if (soundDesigner) return soundDesigner;
+    soundDesigner = createSoundDesignPlayer({
+      volume: muted ? 0 : Math.pow(clampVolume(preferences.interfaceVolume), 1.18) * 0.48,
+    });
+    return soundDesigner;
   }
 
   function buildNoiseBuffer(context) {
@@ -454,6 +498,16 @@ export function initExperienceAudio() {
     const now = performance.now();
     const lastTime = cueTimes.get(cue) || -Infinity;
     if (!detail.force && now - lastTime < design.cooldown) return false;
+    const selectedPreset = getSoundPreset(soundSelection[cue]);
+    if (selectedPreset) {
+      const result = ensureSoundDesigner().play(selectedPreset, {
+        unlock: detail.unlock === true,
+        volumeScale: Math.max(.5, Math.min(1.15, design.level + .28)),
+      });
+      if (!result) return false;
+      cueTimes.set(cue, now);
+      return true;
+    }
     if (!cueContext && !detail.unlock) return false;
     const context = ensureCueContext();
     if (!context || !cueInput || context.state === "closed") return false;
@@ -534,6 +588,7 @@ export function initExperienceAudio() {
 
   function handleKeydown(event) {
     if (event.repeat || event.ctrlKey || event.metaKey || event.altKey) return;
+    soundDesigner?.resume();
     const context = ensureCueContext();
     if (context?.state === "suspended") context.resume().catch(() => {});
     startBgm();
@@ -599,6 +654,21 @@ export function initExperienceAudio() {
     if (next) startBgm();
   }
 
+  function playSoundPreset(id) {
+    if (muted || preferences.interfaceVolume <= 0) return false;
+    return ensureSoundDesigner().play(id, {
+      preview: true,
+      unlock: true,
+      volumeScale: 1.12,
+    });
+  }
+
+  function selectSoundPreset(cue, id) {
+    if (!Object.prototype.hasOwnProperty.call(soundSelection, cue) || !getSoundPreset(id)) return soundSelection;
+    soundSelection = writeSoundSelection({ ...soundSelection, [cue]: id });
+    return { ...soundSelection };
+  }
+
   document.addEventListener("pointerover", handlePointerOver, true);
   document.addEventListener("pointerout", handlePointerOut, true);
   document.addEventListener("pointerdown", handlePointerDown, true);
@@ -615,16 +685,27 @@ export function initExperienceAudio() {
   window.addEventListener("lonely-sea:ui-cue", handleManualCue);
   window.addEventListener("lonely-sea:achievement-unlock", () => markAndPlay("achievement"));
   document.addEventListener("visibilitychange", () => {
-    if (document.hidden) stopBgm();
-    else startBgm();
+    if (document.hidden) {
+      persistBgm();
+      stopBgm();
+      return;
+    }
+    startBgm();
   });
   window.addEventListener("lonely-sea:preferences-change", handlePreferences);
+  window.addEventListener("lonely-sea:sound-selection-change", (event) => {
+    soundSelection = event.detail?.selection || readSoundSelection();
+  });
   window.addEventListener("lonely-sea:listen-hold", (event) => {
     listenHold = event.detail?.active === true;
     if (listenHold) stopBgm();
     else startBgm();
   });
-  window.addEventListener("pagehide", stopBgm);
+  window.addEventListener("pagehide", () => {
+    persistBgm();
+    stopBgm();
+    soundDesigner?.stopAll();
+  });
 
   const controller = {
     isMuted() {
@@ -633,8 +714,32 @@ export function initExperienceAudio() {
     isBgmEnabled() {
       return bgmEnabled;
     },
+    isBgmPlaying() {
+      return Boolean(bgm && !bgm.paused && !bgm.ended);
+    },
+    bgmCurrentTime() {
+      return bgm ? bgm.currentTime : 0;
+    },
     setMuted,
     setBgmEnabled,
+    playSoundPreset,
+    selectSoundPreset,
+    getSoundSelection() {
+      return { ...soundSelection };
+    },
+    resetSoundSelection() {
+      soundSelection = writeSoundSelection({});
+      return { ...soundSelection };
+    },
+    stopSoundPreview() {
+      soundDesigner?.stopPreview();
+    },
+    getSoundMeter(target) {
+      return soundDesigner?.meter(target) || false;
+    },
+    isSoundPreviewing() {
+      return soundDesigner?.isPreviewing() || false;
+    },
     setTitleActive(active) {
       titleActive = active;
       if (active) startBgm();

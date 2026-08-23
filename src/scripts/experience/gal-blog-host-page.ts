@@ -88,7 +88,12 @@ if (root && configNode) {
       typeof input.prompt === "string" ? input.prompt : "输入会返回当前游戏，并保存在这台设备的本地记录中。",
       typeof input.placeholder === "string" ? input.placeholder : "",
     );
-    const interactionMode = input.mode === "friends" ? "friends" : "comments";
+    const requestedMode = typeof input.scene === "string" ? input.scene : input.mode;
+    const interactionMode = requestedMode === "friends"
+      ? "friends"
+      : requestedMode === "rss"
+        ? "rss"
+        : "comments";
     commentController.selectView(interactionMode);
     commentController.resetComposer();
 
@@ -99,6 +104,7 @@ if (root && configNode) {
         settled = true;
         commentScene.removeEventListener("lonely-sea:comment-saved", saved);
         commentScene.removeEventListener("lonely-sea:friend-saved", friendSaved);
+        commentScene.removeEventListener("lonely-sea:rss-copied", rssCopied);
         commentDialog.removeEventListener("cancel", cancel);
         cancelButtons.forEach((button) => button.removeEventListener("click", cancelClick));
         if (commentDialog.open) commentDialog.close(result.status);
@@ -113,6 +119,10 @@ if (root && configNode) {
         const value = (event as CustomEvent).detail?.draft?.url;
         finish({ status: "success", value: typeof value === "string" ? value : "" });
       };
+      const rssCopied = (event: Event) => {
+        const value = (event as CustomEvent).detail?.url;
+        finish({ status: "success", value: typeof value === "string" ? value : "" });
+      };
       const cancel = (event: Event) => {
         event.preventDefault();
         finish({ status: "cancel" });
@@ -121,6 +131,7 @@ if (root && configNode) {
       const cancelButtons = [...commentScene.querySelectorAll<HTMLButtonElement>("[data-host-dialog-cancel]")];
       commentScene.addEventListener("lonely-sea:comment-saved", saved);
       commentScene.addEventListener("lonely-sea:friend-saved", friendSaved);
+      commentScene.addEventListener("lonely-sea:rss-copied", rssCopied);
       commentDialog.addEventListener("cancel", cancel);
       cancelButtons.forEach((button) => button.addEventListener("click", cancelClick));
       if (iframe) iframe.inert = true;

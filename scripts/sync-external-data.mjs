@@ -47,8 +47,18 @@ async function fetchCollections(subjectType) {
 
 function collectionStatus(type, category) {
   if (type === 1) return { status: "wishlist", state: "WISHLIST" };
-  if (type === 2) return { status: "finished", state: category === "anime" ? "WATCHED" : "PLAYED" };
-  if (type === 3) return { status: category === "anime" ? "watching" : "playing", state: category === "anime" ? "WATCHING" : "PLAYING" };
+  if (type === 2) {
+    return {
+      status: "finished",
+      state: category === "anime" ? "WATCHED" : category === "book" ? "READ" : "PLAYED",
+    };
+  }
+  if (type === 3) {
+    return {
+      status: category === "anime" ? "watching" : category === "book" ? "reading" : "playing",
+      state: category === "anime" ? "WATCHING" : category === "book" ? "READING" : "PLAYING",
+    };
+  }
   if (type === 4) return { status: "on-hold", state: "ON HOLD" };
   return { status: "dropped", state: "DROPPED" };
 }
@@ -56,7 +66,13 @@ function collectionStatus(type, category) {
 function mapCollection(item) {
   if (!isRecord(item) || !isRecord(item.subject) || !Number.isInteger(item.subject.id)) return null;
   const subject = item.subject;
-  const category = Number(item.subject_type) === 2 ? "anime" : Number(item.subject_type) === 4 ? "game" : null;
+  const category = Number(item.subject_type) === 1
+    ? "book"
+    : Number(item.subject_type) === 2
+      ? "anime"
+      : Number(item.subject_type) === 4
+        ? "game"
+        : null;
   if (!category) return null;
   const status = collectionStatus(Number(item.type), category);
   const images = isRecord(subject.images) ? subject.images : {};
@@ -145,7 +161,8 @@ async function writeSnapshot(path, value) {
 
 async function main() {
   const syncedAt = new Date().toISOString();
-  const [anime, games, timeline, community, github] = await Promise.all([
+  const [books, anime, games, timeline, community, github] = await Promise.all([
+    fetchCollections(1),
     fetchCollections(2),
     fetchCollections(4),
     fetchJson(`https://bgm.ry.mk/heatmap/timeline/${BLOG_USER}`),
@@ -155,7 +172,7 @@ async function main() {
   if (!Array.isArray(timeline) || !Array.isArray(community) || !isRecord(github) || !Array.isArray(github.contributions)) {
     throw new Error("活动数据响应无效");
   }
-  const items = [...anime, ...games]
+  const items = [...books, ...anime, ...games]
     .map(mapCollection)
     .filter(Boolean)
     .sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));

@@ -92,6 +92,7 @@ const SUPPORTED_ACTIONS = new Set<GalBlogAction>([
   "open-settings",
   "open-load",
   "open-comment-form",
+  "open-blog-scene",
   "save-progress",
   "get-runtime-data",
 ]);

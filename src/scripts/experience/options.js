@@ -5,6 +5,7 @@ import {
   publishPreferences,
   readPreferences,
 } from "./preferences.js";
+import { initSoundLaboratory } from "./sound-laboratory.js";
 
 const KEYBOARD_CURSOR_STORAGE_KEY = "lonely-sea-load-keyboard-cursor";
 const EXPERIENCE_STORAGE_KEY = "lonely-sea-experience-v1";
@@ -118,6 +119,7 @@ export function initOptions({ onReplayOpening = () => {}, onResetExperience = ()
   let resetTimer = 0;
   let clearTimer = 0;
   let stateTimer = 0;
+  let soundLaboratory = null;
 
   function reducedMotion() {
     return systemReduceMotion.matches || preferences.reducedMotion;
@@ -202,13 +204,22 @@ export function initOptions({ onReplayOpening = () => {}, onResetExperience = ()
     });
   }
 
-  function showSynced(message = "已即时保存") {
+  function rowHint(row) {
+    return row.dataset.hint || row.querySelector(".option-setting-copy span")?.textContent?.trim() || "";
+  }
+
+  function setHint(text) {
+    if (optionCanvas.dataset.optionSync === "active") return;
+    stateLabel.textContent = text || "";
+  }
+
+  function showSynced(message = "已保存") {
     window.clearTimeout(stateTimer);
     optionCanvas.dataset.optionSync = "active";
     stateLabel.textContent = message;
     stateTimer = window.setTimeout(() => {
       optionCanvas.dataset.optionSync = "idle";
-      stateLabel.textContent = "设置即时保存";
+      stateLabel.textContent = "";
     }, 900);
   }
 
@@ -251,6 +262,7 @@ export function initOptions({ onReplayOpening = () => {}, onResetExperience = ()
       item.hidden = !selected;
       item.classList.toggle("is-active", selected);
     });
+    soundLaboratory?.setActive(owner === "game" && id === "sound-lab");
     if (focus) nextButton.focus({ preventScroll: true });
   }
 
@@ -321,6 +333,8 @@ export function initOptions({ onReplayOpening = () => {}, onResetExperience = ()
     });
   }
 
+  soundLaboratory = initSoundLaboratory({ optionScreen });
+
   primaryButtons.forEach((button) => {
     button.addEventListener("click", (event) => transitionToCategory(button.dataset.optionPrimary, {
       animate: event.detail !== 0,
@@ -345,7 +359,17 @@ export function initOptions({ onReplayOpening = () => {}, onResetExperience = ()
     });
   });
 
+  function bindHint(row) {
+    const show = () => setHint(rowHint(row));
+    const hide = () => setHint("");
+    row.addEventListener("pointerenter", show);
+    row.addEventListener("focusin", show);
+    row.addEventListener("pointerleave", hide);
+    row.addEventListener("focusout", hide);
+  }
+
   settingRows.forEach((row) => {
+    bindHint(row);
     const key = row.dataset.settingKey;
     const range = row.querySelector("[data-setting-range]");
     range?.addEventListener("input", () => publishPreference(key, Number(range.value)));
@@ -368,7 +392,10 @@ export function initOptions({ onReplayOpening = () => {}, onResetExperience = ()
     bindChoiceKeys(choices, (button) => publishPreference(key, button.dataset.settingValue));
   });
 
+  all(".option-command-setting", optionScreen).forEach(bindHint);
+
   experienceRows.forEach((row) => {
+    bindHint(row);
     const key = row.dataset.experienceKey;
     const choices = all("[data-setting-value]", row);
     choices.forEach((button) => {
@@ -397,6 +424,7 @@ export function initOptions({ onReplayOpening = () => {}, onResetExperience = ()
       detail: { enabled: preferences.keyboardCursor },
     }));
     onResetExperience();
+    soundLaboratory?.reset();
     experience = readExperience();
     settingRows.forEach(hydratePreferenceRow);
     experienceRows.forEach(hydrateExperienceRow);
@@ -449,7 +477,7 @@ export function initOptions({ onReplayOpening = () => {}, onResetExperience = ()
     selectCategory(DEFAULT_CATEGORY, { panelId: DEFAULT_PANEL });
     syncFullscreen();
     optionCanvas.dataset.optionSync = "idle";
-    stateLabel.textContent = "设置即时保存";
+    stateLabel.textContent = "";
   }
 
   activate();
@@ -463,6 +491,7 @@ export function initOptions({ onReplayOpening = () => {}, onResetExperience = ()
     },
     deactivate() {
       interruptPanelTransition();
+      soundLaboratory?.setActive(false);
       window.clearTimeout(resetTimer);
       window.clearTimeout(clearTimer);
       window.clearTimeout(stateTimer);

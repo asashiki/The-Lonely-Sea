@@ -1,5 +1,6 @@
 import { applyPreferences, readPreferences } from "./experience/preferences.js";
 import { initExperienceAudio } from "./experience/audio.js";
+import { initArticleListen } from "./experience/listen-session.js";
 import { writeArticleContinue } from "../lib/experience-continue";
 import { recordBlogActivity } from "../lib/blog-activity";
 import { initAchievementSystem } from "../lib/experience-achievements";
@@ -8,7 +9,9 @@ import { initBlogInteractionScene } from "./blog-interactions";
 const readingSystem = document.querySelector(".reading-system");
 
 if (readingSystem) {
-  initExperienceAudio();
+  const experienceAudio = initExperienceAudio();
+  initArticleListen();
+  experienceAudio.setTitleActive(true);
   initAchievementSystem();
   const interactionControllers = [...readingSystem.querySelectorAll("[data-blog-interaction]")]
     .map((element) => initBlogInteractionScene(element));
@@ -16,6 +19,8 @@ if (readingSystem) {
   const transitionLayer = readingSystem.querySelector("[data-reading-transition-layer]");
   const readingContent = readingSystem.querySelector("[data-reading-content]");
   const progressLabel = readingSystem.querySelector("[data-reading-percent]");
+  const cgDialog = readingSystem.querySelector("[data-reading-cg-dialog]");
+  const cgImage = cgDialog?.querySelector("[data-reading-cg-img]");
   const termDialog = readingSystem.querySelector("[data-reading-term-dialog]");
   const termTitle = termDialog?.querySelector("[data-reading-term-title]");
   const termDefinition = termDialog?.querySelector("[data-reading-term-definition]");
@@ -131,6 +136,12 @@ if (readingSystem) {
   });
 
   readingSystem.addEventListener("click", (event) => {
+    const print = event.target instanceof Element ? event.target.closest("[data-cg]") : null;
+    if (print && cgDialog instanceof HTMLDialogElement && cgImage instanceof HTMLImageElement) {
+      cgImage.src = print.dataset.cg || "";
+      if (!cgDialog.open) cgDialog.showModal();
+      return;
+    }
     const term = event.target instanceof Element ? event.target.closest("[data-reading-term]") : null;
     if (!(term instanceof HTMLButtonElement) || !(termDialog instanceof HTMLDialogElement)) return;
     event.preventDefault();

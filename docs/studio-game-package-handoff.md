@@ -24,4 +24,6 @@ Blog 会在构建期验证 manifest、完整文件集合、字节数和 SHA-256�
 - OPTION 在宿主层覆盖打开，9 项共享设置实时进入当前 iframe。
 - SAVE 捕获 480×270 WebP 实时画面；自动续玩点与手动槽分开；LOAD 固定 release 与检查点。
 - 当前 manifest 有 8 个 save point、2 个公开 STORY scene、8 个流程图节点。
-- 对话内联动作目前支持 LOAD、OPTION、留言与友链；留言和友链仍是本机 Provider。
+- Blog 侧另有独立的 RSS、留言、友链通讯场景。旧 `open-comment-form` 保持兼容；新导出包可使用 `open-blog-scene`，无需把页面 UI 编进游戏包。
+
+通讯场景的桥接参数与返回值见 `docs/blog-communication-scenes.md`。

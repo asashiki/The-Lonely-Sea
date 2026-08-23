@@ -52,6 +52,14 @@
   transform: scaleX(1);
 }
 
+.extra-canvas .extra-room-heading > p {
+  display: none;
+}
+
+.extra-canvas .extra-room-heading h3 {
+  grid-row: 1;
+}
+
 .extra-canvas .extra-status {
   height: 4.6cqh;
   border-top: 0;
@@ -1671,6 +1679,10 @@
   .extra-canvas .extra-music-wave-deck .extra-music-toggle:focus-visible,
   .extra-canvas .extra-music-wave-deck .extra-music-skip:hover,
   .extra-canvas .extra-music-wave-deck .extra-music-skip:focus-visible,
+  .extra-canvas .extra-music-wave-deck .extra-music-loop:hover,
+  .extra-canvas .extra-music-wave-deck .extra-music-loop:focus-visible,
+  .extra-canvas .extra-music-wave-deck .extra-music-shuffle:hover,
+  .extra-canvas .extra-music-wave-deck .extra-music-shuffle:focus-visible,
   .extra-canvas .extra-music-cover:hover,
   .extra-canvas .extra-music-cover:focus-visible {
     color: var(--v4-ink);
@@ -1774,6 +1786,7 @@
 }
 
 @media (max-width: 900px) and (orientation: portrait) {
+  html:not([data-forced-landscape="true"]) {
   .extra-canvas .extra-edge-turners button:first-child {
     left: calc(26cqw - 2.55cqw - .45cqw);
   }
@@ -1917,6 +1930,7 @@
 
   .extra-canvas .extra-achievement-row em {
     font-size: clamp(8px, 2cqw, 10px);
+  }
   }
 }
 

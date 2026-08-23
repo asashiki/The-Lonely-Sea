@@ -1,0 +1,251 @@
+.listen-dock {
+  --listen-ink: var(--v4-ink, var(--reading-ink, #26343f));
+  --listen-soft: var(--v4-soft, var(--reading-soft, rgba(35, 51, 63, .58)));
+  --listen-faint: var(--v4-faint, var(--reading-faint, rgba(35, 51, 63, .3)));
+  --listen-line: var(--v4-line, var(--reading-line, rgba(34, 53, 66, .24)));
+  --listen-paper: var(--v4-paper, color-mix(in srgb, var(--reading-paper, #cfd8d2) 76%, white));
+  --listen-card: var(--v4-card, color-mix(in srgb, var(--reading-paper, #cfd8d2) 82%, white));
+  --listen-outer: var(--v4-outer, var(--reading-margin, #7f8b96));
+  --listen-accent: var(--v4-accent, var(--reading-accent, #607b8d));
+  position: fixed;
+  z-index: 40;
+  left: calc(var(--safe-left, 24px) + clamp(8px, 2vw, 30px));
+  bottom: calc(var(--safe-bottom, 16px) + 2.4rem);
+  display: grid;
+  grid-template-columns: 3.1rem minmax(0, 1fr);
+  grid-template-areas:
+    "kicker kicker"
+    "sleeve copy"
+    "sleeve transport";
+  column-gap: .8rem;
+  row-gap: .22rem;
+  width: min(22.5rem, calc(100vw - 2.4rem));
+  padding: .7rem .85rem .75rem .95rem;
+  border: 0;
+  border-left: 1px solid var(--listen-line);
+  color: var(--listen-ink);
+  background:
+    linear-gradient(var(--listen-card), var(--listen-card)),
+    var(--listen-outer);
+  box-shadow: none;
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition:
+    opacity 220ms cubic-bezier(.22, 1, .36, 1),
+    transform 220ms cubic-bezier(.22, 1, .36, 1),
+    visibility 0s linear;
+}
+
+.listen-dock[hidden] {
+  display: grid;
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transform: translate3d(0, 8px, 0);
+  transition:
+    opacity 160ms cubic-bezier(.22, 1, .36, 1),
+    transform 160ms cubic-bezier(.22, 1, .36, 1),
+    visibility 0s linear 160ms;
+}
+
+body[data-route="title"] .listen-dock {
+  bottom: calc(var(--safe-bottom, 16px) + 10.4rem);
+}
+
+.reading-system .listen-dock {
+  left: max(16px, env(safe-area-inset-left));
+  bottom: max(16px, env(safe-area-inset-bottom));
+}
+
+.listen-dock-kicker {
+  grid-area: kicker;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  min-width: 0;
+  margin: 0 0 .28rem;
+  color: var(--listen-soft);
+  font: 600 7px / 1 "Yu Gothic", sans-serif;
+  letter-spacing: .24em;
+}
+
+.listen-dock-kicker::before {
+  flex: 0 0 auto;
+  width: .34rem;
+  height: .34rem;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--listen-accent) 42%, transparent);
+  content: "";
+  transform: scale(.7);
+  transition: background-color 200ms ease, transform 200ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.listen-dock.is-playing .listen-dock-kicker::before {
+  background: color-mix(in srgb, var(--listen-accent) 88%, var(--listen-ink) 12%);
+  transform: scale(1);
+}
+
+.listen-dock-sleeve {
+  grid-area: sleeve;
+  align-self: start;
+  width: 3.1rem;
+  height: 3.1rem;
+  overflow: hidden;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--listen-accent) 36%, var(--listen-ink) 10%);
+  background: color-mix(in srgb, var(--listen-paper) 48%, transparent);
+  filter: var(--v4-cover-filter, none);
+  cursor: pointer;
+}
+
+.listen-dock-sleeve img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.listen-dock-sleeve img:not([src]) {
+  display: none;
+}
+
+.listen-dock-copy {
+  grid-area: copy;
+  align-self: end;
+  min-width: 0;
+  margin: 0;
+}
+
+.listen-dock-copy strong {
+  display: block;
+  overflow: hidden;
+  font: 400 clamp(13px, .92vw, 16px) / 1.25 Baskerville, "Yu Mincho", serif;
+  letter-spacing: .04em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.listen-dock-copy small {
+  display: block;
+  overflow: hidden;
+  margin-top: .22rem;
+  color: var(--listen-faint);
+  font: 400 10px / 1.3 "Yu Mincho", serif;
+  letter-spacing: .04em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.listen-dock-transport,
+.listen-dock-modes {
+  display: flex;
+  align-items: center;
+}
+
+.listen-dock-transport {
+  grid-area: transport;
+  justify-self: start;
+  gap: .05rem;
+  min-width: 0;
+}
+
+.listen-dock-modes {
+  margin-left: auto;
+  gap: .55rem;
+}
+
+.listen-dock button {
+  min-height: 1.45rem;
+  padding: 0;
+  border: 0;
+  color: var(--listen-soft);
+  background: transparent;
+  cursor: pointer;
+}
+
+.listen-dock-transport button {
+  display: grid;
+  place-items: center;
+  width: 1.45rem;
+  color: var(--listen-ink);
+  font: 400 16px / 1 Baskerville, serif;
+}
+
+.listen-dock-modes button,
+.listen-dock-close {
+  font: 600 7px / 1 "Yu Gothic", sans-serif;
+  letter-spacing: .16em;
+}
+
+.listen-dock-close {
+  margin-left: .15rem;
+}
+
+.listen-dock [data-listen-loop][aria-pressed="true"],
+.listen-dock [data-listen-shuffle][aria-pressed="true"] {
+  color: var(--listen-ink);
+}
+
+.listen-dock [data-listen-loop][aria-pressed="true"]::before,
+.listen-dock [data-listen-shuffle][aria-pressed="true"]::before {
+  margin-right: .28rem;
+  font-size: 5px;
+  content: "●";
+}
+
+.listen-dock-glyph {
+  width: .42rem;
+  height: .52rem;
+  border-style: solid;
+  border-width: .32rem 0 .32rem .5rem;
+  border-color: transparent transparent transparent currentColor;
+}
+
+.listen-dock [data-listen-toggle][aria-pressed="true"] .listen-dock-glyph {
+  width: .44rem;
+  height: .72rem;
+  border: 0;
+  box-shadow: inset .14rem 0 0 currentColor, inset -.14rem 0 0 currentColor;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .listen-dock button:hover,
+  .listen-dock button:focus-visible {
+    color: var(--listen-ink);
+    outline: 0;
+  }
+
+  .listen-dock-sleeve:hover,
+  .listen-dock-sleeve:focus-visible {
+    filter: var(--v4-cover-hover-filter, none);
+    outline: 0;
+  }
+}
+
+@media (max-width: 760px) {
+  html:not([data-forced-landscape="true"]) .listen-dock,
+  html:not([data-forced-landscape="true"]) body[data-route="title"] .listen-dock {
+    left: var(--safe-left, 16px);
+    bottom: calc(var(--safe-bottom, 12px) + 6.8rem);
+    min-width: 0;
+    max-width: min(22rem, calc(100vw - 1.6rem));
+    padding: .62rem .75rem .68rem .8rem;
+  }
+
+  html:not([data-forced-landscape="true"]) .listen-dock-copy strong {
+    font-size: 13px;
+  }
+
+  .reading-system .listen-dock {
+    bottom: max(16px, env(safe-area-inset-bottom));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .listen-dock,
+  .listen-dock[hidden] {
+    transition: none;
+    transform: none;
+  }
+}

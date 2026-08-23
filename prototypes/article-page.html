@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The-Lonely-Sea · 文章 PAGE 原型 — 孤独之海</title>
+<style>
+/* ============================================================
+   孤独之海 · 文章 PAGE 原型
+   场景:MIST(灰霭) 语汇:RECORD / SCENE / 潮汐注释 / 存档槽
+   签名元素:左舷深度计 —— 阅读进度即下潜深度
+   ============================================================ */
+:root {
+  --bg-0: #04090d;
+  --bg-1: #0a161d;
+  --sea: #10232c;
+  --ink: #e6eef2;
+  --ink-dim: #c4d4da;
+  --muted: #9db2bb;
+  --faint: rgba(159, 187, 198, .42);
+  --line: rgba(150, 185, 198, .16);
+  --line-strong: rgba(150, 185, 198, .34);
+  --accent: #8fb6c6;
+  --accent-soft: rgba(143, 182, 198, .12);
+  --moon: #dce9ed;
+  --mincho: "Yu Mincho", "Hiragino Mincho ProN", "Noto Serif SC", "Songti SC", "SimSun", serif;
+  --latin: Baskerville, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
+  --sans: "Noto Sans SC", "Microsoft YaHei", system-ui, sans-serif;
+  --chrome-h: 64px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg-0);
+  color: var(--ink);
+  font-family: var(--mincho);
+  overflow-x: hidden;
+}
+::selection { background: rgba(143, 182, 198, .3); color: #fff; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+:focus-visible { outline: 1.5px solid var(--accent); outline-offset: 3px; }
+
+/* ---------- 海面氛围(纯 CSS 场景) ---------- */
+.sea-scene { position: fixed; inset: 0; z-index: -2; overflow: hidden; background:
+  linear-gradient(180deg, #03080c 0%, #08141b 42%, #0d2029 62%, #081219 78%, #04090d 100%);
+}
+.sea-scene .moon {
+  position: absolute; top: 9%; right: 18%; width: 92px; height: 92px; border-radius: 50%;
+  background: radial-gradient(circle at 38% 34%, #f2f7f8, var(--moon) 55%, #b9cdd4 100%);
+  box-shadow: 0 0 60px 22px rgba(220, 233, 237, .14), 0 0 160px 70px rgba(180, 205, 214, .07);
+  opacity: .9;
+}
+.sea-scene .horizon {
+  position: absolute; left: 0; right: 0; top: 62%; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(190, 214, 222, .35) 30%, rgba(220, 236, 240, .5) 50%, rgba(190, 214, 222, .35) 70%, transparent);
+}
+.sea-scene .moon-road {
+  position: absolute; top: 62%; right: 14%; width: 220px; height: 38%;
+  background: linear-gradient(180deg, rgba(220, 236, 240, .13), transparent 85%);
+  clip-path: polygon(38% 0, 62% 0, 100% 100%, 0 100%);
+  filter: blur(6px);
+}
+.sea-scene .swell {
+  position: absolute; left: -10%; right: -10%; height: 120px;
+  background: repeating-linear-gradient(180deg, transparent 0 14px, rgba(143, 182, 198, .045) 14px 15px);
+  animation: swell-drift 26s linear infinite;
+}
+.sea-scene .swell.one { top: 64%; }
+.sea-scene .swell.two { top: 76%; animation-duration: 38s; animation-direction: reverse; opacity: .7; }
+@keyframes swell-drift { to { transform: translateY(15px); } }
+.sea-scene .mist {
+  position: absolute; left: -30%; width: 160%; height: 22vh; border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(159, 187, 198, .07), transparent 65%);
+  filter: blur(10px);
+  animation: mist-drift 70s ease-in-out infinite alternate;
+}
+.sea-scene .mist.a { top: 30%; }
+.sea-scene .mist.b { top: 58%; animation-duration: 95s; animation-delay: -30s; }
+@keyframes mist-drift { from { transform: translateX(-6%); } to { transform: translateX(6%); } }
+.sea-scene .grain {
+  position: absolute; inset: 0; opacity: .5; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.16'/%3E%3C/svg%3E");
+}
+.sea-scene .vignette { position: absolute; inset: 0; background: radial-gradient(ellipse 90% 80% at 50% 42%, transparent 55%, rgba(2, 6, 9, .55) 100%); }
+
+/* ---------- 顶部读取进度(潮位线) ---------- */
+.read-progress { position: fixed; top: 0; left: 0; right: 0; height: 2px; z-index: 60; background: rgba(150, 185, 198, .08); }
+.read-progress span { display: block; height: 100%; width: 100%; transform-origin: left; transform: scaleX(0);
+  background: linear-gradient(90deg, rgba(143, 182, 198, .4), var(--accent)); }
+
+/* ---------- 顶部导航(chrome) ---------- */
+.chrome {
+  position: fixed; top: 2px; left: 0; right: 0; z-index: 50; height: var(--chrome-h);
+  display: flex; align-items: center; gap: 2rem; padding: 0 clamp(1.25rem, 4vw, 3rem);
+  background: linear-gradient(180deg, rgba(4, 9, 13, .82), rgba(4, 9, 13, .55));
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--line);
+}
+.brand { display: flex; align-items: baseline; gap: .7rem; }
+.brand strong { font-family: var(--mincho); font-weight: 600; font-size: 1.05rem; letter-spacing: .28em; }
+.brand small { font-family: var(--latin); font-size: .62rem; letter-spacing: .42em; color: var(--muted); }
+.scene-cue { display: flex; align-items: baseline; gap: .6rem; margin-inline: auto; font-family: var(--latin); }
+.scene-cue small { font-size: .58rem; letter-spacing: .4em; color: var(--faint); }
+.scene-cue strong { font-size: .8rem; font-weight: 500; letter-spacing: .3em; color: var(--ink-dim); }
+.scene-cue em { font-style: normal; font-size: .62rem; letter-spacing: .28em; color: var(--muted); }
+.chrome-nav { display: flex; gap: 1.4rem; }
+.chrome-nav a {
+  position: relative; font-size: .78rem; letter-spacing: .18em; color: var(--muted); padding: .3rem 0;
+  transition: color .25s;
+}
+.chrome-nav a::after {
+  content: ""; position: absolute; left: 0; bottom: 0; height: 1px; width: 100%;
+  background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform .3s;
+}
+.chrome-nav a:hover { color: var(--ink); }
+.chrome-nav a:hover::after { transform: scaleX(1); }
+.chrome-nav a.is-load { color: var(--ink-dim); }
+@media (max-width: 860px) {
+  .scene-cue em { display: none; }
+  .chrome-nav a:not(.is-load) { display: none; }
+}
+
+/* ---------- 左舷深度计(签名元素) ---------- */
+.depth-gauge {
+  position: fixed; left: clamp(.6rem, 2vw, 1.8rem); top: 20vh; bottom: 16vh; z-index: 40;
+  width: 34px; display: none;
+}
+@media (min-width: 1180px) { .depth-gauge { display: block; } }
+.depth-gauge .rail { position: absolute; left: 17px; top: 0; bottom: 0; width: 1px; background: var(--line-strong); }
+.depth-gauge .tick { position: absolute; left: 12px; width: 5px; height: 1px; background: var(--faint); }
+.depth-gauge .tick.major { left: 8px; width: 9px; }
+.depth-gauge .tick-label { position: absolute; left: 24px; transform: translateY(-50%); font-family: var(--latin); font-size: .52rem; letter-spacing: .12em; color: var(--faint); }
+.depth-gauge .marker {
+  position: absolute; left: 0; top: 0; width: 34px; height: 1px; background: var(--accent);
+  box-shadow: 0 0 8px rgba(143, 182, 198, .6); transition: top .1s linear;
+}
+.depth-gauge .marker::before {
+  content: ""; position: absolute; left: -3px; top: -3px; width: 7px; height: 7px; border-radius: 50%;
+  background: var(--accent); box-shadow: 0 0 10px rgba(143, 182, 198, .8);
+}
+.depth-gauge .gauge-head, .depth-gauge .gauge-foot {
+  position: absolute; left: 24px; font-family: var(--latin); letter-spacing: .2em; color: var(--muted);
+}
+.depth-gauge .gauge-head { top: -2.6rem; font-size: .56rem; writing-mode: vertical-rl; }
+.depth-gauge .gauge-foot { bottom: -2.4rem; font-size: .68rem; white-space: nowrap; }
+.depth-gauge .gauge-foot b { font-weight: 500; color: var(--ink-dim); font-variant-numeric: tabular-nums; }
+
+/* ---------- 主栏 ---------- */
+.reading-main { position: relative; z-index: 1; padding-top: calc(var(--chrome-h) + 2px); }
+.reading-wrap { max-width: 76rem; margin-inline: auto; padding-inline: clamp(1.25rem, 4vw, 3rem); }
+
+/* 记录开头 */
+.record-opening { padding: clamp(3.5rem, 9vh, 6rem) 0 clamp(2.5rem, 6vh, 4rem); }
+.record-kicker { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.6rem; }
+.record-kicker span { font-family: var(--latin); font-size: .68rem; letter-spacing: .44em; color: var(--accent); }
+.record-kicker i { flex: 0 0 4.5rem; height: 1px; background: linear-gradient(90deg, var(--line-strong), transparent); }
+.record-kicker small { font-family: var(--latin); font-size: .62rem; letter-spacing: .36em; color: var(--faint); }
+.record-opening h1 {
+  font-family: var(--mincho); font-weight: 600;
+  font-size: clamp(2.4rem, 5.6vw, 4rem); line-height: 1.22; letter-spacing: .06em;
+  text-shadow: 0 2px 30px rgba(4, 9, 13, .8);
+}
+.record-description { margin-top: 1.4rem; max-width: 34rem; font-size: 1rem; line-height: 2; color: var(--muted); letter-spacing: .04em; }
+.record-meta { display: flex; flex-wrap: wrap; align-items: center; gap: .9rem; margin-top: 1.8rem; font-size: .78rem; color: var(--faint); letter-spacing: .12em; }
+.record-meta time { color: var(--muted); font-variant-numeric: tabular-nums; }
+.record-meta .sep { width: 3px; height: 3px; border-radius: 50%; background: var(--faint); }
+.record-tags { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 1.2rem; list-style: none; }
+.record-tags li {
+  font-size: .68rem; letter-spacing: .22em; color: var(--muted); padding: .32rem .8rem .28rem;
+  border: 1px solid var(--line); border-radius: 999px; transition: border-color .25s, color .25s;
+}
+.record-tags li:hover { border-color: var(--line-strong); color: var(--ink-dim); }
+
+/* 场景版画(封面) */
+.scene-plate { margin-top: clamp(2.2rem, 5vh, 3.4rem); }
+.scene-plate figure {
+  position: relative; aspect-ratio: 21 / 9; overflow: hidden;
+  border: 1px solid var(--line-strong);
+}
+.scene-plate figure::before, .scene-plate figure::after,
+.scene-plate .tick-b::before, .scene-plate .tick-b::after {
+  content: ""; position: absolute; width: 14px; height: 14px; z-index: 3; pointer-events: none;
+  border-color: rgba(190, 214, 222, .55); border-style: solid; border-width: 0;
+}
+.scene-plate figure::before { top: 8px; left: 8px; border-top-width: 1px; border-left-width: 1px; }
+.scene-plate figure::after { top: 8px; right: 8px; border-top-width: 1px; border-right-width: 1px; }
+.scene-plate .tick-b::before { bottom: 8px; left: 8px; border-bottom-width: 1px; border-left-width: 1px; }
+.scene-plate .tick-b::after { bottom: 8px; right: 8px; border-bottom-width: 1px; border-right-width: 1px; }
+.plate-art { position: absolute; inset: 0; background:
+  radial-gradient(circle at 68% 26%, rgba(226, 238, 241, .9) 0 2.2%, rgba(226, 238, 241, .16) 2.6% 7%, transparent 12%),
+  radial-gradient(ellipse 60% 42% at 68% 30%, rgba(200, 220, 228, .1), transparent 70%),
+  linear-gradient(180deg, #0a1820 0%, #12262f 46%, #1a333d 58.5%, #0c1a22 59.5%, #081219 100%);
+}
+.plate-art::before { /* 月光海道 */
+  content: ""; position: absolute; top: 59%; left: 58%; width: 20%; height: 41%;
+  background: linear-gradient(180deg, rgba(220, 236, 240, .2), transparent 90%);
+  clip-path: polygon(40% 0, 60% 0, 100% 100%, 0 100%); filter: blur(4px);
+}
+.plate-art::after { /* 微波 */
+  content: ""; position: absolute; inset: 59% 0 0;
+  background: repeating-linear-gradient(180deg, transparent 0 9px, rgba(159, 187, 198, .06) 9px 10px);
+}
+.plate-art .isle { position: absolute; top: 52%; left: 16%; width: 15%; height: 7.5%;
+  background: linear-gradient(180deg, #050d12, #081318); clip-path: polygon(0 100%, 18% 30%, 42% 62%, 66% 8%, 88% 55%, 100% 100%); }
+.scene-plate figcaption {
+  display: flex; justify-content: space-between; margin-top: .7rem;
+  font-family: var(--latin); font-size: .62rem; letter-spacing: .32em; color: var(--faint);
+}
+
+/* ---------- 正文排版 ---------- */
+.reading-layout { display: grid; grid-template-columns: 1fr minmax(0, 44rem) 1fr; gap: 2rem; }
+.reading-paper { grid-column: 2; }
+.prose { font-size: 1.02rem; line-height: 2.05; letter-spacing: .045em; color: var(--ink-dim); }
+.prose p { margin: 1.5em 0; }
+.prose > p:first-of-type::first-letter {
+  font-size: 2.6em; float: left; line-height: 1; margin: .08em .18em 0 0; color: var(--accent);
+  font-weight: 600;
+}
+.prose h2 {
+  margin: 3.2em 0 1.1em; font-size: 1.5rem; font-weight: 600; letter-spacing: .1em; color: var(--ink);
+  scroll-margin-top: calc(var(--chrome-h) + 1.5rem);
+}
+.prose h2::after { content: ""; display: block; width: 3rem; height: 1px; margin-top: .8rem;
+  background: linear-gradient(90deg, var(--accent), transparent); }
+.prose h3 { margin: 2.4em 0 .9em; font-size: 1.14rem; font-weight: 600; letter-spacing: .08em; color: var(--ink); scroll-margin-top: calc(var(--chrome-h) + 1.5rem); }
+.prose strong { color: var(--ink); font-weight: 600; }
+.prose em { color: var(--ink); }
+.prose a { color: var(--accent); border-bottom: 1px solid rgba(143, 182, 198, .35); transition: border-color .25s; }
+.prose a:hover { border-color: var(--accent); }
+.prose blockquote {
+  margin: 2.2em 0; padding: .2em 0 .2em 1.4em; border-left: 2px solid var(--accent);
+  color: var(--muted); letter-spacing: .06em;
+}
+.prose blockquote p { margin: .4em 0; }
+.prose ul { margin: 1.5em 0; padding-left: 1.4em; }
+.prose li { margin: .55em 0; }
+.prose li::marker { color: var(--accent); }
+.prose hr { border: 0; margin: 3.4em 0; text-align: center; }
+.prose hr::before { content: "〜　〜　〜"; color: var(--faint); letter-spacing: .5em; font-size: .85rem; }
+.prose code {
+  font-family: "SF Mono", Consolas, monospace; font-size: .86em;
+  background: rgba(143, 182, 198, .1); border: 1px solid var(--line); border-radius: 3px; padding: .1em .45em;
+}
+
+/* 潮汐注释(术语) */
+.term {
+  font: inherit; color: var(--ink); letter-spacing: inherit; padding: 0 .05em;
+  border-bottom: 1px dotted var(--accent); transition: background .25s;
+}
+.term::after { content: "※"; font-size: .62em; color: var(--accent); vertical-align: super; margin-left: .1em; }
+.term:hover { background: var(--accent-soft); }
+
+/* ---------- 目录(从属竖线) ---------- */
+.reading-toc { grid-column: 1; display: none; }
+@media (min-width: 1180px) { .reading-toc { display: block; } }
+.toc-sticky { position: sticky; top: calc(var(--chrome-h) + 3rem); margin-left: auto; width: 13.5rem; padding: 1.2rem 0 1.2rem 1.4rem; border-left: 1px solid var(--line); }
+.toc-sticky > small { display: block; font-family: var(--latin); font-size: .58rem; letter-spacing: .4em; color: var(--faint); margin-bottom: 1.1rem; }
+.toc-sticky nav { display: grid; gap: .15rem; }
+.toc-sticky nav a {
+  position: relative; display: block; padding: .4rem 0 .4rem .9rem; font-size: .8rem; letter-spacing: .06em;
+  color: var(--muted); transition: color .25s;
+}
+.toc-sticky nav a[data-depth="3"] { padding-left: 1.8rem; font-size: .74rem; }
+.toc-sticky nav a::before {
+  content: ""; position: absolute; left: -1.4rem; top: 50%; width: 0; height: 1px; background: var(--accent);
+  transition: width .3s;
+}
+.toc-sticky nav a.is-active { color: var(--ink); }
+.toc-sticky nav a.is-active::before { width: 1rem; }
+.toc-sticky .toc-percent { margin-top: 1.3rem; padding-top: .9rem; border-top: 1px solid var(--line);
+  font-family: var(--latin); font-size: .62rem; letter-spacing: .3em; color: var(--faint); }
+.toc-sticky .toc-percent b { font-weight: 500; color: var(--accent); font-variant-numeric: tabular-nums; }
+
+/* 窄屏目录 */
+.toc-inline { grid-column: 2; margin-bottom: 2.5rem; border: 1px solid var(--line); }
+@media (min-width: 1180px) { .toc-inline { display: none; } }
+.toc-inline summary { cursor: pointer; list-style: none; padding: .9rem 1.2rem; font-size: .82rem; letter-spacing: .24em; color: var(--muted); }
+.toc-inline summary::-webkit-details-marker { display: none; }
+.toc-inline nav { display: grid; padding: 0 1.2rem 1.1rem; gap: .35rem; }
+.toc-inline nav a { font-size: .85rem; color: var(--ink-dim); padding: .25rem 0; }
+.toc-inline nav a[data-depth="3"] { padding-left: 1.2rem; font-size: .8rem; color: var(--muted); }
+
+/* ---------- 记录结尾 ---------- */
+.record-ending { grid-column: 1 / -1; margin-top: clamp(4rem, 9vh, 6rem); }
+.record-end-mark { display: flex; align-items: center; gap: 1.6rem; margin-bottom: 2.6rem; }
+.record-end-mark::before, .record-end-mark::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, transparent, var(--line-strong)); }
+.record-end-mark::after { background: linear-gradient(90deg, var(--line-strong), transparent); }
+.record-end-mark span { font-family: var(--latin); font-size: .66rem; letter-spacing: .5em; color: var(--faint); padding-left: .5em; }
+
+.record-neighbours { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+@media (max-width: 720px) { .record-neighbours { grid-template-columns: 1fr; } }
+.save-slot {
+  position: relative; display: block; border: 1px solid var(--line); overflow: hidden;
+  transition: border-color .3s, transform .3s;
+}
+.save-slot:hover { border-color: var(--line-strong); transform: translateY(-3px); }
+.slot-scene { position: relative; aspect-ratio: 16 / 5.4; overflow: hidden; }
+.slot-scene .plate-art { transition: transform .8s cubic-bezier(.2, .8, .2, 1); }
+.save-slot:hover .slot-scene .plate-art { transform: scale(1.04); }
+.slot-scene.mist .plate-art { background:
+  radial-gradient(circle at 30% 30%, rgba(226, 238, 241, .75) 0 3%, rgba(226, 238, 241, .12) 3.6% 9%, transparent 14%),
+  linear-gradient(180deg, #0b1a22 0%, #152b34 52%, #0d1d26 53%, #081219 100%); }
+.slot-scene.night .plate-art { background:
+  radial-gradient(circle at 74% 24%, rgba(226, 238, 241, .85) 0 2.4%, rgba(226, 238, 241, .14) 3% 8%, transparent 13%),
+  radial-gradient(1.5px 1.5px at 20% 22%, rgba(230, 240, 244, .9) 50%, transparent 51%),
+  radial-gradient(1.2px 1.2px at 44% 14%, rgba(230, 240, 244, .7) 50%, transparent 51%),
+  radial-gradient(1px 1px at 60% 30%, rgba(230, 240, 244, .6) 50%, transparent 51%),
+  linear-gradient(180deg, #050d14 0%, #0a1822 52%, #081018 53%, #04090e 100%); }
+.slot-scene::after { content: ""; position: absolute; inset: 52% 0 0;
+  background: repeating-linear-gradient(180deg, transparent 0 8px, rgba(159, 187, 198, .05) 8px 9px); }
+.slot-body { padding: 1.1rem 1.3rem 1.25rem; background: rgba(8, 18, 24, .72); border-top: 1px solid var(--line); }
+.slot-body small { display: flex; justify-content: space-between; font-family: var(--latin); font-size: .58rem; letter-spacing: .3em; color: var(--faint); margin-bottom: .55rem; }
+.slot-body strong { display: block; font-size: .98rem; font-weight: 600; letter-spacing: .06em; color: var(--ink-dim); transition: color .25s; }
+.save-slot:hover .slot-body strong { color: var(--ink); }
+.slot-body time { display: block; margin-top: .45rem; font-size: .68rem; letter-spacing: .14em; color: var(--faint); }
+.save-slot.is-next { text-align: left; }
+@media (min-width: 721px) { .save-slot.is-next .slot-body { text-align: right; } }
+
+.return-to-load {
+  display: block; margin: 2.2rem auto 0; width: fit-content; padding: .95rem 3.2rem;
+  border: 1px solid var(--line-strong); font-size: .8rem; letter-spacing: .42em; text-indent: .42em;
+  color: var(--ink-dim); transition: background .3s, color .3s, border-color .3s;
+}
+.return-to-load:hover { background: var(--accent); border-color: var(--accent); color: #08131a; }
+
+/* ---------- 页脚 ---------- */
+.reading-footer { margin-top: clamp(4rem, 10vh, 7rem); padding: 2.4rem 0 3rem; border-top: 1px solid var(--line); text-align: center; }
+.reading-footer p { font-family: var(--latin); font-size: .6rem; letter-spacing: .44em; color: var(--faint); }
+.reading-footer p span { display: block; margin-top: .7rem; font-family: var(--mincho); font-size: .72rem; letter-spacing: .3em; color: var(--muted); }
+
+/* ---------- 潮汐注释弹窗 ---------- */
+.term-dialog {
+  margin: auto; width: min(26rem, calc(100vw - 2.5rem)); padding: 0;
+  background: linear-gradient(165deg, #0d1c24, #081219 70%);
+  border: 1px solid var(--line-strong); color: var(--ink);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, .6);
+}
+.term-dialog::backdrop { background: rgba(3, 7, 10, .72); backdrop-filter: blur(6px); }
+.term-dialog form { padding: 1.8rem 1.9rem 1.6rem; }
+.term-heading small { display: block; font-family: var(--latin); font-size: .56rem; letter-spacing: .44em; color: var(--faint); margin-bottom: .5rem; }
+.term-heading strong { font-size: 1.35rem; font-weight: 600; letter-spacing: .12em; }
+.term-copy { margin: 1.2rem 0 1.6rem; padding: 1rem 1.1rem; border-left: 2px solid var(--accent); background: rgba(143, 182, 198, .06); }
+.term-copy span { display: block; font-size: .64rem; letter-spacing: .3em; color: var(--accent); margin-bottom: .5rem; }
+.term-copy p { font-size: .88rem; line-height: 1.9; letter-spacing: .05em; color: var(--ink-dim); }
+.term-dialog button[type="submit"] {
+  width: 100%; padding: .8rem 0; border: 1px solid var(--line-strong);
+  font-size: .76rem; letter-spacing: .36em; text-indent: .36em; color: var(--ink-dim);
+  transition: background .3s, color .3s;
+}
+.term-dialog button[type="submit"]:hover { background: var(--accent); color: #08131a; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  html { scroll-behavior: auto; }
+}
+</style>
+</head>
+<body>
+
+<!-- 海面场景 -->
+<div class="sea-scene" aria-hidden="true">
+  <div class="moon"></div>
+  <div class="horizon"></div>
+  <div class="moon-road"></div>
+  <div class="swell one"></div>
+  <div class="swell two"></div>
+  <div class="mist a"></div>
+  <div class="mist b"></div>
+  <div class="grain"></div>
+  <div class="vignette"></div>
+</div>
+
+<!-- 潮位线(读取进度) -->
+<div class="read-progress" aria-hidden="true"><span id="progressBar"></span></div>
+
+<!-- 顶部 chrome -->
+<header class="chrome" id="reading-top">
+  <a class="brand" href="#reading-top">
+    <strong>孤独之海</strong>
+    <small>LONELY SEA</small>
+  </a>
+  <p class="scene-cue">
+    <small>SCENE</small>
+    <strong>MIST</strong>
+    <em>RECORD 02</em>
+  </p>
+  <nav class="chrome-nav" aria-label="阅读页面导航">
+    <a class="is-load" href="#reading-top">文章归档</a>
+    <a href="#slot-prev">上一篇</a>
+    <a href="#slot-next">下一篇</a>
+    <a href="#reading-top">页首</a>
+  </nav>
+</header>
+
+<!-- 左舷深度计 -->
+<aside class="depth-gauge" aria-hidden="true">
+  <span class="gauge-head">DEPTH</span>
+  <div class="rail" id="gaugeRail"></div>
+  <div class="marker" id="gaugeMarker"></div>
+  <span class="gauge-foot"><b id="gaugeDepth">0000</b> m</span>
+</aside>
+
+<main class="reading-main">
+  <div class="reading-wrap">
+    <article>
+
+      <!-- 记录开头 -->
+      <header class="record-opening">
+        <p class="record-kicker">
+          <span>ESSAY</span>
+          <i aria-hidden="true"></i>
+          <small>MIST · 灰霭</small>
+        </p>
+        <h1>The-Lonely-Sea</h1>
+        <p class="record-description">好不容易搓出来的个人站,先在这里放一份演示介绍。文章、游戏存档、日记和 Extra 不再拆成互不相干的网站栏目,而是放进同一个读取界面里。</p>
+        <div class="record-meta">
+          <time datetime="2026-08-15">2026.08.15</time>
+          <i class="sep" aria-hidden="true"></i>
+          <span>UPDATE <time datetime="2026-08-20">2026.08.20</time></span>
+          <i class="sep" aria-hidden="true"></i>
+          <span>项目</span>
+        </div>
+        <ul class="record-tags" aria-label="标签">
+          <li>project</li>
+          <li>galgame</li>
+          <li>WebGAL</li>
+        </ul>
+
+        <div class="scene-plate">
+          <figure>
+            <div class="plate-art"><i class="isle" aria-hidden="true"></i></div>
+            <span class="tick-b" aria-hidden="true"></span>
+          </figure>
+          <figcaption>
+            <span>SCENE PLATE — 02</span>
+            <span>MIST · 灰霭</span>
+          </figcaption>
+        </div>
+      </header>
+
+      <div class="reading-layout">
+
+        <!-- 左舷目录(宽屏) -->
+        <div class="reading-toc">
+          <div class="toc-sticky">
+            <small>INDEX · 目录</small>
+            <nav id="tocNav">
+              <a href="#sec-1" data-depth="2">这是现在这片海本身</a>
+              <a href="#sec-2" data-depth="2">读取,而不是浏览</a>
+              <a href="#sec-2-1" data-depth="3">存档槽即记录</a>
+              <a href="#sec-3" data-depth="2">界面先于导航</a>
+              <a href="#sec-4" data-depth="2">之后要补的东西</a>
+            </nav>
+            <p class="toc-percent">READ <b id="tocPercent">000</b>%</p>
+          </div>
+        </div>
+
+        <!-- 窄屏目录 -->
+        <details class="toc-inline">
+          <summary>文章目录</summary>
+          <nav>
+            <a href="#sec-1" data-depth="2">这是现在这片海本身</a>
+            <a href="#sec-2" data-depth="2">读取,而不是浏览</a>
+            <a href="#sec-2-1" data-depth="3">存档槽即记录</a>
+            <a href="#sec-3" data-depth="2">界面先于导航</a>
+            <a href="#sec-4" data-depth="2">之后要补的东西</a>
+          </nav>
+        </details>
+
+        <!-- 正文 -->
+        <section class="reading-paper">
+          <div class="prose" id="prose">
+            <p>这是现在这片海本身。文章、游戏存档、日记和 Extra 不再拆成互不相干的网站栏目,而是放进同一个读取界面里。界面语言先服务于「正在读取游戏内容」,再服务于传统博客导航。</p>
+
+            <h2 id="sec-1">这是现在这片海本身</h2>
+            <p>打开这个站的时候,你看到的不是首页,而是标题画面。海浪在远处,雾在近处,菜单只有寥寥几项:START、LOAD、EXTRA、OPTION。点进 LOAD,你才会见到文章——它们不以博客卡片的形式躺在列表里,而是以<button class="term" data-term="文章记录槽" data-def="文章页中的读取单位,承载文章封面、标题与发布日期,但仍属于游戏读取界面而非网站文章卡片。">文章记录槽</button>的形式,等待被读取。</p>
+            <p>这个区别看起来只是皮肤,实际上决定了整个站的信息架构。博客的隐喻是「发布」,视觉小说的隐喻是「读取」。发布面向不存在的人群,读取面向一个具体的、坐下来的人。</p>
+            <blockquote>
+              <p>界面语言首先服务于「正在读取游戏内容」的感觉,而不是传统网站导航。</p>
+            </blockquote>
+
+            <h2 id="sec-2">读取,而不是浏览</h2>
+            <p>三个<button class="term" data-term="读取页" data-def="LOAD 中彼此独立的一级页面,目前为文章页、游戏记录页与日记页。三者共享体验壳,但不是同一分段选择器中的三个选项。">读取页</button>——文章、游戏记录、日记——共享同一套体验壳,但彼此独立。它们不是分段选择器里的三个 Tab,而是三扇各自完整的门。</p>
+            <h3 id="sec-2-1">存档槽即记录</h3>
+            <p>每一篇文章都是一条记录,有编号,有场景,有发布日期。游戏记录页里的<button class="term" data-term="玩家存档槽" data-def="游戏记录页中的读取单位,承载场景 CG、剧情进度与存档时间,并按六槽一页组织。即使隐藏页面标题和周围导航,它也必须被第一眼理解为 Galgame 的游戏存档。">玩家存档槽</button>按六槽一页组织,即使隐藏页面标题和周围导航,它也必须被第一眼理解为 Galgame 的存档界面。</p>
+            <ul>
+              <li>文章记录槽:封面、标题、发布日期</li>
+              <li>玩家存档槽:场景 CG、剧情进度、存档时间</li>
+              <li>月份画面:一次代表一个月,进入该月的 NVL 阅读</li>
+            </ul>
+
+            <hr>
+
+            <h2 id="sec-3">界面先于导航</h2>
+            <p>公共界面——页面入口、页内索引、返回与翻页——在所有读取页之间保持统一。页面内容区则按文章、流程、故事或日记采用各自的构图。流程图由 LOAD 中的同一对象<button class="term" data-term="原位展开" data-def="流程图由 LOAD 中的同一对象连续扩展为完整视图;场景详情只在展开后出现,不表现为跳转页面或另开弹窗。">原位展开</button>为完整视图,不跳转页面,也不另开弹窗。</p>
+            <p>仓库在 <a href="https://github.com/asashiki/The-Lonely-Sea">GitHub</a>。这篇先当演示介绍,细节以后再补。</p>
+
+            <h2 id="sec-4">之后要补的东西</h2>
+            <p>游戏包由 Studio 导出,是可以独立运行的只读内容;每次发布生成一个不可变的版本,旧存档继续指向创建它的那个版本。这些约定现在只是一行行的文档,之后会慢慢长成真的海。</p>
+            <p>如果你读到了这里——谢谢你在雾里坐下来。这片海还很浅,但深度计已经装好了。</p>
+          </div>
+        </section>
+
+        <!-- 记录结尾 -->
+        <footer class="record-ending">
+          <p class="record-end-mark"><span>RECORD END</span></p>
+          <nav class="record-neighbours" aria-label="相邻文章">
+            <a class="save-slot" id="slot-prev" href="#reading-top">
+              <div class="slot-scene mist"><div class="plate-art"></div></div>
+              <div class="slot-body">
+                <small><span>PREV</span><span>RECORD 01</span></small>
+                <strong>MCP Switch:给 Claude Code 写的第一块积木</strong>
+                <time datetime="2026-06-02">2026.06.02 · MIST · 灰霭</time>
+              </div>
+            </a>
+            <a class="save-slot is-next" id="slot-next" href="#reading-top">
+              <div class="slot-scene night"><div class="plate-art"></div></div>
+              <div class="slot-body">
+                <small><span>RECORD 03</span><span>NEXT</span></small>
+                <strong>把日记做成月份画面之后</strong>
+                <time datetime="2026-09-01">2026.09.01 · NIGHT · 暗夜</time>
+              </div>
+            </a>
+          </nav>
+          <a class="return-to-load" href="#reading-top">返回文章归档</a>
+        </footer>
+
+      </div>
+    </article>
+
+    <div class="reading-footer">
+      <p>LONELY SEA<span>一处等待被读取的个人档案。</span></p>
+    </div>
+  </div>
+</main>
+
+<!-- 潮汐注释弹窗 -->
+<dialog class="term-dialog" id="termDialog" aria-labelledby="termTitle">
+  <form method="dialog">
+    <p class="term-heading"><small>KEYWORD</small><strong id="termTitle">术语</strong></p>
+    <div class="term-copy">
+      <span>潮汐注释</span>
+      <p id="termDef"></p>
+    </div>
+    <button type="submit">继续阅读</button>
+  </form>
+</dialog>
+
+<script>
+(function () {
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---- 深度计刻度 ---- */
+  var rail = document.getElementById("gaugeRail");
+  var gauge = document.querySelector(".depth-gauge");
+  var MAX_DEPTH = 1200;
+  for (var i = 0; i <= 20; i++) {
+    var tick = document.createElement("i");
+    tick.className = "tick" + (i % 5 === 0 ? " major" : "");
+    tick.style.top = (i / 20 * 100) + "%";
+    gauge.insertBefore(tick, gauge.querySelector(".gauge-foot"));
+    if (i % 5 === 0 && i > 0 && i < 20) {
+      var label = document.createElement("span");
+      label.className = "tick-label";
+      label.style.top = (i / 20 * 100) + "%";
+      label.textContent = (MAX_DEPTH * i / 20);
+      gauge.insertBefore(label, gauge.querySelector(".gauge-foot"));
+    }
+  }
+
+  /* ---- 滚动:潮位线 / 深度计 / 目录 ---- */
+  var bar = document.getElementById("progressBar");
+  var marker = document.getElementById("gaugeMarker");
+  var depthOut = document.getElementById("gaugeDepth");
+  var percentOut = document.getElementById("tocPercent");
+  var tocLinks = Array.prototype.slice.call(document.querySelectorAll("#tocNav a"));
+  var headings = tocLinks.map(function (a) { return document.querySelector(a.getAttribute("href")); });
+
+  function pad(n, len) { n = String(Math.round(n)); while (n.length < len) n = "0" + n; return n; }
+
+  function onScroll() {
+    var doc = document.documentElement;
+    var max = doc.scrollHeight - window.innerHeight;
+    var p = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+    bar.style.transform = "scaleX(" + p + ")";
+    var gaugeH = gauge.clientHeight;
+    marker.style.top = (p * (gaugeH - 1)) + "px";
+    depthOut.textContent = pad(p * MAX_DEPTH, 4);
+    percentOut.textContent = pad(p * 100, 3);
+
+    var activeIdx = 0;
+    var probe = window.scrollY + window.innerHeight * 0.3;
+    headings.forEach(function (h, i) {
+      if (h && h.offsetTop <= probe) activeIdx = i;
+    });
+    tocLinks.forEach(function (a, i) { a.classList.toggle("is-active", i === activeIdx); });
+  }
+  var ticking = false;
+  window.addEventListener("scroll", function () {
+    if (!ticking) {
+      ticking = true;
+      requestAnimationFrame(function () { onScroll(); ticking = false; });
+    }
+  }, { passive: true });
+  window.addEventListener("resize", onScroll);
+  onScroll();
+
+  /* ---- 潮汐注释弹窗 ---- */
+  var dialog = document.getElementById("termDialog");
+  var termTitle = document.getElementById("termTitle");
+  var termDef = document.getElementById("termDef");
+  document.querySelectorAll(".term").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      termTitle.textContent = btn.dataset.term;
+      termDef.textContent = btn.dataset.def;
+      if (typeof dialog.showModal === "function") dialog.showModal();
+    });
+  });
+  dialog.addEventListener("click", function (e) {
+    if (e.target === dialog) dialog.close();
+  });
+})();
+</script>
+</body>
+</html>

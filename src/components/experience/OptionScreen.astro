@@ -1,8 +1,30 @@
 ---
+import {
+  DEFAULT_SOUND_SELECTION,
+  SOUND_CATEGORIES,
+  SOUND_CUE_LABELS,
+  SOUND_PRESETS,
+} from "../../scripts/experience/sound-design.js";
+
+type SoundPresetView = {
+  id: string;
+  title: string;
+  latin: string;
+  category: string;
+  cue: string;
+  duration: number;
+  description: string;
+  tags: string[];
+};
+const soundPresets = SOUND_PRESETS as unknown as SoundPresetView[];
+const cueLabels = SOUND_CUE_LABELS as unknown as Record<string, string>;
+const defaultSoundSelection = DEFAULT_SOUND_SELECTION as unknown as Record<string, string>;
+
 const categories = [
   {
     id: "system",
     label: "系统",
+    latin: "SYSTEM",
     subcategories: [
       { id: "language", label: "语言" },
       { id: "accessibility", label: "操作与无障碍" },
@@ -12,15 +34,18 @@ const categories = [
   {
     id: "game",
     label: "游戏",
+    latin: "GAME",
     subcategories: [
       { id: "text", label: "文字" },
       { id: "sound", label: "声音" },
+      { id: "sound-lab", label: "音效试听" },
       { id: "display", label: "显示与操作" },
     ],
   },
   {
     id: "blog",
     label: "博客",
+    latin: "BLOG",
     subcategories: [
       { id: "reading", label: "阅读" },
       { id: "atmosphere", label: "海景" },
@@ -49,6 +74,7 @@ const categories = [
             tabindex={index === 0 ? 0 : -1}
           >
             <span>{category.label}</span>
+            <small aria-hidden="true">{category.latin}</small>
           </button>
         ))}
       </nav>
@@ -176,7 +202,7 @@ const categories = [
                 <div class="option-setting-control"><button class="option-switch" type="button" data-setting-toggle aria-pressed="false" aria-label="全部静音"><i aria-hidden="true"></i><output class="setting-value">关</output></button></div>
               </div>
               <div class="option-setting" data-setting-key="bgmEnabled" data-setting-scope="game blog">
-                <div class="option-setting-copy"><strong>背景音乐</strong><span>标题与游戏 BGM</span></div>
+                <div class="option-setting-copy"><strong>背景音乐</strong><span>标题、文章与游戏 BGM</span></div>
                 <div class="option-setting-control"><button class="option-switch" type="button" data-setting-toggle aria-pressed="true" aria-label="背景音乐"><i aria-hidden="true"></i><output class="setting-value">开</output></button></div>
               </div>
               <div class="option-setting" data-setting-key="bgmVolume" data-setting-scope="game blog">
@@ -191,6 +217,93 @@ const categories = [
                 <div class="option-setting-copy"><strong>角色语音</strong><span>VOICE</span></div>
                 <div class="option-setting-control"><label class="option-range"><span>小</span><input type="range" name="voice-volume" min="0" max="100" step="1" data-setting-range aria-label="角色语音音量"><span>大</span></label><output class="setting-value">80%</output></div>
               </div>
+            </div>
+          </section>
+
+          <section id="option-panel-sound-lab" class="option-panel sound-lab" data-option-panel="sound-lab" data-option-panel-owner="game" data-sound-lab data-ui-sound="none" role="tabpanel" hidden>
+            <header class="option-panel-intro sound-lab-heading">
+              <div>
+                <h3>音效试听台</h3>
+                <p>SOUND SPECIMEN ARCHIVE · {soundPresets.length} 种实时音色</p>
+              </div>
+              <button type="button" class="sound-lab-reset" data-sound-reset>恢复初始方案</button>
+            </header>
+
+            <div class="sound-lab-monitor">
+              <div class="sound-lab-scope" data-sound-scope>
+                <canvas width="960" height="168" data-sound-canvas aria-hidden="true"></canvas>
+                <span class="sound-lab-scope-label">LIVE / STEREO</span>
+                <span class="sound-lab-scope-time" data-sound-time>00.00</span>
+              </div>
+              <div class="sound-lab-now">
+                <span class="sound-lab-now-index" data-sound-index>—</span>
+                <p><small>NOW AUDITIONING</small><strong data-sound-now>选择任意标本试听</strong><span data-sound-now-detail>试听期间会暂时收起背景音乐</span></p>
+                <button type="button" data-sound-stop disabled><i aria-hidden="true"></i>停止尾音</button>
+              </div>
+            </div>
+
+            <section class="sound-lab-palette" aria-label="当前采用的音效方案">
+              <header><strong>当前采用</strong><span>选择后立即用于 Blog 界面</span></header>
+              <div class="sound-lab-slots">
+                {Object.entries(defaultSoundSelection).map(([cue, id]) => {
+                  const selected = soundPresets.find((item) => item.id === id);
+                  return (
+                    <button type="button" data-sound-slot={cue} title={`查看${cueLabels[cue]}音效`}>
+                      <small>{cueLabels[cue]}</small>
+                      <span data-sound-slot-title>{selected?.title}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+
+            <div class="sound-lab-tools">
+              <nav class="sound-lab-filters" aria-label="音效分类">
+                {SOUND_CATEGORIES.map((category, index) => (
+                  <button type="button" data-sound-filter={category.id} aria-pressed={index === 0 ? "true" : "false"}>
+                    <span>{category.label}</span><small>{category.latin}</small>
+                  </button>
+                ))}
+              </nav>
+              <label class="sound-lab-search">
+                <span>搜索</span>
+                <input type="search" data-sound-search placeholder="钢琴、卷轴、长尾…" autocomplete="off" />
+                <i aria-hidden="true"></i>
+              </label>
+            </div>
+
+            <p class="sound-lab-result"><span data-sound-result>{soundPresets.length} 个音色</span><small>点击圆形播放键试听；“选用”会替换对应动作的声音。</small></p>
+
+            <div class="sound-lab-grid" data-sound-grid>
+              {soundPresets.map((sound, index) => {
+                const selected = defaultSoundSelection[sound.cue] === sound.id;
+                const category = SOUND_CATEGORIES.find((item) => item.id === sound.category);
+                return (
+                  <article
+                    class="sound-card"
+                    data-sound-card={sound.id}
+                    data-sound-category={sound.category}
+                    data-sound-cue={sound.cue}
+                    data-sound-search-text={`${sound.title} ${sound.latin} ${sound.description} ${sound.tags.join(" ")} ${cueLabels[sound.cue]}`.toLocaleLowerCase("zh-CN")}
+                    data-selected={String(selected)}
+                  >
+                    <button type="button" class="sound-card-play" data-sound-preview={sound.id} aria-label={`试听${sound.title}`} aria-pressed="false">
+                      <span class="sound-card-play-ring" aria-hidden="true"><i></i></span>
+                    </button>
+                    <div class="sound-card-copy">
+                      <p class="sound-card-meta"><span>{String(index + 1).padStart(2, "0")} / {category?.latin}</span><time>{sound.duration.toFixed(1)}s</time></p>
+                      <h4>{sound.title}</h4>
+                      <small>{sound.latin}</small>
+                      <p>{sound.description}</p>
+                      <ul aria-label="音色特征">{sound.tags.map((tag) => <li>{tag}</li>)}</ul>
+                    </div>
+                    <button type="button" class="sound-card-select" data-sound-select={sound.id} data-sound-target={sound.cue} aria-pressed={selected}>
+                      <span data-sound-select-label>{selected ? "正在使用" : "选用"}</span>
+                      <small>用于 {cueLabels[sound.cue]}</small>
+                    </button>
+                  </article>
+                );
+              })}
             </div>
           </section>
 
@@ -239,8 +352,16 @@ const categories = [
                 <div class="option-setting-control"><div class="option-choice-group option-choice-group-wide" data-experience-choice role="radiogroup" aria-label="背景时段"><button type="button" role="radio" data-setting-value="mist">灰霭</button><button type="button" role="radio" data-setting-value="day">晴昼</button><button type="button" role="radio" data-setting-value="night">暗夜</button><button type="button" role="radio" data-setting-value="crimson">赤夜</button></div></div>
               </div>
               <div class="option-setting" data-experience-key="weather">
-                <div class="option-setting-copy"><strong>天气</strong><span>标题画面粒子</span></div>
+                <div class="option-setting-copy"><strong>天气</strong><span>标题与系统页共用</span></div>
                 <div class="option-setting-control"><div class="option-choice-group" data-experience-choice role="radiogroup" aria-label="天气"><button type="button" role="radio" data-setting-value="clear">无</button><button type="button" role="radio" data-setting-value="snow">雪</button><button type="button" role="radio" data-setting-value="rain">雨</button></div></div>
+              </div>
+              <div class="option-setting" data-setting-key="systemWeather" data-setting-scope="blog">
+                <div class="option-setting-copy"><strong>系统页延续天气</strong><span>LOAD、EXTRA、OPTION 继续下雨或下雪，不重新开始</span></div>
+                <div class="option-setting-control"><button class="option-switch" type="button" data-setting-toggle aria-pressed="true" aria-label="系统页延续天气"><i aria-hidden="true"></i><output class="setting-value">开</output></button></div>
+              </div>
+              <div class="option-setting" data-setting-key="weatherLayer" data-setting-scope="blog" data-hint="组件内会透过毛玻璃看见天气；盖过 UI 则让粒子浮在界面之上">
+                <div class="option-setting-copy"><strong>天气层次</strong><span>特效在组件里，或盖过 UI</span></div>
+                <div class="option-setting-control"><div class="option-choice-group" data-setting-choice role="radiogroup" aria-label="天气层次"><button type="button" role="radio" data-setting-value="INSIDE" aria-checked="true">组件内</button><button type="button" role="radio" data-setting-value="OVERLAY" aria-checked="false">盖过 UI</button></div></div>
               </div>
               <div class="option-setting" data-setting-key="particleDensity" data-setting-scope="blog">
                 <div class="option-setting-copy"><strong>天气密度</strong><span>雪与雨的数量</span></div>
@@ -259,6 +380,10 @@ const categories = [
               <p>打开、离开与外部链接</p>
             </header>
             <div class="option-settings option-settings-dense">
+              <div class="option-setting" data-setting-key="mobileLandscape" data-setting-scope="blog" data-hint="手机打开标题与系统页时自动横屏。文章页保持竖屏阅读">
+                <div class="option-setting-copy"><strong>手机自动横屏</strong><span>标题、LOAD、EXTRA、OPTION</span></div>
+                <div class="option-setting-control"><button class="option-switch" type="button" data-setting-toggle aria-pressed="true" aria-label="手机自动横屏"><i aria-hidden="true"></i><output class="setting-value">开</output></button></div>
+              </div>
               <div class="option-setting" data-setting-key="sceneCrossfade" data-setting-scope="blog">
                 <div class="option-setting-copy"><strong>系统页面转场</strong><span>标题、LOAD、EXTRA 与 OPTION</span></div>
                 <div class="option-setting-control"><button class="option-switch" type="button" data-setting-toggle aria-pressed="true" aria-label="系统页面转场"><i aria-hidden="true"></i><output class="setting-value">开</output></button></div>

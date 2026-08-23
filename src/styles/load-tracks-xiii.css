@@ -3863,6 +3863,7 @@ html.tracks-xiii-diary-open body {
 }
 
 @media (max-width: 900px) and (orientation: portrait) {
+  html:not([data-forced-landscape="true"]) {
   .tracks-xiii-canvas {
     --xiii-stage-inline: 3.4cqw;
     --xiii-index-width: 21.5cqw;
@@ -3990,5 +3991,6 @@ html.tracks-xiii-diary-open body {
 
   .tracks-xiii-canvas .tracks-xiii-reference-switcher {
     display: none;
+  }
   }
 }
