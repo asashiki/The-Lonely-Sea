@@ -45,7 +45,7 @@ records.forEach((record) => {
   const id = `${year}-${month}`;
   diaryGroups.set(id, [...(diaryGroups.get(id) ?? []), record]);
 });
-const diaryMonths = [...diaryGroups.entries()].map(([id, entries]) => {
+const dynamicDiaryMonths = [...diaryGroups.entries()].map(([id, entries]) => {
   const [year, monthNumber] = id.split("-");
   const first = entries[0];
   const monthIndex = Math.max(0, Math.min(11, Number(monthNumber) - 1));
@@ -64,6 +64,7 @@ const diaryMonths = [...diaryGroups.entries()].map(([id, entries]) => {
     title,
     summary,
     art: first.coverUrl,
+    playable: false,
     records: entries.map((entry) => ({
       title: entry.title,
       date: entry.date,
@@ -71,6 +72,68 @@ const diaryMonths = [...diaryGroups.entries()].map(([id, entries]) => {
     })),
   };
 });
+
+const nvlDiaryMonths = [
+  {
+    id: "2026-04",
+    year: "2026",
+    month: "APRIL",
+    monthNumber: "04",
+    dateLabel: "2026 / 04",
+    title: "2026年4月归档",
+    summary: "那段时间，我第一次把 OpenClaw 和 Gemini 接进日常……",
+    art: "/assets/lonely-sea/mist.png",
+    playable: true,
+    records: [{
+      title: "2026年4月 · 安娜篇：始源之夜与侦探的花丸",
+      date: "2026.04.30",
+      url: "/posts/2026/diary-2026-04/",
+    }],
+  },
+  {
+    id: "2026-06",
+    year: "2026",
+    month: "JUNE",
+    monthNumber: "06",
+    dateLabel: "2026 / 06",
+    title: "2026年6月归档",
+    summary: "那段时间，我在十小时的车程、答辩和新的 AI 对话之间来回切换……",
+    art: "/assets/lonely-sea/crimson.png",
+    playable: true,
+    records: [{
+      title: "2026年6月 · Claude篇：十小时铁轨、答辩与深海之母",
+      date: "2026.06.30",
+      url: "/posts/2026/diary-2026-06/",
+    }],
+  },
+  {
+    id: "2026-08",
+    year: "2026",
+    month: "AUGUST",
+    monthNumber: "08",
+    dateLabel: "2026 / 08",
+    title: "2026年8月归档",
+    summary: "那段时间，我开始整理 Reset 之后的生活，也重新看了看这座灯塔……",
+    art: "/assets/lonely-sea/night.png",
+    playable: false,
+    records: [{
+      title: "2026年8月 · 爱丽丝篇：Reset 的黎明、全领域矩阵与灯塔",
+      date: "2026.08.31",
+      url: "/posts/2026/diary-2026-08/",
+    }],
+  },
+];
+
+const nvlDiaryMonthIds = new Set(nvlDiaryMonths.map((entry) => entry.id));
+const removedDiaryMonthIds = new Set(["2026-01", "2026-03"]);
+const diaryMonths = [
+  ...dynamicDiaryMonths.filter((entry) => (
+    !nvlDiaryMonthIds.has(entry.id) && !removedDiaryMonthIds.has(entry.id)
+  )),
+  ...nvlDiaryMonths,
+].sort((left, right) => (
+  right.year.localeCompare(left.year) || Number(left.monthNumber) - Number(right.monthNumber)
+));
 
 const diaryYears = [...new Set(diaryMonths.map((entry) => entry.year))];
 
@@ -411,6 +474,7 @@ const lockedStorySlots = Array.from({ length: Math.max(0, 10 - storyScenes.lengt
               data-diary-title={entry.title}
               data-diary-summary={entry.summary}
               data-diary-art={entry.art}
+              data-diary-playable={String(entry.playable)}
               data-diary-records={JSON.stringify(entry.records)}
               aria-hidden={index !== 0}
             >
@@ -422,7 +486,16 @@ const lockedStorySlots = Array.from({ length: Math.max(0, 10 - storyScenes.lengt
                 <p>{entry.summary}</p>
                 <span>OPEN THIS MONTH</span>
               </div>
-              <button class="tracks-xiii-diary-cover" type="button" data-xiii-diary-entry aria-label={`读取 ${entry.dateLabel} 日记`} aria-pressed="false" style={`--diary-art:url('${entry.art}')`}>
+              <button
+                class="tracks-xiii-diary-cover"
+                type="button"
+                data-xiii-diary-entry={entry.playable ? "" : undefined}
+                aria-label={entry.playable ? `读取 ${entry.dateLabel} 日记` : `${entry.dateLabel} 日记归档`}
+                aria-disabled={entry.playable ? undefined : "true"}
+                tabindex={entry.playable ? undefined : "-1"}
+                aria-pressed="false"
+                style={`--diary-art:url('${entry.art}')`}
+              >
                 <span class="tracks-xiii-diary-art" aria-hidden="true"></span>
                 <span class="tracks-xiii-diary-edge" aria-hidden="true"></span>
                 <strong>{entry.month}</strong>

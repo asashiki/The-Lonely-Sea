@@ -1,0 +1,71 @@
+---
+import { NVL_CHAPTERS } from "../../data/nvl-chapters";
+import "../../styles/nvl-player.css";
+
+const chaptersJson = JSON.stringify(NVL_CHAPTERS).replaceAll("<", "\\u003c");
+---
+
+<div
+  id="nvl-theater-modal"
+  class="nvl-theater-system"
+  aria-hidden="true"
+  role="dialog"
+  aria-modal="true"
+  aria-label="NVL 视觉小说剧场"
+>
+  <!-- 背景舞台 -->
+  <div class="nvl-stage-backdrop" id="nvl-backdrop" aria-hidden="true"></div>
+
+  <!-- 切场/幕间卡片 -->
+  <div class="nvl-cutscene-overlay" id="nvl-cutscene" aria-hidden="true">
+    <div class="nvl-cutscene-content">
+      <div class="nvl-cutscene-sub" id="nvl-cutscene-sub">ANOTHER VIEWPOINT</div>
+      <div class="nvl-cutscene-main" id="nvl-cutscene-main">章节标题</div>
+    </div>
+  </div>
+
+  <!-- 顶部状态栏 -->
+  <header class="nvl-top-bar">
+    <div class="nvl-pov-badge" id="nvl-pov-badge">
+      <span class="nvl-pov-dot" aria-hidden="true"></span>
+      <span id="nvl-pov-title">POV: 浅仪式</span>
+      <span class="nvl-pov-time" id="nvl-pov-time">2026-04-04 03:17:00</span>
+    </div>
+    <div class="nvl-top-actions">
+      <button type="button" class="nvl-action-btn" id="nvl-btn-log" title="查看文本履历">📜 履历 (LOG)</button>
+      <button type="button" class="nvl-action-btn" id="nvl-btn-auto" title="自动播放">▶ AUTO</button>
+      <button type="button" class="nvl-action-btn is-close" id="nvl-btn-close" title="退出 NVL 模式">× 退出 (ESC)</button>
+    </div>
+  </header>
+
+  <!-- 主交互全屏文本层 -->
+  <main class="nvl-content-container" id="nvl-click-target" tabindex="0" aria-label="点击继续阅读文本">
+    <div class="nvl-text-flow" id="nvl-text-flow"></div>
+  </main>
+
+  <!-- 底部点击/推进提示 -->
+  <footer class="nvl-bottom-bar" aria-hidden="true">
+    <div class="nvl-chapter-title" id="nvl-chapter-title">2026年4月 · 安娜篇</div>
+    <div class="nvl-next-cue" id="nvl-next-cue">
+      <span>CLICK OR SPACE TO CONTINUE</span>
+      <i class="nvl-cursor-blink">▼</i>
+    </div>
+  </footer>
+
+  <!-- 文本履历 / Backlog 抽屉 -->
+  <aside class="nvl-backlog-modal" id="nvl-backlog-modal" aria-hidden="true">
+    <div class="nvl-backlog-header">
+      <h3>TEXT BACKLOG / 历史记录</h3>
+      <button type="button" class="nvl-action-btn" id="nvl-backlog-close">关闭 (LOG)</button>
+    </div>
+    <div class="nvl-backlog-body" id="nvl-backlog-body"></div>
+  </aside>
+
+  <script id="nvl-chapters-data" type="application/json" set:html={chaptersJson} is:inline></script>
+</div>
+
+<script>
+  import "../../scripts/experience/nvl-engine.js";
+</script>
+
+

@@ -1,0 +1,361 @@
+/**
+ * NVL Visual Novel Theater Styles
+ * 魔法使之夜 / 月姬 式全屏视觉小说排版与动画
+ */
+
+.nvl-theater-system {
+  position: fixed;
+  z-index: 9999;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100vw;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  color: #e2e8f0;
+  background-color: #030712;
+  font-family: var(--font-display, "Yu Mincho", "Noto Serif CJK SC", serif);
+  opacity: 1;
+  transition: opacity 300ms cubic-bezier(0.16, 1, 0.3, 1), visibility 300ms ease;
+  user-select: none;
+}
+
+.nvl-theater-system[aria-hidden="true"] {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* 背景舞台 */
+.nvl-stage-backdrop {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  background: radial-gradient(circle at center, #111827 0%, #030712 100%);
+  background-size: cover;
+  background-position: center;
+  transition: background 600ms ease;
+  pointer-events: none;
+}
+
+.nvl-stage-backdrop::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(3, 7, 18, 0.45);
+  backdrop-filter: blur(1px);
+}
+
+/* 幕间切场动画 */
+.nvl-cutscene-overlay {
+  position: absolute;
+  z-index: 50;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 400ms ease, visibility 400ms ease;
+  pointer-events: none;
+}
+
+.nvl-cutscene-overlay.is-active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.nvl-cutscene-content {
+  text-align: center;
+}
+
+.nvl-cutscene-sub {
+  font-family: var(--font-sans, "Yu Gothic", sans-serif);
+  font-size: clamp(0.75rem, 1.2vw, 1.1rem);
+  letter-spacing: 0.35em;
+  color: #94a3b8;
+  margin-bottom: 0.8rem;
+  text-transform: uppercase;
+}
+
+.nvl-cutscene-main {
+  font-size: clamp(1.8rem, 3.8vw, 3.2rem);
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  color: #f8fafc;
+  text-shadow: 0 0 24px rgba(255, 255, 255, 0.25);
+  animation: nvl-pulse 2.2s ease-in-out infinite alternate;
+}
+
+@keyframes nvl-pulse {
+  from { transform: scale(0.98); opacity: 0.85; }
+  to { transform: scale(1.02); opacity: 1; }
+}
+
+/* 顶部状态栏 */
+.nvl-top-bar {
+  position: relative;
+  z-index: 20;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.2rem 2.5rem;
+  background: linear-gradient(180deg, rgba(3, 7, 18, 0.85) 0%, rgba(3, 7, 18, 0) 100%);
+}
+
+.nvl-pov-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.35rem 0.9rem;
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 9999px;
+  font-family: var(--font-sans, "Yu Gothic", sans-serif);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  color: #cbd5e1;
+}
+
+.nvl-pov-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #38bdf8;
+  box-shadow: 0 0 8px #38bdf8;
+}
+
+.nvl-pov-time {
+  color: #64748b;
+  font-size: 0.7rem;
+  margin-left: 0.4rem;
+  font-family: monospace;
+}
+
+.nvl-top-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.nvl-action-btn {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  color: #cbd5e1;
+  padding: 0.4rem 0.9rem;
+  border-radius: 4px;
+  font-family: var(--font-sans, "Yu Gothic", sans-serif);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all 180ms ease;
+}
+
+.nvl-action-btn:hover,
+.nvl-action-btn:focus-visible {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: rgba(56, 189, 248, 0.6);
+  color: #f8fafc;
+  outline: none;
+}
+
+.nvl-action-btn.is-active {
+  background: rgba(56, 189, 248, 0.25);
+  border-color: #38bdf8;
+  color: #38bdf8;
+}
+
+.nvl-action-btn.is-close:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.6);
+  color: #fca5a5;
+}
+
+/* 主内容全屏文本容器 */
+.nvl-content-container {
+  position: relative;
+  z-index: 10;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem clamp(2rem, 8vw, 14rem);
+  cursor: pointer;
+  outline: none;
+}
+
+.nvl-text-flow {
+  width: 100%;
+  max-width: 58rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+/* 行样式 */
+.nvl-line {
+  font-size: clamp(1.05rem, 1.4vw, 1.25rem);
+  line-height: 1.95;
+  letter-spacing: 0.06em;
+  color: #e2e8f0;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 300ms ease, transform 300ms ease;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.nvl-line.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.nvl-line.typewriter-active::after {
+  content: "▮";
+  color: #38bdf8;
+  animation: nvl-blink 0.75s infinite;
+  margin-left: 2px;
+  font-size: 0.9em;
+}
+
+@keyframes nvl-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.nvl-line.line-quote {
+  color: #93c5fd;
+  border-left: 3px solid rgba(59, 130, 246, 0.6);
+  padding-left: 1rem;
+  font-style: italic;
+}
+
+.nvl-line.line-alice-voice {
+  color: #f472b6;
+  font-weight: 500;
+}
+
+.nvl-line.line-terminal {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(51, 65, 85, 0.8);
+  border-left: 3px solid #34d399;
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+  color: #34d399;
+  font-size: 0.92rem;
+  letter-spacing: 0.02em;
+}
+
+/* 底部状态 */
+.nvl-bottom-bar {
+  position: relative;
+  z-index: 20;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.2rem 2.5rem;
+  background: linear-gradient(0deg, rgba(3, 7, 18, 0.85) 0%, rgba(3, 7, 18, 0) 100%);
+  pointer-events: none;
+}
+
+.nvl-chapter-title {
+  font-size: 0.82rem;
+  letter-spacing: 0.1em;
+  color: #64748b;
+}
+
+.nvl-next-cue {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-sans, "Yu Gothic", sans-serif);
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  color: #94a3b8;
+}
+
+.nvl-cursor-blink {
+  display: inline-block;
+  font-style: normal;
+  color: #38bdf8;
+  animation: nvl-bounce 1.1s ease-in-out infinite;
+}
+
+@keyframes nvl-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(3px); }
+}
+
+/* Backlog 抽屉 */
+.nvl-backlog-modal {
+  position: absolute;
+  z-index: 60;
+  inset: 0;
+  background: rgba(3, 7, 18, 0.94);
+  backdrop-filter: blur(14px);
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 260ms ease;
+}
+
+.nvl-backlog-modal.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.nvl-backlog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 3rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+}
+
+.nvl-backlog-header h3 {
+  font-size: 1.1rem;
+  letter-spacing: 0.15em;
+  color: #cbd5e1;
+  margin: 0;
+}
+
+.nvl-backlog-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 2rem 3rem 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 58rem;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.nvl-backlog-entry {
+  line-height: 1.85;
+  color: #cbd5e1;
+  font-size: 1rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px dashed rgba(51, 65, 85, 0.4);
+}
+
+@media (max-width: 48rem) {
+  .nvl-top-bar, .nvl-bottom-bar {
+    padding: 1rem 1.2rem;
+  }
+  .nvl-content-container {
+    padding: 1rem 1.2rem;
+  }
+  .nvl-backlog-header, .nvl-backlog-body {
+    padding: 1.2rem;
+  }
+}
+
+
