@@ -43,13 +43,13 @@
     },
     {
       "path": "assets/cursor-default-cursor-default.svg",
-      "bytes": 676,
-      "sha256": "dff12afa88a14557f80d8ef4dc65115668166b20c3354564131405d6c3ad376f"
+      "bytes": 659,
+      "sha256": "9734d4feeeb1f420f4306a77792652444e1c688e842d49475a154daf3d495a47"
     },
     {
       "path": "assets/cursor-select-cursor-select.svg",
-      "bytes": 801,
-      "sha256": "b511cd8d87a2dd11c51d72436567c57414ada9a5c93b20bc290a374421a6aa3c"
+      "bytes": 783,
+      "sha256": "54b47648d11015a675c60ac76307904888654588b5f6a2e02f1c5956fcdd62a4"
     },
     {
       "path": "assets/fig-alice-casual-side-maid_princess_normal_casual_side.png",

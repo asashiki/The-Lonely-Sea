@@ -11,10 +11,16 @@ type GameContinue = {
   updatedAt: string;
 };
 
+type NvlContinue = {
+  saveId: string;
+  updatedAt: string;
+};
+
 type ContinueState = {
   schema: "lonely-sea-continue/v1";
   article?: ArticleContinue;
   game?: GameContinue;
+  nvl?: NvlContinue;
 };
 
 type SaveLike = {
@@ -24,7 +30,8 @@ type SaveLike = {
 
 export type ContinueTarget =
   | ({ kind: "article" } & ArticleContinue)
-  | ({ kind: "game" } & GameContinue);
+  | ({ kind: "game" } & GameContinue)
+  | ({ kind: "nvl" } & NvlContinue);
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
@@ -67,6 +74,12 @@ function readState(): ContinueState {
     && validDate(value.game.updatedAt)) {
     state.game = { saveId: value.game.saveId, updatedAt: value.game.updatedAt };
   }
+  if (isRecord(value.nvl)
+    && typeof value.nvl.saveId === "string"
+    && value.nvl.saveId.length <= 180
+    && validDate(value.nvl.updatedAt)) {
+    state.nvl = { saveId: value.nvl.saveId, updatedAt: value.nvl.updatedAt };
+  }
   return state;
 }
 
@@ -93,7 +106,17 @@ export function writeGameContinue(saveId: string, updatedAt = new Date().toISOSt
   writeState(state);
 }
 
-export function resolveContinueTarget(saves: readonly SaveLike[]): ContinueTarget | null {
+export function writeNvlContinue(saveId: string, updatedAt = new Date().toISOString()): void {
+  if (!saveId || saveId.length > 180 || !validDate(updatedAt)) return;
+  const state = readState();
+  state.nvl = { saveId, updatedAt };
+  writeState(state);
+}
+
+export function resolveContinueTarget(
+  saves: readonly SaveLike[],
+  nvlSaves: readonly SaveLike[] = [],
+): ContinueTarget | null {
   const state = readState();
   const candidates: ContinueTarget[] = [];
   if (state.article) candidates.push({ kind: "article", ...state.article });
@@ -101,10 +124,18 @@ export function resolveContinueTarget(saves: readonly SaveLike[]): ContinueTarge
   if (state.game && storedGameExists) {
     candidates.push({ kind: "game", ...state.game });
   }
+  const storedNvlExists = Boolean(state.nvl && nvlSaves.some((save) => save.id === state.nvl?.saveId));
+  if (state.nvl && storedNvlExists) {
+    candidates.push({ kind: "nvl", ...state.nvl });
+  }
 
   if (!storedGameExists && saves.length) {
     const latest = [...saves].sort((a, b) => Date.parse(b.savedAt) - Date.parse(a.savedAt))[0];
     if (latest) candidates.push({ kind: "game", saveId: latest.id, updatedAt: latest.savedAt });
+  }
+  if (!storedNvlExists && nvlSaves.length) {
+    const latest = [...nvlSaves].sort((a, b) => Date.parse(b.savedAt) - Date.parse(a.savedAt))[0];
+    if (latest) candidates.push({ kind: "nvl", saveId: latest.id, updatedAt: latest.savedAt });
   }
   return candidates.sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt))[0] ?? null;
 }

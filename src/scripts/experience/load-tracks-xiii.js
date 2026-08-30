@@ -2,6 +2,10 @@ import {
   GAL_BLOG_SAVE_CHANGE_EVENT,
   listGalBlogManualSaves,
 } from "../../lib/gal-blog/save-store";
+import {
+  NVL_SAVE_CHANGE_EVENT,
+  listNvlSaves,
+} from "../../lib/nvl/save-store";
 import { recordBlogActivity } from "../../lib/blog-activity";
 
 const LAST_LOAD_STORAGE_KEY = "lonely-sea-last-load";
@@ -101,8 +105,6 @@ export function initLoadTracksXiiiConcept({
   const storyEnter = required("[data-xiii-story-enter]");
   const storyCancel = required("[data-xiii-story-cancel]");
   const diaryMonths = all("[data-xiii-diary-month]");
-  const diaryReader = required("[data-xiii-diary-reader]");
-  const diaryReaderClose = required("[data-xiii-diary-reader-close]");
   const firstDiaryYear = required('[data-xiii-index-group="diary"] [data-xiii-filter]').dataset.xiiiFilter;
   const primaryShell = required(".tracks-xiii-primary-shell");
   const systemBack = required(".system-back");
@@ -142,8 +144,6 @@ export function initLoadTracksXiiiConcept({
   let flowThemeSerial = 0;
   let flowThemeAnimations = [];
   let flowDrag = null;
-  let diaryReaderAnimation = null;
-  let diaryReaderTrigger = null;
   let storyTrigger = null;
   let articleNavigationTimers = [];
   let transitionSerial = 0;
@@ -408,6 +408,10 @@ export function initLoadTracksXiiiConcept({
     return saveSlots;
   }
 
+  function padPage(value) {
+    return String(Math.max(1, Number(value) || 1)).padStart(2, "0");
+  }
+
   function formatElapsed(elapsedMs) {
     if (!Number.isFinite(elapsedMs)) return "--:--:--";
     const seconds = Math.max(0, Math.floor(elapsedMs / 1000));
@@ -432,9 +436,19 @@ export function initLoadTracksXiiiConcept({
   }
 
   function syncSaveSlots() {
-    const saves = listGalBlogManualSaves();
+    const gameSaves = listGalBlogManualSaves();
+    const saves = saveOperation === "save"
+      ? gameSaves.map((save) => ({ kind: "game", save }))
+      : [
+          ...gameSaves.map((save) => ({ kind: "game", save })),
+          ...listNvlSaves().map((save) => ({ kind: "nvl", save })),
+        ].sort((left, right) => Date.parse(right.save.savedAt) - Date.parse(left.save.savedAt));
+
     saveSlots.forEach((slot, index) => {
-      const save = saves.find((item) => item.slot === index + 1);
+      const entry = saveOperation === "save"
+        ? saves.find((item) => item.save.slot === index + 1)
+        : saves[index];
+      const save = entry?.save;
       const copy = required(".tracks-xiii-save-copy", slot);
       const labels = all("small > span", copy);
       const title = required("strong", copy);
@@ -443,14 +457,14 @@ export function initLoadTracksXiiiConcept({
       const command = required(".tracks-xiii-save-command", slot);
       slot.dataset.saveNumber = String(index + 1).padStart(2, "0");
       delete slot.dataset.saveConfirm;
-      slot.classList.remove("is-save-confirm");
+      slot.classList.remove("is-save-confirm", "is-nvl-save");
       if (!save) {
         slot.classList.add("is-empty");
         slot.disabled = saveOperation !== "save";
         slot.setAttribute("aria-label", saveOperation === "save"
           ? `保存到空槽位 ${slot.dataset.saveNumber}`
           : "空存档槽位");
-        ["saveId", "saveTitle", "saveChapter", "saveSection", "saveProgress", "saveSavedAt", "gameSlug", "releaseId", "savePointId"]
+        ["saveId", "saveKind", "saveTitle", "saveChapter", "saveSection", "saveProgress", "saveSavedAt", "gameSlug", "releaseId", "savePointId", "nvlChapterId", "nvlMonthId"]
           .forEach((key) => delete slot.dataset[key]);
         slot.style.removeProperty("--save-art");
         labels[0].textContent = "NO SAVE DATA";
@@ -464,25 +478,40 @@ export function initLoadTracksXiiiConcept({
       slot.classList.remove("is-empty");
       slot.disabled = false;
       slot.dataset.saveId = save.id;
-      slot.dataset.saveTitle = save.title;
-      slot.dataset.saveChapter = save.chapter || "CHECKPOINT";
-      slot.dataset.saveSection = save.scene || save.target.id;
-      slot.dataset.saveProgress = formatElapsed(save.elapsedMs);
+      slot.dataset.saveKind = entry.kind;
       slot.dataset.saveSavedAt = formatSavedAt(save.savedAt);
-      slot.dataset.gameSlug = save.gameSlug;
-      slot.dataset.releaseId = save.releaseId;
-      slot.dataset.savePointId = save.target.id;
-      slot.setAttribute("aria-label", saveOperation === "save"
-        ? `覆盖游戏存档 ${slot.dataset.saveNumber}：${save.title}`
-        : `读取游戏存档 ${slot.dataset.saveNumber}：${save.title}`);
-      if (save.thumbnail) slot.style.setProperty("--save-art", `url(${JSON.stringify(save.thumbnail)})`);
-      else slot.style.removeProperty("--save-art");
+      if (entry.kind === "nvl") {
+        slot.classList.add("is-nvl-save");
+        slot.dataset.saveTitle = save.chapterTitle;
+        slot.dataset.saveChapter = "NVL DIARY";
+        slot.dataset.saveSection = `${save.monthId.replace("-", ".")} / PAGE ${padPage(save.pageNumber)}`;
+        slot.dataset.saveProgress = `${padPage(save.pageNumber)} / ${padPage(save.totalPages)}`;
+        slot.dataset.nvlChapterId = save.chapterId;
+        slot.dataset.nvlMonthId = save.monthId;
+        ["gameSlug", "releaseId", "savePointId"].forEach((key) => delete slot.dataset[key]);
+        slot.setAttribute("aria-label", `继续 NVL 日记：${save.chapterTitle}，第 ${save.pageNumber} 页`);
+        slot.style.setProperty("--save-art", `url(${JSON.stringify(save.coverArt)})`);
+      } else {
+        slot.dataset.saveTitle = save.title;
+        slot.dataset.saveChapter = save.chapter || "CHECKPOINT";
+        slot.dataset.saveSection = save.scene || save.target.id;
+        slot.dataset.saveProgress = formatElapsed(save.elapsedMs);
+        slot.dataset.gameSlug = save.gameSlug;
+        slot.dataset.releaseId = save.releaseId;
+        slot.dataset.savePointId = save.target.id;
+        ["nvlChapterId", "nvlMonthId"].forEach((key) => delete slot.dataset[key]);
+        slot.setAttribute("aria-label", saveOperation === "save"
+          ? `覆盖游戏存档 ${slot.dataset.saveNumber}：${save.title}`
+          : `读取游戏存档 ${slot.dataset.saveNumber}：${save.title}`);
+        if (save.thumbnail) slot.style.setProperty("--save-art", `url(${JSON.stringify(save.thumbnail)})`);
+        else slot.style.removeProperty("--save-art");
+      }
       labels[0].textContent = slot.dataset.saveChapter;
       labels[1].textContent = slot.dataset.saveSection;
-      title.textContent = save.title;
+      title.textContent = slot.dataset.saveTitle;
       savedAt.textContent = slot.dataset.saveSavedAt;
       elapsed.textContent = slot.dataset.saveProgress;
-      command.textContent = saveOperation === "save" ? "OVERWRITE" : "LOAD";
+      command.textContent = saveOperation === "save" ? "OVERWRITE" : entry.kind === "nvl" ? "RESUME" : "LOAD";
     });
     heading.textContent = saveOperation === "save" ? "SAVE" : "LOAD";
     loadCanvas.dataset.xiiiSaveOperation = saveOperation;
@@ -726,7 +755,6 @@ export function initLoadTracksXiiiConcept({
     if (
       flowExpanded
       || storyConfirm.getAttribute("aria-hidden") === "false"
-      || diaryReader.getAttribute("aria-hidden") === "false"
     ) return;
     const model = paginationModel();
     goToPage(model.active + direction, { animate: false, direction });
@@ -1141,7 +1169,7 @@ export function initLoadTracksXiiiConcept({
     move(event);
   }
 
-  function openDiaryReader(entry) {
+  function openDiaryChapter(entry) {
     const month = entry.closest("[data-xiii-diary-month]");
     if (!month) return;
 
@@ -1155,36 +1183,8 @@ export function initLoadTracksXiiiConcept({
     }));
   }
 
-  function closeDiaryReader({ animate = false } = {}) {
-    if (diaryReader.getAttribute("aria-hidden") === "true") return false;
-    diaryReaderAnimation?.cancel();
-    const finish = () => {
-      diaryReader.setAttribute("aria-hidden", "true");
-      setInterfaceInert(false);
-      diaryMonths.forEach((month) => {
-        month.inert = false;
-      });
-      loadCanvas.classList.remove("has-open-diary-reader");
-      document.documentElement.classList.remove("tracks-xiii-diary-open");
-      diaryReaderTrigger?.focus({ preventScroll: true });
-      diaryReaderAnimation = null;
-      dispatchCue("back", { target: "diary" });
-    };
-    if (!animate || reduceMotion.matches) {
-      finish();
-      return true;
-    }
-    diaryReaderAnimation = diaryReader.animate(
-      [{ opacity: 1 }, { opacity: 0 }],
-      { duration: 180, easing: "ease-out" },
-    );
-    diaryReaderAnimation.finished.then(finish).catch(finish);
-    return true;
-  }
-
   function closeArticle() {
     if (closeStoryConfirm()) return true;
-    if (closeDiaryReader()) return true;
     if (flowExpanded) {
       setFlowExpanded(false, { animate: false });
       return true;
@@ -1299,7 +1299,6 @@ export function initLoadTracksXiiiConcept({
     if (!keyboardCursorEnabled || event.altKey || event.ctrlKey || event.metaKey) return;
     if (
       storyConfirm.getAttribute("aria-hidden") === "false"
-      || diaryReader.getAttribute("aria-hidden") === "false"
     ) return;
     if (event.target instanceof Element && event.target.closest(
       ".tracks-xiii-primary-shell, .tracks-xiii-index, .tracks-xiii-edge-turners, "
@@ -1494,6 +1493,7 @@ export function initLoadTracksXiiiConcept({
       detail: {
         source: "load-xiii",
         saveId: slot.dataset.saveId,
+        saveKind: slot.dataset.saveKind || "game",
         number: slot.dataset.saveNumber || "",
         title: slot.dataset.saveTitle || "",
         chapter: slot.dataset.saveChapter || "",
@@ -1503,6 +1503,8 @@ export function initLoadTracksXiiiConcept({
         gameSlug: slot.dataset.gameSlug || "",
         releaseId: slot.dataset.releaseId || "",
         savePointId: slot.dataset.savePointId || "",
+        nvlChapterId: slot.dataset.nvlChapterId || "",
+        nvlMonthId: slot.dataset.nvlMonthId || "",
       },
     }));
   }
@@ -1530,7 +1532,7 @@ export function initLoadTracksXiiiConcept({
   });
   all("[data-xiii-diary-entry]").forEach((entry) => {
     entry.addEventListener("click", () => {
-      openDiaryReader(entry);
+      openDiaryChapter(entry);
     });
   });
   flowNodes.forEach((node) => {
@@ -1564,14 +1566,6 @@ export function initLoadTracksXiiiConcept({
     event.preventDefault();
     controls[(current + direction + controls.length) % controls.length].focus({ preventScroll: true });
   });
-  diaryReaderClose.addEventListener("click", (event) => {
-    closeDiaryReader({ animate: event.detail > 0 });
-  });
-  diaryReader.addEventListener("keydown", (event) => {
-    if (event.key !== "Tab") return;
-    event.preventDefault();
-    diaryReaderClose.focus({ preventScroll: true });
-  });
   flowViewport.addEventListener("scroll", updateFlowScrollbar, { passive: true });
   flowViewport.addEventListener("pointerdown", beginFlowDrag);
   flowViewport.addEventListener("pointermove", moveFlowDrag);
@@ -1595,8 +1589,11 @@ export function initLoadTracksXiiiConcept({
     if (!keyboardCursorEnabled) clearKeyboardCursor({ forget: true });
   });
   window.addEventListener(GAL_BLOG_SAVE_CHANGE_EVENT, syncSaveSlots);
+  window.addEventListener(NVL_SAVE_CHANGE_EVENT, syncSaveSlots);
   window.addEventListener("storage", (event) => {
-    if (event.key?.startsWith("lonely-sea:gal-blog-saves")) syncSaveSlots();
+    if (event.key?.startsWith("lonely-sea:gal-blog-saves") || event.key?.startsWith("lonely-sea:nvl-saves")) {
+      syncSaveSlots();
+    }
   });
 
   const storyResizeObserver = new ResizeObserver(updateStoryScrollbar);
@@ -1622,7 +1619,6 @@ export function initLoadTracksXiiiConcept({
       slot.classList.remove("is-load-acknowledged");
     });
     closeStoryConfirm({ restoreFocus: false });
-    closeDiaryReader();
     if (flowExpanded) setFlowExpanded(false, { animate: false });
     clearArticleNavigation();
     window.clearTimeout(flowDetailRevealTimer);

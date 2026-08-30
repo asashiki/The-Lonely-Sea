@@ -21,6 +21,11 @@ import {
   createSaveLaunchUrl,
 } from "../lib/gal-blog/launch-session";
 import { getGalBlogSave, listGalBlogSaves } from "../lib/gal-blog/save-store";
+import {
+  NVL_SAVE_CHANGE_EVENT,
+  getNvlSave,
+  listNvlSaves,
+} from "../lib/nvl/save-store";
 import { resolveContinueTarget } from "../lib/experience-continue";
 import { recordBlogActivity } from "../lib/blog-activity";
 import { initAchievementSystem } from "../lib/experience-achievements";
@@ -85,6 +90,7 @@ const requestedOptionCategory = ["system", "blog", "game"].includes(routeQuery.g
   ? routeQuery.get("optionCategory")
   : "system";
 const requestedOptionPanel = routeQuery.get("optionPanel") || "";
+const requestedNvlSaveId = routeQuery.get("nvlSave") || "";
 const requestedReturnTarget = (() => {
   const value = routeQuery.get("returnTo") || "";
   return value.startsWith("/") && !value.startsWith("//") ? value : "";
@@ -338,10 +344,12 @@ const exitDialog = initExitDialog();
 initAmbientDock(fxPanel);
 
 function syncContinueButton() {
-  continueTarget = resolveContinueTarget(listGalBlogSaves());
+  continueTarget = resolveContinueTarget(listGalBlogSaves(), listNvlSaves());
   continueButton.disabled = !continueTarget;
   continueButton.setAttribute("aria-label", continueTarget?.kind === "game"
     ? "继续最近游戏存档"
+    : continueTarget?.kind === "nvl"
+      ? "继续最近 NVL 日记"
     : continueTarget?.kind === "article"
       ? `继续阅读${continueTarget.title ? `：${continueTarget.title}` : ""}`
       : "没有可继续的记录");
@@ -351,6 +359,7 @@ syncBgmButton();
 bgmButton.addEventListener("click", () => experienceAudio.setBgmEnabled(!experienceAudio.isBgmEnabled()));
 window.addEventListener("lonely-sea:bgm-state-change", syncBgmButton);
 window.addEventListener("lonely-sea:gal-blog-save-change", syncContinueButton);
+window.addEventListener(NVL_SAVE_CHANGE_EVENT, syncContinueButton);
 
 window.addEventListener("lonely-sea:preferences-change", (event) => {
   const previousPreferences = preferences;
@@ -386,6 +395,18 @@ window.addEventListener("lonely-sea:story-enter", (event) => {
 });
 
 window.addEventListener("lonely-sea:save-select", (event) => {
+  if (event.detail?.saveKind === "nvl") {
+    const save = getNvlSave(event.detail?.saveId || "");
+    if (!save) return;
+    window.dispatchEvent(new CustomEvent("lonely-sea:open-nvl", {
+      detail: {
+        chapterId: save.chapterId,
+        monthId: save.monthId,
+        resume: save,
+      },
+    }));
+    return;
+  }
   const save = getGalBlogSave(event.detail?.saveId || "");
   if (!save) return;
   try {
@@ -406,6 +427,15 @@ all("[data-command]").forEach((button) => {
     if (command === "CONTINUE" && continueTarget) {
       if (continueTarget.kind === "article") {
         beginExternalNavigation(continueTarget.path, "OPENING RECORD");
+        return;
+      }
+      if (continueTarget.kind === "nvl") {
+        const save = getNvlSave(continueTarget.saveId);
+        if (save) {
+          window.dispatchEvent(new CustomEvent("lonely-sea:open-nvl", {
+            detail: { chapterId: save.chapterId, monthId: save.monthId, resume: save },
+          }));
+        } else syncContinueButton();
         return;
       }
       const save = getGalBlogSave(continueTarget.saveId);
@@ -556,6 +586,21 @@ weather.start();
 
 if (hasSeenOpening()) dismissOpening({ remember: false, instant: true });
 else playOpening();
+
+if (requestedNvlSaveId) {
+  const save = getNvlSave(requestedNvlSaveId);
+  if (save) {
+    dismissOpening({ remember: false, instant: true });
+    const cleanUrl = new URL(window.location.href);
+    cleanUrl.searchParams.delete("nvlSave");
+    window.history.replaceState(window.history.state, "", `${cleanUrl.pathname}${cleanUrl.search}${cleanUrl.hash}`);
+    window.setTimeout(() => {
+      window.dispatchEvent(new CustomEvent("lonely-sea:open-nvl", {
+        detail: { chapterId: save.chapterId, monthId: save.monthId, resume: save },
+      }));
+    }, 0);
+  }
+}
 
 const initialImage = new Image();
 initialImage.src = sceneArt[body.dataset.scene] || sceneArt.mist;

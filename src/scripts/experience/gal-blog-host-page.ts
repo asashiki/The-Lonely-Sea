@@ -4,6 +4,7 @@ import {
   createSaveLaunchUrl,
 } from "../../lib/gal-blog/launch-session";
 import { getGalBlogSave } from "../../lib/gal-blog/save-store";
+import { getNvlSave } from "../../lib/nvl/save-store";
 import type { RegisteredGame } from "../../lib/gal-blog/release-registry";
 import { GalBlogHost, type HostState } from "./gal-blog-host";
 import { initLoadTracksXiiiConcept } from "./load-tracks-xiii.js";
@@ -246,7 +247,20 @@ if (root && configNode) {
 
   window.addEventListener("lonely-sea:save-select", (event) => {
     if (!resolveLoad || loadOperation !== "load") return;
-    const saveId = (event as CustomEvent).detail?.saveId;
+    const detail = (event as CustomEvent).detail;
+    const saveId = detail?.saveId;
+    if (detail?.saveKind === "nvl") {
+      const nvlSave = typeof saveId === "string" ? getNvlSave(saveId) : null;
+      if (!nvlSave) {
+        closeLoad({ status: "failure", message: "NVL 存档已经不存在" });
+        return;
+      }
+      const target = new URL("/", window.location.origin);
+      target.searchParams.set("nvlSave", nvlSave.id);
+      closeLoad({ status: "cancel" });
+      window.location.assign(target.href);
+      return;
+    }
     const save = typeof saveId === "string" ? getGalBlogSave(saveId) : null;
     if (!save) {
       closeLoad({ status: "failure", message: "存档已经不存在" });

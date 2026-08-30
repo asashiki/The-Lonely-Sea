@@ -203,8 +203,7 @@ html:not(.is-reading-page) body:not([data-route="title"]) #weather-canvas { z-in
 html:not(.is-reading-page)[data-weather-layer="overlay"] body:not([data-route="title"]) .weather-veil { z-index: 26; }
 html:not(.is-reading-page)[data-weather-layer="overlay"] body:not([data-route="title"]) #weather-canvas { z-index: 27; }
 html[data-weather-layer="overlay"] .extra-screen:has(.cg-viewer[aria-hidden="false"]),
-html[data-weather-layer="overlay"] .tracks-xiii-canvas.has-expanded-flow,
-html[data-weather-layer="overlay"] .tracks-xiii-canvas.has-open-diary-reader {
+html[data-weather-layer="overlay"] .tracks-xiii-canvas.has-expanded-flow {
   z-index: 30;
 }
 

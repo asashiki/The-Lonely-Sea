@@ -1311,15 +1311,12 @@
   pointer-events: none;
 }
 
-.tracks-xiii-canvas.has-expanded-flow .tracks-xiii-stage,
-.tracks-xiii-canvas.has-open-diary-reader .tracks-xiii-stage {
+.tracks-xiii-canvas.has-expanded-flow .tracks-xiii-stage {
   z-index: 210;
 }
 
 html.tracks-xiii-flow-open,
-html.tracks-xiii-flow-open body,
-html.tracks-xiii-diary-open,
-html.tracks-xiii-diary-open body {
+html.tracks-xiii-flow-open body {
   overflow: hidden;
 }
 
@@ -1707,28 +1704,6 @@ html.tracks-xiii-diary-open body {
   text-shadow: none;
 }
 
-.tracks-xiii-diary-open {
-  position: absolute;
-  z-index: 5;
-  right: 1.45cqw;
-  bottom: 1.45cqh;
-  display: flex;
-  align-items: baseline;
-  gap: .75cqw;
-  color: rgba(239, 245, 246, .84);
-  text-shadow: 0 1px .7cqw rgba(0, 0, 0, .6);
-}
-
-.tracks-xiii-diary-open b {
-  font: 400 clamp(20px, 1.6cqw, 30px) / 1 Baskerville, serif;
-  letter-spacing: .08em;
-}
-
-.tracks-xiii-diary-open span {
-  font: 500 clamp(10px, .62cqw, 12px) / 1 Baskerville, "Iowan Old Style", serif;
-  letter-spacing: .16em;
-}
-
 .tracks-xiii-diary-cover:hover::before,
 .tracks-xiii-diary-cover:focus-visible::before,
 .tracks-xiii-diary-cover.is-kb-cursor::before {
@@ -1748,50 +1723,6 @@ html.tracks-xiii-diary-open body {
   outline-offset: 3px;
 }
 
-.tracks-xiii-diary-reader {
-  position: fixed;
-  z-index: 230;
-  inset: 0;
-  display: grid;
-  grid-template-columns: 56% minmax(0, 1fr);
-  color: #edf3f4;
-  background: #071018;
-}
-
-.tracks-xiii-diary-reader[aria-hidden="true"] {
-  display: none;
-}
-
-.tracks-xiii-diary-reader-art {
-  background:
-    linear-gradient(90deg, transparent 66%, #071018),
-    var(--diary-reader-art) center / cover no-repeat;
-  filter: saturate(.76) contrast(.96);
-}
-
-.tracks-xiii-diary-reader-copy {
-  align-self: center;
-  padding: 4cqh 6cqw 4cqh 1.5cqw;
-}
-
-.tracks-xiii-diary-reader-copy time {
-  color: rgba(211, 226, 232, .64);
-  font: 600 clamp(11px, .72cqw, 14px) / 1 "Yu Gothic", sans-serif;
-  letter-spacing: .18em;
-}
-
-.tracks-xiii-diary-reader-copy h3 {
-  margin: 2.2cqh 0 2.4cqh;
-  font: 400 clamp(30px, 2.6cqw, 50px) / 1.15 "Yu Mincho", serif;
-  letter-spacing: .06em;
-}
-
-.tracks-xiii-diary-reader-copy p {
-  margin: 0;
-  color: rgba(225, 235, 238, .78);
-  font: 400 clamp(14px, .9cqw, 18px) / 2 "Yu Mincho", serif;
-}
-
 .tracks-xiii-flow-shell.is-expanded .tracks-xiii-flow-map {
   height: max(960px, 142cqh);
 }
@@ -1800,85 +1731,6 @@ html.tracks-xiii-diary-open body {
 .tracks-xiii-flow-caption > span,
 .tracks-xiii-flow-detail-copy small {
   display: none;
-}
-
-.tracks-xiii-diary-reader-links {
-  display: grid;
-  gap: .45cqh;
-  max-height: 27cqh;
-  margin-top: 2.5cqh;
-  padding-right: .8cqw;
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(174, 211, 224, .45) transparent;
-}
-
-.tracks-xiii-diary-reader-links a {
-  position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: baseline;
-  gap: 1cqw;
-  min-height: 4.6cqh;
-  padding: .7cqh .3cqw .7cqh 1.2cqw;
-  color: rgba(230, 239, 242, .84);
-  text-decoration: none;
-}
-
-.tracks-xiii-diary-reader-links a::before {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  width: .55cqw;
-  height: 1px;
-  background: rgba(157, 204, 221, .7);
-  content: "";
-  transform: translateY(-50%);
-  transition: width 180ms ease;
-}
-
-.tracks-xiii-diary-reader-links strong {
-  overflow: hidden;
-  font: 500 clamp(11px, .72cqw, 14px) / 1.35 "Yu Mincho", serif;
-  letter-spacing: .05em;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.tracks-xiii-diary-reader-links small {
-  color: rgba(195, 216, 224, .58);
-  font: 500 clamp(8px, .5cqw, 10px) / 1 Baskerville, serif;
-  letter-spacing: .1em;
-}
-
-.tracks-xiii-diary-reader-links a:hover::before,
-.tracks-xiii-diary-reader-links a:focus-visible::before {
-  width: .9cqw;
-}
-
-.tracks-xiii-diary-reader-links a:focus-visible {
-  color: #fff;
-  outline: 0;
-}
-
-.tracks-xiii-diary-reader-close {
-  position: absolute;
-  right: 4cqw;
-  bottom: 4cqh;
-  min-width: 8cqw;
-  min-height: 4.5cqh;
-  border: 1px solid rgba(201, 222, 230, .36);
-  color: rgba(225, 237, 241, .74);
-  background: rgba(27, 54, 67, .36);
-  font: 600 clamp(10px, .64cqw, 12px) / 1 "Yu Gothic", sans-serif;
-  letter-spacing: .16em;
-  cursor: pointer;
-}
-
-.tracks-xiii-diary-reader-close:hover,
-.tracks-xiii-diary-reader-close:focus-visible {
-  color: #fff;
-  border-color: rgba(187, 225, 239, .72);
 }
 
 /* Layered crossfades and content-only page movement. */
@@ -3729,6 +3581,54 @@ html.tracks-xiii-diary-open body {
 
 .tracks-xiii-diary-cover:focus-visible {
   outline: 0;
+}
+
+.tracks-xiii-diary-month.is-unavailable .tracks-xiii-diary-copy {
+  opacity: .56;
+}
+
+.tracks-xiii-diary-month.is-unavailable .tracks-xiii-diary-copy > span::before {
+  background: var(--xiii-edge-soft);
+  box-shadow: none;
+}
+
+.tracks-xiii-diary-cover.is-unavailable {
+  cursor: default;
+  filter: grayscale(.62) opacity(.48) drop-shadow(0 .8cqh 1.4cqw rgba(11, 24, 34, .1));
+}
+
+.tracks-xiii-diary-cover.is-unavailable .tracks-xiii-diary-art,
+.tracks-xiii-diary-cover.is-unavailable:hover .tracks-xiii-diary-art {
+  filter: saturate(.28) contrast(.9);
+  transform: none;
+}
+
+.tracks-xiii-diary-cover.is-unavailable .tracks-xiii-diary-edge,
+.tracks-xiii-diary-cover.is-unavailable:hover .tracks-xiii-diary-edge {
+  height: 20%;
+  opacity: .18;
+}
+
+.tracks-xiii-save-slot.is-nvl-save .tracks-xiii-save-number,
+.tracks-xiii-save-slot.is-nvl-save .tracks-xiii-save-command {
+  color: color-mix(in srgb, var(--v4-accent) 76%, var(--xiii-ink) 24%);
+}
+
+.tracks-xiii-save-slot.is-nvl-save .tracks-xiii-save-art::after {
+  content: "NVL";
+  position: absolute;
+  top: auto;
+  right: .55cqw;
+  bottom: .55cqh;
+  left: auto;
+  display: block;
+  width: auto;
+  height: auto;
+  padding: .34cqh .42cqw;
+  color: rgba(244, 249, 250, .88);
+  background: color-mix(in srgb, var(--v4-outer) 62%, transparent);
+  font: 700 clamp(7px, .44cqw, 9px) / 1 "Segoe UI", sans-serif;
+  letter-spacing: .13em;
 }
 
 .tracks-xiii-record-grid.is-flipping .tracks-xiii-record-slot {

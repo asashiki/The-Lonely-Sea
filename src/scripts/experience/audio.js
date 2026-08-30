@@ -226,7 +226,7 @@ function clickCue(target) {
   if (target.matches("[data-command='START'], [data-command='CONTINUE']")) return "start";
   if (target.matches("[data-command='LOAD'], [data-command='EXTRA'], [data-command='OPTION'], [data-command='EXIT']")) return "open";
   if (target.matches(".system-back, [data-back], .archive-back, [data-xiii-story-cancel], [data-host-dialog-cancel], [data-exit-modal-answer='no']")) return "back";
-  if (target.matches("[data-close-exit], [data-xiii-diary-reader-close], .cg-viewer-close, form[method='dialog'] button")) return "close";
+  if (target.matches("[data-close-exit], .cg-viewer-close, form[method='dialog'] button")) return "close";
   if (target.matches("[data-xiii-page-direction], [data-extra-page-direction], [data-cg-direction], [data-blog-previous], [data-blog-next], [data-blog-friend-previous], [data-blog-friend-next]")) return "page";
   if (target.matches("[role='tab'], [data-option-primary], [data-option-secondary], [data-extra-mode], [data-blog-view]")) return "page";
   if (target.matches("input[type='checkbox'], input[type='radio'], [role='radio'], [aria-pressed]")) {

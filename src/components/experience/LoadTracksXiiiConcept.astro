@@ -466,7 +466,7 @@ const lockedStorySlots = Array.from({ length: Math.max(0, 10 - storyScenes.lengt
         <section class="tracks-xiii-panel tracks-xiii-diary" id="tracks-xiii-panel-diary" data-xiii-panel="diary" role="region" aria-label="日记记录" aria-hidden="true">
           {diaryMonths.map((entry, index) => (
             <article
-              class="tracks-xiii-diary-month"
+              class={`tracks-xiii-diary-month${entry.playable ? "" : " is-unavailable"}`}
               data-xiii-diary-month={entry.id}
               data-diary-year={entry.year}
               data-diary-date={entry.dateLabel}
@@ -484,15 +484,14 @@ const lockedStorySlots = Array.from({ length: Math.max(0, 10 - storyScenes.lengt
                 <small>{entry.month} — MONTHLY ARCHIVE</small>
                 <h3>{entry.title}</h3>
                 <p>{entry.summary}</p>
-                <span>OPEN THIS MONTH</span>
+                <span>{entry.playable ? "OPEN NVL RECORD" : "NVL RECORD NOT AVAILABLE"}</span>
               </div>
               <button
-                class="tracks-xiii-diary-cover"
+                class={`tracks-xiii-diary-cover${entry.playable ? "" : " is-unavailable"}`}
                 type="button"
                 data-xiii-diary-entry={entry.playable ? "" : undefined}
                 aria-label={entry.playable ? `读取 ${entry.dateLabel} 日记` : `${entry.dateLabel} 日记归档`}
-                aria-disabled={entry.playable ? undefined : "true"}
-                tabindex={entry.playable ? undefined : "-1"}
+                disabled={!entry.playable}
                 aria-pressed="false"
                 style={`--diary-art:url('${entry.art}')`}
               >
@@ -502,24 +501,6 @@ const lockedStorySlots = Array.from({ length: Math.max(0, 10 - storyScenes.lengt
               </button>
             </article>
           ))}
-
-          <section
-            class="tracks-xiii-diary-reader"
-            data-xiii-diary-reader
-            role="dialog"
-            aria-modal="true"
-            aria-hidden="true"
-            aria-label="日记阅读预览"
-          >
-            <div class="tracks-xiii-diary-reader-art" data-xiii-diary-reader-art style={`--diary-reader-art:url('${diaryMonths[0]?.art}')`} aria-hidden="true"></div>
-            <div class="tracks-xiii-diary-reader-copy">
-              <time data-xiii-diary-reader-date>{diaryMonths[0]?.dateLabel}</time>
-              <h3 data-xiii-diary-reader-title>{diaryMonths[0]?.title}</h3>
-              <p data-xiii-diary-reader-summary>{diaryMonths[0]?.summary}</p>
-              <nav class="tracks-xiii-diary-reader-links" data-xiii-diary-reader-links aria-label="本月文章"></nav>
-            </div>
-            <button class="tracks-xiii-diary-reader-close" type="button" data-xiii-diary-reader-close>RETURN</button>
-          </section>
         </section>
       </div>
     </div>
