@@ -1,34 +1,31 @@
 import {
-  achievementItems,
   bangumiItems,
   cgItems,
   characterItems,
+  externalActivity,
   extraDefaults,
   movieItems,
   musicItems,
+  musicPlaylist,
+  projectCategories,
   projectItems,
+  projectTagLabels,
+  projectTagOrder,
 } from "../../data/extra-content.js";
 import { all, required } from "./dom.js";
+import { clearListenSession, readListenSession, writeListenSession } from "./listen-session.js";
 import { preferencesReduceMotion, readPreferences } from "./preferences.js";
+import { recordBlogActivity } from "../../lib/blog-activity";
+import { resolveAchievements } from "../../lib/experience-achievements";
+import { writeArticleContinue } from "../../lib/experience-continue";
 
 const CG_PAGE_SIZE = 9;
 const PROJECT_PAGE_SIZE = 6;
 const BANGUMI_PAGE_SIZE = 5;
-const PROJECT_TAGS = Object.freeze([
-  "ALL",
-  ...new Set(projectItems.flatMap((item) => item.tags)),
-]);
-const PROJECT_STACK_TAGS = Object.freeze(["ALL", "ASTRO", "BLOG", "TYPESCRIPT", "BANGUMI"]);
-const PROJECT_FILTER_GROUPS = Object.freeze([
-  PROJECT_STACK_TAGS,
-  Object.freeze(PROJECT_TAGS.filter((tag) => !PROJECT_STACK_TAGS.includes(tag))),
-]);
-const HEAT_LEVELS = Object.freeze([
-  0, 1, 0, 2, 1, 0, 3, 1, 2, 0, 1, 3,
-  2, 1, 4, 2, 0, 1, 3, 2, 1, 2, 4, 1,
-  0, 2, 3, 1, 2, 4, 3, 1, 0, 2, 1, 3,
-]);
 
+function hasBangumiComment(item) {
+  return typeof item?.comment === "string" && item.comment.trim().length > 0;
+}
 function escapeHtml(value) {
   return String(value)
     .replaceAll("&", "&amp;")
@@ -59,10 +56,11 @@ function roomHeading({ eyebrow, title, summary, note = "" }) {
   `;
 }
 
-function heatmapMarkup(className = "") {
+function heatmapMarkup(entries, className = "") {
+  const total = entries.reduce((sum, entry) => sum + entry.count, 0);
   return `
-    <span class="extra-heatmap ${className}" aria-hidden="true">
-      ${HEAT_LEVELS.map((level) => `<i data-level="${level}"></i>`).join("")}
+    <span class="extra-heatmap ${className}" role="img" aria-label="最近 12 周共有 ${total} 次活动">
+      ${entries.map((entry) => `<i data-level="${entry.level}" title="${entry.date} · ${entry.count}"></i>`).join("")}
     </span>
   `;
 }
@@ -71,11 +69,88 @@ function waveMarkup() {
   return '<canvas class="extra-music-wave" data-music-wave aria-hidden="true"></canvas>';
 }
 
+function achievementIcon(id) {
+  const paths = {
+    "first-landfall": '<path d="M7 18.5c2.8-1.2 4.8-3.5 5.2-6.3M12 12.2c.4-3.2 2-5.6 4.8-7.1M9.2 7.3c1.2.4 2 1.4 2.1 2.6M14.6 15.2c1.4.2 2.5 1 3.2 2.3"/>',
+    "first-checkpoint": '<path d="M7 20V4.2M8 5h9l-2.2 3L17 11H8"/>',
+    "returning-reader": '<path d="M4.8 6.2c3.2-.9 5.6-.3 7.2 1.2v11c-1.6-1.5-4-2.1-7.2-1.2v-11ZM19.2 6.2c-3.2-.9-5.6-.3-7.2 1.2v11c1.6-1.5 4-2.1 7.2-1.2v-11Z"/>',
+    "four-tides": '<circle cx="12" cy="12" r="7"/><path d="M12 5v14M5 12h14M7 7l10 10M17 7 7 17"/>',
+    "monthly-archive": '<path d="M5 7h14v12H5zM8 4v5M16 4v5M5 10h14"/>',
+    "memory-keeper": '<path d="M5 6.5h14v11H5zM8 14l2.7-3 2.1 2 1.7-1.7L19 16M15.5 9h.01"/>',
+    "after-the-silence": '<path d="M9.5 17.5V7l8-2v10.5M9.5 11l8-2M7.5 19.5c1.1 0 2-.6 2-1.4s-.9-1.4-2-1.4-2 .6-2 1.4.9 1.4 2 1.4ZM15.5 17.5c1.1 0 2-.6 2-1.4s-.9-1.4-2-1.4-2 .6-2 1.4.9 1.4 2 1.4Z"/>',
+    "bangumi-record": '<path d="M7 4.5h10v15l-5-3-5 3v-15Z"/><path d="M9.5 8h5M9.5 11h5"/>',
+    "archive-walker": '<path d="M8 20V9l4-5 4 5v11M5 20h14M9.5 11h5M10 15h4"/>',
+    "heart-to-heart": '<path d="M12 20s-7-4-7-9.1C5 8.2 6.8 6.5 9 6.5c1.5 0 2.5.8 3 2 0.5-1.2 1.5-2 3-2 2.2 0 4 1.7 4 4.4C19 16 12 20 12 20Z"/>',
+  };
+  return `<svg viewBox="0 0 24 24" aria-hidden="true">${paths[id] || paths["archive-walker"]}</svg>`;
+}
+
+function projectLanguage() {
+  const language = readPreferences().language;
+  return language === "JA-JP" || language === "EN-US" ? language : "ZH-CN";
+}
+
+function projectText(value) {
+  if (typeof value === "string") return value;
+  const language = projectLanguage();
+  return value?.[language] || value?.["ZH-CN"] || "";
+}
+
+function projectTagText(tag) {
+  return projectText(projectTagLabels[tag]) || tag;
+}
+
+function projectTitle(item) {
+  return projectText(item.title);
+}
+
+function projectRoomCopy() {
+  const language = projectLanguage();
+  if (language === "JA-JP") {
+    return {
+      all: "すべて",
+      empty: "この条件に合う項目はない。",
+      note: "項目は src/data/extra-content.js で直せる",
+      github: "GitHub",
+      visit: "訪問",
+      source: "ソース",
+      article: "紹介",
+    };
+  }
+  if (language === "EN-US") {
+    return {
+      all: "ALL",
+      empty: "NO PROJECTS MATCH THIS FILTER.",
+      note: "Edit entries in src/data/extra-content.js",
+      github: "GitHub",
+      visit: "Visit",
+      source: "Source",
+      article: "Note",
+    };
+  }
+  return {
+    all: "全部",
+    empty: "没有符合筛选的项目。",
+    note: "条目可在 src/data/extra-content.js 修改",
+    github: "GitHub",
+    visit: "访问",
+    source: "源码",
+    article: "介绍",
+  };
+}
+
 function projectLinks(item) {
-  return [
-    item.href ? ["DETAIL", item.href] : null,
-    item.source ? ["GITHUB", item.source] : null,
-  ].filter(Boolean);
+  const labels = projectRoomCopy();
+  const links = [];
+  if (item.github) links.push([labels.github, item.github, "external"]);
+  if (item.href && item.href !== item.github) {
+    links.push([item.href.includes("github.com") ? labels.github : labels.visit, item.href, "external"]);
+  }
+  if (item.source && item.source !== item.href && item.source !== item.github) {
+    links.push([labels.source, item.source, "external"]);
+  }
+  if (item.note) links.push([labels.article, item.note, "internal"]);
+  return links;
 }
 
 export function initExtraScreen() {
@@ -95,51 +170,164 @@ export function initExtraScreen() {
   let extraPage = 0;
   let cgIndex = 0;
   let musicIndex = 0;
-  let projectTag = "ALL";
+  let musicShuffle = false;
+  let musicLoop = false;
+  let musicShuffleOrder = [];
+  let listenSession = false;
   let bangumiCategory = "all";
   let bangumiStatus = "all";
+  let bangumiCommentsOnly = false;
   let bangumiIndex = 0;
-  let characterIndex = 0;
+  let projectCategory = "all";
+  let projectTag = "all";
   let stageTransition = null;
   let transitionToken = 0;
   let audioContext = null;
+  let musicPlayer = null;
   let musicOutput = null;
   let musicSources = [];
   let musicGraph = [];
   let musicPlaying = false;
+  let musicMuted = document.documentElement.dataset.audioMuted === "true";
+  let musicOutputVolume = 0;
   let musicWaveFrame = 0;
   let musicWavePhase = 0;
   let musicWaveAmplitude = .18;
   let pageSliding = false;
   let cgOriginRect = null;
   let cgViewerAnimation = null;
+  let cgViewerTransitionToken = 0;
   let bangumiFocusLayer = 0;
   let bangumiFocusToken = 0;
+  let bangumiShelfToken = 0;
+  let projectGridToken = 0;
+  let siteDataClearing = false;
 
   function setFocus(title, action) {
     required("strong", extraFocus).textContent = title;
-    required("small", extraFocus).textContent = action || "OPEN";
+    required("small", extraFocus).textContent = action || "";
+  }
+
+  function persistListenSession() {
+    if (siteDataClearing) {
+      clearListenSession();
+      return;
+    }
+    if (!listenSession) {
+      clearListenSession();
+      return;
+    }
+    writeListenSession({
+      active: true,
+      playing: musicPlaying,
+      index: musicIndex,
+      loop: musicLoop,
+      shuffle: musicShuffle,
+      shuffleOrder: musicShuffleOrder,
+      currentTime: musicPlayer?.currentTime || 0,
+    });
   }
 
   function syncMusicState() {
     extraCanvas.dataset.musicPlaying = String(musicPlaying);
+    extraCanvas.dataset.musicMuted = String(musicMuted);
     extraStage.querySelector(".extra-music-room")?.classList.toggle("is-playing", musicPlaying);
+    extraCanvas.dataset.musicShuffle = String(musicShuffle);
+    extraCanvas.dataset.musicLoop = String(musicLoop);
+    persistListenSession();
+    window.dispatchEvent(new CustomEvent("lonely-sea:listen-hold", { detail: { active: listenSession } }));
+    syncListenDock();
+    all("[data-music-shuffle]", extraStage).forEach((button) => {
+      button.setAttribute("aria-pressed", String(musicShuffle));
+    });
+    all("[data-music-loop]", extraStage).forEach((button) => {
+      button.setAttribute("aria-pressed", String(musicLoop));
+    });
     all("[data-music-toggle]", extraStage).forEach((toggle) => {
       toggle.setAttribute("aria-pressed", String(musicPlaying));
-      required("strong", toggle).textContent = musicPlaying ? "PAUSE" : "PLAY";
+      const label = toggle.querySelector("strong");
+      if (label) label.textContent = musicPlaying ? "PAUSE" : "PLAY";
     });
   }
 
-  function stopMusic({ immediate = false } = {}) {
+  function rebuildMusicShuffle() {
+    const order = musicItems.map((_, index) => index);
+    for (let index = order.length - 1; index > 0; index -= 1) {
+      const swap = Math.floor(Math.random() * (index + 1));
+      [order[index], order[swap]] = [order[swap], order[index]];
+    }
+    const current = order.indexOf(musicIndex);
+    if (current > 0) {
+      order.splice(current, 1);
+      order.unshift(musicIndex);
+    }
+    musicShuffleOrder = order;
+  }
+
+  function nextMusicIndex(step) {
+    if (!musicShuffle) {
+      return (musicIndex + step + musicItems.length) % musicItems.length;
+    }
+    if (musicShuffleOrder.length !== musicItems.length) rebuildMusicShuffle();
+    const at = musicShuffleOrder.indexOf(musicIndex);
+    return musicShuffleOrder[(at + step + musicShuffleOrder.length) % musicShuffleOrder.length];
+  }
+
+  function toggleMusicShuffle() {
+    musicShuffle = !musicShuffle;
+    if (musicShuffle) rebuildMusicShuffle();
+    else musicShuffleOrder = [];
+    syncMusicState();
+    setFocus(musicItems[musicIndex].title, musicShuffle ? "SHUFFLE ON" : "SHUFFLE OFF");
+  }
+
+  function applyMusicLoop() {
+    if (musicPlayer) musicPlayer.loop = musicLoop;
+  }
+
+  function toggleMusicLoop() {
+    musicLoop = !musicLoop;
+    applyMusicLoop();
+    syncMusicState();
+    setFocus(musicItems[musicIndex].title, musicLoop ? "LOOP ON" : "LOOP OFF");
+  }
+
+  function pauseMusic() {
+    if (!musicPlayer || !musicPlaying) {
+      musicPlaying = false;
+      syncMusicState();
+      return;
+    }
+    musicPlaying = false;
+    musicPlayer.pause();
+    syncMusicState();
+    setFocus(musicItems[musicIndex].title, "PAUSED");
+  }
+
+  function toggleMusic() {
+    if (musicPlaying) pauseMusic();
+    else startMusic();
+  }
+
+  function stopMusic({ immediate = false, releaseSession = true } = {}) {
+    const player = musicPlayer;
     const context = audioContext;
     const output = musicOutput;
     const sources = musicSources;
     const graph = musicGraph;
+    musicPlayer = null;
     musicOutput = null;
     musicSources = [];
     musicGraph = [];
+    musicOutputVolume = 0;
     musicPlaying = false;
+    if (releaseSession) listenSession = false;
     syncMusicState();
+
+    if (player) {
+      player.pause();
+      player.currentTime = 0;
+    }
 
     if (!context || !output) return;
     const now = context.currentTime;
@@ -159,26 +347,77 @@ export function initExtraScreen() {
     }, Math.ceil((release + .05) * 1000));
   }
 
-  async function startMusic() {
-    const AudioContextConstructor = window.AudioContext;
-    if (!AudioContextConstructor) {
-      setFocus(musicItems[musicIndex].title, "AUDIO IS NOT SUPPORTED");
+  async function startMusic({ startAt = 0 } = {}) {
+    const current = musicItems[musicIndex];
+    if (musicPlayer && !musicPlaying && musicPlayer.src) {
+      if (startAt > 0) {
+        try { musicPlayer.currentTime = startAt; } catch {}
+      }
+      try {
+        await musicPlayer.play();
+      } catch {
+        setFocus(current.title, "CLICK PLAY TO START");
+        return;
+      }
+      musicPlaying = true;
+      listenSession = true;
+      syncMusicState();
+      setFocus(current.title, "PLAYING");
+      return;
+    }
+    stopMusic({ immediate: true, releaseSession: false });
+
+    if (current.src) {
+      const player = new Audio(current.src);
+      player.preload = "auto";
+      player.loop = musicLoop;
+      player.volume = Math.min(1, Math.max(0, readPreferences().bgmVolume / 100 * .58));
+      player.muted = musicMuted;
+      if (startAt > 0) {
+        try { player.currentTime = startAt; } catch {}
+      }
+      player.addEventListener("ended", () => {
+        if (musicPlayer !== player || musicLoop) return;
+        changeMusicSelection(nextMusicIndex(1), { animate: true });
+      });
+      musicPlayer = player;
+      try {
+        await player.play();
+      } catch {
+        if (musicPlayer === player) {
+          musicPlayer = null;
+          setFocus(current.title, "CLICK PLAY TO START");
+        }
+        player.pause();
+        return;
+      }
+      if (musicPlayer !== player) return;
+      musicPlaying = true;
+      listenSession = true;
+      syncMusicState();
+      setFocus(current.title, "PLAYING");
+      recordBlogActivity("musicTracks", current.title);
       return;
     }
 
-    stopMusic({ immediate: true });
+    const AudioContextConstructor = window.AudioContext;
+    if (!AudioContextConstructor) {
+      setFocus(current.title, "AUDIO IS NOT SUPPORTED");
+      return;
+    }
+
     if (!audioContext || audioContext.state === "closed") {
       audioContext = new AudioContextConstructor();
     }
     await audioContext.resume();
 
-    const current = musicItems[musicIndex];
     const now = audioContext.currentTime;
     const master = audioContext.createGain();
     const filter = audioContext.createBiquadFilter();
     const volume = Math.max(.004, readPreferences().bgmVolume / 100 * .045);
+    musicOutputVolume = volume;
     master.gain.setValueAtTime(.0001, now);
-    master.gain.exponentialRampToValueAtTime(volume, now + .48);
+    master.gain.exponentialRampToValueAtTime(musicMuted ? .0001 : volume, now + .48);
     filter.type = "lowpass";
     filter.frequency.setValueAtTime(current.cutoff, now);
     filter.Q.setValueAtTime(.65, now);
@@ -213,8 +452,21 @@ export function initExtraScreen() {
     musicSources = sources;
     musicGraph = graph;
     musicPlaying = true;
+    listenSession = true;
     syncMusicState();
     setFocus(current.title, "PLAYING");
+    recordBlogActivity("musicTracks", current.title);
+  }
+
+  function applyMusicMute() {
+    if (musicPlayer) musicPlayer.muted = musicMuted;
+    if (!audioContext || !musicOutput) return;
+    const now = audioContext.currentTime;
+    const target = musicMuted ? .0001 : Math.max(.0001, musicOutputVolume);
+    try {
+      musicOutput.gain.cancelScheduledValues(now);
+      musicOutput.gain.setTargetAtTime(target, now, .025);
+    } catch {}
   }
 
   function initMusicWave() {
@@ -247,7 +499,7 @@ export function initExtraScreen() {
 
       const elapsed = previousTime ? Math.min(48, time - previousTime) : 16;
       previousTime = time;
-      const targetAmplitude = musicPlaying ? 1 : .16;
+      const targetAmplitude = musicPlaying ? 1 : .3;
       const blend = reduceMotion ? 1 : 1 - Math.exp(-(elapsed / 1000) * 5.8);
       musicWaveAmplitude += (targetAmplitude - musicWaveAmplitude) * blend;
       musicWavePhase += (elapsed / 1000) * (musicPlaying ? 2.1 : .32);
@@ -256,8 +508,9 @@ export function initExtraScreen() {
       const center = height / 2;
       for (let line = 0; line < 3; line += 1) {
         context.beginPath();
-        for (let x = 0; x <= width; x += 3) {
-          const progress = x / width;
+        const inset = Math.min(18, width * .045);
+        for (let x = inset; x <= width - inset; x += 3) {
+          const progress = (x - inset) / Math.max(1, width - inset * 2);
           const envelope = Math.sin(Math.PI * progress) ** .72;
           const primary = Math.sin(x * (.025 + line * .0028) + musicWavePhase * (1 + line * .16));
           const secondary = Math.sin(x * .009 - musicWavePhase * (1.35 - line * .12) + line * 1.9);
@@ -285,6 +538,11 @@ export function initExtraScreen() {
       const viewport = shell?.querySelector("[data-extra-scroll]");
       const thumb = rail.querySelector("span");
       if (!viewport || !thumb) return;
+      if (rail.dataset.scrollBound === "true") {
+        viewport.dispatchEvent(new Event("scroll"));
+        return;
+      }
+      rail.dataset.scrollBound = "true";
 
       const update = () => {
         const maxScroll = Math.max(0, viewport.scrollHeight - viewport.clientHeight);
@@ -343,18 +601,46 @@ export function initExtraScreen() {
 
   function filteredBangumiItems() {
     return bangumiItems.filter((item) => {
+      if (bangumiCommentsOnly && !hasBangumiComment(item)) return false;
       const categoryMatches = bangumiCategory === "all" || item.category === bangumiCategory;
       const statusMatches =
         bangumiStatus === "all"
-        || (bangumiStatus === "active" && ["playing", "watching"].includes(item.status))
+        || (bangumiStatus === "active" && ["playing", "watching", "reading"].includes(item.status))
         || item.status === bangumiStatus;
       return categoryMatches && statusMatches;
     });
   }
 
   function filteredProjectItems() {
-    if (projectTag === "ALL") return projectItems;
-    return projectItems.filter((item) => item.tags.includes(projectTag));
+    return projectItems.filter((item) => {
+      const categoryMatches = projectCategory === "all" || item.category === projectCategory;
+      const tagMatches = projectTag === "all" || item.tags.includes(projectTag);
+      return categoryMatches && tagMatches;
+    });
+  }
+
+  function visibleProjectTags() {
+    const used = new Set(projectItems.flatMap((item) => item.tags));
+    return projectTagOrder.filter((tag) => used.has(tag));
+  }
+
+  function openProjectArticle(href, title) {
+    if (!href) return;
+    writeArticleContinue(href, title);
+    if (preferencesReduceMotion() || !readPreferences().articleTransition) {
+      window.location.assign(href);
+      return;
+    }
+    const curtain = document.querySelector("#route-curtain");
+    if (!(curtain instanceof HTMLElement)) {
+      window.location.assign(href);
+      return;
+    }
+    const label = curtain.querySelector("strong");
+    if (label) label.textContent = "NOW LOADING";
+    curtain.setAttribute("aria-hidden", "false");
+    window.setTimeout(() => curtain.classList.add("is-covering"), 40);
+    window.setTimeout(() => window.location.assign(href), 520);
   }
 
   function totalPages() {
@@ -411,30 +697,35 @@ export function initExtraScreen() {
         ${roomHeading({
           eyebrow: "SOUND TEST",
           title: "MUSIC",
-          summary: `<b>${musicItems.length}</b> TRACKS`,
+          summary: `${musicItems.length} TRACKS`,
         })}
         <section class="extra-music-now" style="${artStyle(current.cover)}">
-          <span class="extra-music-cover" aria-hidden="true"></span>
+          <button class="extra-music-cover" type="button" data-music-toggle aria-label="Play or pause" aria-pressed="${musicPlaying}">
+            <img src="${escapeHtml(current.cover)}" alt="" referrerpolicy="no-referrer" data-music-cover>
+          </button>
           <div class="extra-music-current">
             <small>NOW PLAYING</small>
             <h4>${escapeHtml(current.title)}</h4>
-            <p><span data-music-current-artist>${escapeHtml(current.artist)}</span><em data-music-current-length>${escapeHtml(current.length)}</em></p>
+            <p><span data-music-current-artist>${escapeHtml(current.artist)}</span></p>
+            <p class="extra-music-source">
+              <button type="button" class="extra-music-source-mark" aria-expanded="false" aria-controls="extra-music-source-copy">SOURCE</button>
+              <span class="extra-music-source-copy" id="extra-music-source-copy">
+                音源来自网易云。本 blog 无任何版权。
+                <a href="${escapeHtml(musicPlaylist.url)}" ${externalAttributes()}>打开歌单</a>
+              </span>
+            </p>
           </div>
           <div class="extra-music-wave-deck">
+            <button class="extra-music-skip is-previous" type="button" data-music-step="-1" aria-label="Previous track">‹</button>
             <button class="extra-music-toggle" type="button" data-music-toggle aria-pressed="${musicPlaying}">
               <span class="extra-play-glyph" aria-hidden="true"><i class="is-play"></i><i class="is-pause"></i></span>
               <strong>${musicPlaying ? "PAUSE" : "PLAY"}</strong>
             </button>
             ${waveMarkup()}
+            <button class="extra-music-loop" type="button" data-music-loop aria-pressed="${musicLoop}" aria-label="Repeat this track">LOOP</button>
+            <button class="extra-music-shuffle" type="button" data-music-shuffle aria-pressed="${musicShuffle}" aria-label="Shuffle playlist">SHUFFLE</button>
+            <button class="extra-music-skip is-next" type="button" data-music-step="1" aria-label="Next track">›</button>
           </div>
-          <nav class="extra-music-transport" aria-label="Music playback">
-            <button class="extra-music-skip is-previous" type="button" data-music-step="-1" aria-label="Previous track">
-              <span aria-hidden="true">‹</span><small>PREVIOUS TRACK</small>
-            </button>
-            <button class="extra-music-skip is-next" type="button" data-music-step="1" aria-label="Next track">
-              <small>NEXT TRACK</small><span aria-hidden="true">›</span>
-            </button>
-          </nav>
         </section>
         <div class="extra-track-browser extra-scroll-shell">
           <div class="extra-track-list" id="extra-track-scroll" data-extra-scroll tabindex="0" aria-label="Music tracks">
@@ -451,7 +742,6 @@ export function initExtraScreen() {
                   <strong>${escapeHtml(track.title)}</strong>
                   <small>${escapeHtml(track.artist)}</small>
                 </span>
-                <em>${escapeHtml(track.length)}</em>
               </button>
             `).join("")}
           </div>
@@ -461,89 +751,472 @@ export function initExtraScreen() {
     `;
     syncMusicState();
     initMusicWave();
+    extraStage.querySelector("[data-music-cover]")?.addEventListener("error", () => {
+      extraStage.querySelector(".extra-music-cover")?.classList.add("is-missing");
+    });
+    bindMusicSource();
+  }
+
+  function bindMusicSource() {
+    const source = extraStage.querySelector(".extra-music-source");
+    const mark = extraStage.querySelector(".extra-music-source-mark");
+    if (!source || !mark) return;
+    const setOpen = (open) => {
+      source.classList.toggle("is-open", open);
+      mark.setAttribute("aria-expanded", String(open));
+    };
+    source.addEventListener("pointerenter", () => setOpen(true));
+    source.addEventListener("pointerleave", () => setOpen(false));
+    mark.addEventListener("focus", () => setOpen(true));
+    source.addEventListener("focusout", (event) => {
+      if (!source.contains(event.relatedTarget)) setOpen(false);
+    });
+    mark.addEventListener("click", () => setOpen(!source.classList.contains("is-open")));
+  }
+
+  function syncListenDock({ extraOpen } = {}) {
+    const dock = document.querySelector("#listen-dock");
+    if (!(dock instanceof HTMLElement)) return;
+    const screenOpen = extraOpen ?? extraCanvas.closest("[data-screen]")?.getAttribute("aria-hidden") === "false";
+    const hide = !listenSession || (screenOpen && extraMode === "music");
+    const current = musicItems[musicIndex];
+    dock.hidden = hide;
+    dock.setAttribute("aria-hidden", String(hide));
+    if (hide) {
+      dock.classList.remove("is-expanded");
+      dock.querySelector("[data-listen-expand]")?.setAttribute("aria-expanded", "false");
+    }
+    dock.classList.toggle("is-playing", musicPlaying);
+    const title = dock.querySelector("[data-listen-title]");
+    const artist = dock.querySelector("[data-listen-artist]");
+    const cover = dock.querySelector("[data-listen-cover]");
+    if (title) title.textContent = current.title;
+    if (artist) artist.textContent = current.artist;
+    if (cover instanceof HTMLImageElement && current.cover && cover.getAttribute("src") !== current.cover) {
+      cover.onerror = () => cover.removeAttribute("src");
+      cover.src = current.cover;
+    }
+    all("[data-listen-toggle]", dock).forEach((toggle) => {
+      toggle.setAttribute("aria-pressed", String(musicPlaying));
+      toggle.setAttribute("aria-label", musicPlaying ? "Pause playlist" : "Play playlist");
+    });
+    dock.querySelector("[data-listen-loop]")?.setAttribute("aria-pressed", String(musicLoop));
+    dock.querySelector("[data-listen-shuffle]")?.setAttribute("aria-pressed", String(musicShuffle));
   }
 
   function projectCardsMarkup(items) {
+    if (!items.length) return `<p class="extra-project-empty">${escapeHtml(projectRoomCopy().empty)}</p>`;
     return items.map((item) => {
       const links = projectLinks(item);
+      const title = projectTitle(item);
       return `
         <article
           class="extra-project-record${links.length ? " has-links" : ""}"
-          data-focus-title="${escapeHtml(item.title)}"
+          data-focus-title="${escapeHtml(title)}"
           data-focus-action="${links.length ? "OPEN PROJECT" : "PROJECT RECORD"}"
         >
-          <div class="extra-project-art" style="${artStyle(item.art)}">
+          <div class="extra-project-art${item.art ? " has-art" : ""}"${item.art ? ` style="${artStyle(item.art)}"` : ""}>
             <span aria-hidden="true"></span>
             ${links.length ? `
-              <nav aria-label="${escapeHtml(item.title)} links" data-link-count="${links.length}">
-                ${links.map(([label, href]) => `
-                  <a href="${escapeHtml(href)}" ${externalAttributes()}>${escapeHtml(label)}</a>
+              <nav aria-label="${escapeHtml(title)} links" data-link-count="${links.length}">
+                ${links.map(([label, href, kind]) => `
+                  <a href="${escapeHtml(href)}" ${kind === "internal" ? 'data-project-article="true"' : externalAttributes()}>${escapeHtml(label)}</a>
                 `).join("")}
               </nav>
             ` : ""}
           </div>
           <div class="extra-project-copy">
-            <strong>${escapeHtml(item.title)}</strong>
-            <p>${item.tags.map((tag) => `
-              <button type="button" data-project-tag="${escapeHtml(tag)}" aria-pressed="${projectTag === tag}">${escapeHtml(tag)}</button>
-            `).join("")}</p>
+            <strong>${escapeHtml(title)}</strong>
+            <p>
+              ${item.tags.map((tag) => `
+                <button type="button" data-project-card-tag="${escapeHtml(tag)}" aria-pressed="${tag === projectTag}">
+                  ${escapeHtml(projectTagText(tag))}
+                </button>
+              `).join("")}
+            </p>
           </div>
         </article>
       `;
     }).join("");
   }
 
-  function renderProjects() {
+  function syncProjectFilters() {
+    all("[data-project-category]", extraStage).forEach((button) => {
+      button.setAttribute("aria-pressed", String(button.dataset.projectCategory === projectCategory));
+    });
+    all("[data-project-tag]", extraStage).forEach((button) => {
+      button.setAttribute("aria-pressed", String(button.dataset.projectTag === projectTag));
+    });
+  }
+
+  function paintProjectGrid({ animate = true } = {}) {
     const filteredItems = filteredProjectItems();
+    extraPage = Math.max(0, Math.min(extraPage, Math.max(1, Math.ceil(filteredItems.length / PROJECT_PAGE_SIZE)) - 1));
     const start = extraPage * PROJECT_PAGE_SIZE;
     const items = filteredItems.slice(start, start + PROJECT_PAGE_SIZE);
+    const grid = extraStage.querySelector(".extra-project-grid");
+    if (!grid) return;
+    const token = ++projectGridToken;
+
+    const replace = () => {
+      if (token !== projectGridToken) return;
+      grid.innerHTML = projectCardsMarkup(items);
+      const count = extraStage.querySelector("[data-project-count]");
+      if (count) count.textContent = String(filteredItems.length);
+      bindProjectCards();
+      bindFocusNodes(grid);
+      updatePageControls();
+    };
+
+    if (!animate || preferencesReduceMotion()) {
+      replace();
+      return;
+    }
+
+    const outgoing = grid.animate(
+      [
+        { opacity: 1, transform: "translate3d(0,0,0)" },
+        { opacity: 0, transform: "translate3d(.6cqw,0,0)" },
+      ],
+      { duration: 110, easing: "ease-out", fill: "both" },
+    );
+    outgoing.finished
+      .then(() => {
+        outgoing.cancel();
+        replace();
+        if (token !== projectGridToken) return;
+        grid.animate(
+          [
+            { opacity: 0, transform: "translate3d(-.6cqw,0,0)" },
+            { opacity: 1, transform: "translate3d(0,0,0)" },
+          ],
+          { duration: 180, easing: "cubic-bezier(.22,1,.36,1)" },
+        );
+      })
+      .catch(() => {
+        outgoing.cancel();
+        replace();
+      });
+  }
+
+  function revealProjectTag(tag) {
+    const rail = extraStage.querySelector("[data-project-tag-rail]");
+    const button = rail?.querySelector(`[data-project-tag="${CSS.escape(tag)}"]`);
+    if (!rail || !button) return;
+    const left = button.offsetLeft;
+    const right = left + button.offsetWidth;
+    const viewLeft = rail.scrollLeft;
+    const viewRight = viewLeft + rail.clientWidth;
+    if (left < viewLeft + 8) rail.scrollLeft = Math.max(0, left - 12);
+    else if (right > viewRight - 8) rail.scrollLeft = right - rail.clientWidth + 12;
+  }
+
+  function selectProjectTag(next) {
+    if (!next || next === projectTag) return;
+    projectTag = next;
+    extraPage = 0;
+    syncProjectFilters();
+    paintProjectGrid();
+    revealProjectTag(next);
+  }
+
+  function bindProjectTagRail() {
+    const rail = extraStage.querySelector("[data-project-tag-rail]");
+    if (!rail || rail.dataset.projectRailBound === "true") return;
+    rail.dataset.projectRailBound = "true";
+    let pointerId = null;
+    let startX = 0;
+    let startScroll = 0;
+    let dragged = false;
+    let suppressClick = null;
+
+    const syncFade = () => {
+      const max = rail.scrollWidth - rail.clientWidth;
+      rail.classList.toggle("has-overflow", max > 4);
+      rail.classList.toggle("has-left-fade", rail.scrollLeft > 6);
+      rail.classList.toggle("has-right-fade", max > 4 && rail.scrollLeft < max - 6);
+    };
+
+    const clearSuppress = () => {
+      if (!suppressClick) return;
+      rail.removeEventListener("click", suppressClick, true);
+      suppressClick = null;
+    };
+
+    rail.addEventListener("pointerdown", (event) => {
+      if (event.button !== 0 || rail.scrollWidth <= rail.clientWidth) return;
+      pointerId = event.pointerId;
+      startX = event.clientX;
+      startScroll = rail.scrollLeft;
+      dragged = false;
+    });
+    rail.addEventListener("pointermove", (event) => {
+      if (event.pointerId !== pointerId) return;
+      const distance = event.clientX - startX;
+      if (!dragged && Math.abs(distance) < 12) return;
+      if (!dragged) {
+        dragged = true;
+        rail.classList.add("is-dragging");
+        rail.setPointerCapture(pointerId);
+      }
+      rail.scrollLeft = startScroll - distance;
+    });
+    const endDrag = (event) => {
+      if (event.pointerId !== pointerId) return;
+      rail.classList.remove("is-dragging");
+      pointerId = null;
+      if (!dragged) return;
+      clearSuppress();
+      suppressClick = (clickEvent) => {
+        clickEvent.preventDefault();
+        clickEvent.stopPropagation();
+        clearSuppress();
+      };
+      rail.addEventListener("click", suppressClick, true);
+      window.setTimeout(clearSuppress, 0);
+      dragged = false;
+    };
+    rail.addEventListener("pointerup", endDrag);
+    rail.addEventListener("pointercancel", endDrag);
+    rail.addEventListener("wheel", (event) => {
+      if (rail.scrollWidth <= rail.clientWidth) return;
+      const delta = Math.abs(event.deltaY) >= Math.abs(event.deltaX) ? event.deltaY : event.deltaX;
+      if (!delta) return;
+      event.preventDefault();
+      rail.scrollLeft += delta;
+    }, { passive: false });
+    rail.addEventListener("scroll", syncFade, { passive: true });
+    window.requestAnimationFrame(syncFade);
+  }
+
+  function bindProjectCards() {
+    all("[data-project-card-tag]", extraStage).forEach((button) => {
+      if (button.dataset.projectBound === "true") return;
+      button.dataset.projectBound = "true";
+      button.addEventListener("click", () => selectProjectTag(button.dataset.projectCardTag));
+    });
+    all("[data-project-article]", extraStage).forEach((link) => {
+      if (link.dataset.projectBound === "true") return;
+      link.dataset.projectBound = "true";
+      const href = link.getAttribute("href") || "";
+      link.addEventListener("pointerenter", () => {
+        const preferences = readPreferences();
+        if (!href || !preferences.smartPreload || preferences.dataSaver) return;
+        if (document.head.querySelector(`link[rel="prefetch"][href="${href}"]`)) return;
+        const prefetch = document.createElement("link");
+        prefetch.rel = "prefetch";
+        prefetch.href = href;
+        document.head.append(prefetch);
+      }, { once: true });
+      link.addEventListener("click", (event) => {
+        if (
+          event.defaultPrevented
+          || event.button !== 0
+          || event.metaKey
+          || event.ctrlKey
+          || event.shiftKey
+          || event.altKey
+        ) return;
+        event.preventDefault();
+        const card = link.closest("[data-focus-title]");
+        openProjectArticle(href, card?.dataset.focusTitle || "");
+      });
+    });
+  }
+
+  function renderProjects() {
+    const filteredItems = filteredProjectItems();
+    extraPage = Math.max(0, Math.min(extraPage, Math.max(1, Math.ceil(filteredItems.length / PROJECT_PAGE_SIZE)) - 1));
+    const start = extraPage * PROJECT_PAGE_SIZE;
+    const items = filteredItems.slice(start, start + PROJECT_PAGE_SIZE);
+    const copy = projectRoomCopy();
     extraStage.innerHTML = `
       <div class="extra-room extra-project-room">
         ${roomHeading({
           eyebrow: "PROJECT ARCHIVE",
           title: "PROJECT",
-          summary: `<b>${filteredItems.length}</b> PROJECTS`,
-          note: "HOVER THE IMAGE FOR LINKS",
+          summary: `<b data-project-count>${filteredItems.length}</b> / ${projectItems.length}`,
+          note: copy.note,
         })}
         <div class="extra-project-grid">
           ${projectCardsMarkup(items)}
         </div>
-        <aside class="extra-project-tide">
+        <section class="extra-project-toolbar">
           <div class="extra-project-filter">
-            ${PROJECT_FILTER_GROUPS.map((tags, index) => `
-              <nav aria-label="${index === 0 ? "Project stack tags" : "Project focus tags"}" tabindex="0">
-                ${tags.map((tag) => `
-                  <button type="button" data-project-tag="${tag}" aria-pressed="${projectTag === tag}">
-                    ${tag}
-                  </button>
-                `).join("")}
-              </nav>
-            `).join("")}
+            <nav aria-label="Project category">
+              <button type="button" data-project-category="all" aria-pressed="${projectCategory === "all"}">${copy.all}</button>
+              ${projectCategories.map((entry) => `
+                <button type="button" data-project-category="${entry.id}" aria-pressed="${projectCategory === entry.id}">
+                  ${escapeHtml(projectText(entry.labels))}
+                </button>
+              `).join("")}
+            </nav>
+            <nav aria-label="Project tags" data-project-tag-rail>
+              <button type="button" data-project-tag="all" aria-pressed="${projectTag === "all"}">${copy.all}</button>
+              ${visibleProjectTags().map((tag) => `
+                <button type="button" data-project-tag="${escapeHtml(tag)}" aria-pressed="${projectTag === tag}">
+                  ${escapeHtml(projectTagText(tag))}
+                </button>
+              `).join("")}
+            </nav>
           </div>
           <div class="extra-project-activity">
             <span><strong>CONTRIBUTION TIDE</strong><small>LAST 12 WEEKS</small></span>
-            ${heatmapMarkup("extra-project-heatmap")}
+            ${heatmapMarkup(externalActivity.github, "extra-project-heatmap")}
           </div>
-        </aside>
+        </section>
       </div>
     `;
+  }
+
+  function listedBangumiItems() {
+    return filteredBangumiItems().map((item) => ({
+      item,
+      index: bangumiItems.indexOf(item),
+    }));
+  }
+
+  function bangumiCardsMarkup(items) {
+    if (!items.length) return '<p class="extra-bangumi-empty">NO RECORDS MATCH THIS FILTER.</p>';
+    return items.map(({ item, index }, itemPosition) => `
+      <button
+        class="extra-bangumi-card"
+        type="button"
+        data-bangumi-index="${index}"
+        data-focus-title="${escapeHtml(item.title)}"
+        data-focus-action="SELECT RECORD"
+        aria-pressed="${index === bangumiIndex}"
+      >
+        <span class="extra-bangumi-cover" aria-hidden="true"><img src="${escapeHtml(item.cover)}" alt="" loading="${itemPosition < 8 ? "eager" : "lazy"}" decoding="async" draggable="false"></span>
+        <span class="extra-bangumi-copy">
+          <strong>${escapeHtml(item.title)}</strong>
+        </span>
+      </button>
+    `).join("");
+  }
+
+  function bangumiFocusMarkup(selected) {
+    if (!selected) return "";
+    return `
+      <aside class="extra-bangumi-focus" data-bangumi-focus data-preview-index="${selected.index}">
+        <span class="extra-bangumi-focus-art is-visible" data-bangumi-focus-art style="${artStyle(selected.item.cover)}" aria-hidden="true"></span>
+        <span class="extra-bangumi-focus-art" data-bangumi-focus-art aria-hidden="true"></span>
+        <div class="extra-bangumi-focus-copy">
+          <h4 data-bangumi-focus-title>${escapeHtml(selected.item.title)}</h4>
+          <p class="extra-bangumi-focus-note" data-bangumi-focus-note${selected.item.total ? "" : " hidden"}>${escapeHtml(selected.item.total ? `PROGRESS ${selected.item.progress} / ${selected.item.total}` : "")}</p>
+          <div class="extra-bangumi-nvl extra-scroll-shell" data-bangumi-nvl>
+            <div class="extra-bangumi-nvl-body" data-extra-scroll tabindex="0">
+              <p data-bangumi-nvl-text>${escapeHtml(selected.item.comment || "")}</p>
+            </div>
+            <div class="extra-scroll-rail" data-extra-scroll-rail role="scrollbar" aria-controls="bangumi-nvl-scroll" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0"><span></span></div>
+          </div>
+          <nav class="extra-bangumi-focus-actions">
+            <a data-bangumi-focus-link href="${escapeHtml(selected.item.href)}" ${externalAttributes()}>
+              <span>OPEN RECORD</span><i aria-hidden="true">↗</i>
+            </a>
+            <button type="button" data-bangumi-comment-open${selected.item.comment ? "" : " hidden"}>READ NOTE</button>
+            <button type="button" data-bangumi-nvl-close>CLOSE</button>
+          </nav>
+        </div>
+        <strong class="extra-bangumi-focus-ghost" data-bangumi-focus-state aria-hidden="true">${escapeHtml(selected.item.state)}</strong>
+      </aside>
+    `;
+  }
+
+  function syncBangumiFilters() {
+    all("[data-bangumi-category]", extraStage).forEach((button) => {
+      button.setAttribute("aria-pressed", String(button.dataset.bangumiCategory === bangumiCategory));
+    });
+    all("[data-bangumi-status]", extraStage).forEach((button) => {
+      button.setAttribute("aria-pressed", String(button.dataset.bangumiStatus === bangumiStatus));
+    });
+    const commentFilter = extraStage.querySelector("[data-bangumi-comment-filter]");
+    if (commentFilter) {
+      commentFilter.setAttribute("aria-pressed", String(bangumiCommentsOnly));
+      commentFilter.textContent = bangumiCommentsOnly ? "COMMENTS ONLY" : "ALL RECORDS";
+      commentFilter.setAttribute(
+        "aria-label",
+        bangumiCommentsOnly ? "Show all Bangumi records" : "Show only records with comments",
+      );
+    }
+  }
+
+  function paintBangumiShelf({ animate = true } = {}) {
+    const token = ++bangumiShelfToken;
+    const items = listedBangumiItems();
+    const selected = items.find((entry) => entry.index === bangumiIndex) ?? items[0] ?? null;
+    if (selected) bangumiIndex = selected.index;
+    bangumiFocusLayer = 0;
+    bangumiFocusToken += 1;
+    closeBangumiReader();
+
+    const track = extraStage.querySelector(".extra-bangumi-track");
+    const workspace = extraStage.querySelector(".extra-bangumi-workspace");
+    const count = extraStage.querySelector("[data-bangumi-count]");
+    if (!track || !workspace) return;
+
+    const replace = () => {
+      if (token !== bangumiShelfToken) return;
+      track.innerHTML = bangumiCardsMarkup(items);
+      const existingFocus = workspace.querySelector("[data-bangumi-focus]");
+      const nextFocus = bangumiFocusMarkup(selected);
+      if (existingFocus) {
+        if (nextFocus) existingFocus.outerHTML = nextFocus;
+        else existingFocus.remove();
+      } else if (nextFocus) {
+        workspace.insertAdjacentHTML("beforeend", nextFocus);
+      }
+      if (count) count.textContent = String(items.length);
+      bindBangumiCards();
+      bindFocusNodes(track);
+      bindScrollRails();
+      const viewport = extraStage.querySelector(".extra-bangumi-viewport");
+      if (viewport) {
+        viewport.scrollLeft = 0;
+        syncBangumiEdgeFade(viewport);
+      }
+      updatePageControls();
+      if (selected) setFocus(selected.item.title, "OPEN BANGUMI");
+      else setFocus(...extraDefaults.bangumi);
+    };
+
+    if (!animate || preferencesReduceMotion()) {
+      replace();
+      return;
+    }
+
+    const viewport = extraStage.querySelector(".extra-bangumi-viewport");
+    const outgoing = viewport?.animate(
+      [{ opacity: 1 }, { opacity: 0 }],
+      { duration: 110, easing: "ease", fill: "both" },
+    );
+    outgoing?.finished
+      .then(() => {
+        outgoing.cancel();
+        replace();
+        if (token !== bangumiShelfToken) return;
+        extraStage.querySelector(".extra-bangumi-viewport")?.animate(
+          [{ opacity: 0 }, { opacity: 1 }],
+          { duration: 180, easing: "cubic-bezier(.22,1,.36,1)" },
+        );
+      })
+      .catch(() => {
+        outgoing?.cancel();
+        replace();
+      });
   }
 
   function renderBangumi() {
     bangumiFocusLayer = 0;
     bangumiFocusToken += 1;
-    const items = filteredBangumiItems().map((item) => ({
-      item,
-      index: bangumiItems.indexOf(item),
-    }));
+    const items = listedBangumiItems();
     const selected = items.find((entry) => entry.index === bangumiIndex) ?? items[0] ?? null;
     if (selected) bangumiIndex = selected.index;
     const categories = [
       ["all", "ALL"],
-      ["game", "GAMES"],
       ["anime", "ANIME"],
+      ["game", "GAMES"],
       ["book", "BOOKS"],
-      ["music", "MUSIC"],
     ];
     const statuses = [
       ["all", "ALL"],
@@ -556,7 +1229,8 @@ export function initExtraScreen() {
         ${roomHeading({
           eyebrow: "BANGUMI RECORD",
           title: "BANGUMI",
-          summary: `<b>${items.length}</b> RECORDS`,
+          summary: `<b data-bangumi-count>${items.length}</b> RECORDS`,
+          note: `SYNCED ${new Date(externalActivity.syncedAt).toLocaleDateString("zh-CN", { timeZone: "Asia/Tokyo" })}`,
         })}
         <section class="extra-bangumi-toolbar">
           <div class="extra-bangumi-filters">
@@ -573,50 +1247,28 @@ export function initExtraScreen() {
                   ${label}
                 </button>
               `).join("")}
+              <button
+                type="button"
+                data-bangumi-comment-filter
+                aria-pressed="${bangumiCommentsOnly}"
+                aria-label="${bangumiCommentsOnly ? "Show all Bangumi records" : "Show only records with comments"}"
+              >
+                ${bangumiCommentsOnly ? "COMMENTS ONLY" : "ALL RECORDS"}
+              </button>
             </nav>
           </div>
           <div class="extra-bangumi-activity">
             <span><strong>ACTIVITY</strong><small>LAST 12 WEEKS</small></span>
-            ${heatmapMarkup("extra-bangumi-heatmap")}
+            ${heatmapMarkup(externalActivity.bangumi, "extra-bangumi-heatmap")}
           </div>
         </section>
         <section class="extra-bangumi-workspace">
           <div class="extra-bangumi-viewport" tabindex="0" aria-label="Horizontal Bangumi archive">
             <div class="extra-bangumi-track">
-              ${items.length ? items.map(({ item, index }) => `
-                <button
-                  class="extra-bangumi-card"
-                  type="button"
-                  data-bangumi-index="${index}"
-                  data-focus-title="${escapeHtml(item.title)}"
-                  data-focus-action="SELECT RECORD"
-                  aria-pressed="${index === bangumiIndex}"
-                >
-                  <span class="extra-bangumi-cover" style="${artStyle(item.cover)}" aria-hidden="true"></span>
-                  <span class="extra-bangumi-copy">
-                    <small>${escapeHtml(item.state)} · ${escapeHtml(item.year)}</small>
-                    <strong>${escapeHtml(item.title)}</strong>
-                  </span>
-                </button>
-              `).join("") : `
-                <p class="extra-bangumi-empty">NO RECORDS MATCH THIS FILTER.</p>
-              `}
+              ${bangumiCardsMarkup(items)}
             </div>
           </div>
-          ${selected ? `
-            <aside class="extra-bangumi-focus" data-bangumi-focus data-preview-index="${selected.index}">
-              <span class="extra-bangumi-focus-art is-visible" data-bangumi-focus-art style="${artStyle(selected.item.cover)}" aria-hidden="true"></span>
-              <span class="extra-bangumi-focus-art" data-bangumi-focus-art aria-hidden="true"></span>
-              <div class="extra-bangumi-focus-copy">
-                <small data-bangumi-focus-meta>${escapeHtml(selected.item.category.toUpperCase())} · ${escapeHtml(selected.item.state)} · ${escapeHtml(selected.item.year)}</small>
-                <h4 data-bangumi-focus-title>${escapeHtml(selected.item.title)}</h4>
-                <a data-bangumi-focus-link href="${escapeHtml(selected.item.href)}" ${externalAttributes()}>
-                  <span>OPEN RECORD</span><i aria-hidden="true">↗</i>
-                </a>
-              </div>
-              <strong class="extra-bangumi-focus-ghost" data-bangumi-focus-state aria-hidden="true">${escapeHtml(selected.item.state)}</strong>
-            </aside>
-          ` : ""}
+          ${bangumiFocusMarkup(selected)}
         </section>
       </div>
     `;
@@ -626,19 +1278,19 @@ export function initExtraScreen() {
     extraStage.innerHTML = `
       <div class="extra-room extra-movie-room">
         ${roomHeading({
-          eyebrow: "MOVIE GALLERY",
+          eyebrow: "VIDEO ARCHIVE",
           title: "MOVIE",
-          summary: `<b>${movieItems.length}</b> MOVIES`,
-          note: "SELECT A MOVIE",
+          summary: "",
         })}
         <div class="extra-movie-stage">
           ${movieItems.map((item) => `
-            <button
+            <div
               class="extra-movie-frame"
-              type="button"
-              data-movie-title="${escapeHtml(item.title)}"
+              role="button"
+              tabindex="0"
               data-focus-title="${escapeHtml(item.title)}"
-              data-focus-action="PLAY MOVIE"
+              data-focus-action="尚未解锁"
+              aria-disabled="true"
               style="${artStyle(item.art)}"
             >
               <span class="extra-movie-art" aria-hidden="true"></span>
@@ -647,7 +1299,7 @@ export function initExtraScreen() {
                 <small>${escapeHtml(item.meta)}</small>
                 <strong>${escapeHtml(item.title)}</strong>
               </span>
-            </button>
+            </div>
           `).join("")}
         </div>
       </div>
@@ -655,77 +1307,73 @@ export function initExtraScreen() {
   }
 
   function renderCharacter() {
+    const character = characterItems[0];
+    const language = projectLanguage();
+    const copy = language === "JA-JP"
+      ? {
+          name: "アリス",
+          role: "灯台の案内役",
+          description: "孤独の海の灯台に暮らし、訪れた人を文章や記録、物語の入口へ案内している。",
+          line: "お帰りなさいませ。次の記録も、私がご案内します。",
+        }
+      : language === "EN-US"
+        ? {
+            name: "Alice",
+            role: "Lighthouse Guide",
+            description: "She watches over the lighthouse and guides visitors to essays, records, and stories across the Lonely Sea.",
+            line: "Welcome back. I will guide you to the next record.",
+          }
+        : {
+            name: "爱丽丝",
+            role: "灯塔向导",
+            description: "驻守在孤独之海的灯塔里，负责把来访者带往文章、记录与故事的入口。",
+            line: "欢迎回来。下一份记录，也由我为您带路。",
+          };
     extraStage.innerHTML = `
-      <div class="extra-room extra-character-room">
-        ${roomHeading({
-          eyebrow: "CHARACTER FILE",
-          title: "CHARACTER",
-          summary: `<b>${characterItems.length}</b> CAST`,
-        })}
-        <section class="extra-character-stage" data-character-stage>
-          <div class="extra-character-profiles">
-            ${characterItems.map((item, index) => `
-              <article
-                class="extra-character-profile${index === characterIndex ? " is-active" : ""}"
-                data-character-profile="${index}"
-                data-character-presentation="${escapeHtml(item.presentation)}"
-                aria-hidden="${index !== characterIndex}"
-              >
-                <div class="extra-character-visual" style="${artStyle(item.art)}" aria-hidden="true">
-                  <span class="extra-character-art"></span>
-                </div>
-                <div class="extra-character-dossier">
-                  <small>CHARACTER FILE</small>
-                  <h4>${escapeHtml(item.name)}</h4>
-                  <p class="extra-character-role">${escapeHtml(item.role)}</p>
-                  <p class="extra-character-description">${escapeHtml(item.description)}</p>
-                </div>
-              </article>
-            `).join("")}
+      <div class="extra-room extra-character-room extra-character-room-v3">
+        <header class="extra-character-heading">
+          <h3>CHARACTER</h3>
+        </header>
+        <section class="extra-character-stage extra-character-presentation">
+          <div class="extra-character-visual" style="${artStyle(character.art)}" aria-hidden="true">
+            <span class="extra-character-art"></span>
           </div>
-          <nav class="extra-character-selector" aria-label="Character selection">
-            ${characterItems.map((item, index) => `
-              <button type="button" data-character-index="${index}" aria-pressed="${index === characterIndex}">
-                <span aria-hidden="true"></span><strong>${escapeHtml(item.name)}</strong>
-              </button>
-            `).join("")}
-          </nav>
+          <article class="extra-character-profile-copy">
+            <h4>${escapeHtml(copy.name)}</h4>
+            <p class="extra-character-role">${escapeHtml(copy.role)}</p>
+            <p class="extra-character-description">${escapeHtml(copy.description)}</p>
+            <blockquote>${escapeHtml(copy.line)}</blockquote>
+          </article>
         </section>
       </div>
     `;
   }
 
   function renderAchievement() {
-    const unlocked = achievementItems.filter((item) => item.unlocked);
-    const latest = unlocked.at(-1);
-    const completion = Math.round((unlocked.length / achievementItems.length) * 100);
+    const resolvedItems = resolveAchievements();
+    const unlocked = resolvedItems.filter((item) => item.unlocked);
     extraStage.innerHTML = `
       <div class="extra-room extra-achievement-room">
         ${roomHeading({
           eyebrow: "RECORD OF ARRIVAL",
-          title: "ACHIEVEMENTS",
-          summary: `UNLOCKED <b>${unlocked.length}</b><i>/</i>${achievementItems.length}`,
-          note: `LATEST · ${latest.title}`,
+          title: "ACHIEVE",
+          summary: `${unlocked.length} / ${resolvedItems.length}`,
         })}
-        <section class="extra-achievement-stats" aria-label="Achievement completion">
-          <p><small>COMPLETION RATE</small><strong>${completion}%</strong></p>
-          <span aria-hidden="true"><i style="width:${completion}%"></i></span>
-          <p><small>LATEST UNLOCK</small><strong>${escapeHtml(latest.title)}</strong></p>
-        </section>
         <div class="extra-achievement-browser extra-scroll-shell">
           <div class="extra-achievement-ledger" id="extra-achievement-scroll" data-extra-scroll aria-label="Achievement list" tabindex="0">
-            ${achievementItems.map((item) => `
+            ${resolvedItems.map((item) => `
               <article
                 class="extra-achievement-row${item.unlocked ? " is-unlocked" : " is-locked"}"
-                data-focus-title="${escapeHtml(item.title)}"
-                data-focus-action="${item.unlocked ? "ACHIEVEMENT UNLOCKED" : "NOT YET UNLOCKED"}"
+                data-focus-title="${escapeHtml(item.name)}"
+                data-focus-action="${escapeHtml(item.detail)}"
+                data-achievement-id="${escapeHtml(item.id)}"
+                tabindex="0"
               >
-                <span class="extra-achievement-state"><i aria-hidden="true"></i>${item.unlocked ? "UNLOCKED" : "LOCKED"}</span>
+                <span class="extra-achievement-state" aria-label="${item.unlocked ? "已取得" : "未取得"}">${achievementIcon(item.id)}</span>
                 <div>
-                  <strong>${escapeHtml(item.title)}</strong>
-                  <small>${escapeHtml(item.detail)}</small>
+                  <strong>${escapeHtml(item.name)}</strong>
                 </div>
-                <em>${escapeHtml(item.unlocked ? item.date : "NOT UNLOCKED")}</em>
+                <em>${escapeHtml(item.unlocked ? (item.date || "已取得") : "未取得")}</em>
               </article>
             `).join("")}
           </div>
@@ -733,6 +1381,23 @@ export function initExtraScreen() {
         </div>
       </div>
     `;
+  }
+
+  function openBangumiReader(item) {
+    if (!item?.comment) return;
+    const text = extraStage.querySelector("[data-bangumi-nvl-text]");
+    if (text) text.textContent = item.comment;
+    const body = extraStage.querySelector(".extra-bangumi-nvl-body");
+    if (body) body.scrollTop = 0;
+    extraCanvas.classList.add("is-reading-note");
+    window.requestAnimationFrame(() => {
+      if (body) body.scrollTop = 0;
+      bindScrollRails();
+    });
+  }
+
+  function closeBangumiReader() {
+    extraCanvas.classList.remove("is-reading-note");
   }
 
   function bindFocusNodes(root = extraStage) {
@@ -743,6 +1408,31 @@ export function initExtraScreen() {
       node.addEventListener("pointerenter", update);
       node.addEventListener("focus", update);
     });
+  }
+
+  function bindBangumiCards() {
+    all("[data-bangumi-index]", extraStage).forEach((button) => {
+      if (button.dataset.bangumiBound === "true") return;
+      button.dataset.bangumiBound = "true";
+      button.addEventListener("click", (event) => {
+        selectBangumi(Number(button.dataset.bangumiIndex), { animate: event.detail > 0 });
+      });
+      button.addEventListener("pointerenter", () => {
+        selectBangumi(Number(button.dataset.bangumiIndex), { animate: true });
+      });
+      button.addEventListener("focus", () => {
+        selectBangumi(Number(button.dataset.bangumiIndex), { animate: false });
+      });
+    });
+    extraStage.querySelector("[data-bangumi-comment-open]")?.addEventListener("click", () => {
+      const item = bangumiItems[bangumiIndex];
+      if (item?.comment) openBangumiReader(item);
+    });
+    extraStage.querySelector("[data-bangumi-nvl-close]")?.addEventListener("click", () => closeBangumiReader());
+  }
+
+  function syncBangumiEdgeFade(viewport) {
+    viewport.classList.toggle("has-left-fade", viewport.scrollLeft > 6);
   }
 
   function syncBangumiPageFromScroll(viewport) {
@@ -759,25 +1449,48 @@ export function initExtraScreen() {
 
   function bindBangumiViewport() {
     const viewport = extraStage.querySelector(".extra-bangumi-viewport");
-    if (!viewport) return;
+    if (!viewport || viewport.dataset.bangumiViewportBound === "true") return;
+    viewport.dataset.bangumiViewportBound = "true";
     let pointerId = null;
     let pointerStart = 0;
     let scrollStart = 0;
+    let lastX = 0;
+    let lastTime = 0;
+    let velocity = 0;
     let dragged = false;
+    let inertia = 0;
+
+    const stopInertia = () => {
+      if (inertia) cancelAnimationFrame(inertia);
+      inertia = 0;
+    };
 
     viewport.addEventListener("wheel", (event) => {
       if (viewport.scrollWidth <= viewport.clientWidth) return;
       const delta = Math.abs(event.deltaY) >= Math.abs(event.deltaX) ? event.deltaY : event.deltaX;
       if (!delta) return;
       event.preventDefault();
+      stopInertia();
       viewport.scrollLeft += delta;
     }, { passive: false });
-    viewport.addEventListener("scroll", () => syncBangumiPageFromScroll(viewport), { passive: true });
+    viewport.addEventListener("keydown", (event) => {
+      if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+      event.preventDefault();
+      changePage(event.key === "ArrowLeft" ? -1 : 1, { animate: false });
+    });
+    viewport.addEventListener("scroll", () => {
+      syncBangumiPageFromScroll(viewport);
+      syncBangumiEdgeFade(viewport);
+    }, { passive: true });
     viewport.addEventListener("pointerdown", (event) => {
       if (event.button !== 0 || viewport.scrollWidth <= viewport.clientWidth) return;
+      if (event.target.closest("a, [data-bangumi-comment-open]")) return;
+      stopInertia();
       pointerId = event.pointerId;
-      pointerStart = event.clientX;
+      pointerStart = lastX = event.clientX;
+      lastTime = event.timeStamp;
       scrollStart = viewport.scrollLeft;
+      velocity = 0;
       dragged = false;
       viewport.classList.add("is-dragging");
       viewport.setPointerCapture(pointerId);
@@ -785,13 +1498,28 @@ export function initExtraScreen() {
     viewport.addEventListener("pointermove", (event) => {
       if (event.pointerId !== pointerId) return;
       const distance = event.clientX - pointerStart;
-      dragged ||= Math.abs(distance) > 5;
+      const dt = Math.max(1, event.timeStamp - lastTime);
+      velocity = (lastX - event.clientX) / dt * 16;
+      lastX = event.clientX;
+      lastTime = event.timeStamp;
+      dragged ||= Math.abs(distance) > 4;
       viewport.scrollLeft = scrollStart - distance;
     });
     const stopDrag = (event) => {
       if (event.pointerId !== pointerId) return;
       viewport.classList.remove("is-dragging");
       pointerId = null;
+      if (Math.abs(velocity) < .35) return;
+      const tick = () => {
+        viewport.scrollLeft += velocity;
+        velocity *= .92;
+        if (Math.abs(velocity) < .18) {
+          inertia = 0;
+          return;
+        }
+        inertia = window.requestAnimationFrame(tick);
+      };
+      inertia = window.requestAnimationFrame(tick);
     };
     viewport.addEventListener("pointerup", stopDrag);
     viewport.addEventListener("pointercancel", stopDrag);
@@ -801,61 +1529,7 @@ export function initExtraScreen() {
       event.stopPropagation();
       dragged = false;
     }, true);
-  }
-
-  async function refreshProjectResults(nextTag, { animate = true } = {}) {
-    if (pageSliding || nextTag === projectTag) return;
-    const grid = extraStage.querySelector(".extra-project-grid");
-    if (!grid) return;
-
-    const update = () => {
-      projectTag = nextTag;
-      extraPage = 0;
-      const filteredItems = filteredProjectItems();
-      grid.innerHTML = projectCardsMarkup(filteredItems.slice(0, PROJECT_PAGE_SIZE));
-      const count = extraStage.querySelector(".extra-room-summary b");
-      if (count) count.textContent = String(filteredItems.length);
-      all("[data-project-tag]", extraStage).forEach((button) => {
-        button.setAttribute("aria-pressed", String(button.dataset.projectTag === projectTag));
-      });
-      bindFocusNodes(grid);
-      bindProjectTagControls(grid);
-      updatePageControls();
-    };
-
-    if (!animate || preferencesReduceMotion()) {
-      update();
-      return;
-    }
-
-    pageSliding = true;
-    let committed = false;
-    const outgoing = grid.animate(
-      [
-        { opacity: 1, transform: "translate3d(0,0,0)" },
-        { opacity: 0, transform: "translate3d(0,4px,0)" },
-      ],
-      { duration: 90, easing: "cubic-bezier(.25,1,.5,1)", fill: "both" },
-    );
-    try {
-      await outgoing.finished;
-      update();
-      committed = true;
-      const incoming = grid.animate(
-        [
-          { opacity: 0, transform: "translate3d(0,-4px,0)" },
-          { opacity: 1, transform: "translate3d(0,0,0)" },
-        ],
-        { duration: 170, easing: "cubic-bezier(.22,1,.36,1)", fill: "both" },
-      );
-      await incoming.finished;
-      incoming.cancel();
-    } catch {
-      if (!committed) update();
-    } finally {
-      outgoing.cancel();
-      pageSliding = false;
-    }
+    syncBangumiEdgeFade(viewport);
   }
 
   async function refreshCurrentMode(mutator, { animate = true, direction = 1 } = {}) {
@@ -928,11 +1602,17 @@ export function initExtraScreen() {
         }
       }
 
-      required("[data-bangumi-focus-meta]", focus).textContent =
-        `${item.category.toUpperCase()} · ${item.state} · ${item.year}`;
       required("[data-bangumi-focus-title]", focus).textContent = item.title;
+      const note = required("[data-bangumi-focus-note]", focus);
+      note.textContent = item.total ? `PROGRESS ${item.progress} / ${item.total}` : "";
+      note.hidden = !note.textContent;
       required("[data-bangumi-focus-link]", focus).href = item.href;
       required("[data-bangumi-focus-state]", focus).textContent = item.state;
+      const commentOpen = focus.querySelector("[data-bangumi-comment-open]");
+      if (commentOpen) commentOpen.hidden = !item.comment;
+      const nvlText = focus.querySelector("[data-bangumi-nvl-text]");
+      if (nvlText) nvlText.textContent = item.comment || "";
+      closeBangumiReader();
       focus.dataset.previewIndex = String(index);
     }
 
@@ -949,37 +1629,35 @@ export function initExtraScreen() {
     showBangumiFocus(index, { animate, commit: true });
   }
 
-  function selectCharacter(index) {
-    if (!characterItems[index] || index === characterIndex) return;
-    characterIndex = index;
-    all("[data-character-profile]", extraStage).forEach((profile) => {
-      const active = Number(profile.dataset.characterProfile) === index;
-      profile.classList.toggle("is-active", active);
-      profile.setAttribute("aria-hidden", String(!active));
-    });
-    all("[data-character-index]", extraStage).forEach((button) => {
-      button.setAttribute("aria-pressed", String(Number(button.dataset.characterIndex) === index));
-    });
-    setFocus(characterItems[index].name, "CHARACTER FILE");
-  }
-
   function changeMusicSelection(index, { animate = true } = {}) {
     const next = (index + musicItems.length) % musicItems.length;
     if (next === musicIndex) return;
     const resume = musicPlaying;
-    stopMusic({ immediate: true });
+    const keepSession = listenSession;
+    stopMusic({ immediate: true, releaseSession: false });
     musicIndex = next;
     const current = musicItems[musicIndex];
     const room = extraStage.querySelector(".extra-music-room");
     const now = extraStage.querySelector(".extra-music-now");
     const copy = extraStage.querySelector(".extra-music-current");
-    if (!room || !now || !copy) return;
+    if (!room || !now || !copy) {
+      listenSession = keepSession || resume;
+      if (resume) startMusic();
+      else syncListenDock();
+      return;
+    }
 
     room.dataset.musicTone = current.tone;
     now.style.setProperty("--extra-art", `url("${current.cover}")`);
+    const cover = now.querySelector(".extra-music-cover");
+    const coverImage = now.querySelector("[data-music-cover]");
+    if (coverImage) {
+      cover?.classList.remove("is-missing");
+      coverImage.onerror = () => cover?.classList.add("is-missing");
+      coverImage.src = current.cover;
+    }
     required("h4", copy).textContent = current.title;
     required("[data-music-current-artist]", copy).textContent = current.artist;
-    required("[data-music-current-length]", copy).textContent = current.length;
     all("[data-music-index]", extraStage).forEach((button) => {
       button.setAttribute("aria-pressed", String(Number(button.dataset.musicIndex) === musicIndex));
     });
@@ -1001,17 +1679,9 @@ export function initExtraScreen() {
         list.scrollTop = Math.max(0, top);
       }
     });
+    listenSession = keepSession || resume;
     if (resume) startMusic();
-  }
-
-  function bindProjectTagControls(root = extraStage) {
-    all("[data-project-tag]", root).forEach((button) => {
-      if (button.dataset.projectTagBound === "true") return;
-      button.dataset.projectTagBound = "true";
-      button.addEventListener("click", (event) => {
-        refreshProjectResults(button.dataset.projectTag, { animate: event.detail > 0 });
-      });
-    });
+    else syncListenDock();
   }
 
   function bindStage() {
@@ -1023,79 +1693,72 @@ export function initExtraScreen() {
 
     all("[data-music-index]", extraStage).forEach((node) => {
       node.addEventListener("click", (event) => {
-        changeMusicSelection(Number(node.dataset.musicIndex), { animate: event.detail > 0 });
+        const index = Number(node.dataset.musicIndex);
+        if (index === musicIndex) {
+          toggleMusic();
+          return;
+        }
+        changeMusicSelection(index, { animate: event.detail > 0 });
       });
     });
 
     all("[data-music-step]", extraStage).forEach((button) => {
       button.addEventListener("click", (event) => {
-        changeMusicSelection(musicIndex + Number(button.dataset.musicStep), { animate: event.detail > 0 });
+        changeMusicSelection(nextMusicIndex(Number(button.dataset.musicStep)), { animate: event.detail > 0 });
       });
     });
+
+    extraStage.querySelector("[data-music-shuffle]")?.addEventListener("click", () => toggleMusicShuffle());
+    extraStage.querySelector("[data-music-loop]")?.addEventListener("click", () => toggleMusicLoop());
 
     all("[data-music-toggle]", extraStage).forEach((toggle) => {
-      toggle.addEventListener("click", () => {
-        if (musicPlaying) {
-          stopMusic();
-          setFocus(musicItems[musicIndex].title, "PAUSED");
-        } else {
-          startMusic();
-        }
-      });
+      toggle.addEventListener("click", () => toggleMusic());
     });
 
-    bindProjectTagControls();
+    all("[data-project-category]", extraStage).forEach((button) => {
+      button.addEventListener("click", () => {
+        const next = button.dataset.projectCategory;
+        if (next === projectCategory) return;
+        projectCategory = next;
+        extraPage = 0;
+        syncProjectFilters();
+        paintProjectGrid({ animate: true });
+      });
+    });
+    all("[data-project-tag]", extraStage).forEach((button) => {
+      button.addEventListener("click", () => selectProjectTag(button.dataset.projectTag));
+    });
+    bindProjectTagRail();
+    bindProjectCards();
 
     all("[data-bangumi-category]", extraStage).forEach((button) => {
       button.addEventListener("click", (event) => {
         const nextCategory = button.dataset.bangumiCategory;
         if (nextCategory === bangumiCategory) return;
-        refreshCurrentMode(() => {
-          bangumiCategory = nextCategory;
-          extraPage = 0;
-        }, { animate: event.detail > 0, direction: 1 });
+        bangumiCategory = nextCategory;
+        extraPage = 0;
+        syncBangumiFilters();
+        paintBangumiShelf({ animate: event.detail > 0 });
       });
     });
     all("[data-bangumi-status]", extraStage).forEach((button) => {
       button.addEventListener("click", (event) => {
         const nextStatus = button.dataset.bangumiStatus;
         if (nextStatus === bangumiStatus) return;
-        refreshCurrentMode(() => {
-          bangumiStatus = nextStatus;
-          extraPage = 0;
-        }, { animate: event.detail > 0, direction: 1 });
+        bangumiStatus = nextStatus;
+        extraPage = 0;
+        syncBangumiFilters();
+        paintBangumiShelf({ animate: event.detail > 0 });
       });
+    });
+    extraStage.querySelector("[data-bangumi-comment-filter]")?.addEventListener("click", (event) => {
+      bangumiCommentsOnly = !bangumiCommentsOnly;
+      extraPage = 0;
+      syncBangumiFilters();
+      paintBangumiShelf({ animate: event.detail > 0 });
     });
 
-    all("[data-bangumi-index]", extraStage).forEach((button) => {
-      button.addEventListener("click", (event) => {
-        selectBangumi(Number(button.dataset.bangumiIndex), { animate: event.detail > 0 });
-      });
-      button.addEventListener("pointerenter", () => {
-        selectBangumi(Number(button.dataset.bangumiIndex), { animate: true });
-      });
-      button.addEventListener("focus", () => {
-        selectBangumi(Number(button.dataset.bangumiIndex), { animate: false });
-      });
-    });
-
-    all("[data-character-index]", extraStage).forEach((button) => {
-      button.addEventListener("click", () => selectCharacter(Number(button.dataset.characterIndex)));
-    });
-
-    all("[data-movie-title]", extraStage).forEach((button) => {
-      button.addEventListener("click", () => {
-        setFocus(button.dataset.movieTitle, "MOVIE PREVIEW");
-        button.animate(
-          [
-            { filter: "brightness(1)" },
-            { filter: "brightness(1.12)", offset: .45 },
-            { filter: "brightness(1)" },
-          ],
-          { duration: preferencesReduceMotion() ? 1 : 360, easing: "ease-out" },
-        );
-      });
-    });
+    bindBangumiCards();
 
     bindBangumiViewport();
     bindScrollRails();
@@ -1127,15 +1790,20 @@ export function initExtraScreen() {
   }
 
   function commitMode(mode) {
-    if (extraMode === "music" && mode !== "music") stopMusic();
+    if (mode !== "bangumi") closeBangumiReader();
     extraMode = mode;
     extraPage = 0;
     extraCanvas.dataset.extraMode = mode;
+    if (extraCanvas.closest("[data-screen]")?.getAttribute("aria-hidden") === "false") {
+      recordBlogActivity("extraModes", mode);
+    }
     extraModeButtons.forEach((button) => {
       button.setAttribute("aria-pressed", String(button.dataset.extraMode === mode));
     });
     renderMode();
-    setFocus(...extraDefaults[mode]);
+    if (mode === "achievement") setFocus("", "");
+    else setFocus(...extraDefaults[mode]);
+    syncListenDock();
   }
 
   async function setMode(mode, { animate = true } = {}) {
@@ -1181,13 +1849,28 @@ export function initExtraScreen() {
     }
   }
 
+  async function preloadCgArt(url) {
+    const image = new Image();
+    image.src = url;
+    if (image.complete) return Promise.resolve();
+    if (typeof image.decode === "function") return image.decode().catch(() => {});
+    return new Promise((resolve) => {
+      image.addEventListener("load", resolve, { once: true });
+      image.addEventListener("error", resolve, { once: true });
+    });
+  }
+
   function openCg(index, origin = null, { direction = 0 } = {}) {
     const item = cgItems[index];
     if (!item?.unlocked) return;
     const wasOpen = cgViewer.getAttribute("aria-hidden") === "false";
+    const transitionId = ++cgViewerTransitionToken;
     cgViewerAnimation?.cancel();
     cgViewerAnimation = null;
+    cgViewer.classList.remove("is-closing");
+    cgViewer.classList.toggle("is-opening", !wasOpen);
     cgIndex = index;
+    recordBlogActivity("cgItems", String(index));
     cgViewerArt.style.setProperty("--cg-art", `url("${item.art}")`);
     cgViewerArt.classList.toggle("is-portrait", Boolean(item.portrait));
     const unlocked = cgItems.filter((entry) => entry.unlocked);
@@ -1200,39 +1883,47 @@ export function initExtraScreen() {
 
     const originArt = origin?.querySelector(".extra-cg-art") ?? origin;
     cgOriginRect = originArt?.getBoundingClientRect?.() ?? null;
-    if (preferencesReduceMotion()) return;
-
-    const targetRect = cgViewerArt.getBoundingClientRect();
-    let firstFrame = {
-      opacity: .18,
-      transform: `translate3d(${direction * 2.8}cqw,0,0) scale(.985)`,
-    };
-    if (cgOriginRect && targetRect.width && targetRect.height) {
-      const originCenterX = cgOriginRect.left + cgOriginRect.width / 2;
-      const originCenterY = cgOriginRect.top + cgOriginRect.height / 2;
-      const targetCenterX = targetRect.left + targetRect.width / 2;
-      const targetCenterY = targetRect.top + targetRect.height / 2;
-      firstFrame = {
-        opacity: .32,
-        transform: `translate3d(${originCenterX - targetCenterX}px,${originCenterY - targetCenterY}px,0) scale(${cgOriginRect.width / targetRect.width},${cgOriginRect.height / targetRect.height})`,
-      };
-    } else if (wasOpen) {
-      firstFrame.opacity = .12;
+    if (preferencesReduceMotion()) {
+      cgViewer.classList.remove("is-opening");
+      return;
     }
 
-    cgViewerArt.style.transformOrigin = "center";
-    cgViewerAnimation = cgViewerArt.animate(
-      [
-        firstFrame,
-        { opacity: 1, transform: "translate3d(0,0,0) scale(1)" },
-      ],
-      { duration: cgOriginRect ? 430 : 260, easing: "cubic-bezier(.22,1,.36,1)" },
-    );
-    cgViewerAnimation.finished
-      .catch(() => {})
-      .finally(() => {
-        cgViewerAnimation = null;
-      });
+    const animateOpen = () => {
+      if (transitionId !== cgViewerTransitionToken || cgViewer.getAttribute("aria-hidden") === "true") return;
+      cgViewer.classList.remove("is-opening");
+      const targetRect = cgViewerArt.getBoundingClientRect();
+      let firstFrame = {
+        opacity: 1,
+        transform: `translate3d(${direction * 2.8}cqw,0,0) scale(.985)`,
+      };
+      if (cgOriginRect && targetRect.width && targetRect.height) {
+        const originCenterX = cgOriginRect.left + cgOriginRect.width / 2;
+        const originCenterY = cgOriginRect.top + cgOriginRect.height / 2;
+        const targetCenterX = targetRect.left + targetRect.width / 2;
+        const targetCenterY = targetRect.top + targetRect.height / 2;
+        firstFrame = {
+          opacity: 1,
+          transform: `translate3d(${originCenterX - targetCenterX}px,${originCenterY - targetCenterY}px,0) scale(${cgOriginRect.width / targetRect.width},${cgOriginRect.height / targetRect.height})`,
+        };
+      }
+
+      cgViewerArt.style.transformOrigin = "center";
+      const animation = cgViewerArt.animate(
+        [
+          firstFrame,
+          { opacity: 1, transform: "translate3d(0,0,0) scale(1)" },
+        ],
+        { duration: cgOriginRect ? 430 : 260, easing: "cubic-bezier(.22,1,.36,1)" },
+      );
+      cgViewerAnimation = animation;
+      animation.finished
+        .catch(() => {})
+        .finally(() => {
+          if (cgViewerAnimation === animation) cgViewerAnimation = null;
+        });
+    };
+
+    preloadCgArt(item.art).then(() => window.requestAnimationFrame(animateOpen));
   }
 
   function moveCgViewer(direction) {
@@ -1246,10 +1937,14 @@ export function initExtraScreen() {
 
   function closeCg() {
     if (cgViewer.getAttribute("aria-hidden") === "true") return false;
+    const transitionId = ++cgViewerTransitionToken;
     cgViewerAnimation?.cancel();
     cgViewerAnimation = null;
+    cgViewer.classList.remove("is-opening");
+    cgViewer.classList.add("is-closing");
     if (preferencesReduceMotion() || !cgOriginRect) {
       cgViewer.setAttribute("aria-hidden", "true");
+      cgViewer.classList.remove("is-closing");
       cgOriginRect = null;
       return true;
     }
@@ -1259,7 +1954,7 @@ export function initExtraScreen() {
     const originCenterY = cgOriginRect.top + cgOriginRect.height / 2;
     const targetCenterX = targetRect.left + targetRect.width / 2;
     const targetCenterY = targetRect.top + targetRect.height / 2;
-    cgViewerAnimation = cgViewerArt.animate(
+    const animation = cgViewerArt.animate(
       [
         { opacity: 1, transform: "translate3d(0,0,0) scale(1)" },
         {
@@ -1267,12 +1962,16 @@ export function initExtraScreen() {
           transform: `translate3d(${originCenterX - targetCenterX}px,${originCenterY - targetCenterY}px,0) scale(${cgOriginRect.width / targetRect.width},${cgOriginRect.height / targetRect.height})`,
         },
       ],
-      { duration: 280, easing: "cubic-bezier(.25,1,.5,1)" },
+      { duration: 280, easing: "cubic-bezier(.25,1,.5,1)", fill: "forwards" },
     );
-    cgViewerAnimation.finished
+    cgViewerAnimation = animation;
+    animation.finished
       .catch(() => {})
       .finally(() => {
+        if (cgViewerAnimation !== animation || transitionId !== cgViewerTransitionToken) return;
         cgViewer.setAttribute("aria-hidden", "true");
+        cgViewer.classList.remove("is-closing", "is-opening");
+        animation.cancel();
         cgViewerAnimation = null;
         cgOriginRect = null;
       });
@@ -1354,29 +2053,116 @@ export function initExtraScreen() {
       changePage(Number(button.dataset.extraPageDirection), { animate: event.detail > 0 });
     });
   });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && extraCanvas.classList.contains("is-reading-note")) {
+      event.preventDefault();
+      closeBangumiReader();
+      return;
+    }
+    if (
+      event.code === "Space"
+      && extraMode === "music"
+      && extraCanvas.closest("[data-screen]")?.getAttribute("aria-hidden") === "false"
+      && !(event.target instanceof HTMLElement && event.target.closest("input, textarea, [contenteditable='true']"))
+    ) {
+      event.preventDefault();
+      toggleMusic();
+    }
+  });
   all("[data-cg-direction]", cgViewer).forEach((button) => {
     button.addEventListener("click", () => moveCgViewer(Number(button.dataset.cgDirection)));
   });
   cgViewerClose.addEventListener("click", closeCg);
+  cgViewer.querySelector(".cg-viewer-backdrop")?.addEventListener("click", closeCg);
   document.addEventListener("visibilitychange", () => {
-    if (document.hidden) stopMusic({ immediate: true });
+    if (document.hidden) {
+      if (musicPlaying) musicPlayer?.pause();
+      return;
+    }
+    if (listenSession && musicPlaying) musicPlayer?.play()?.catch(() => {});
   });
-  window.addEventListener("pagehide", () => stopMusic({ immediate: true }));
+  window.addEventListener("lonely-sea:audio-mute-change", (event) => {
+    musicMuted = event.detail?.muted === true;
+    applyMusicMute();
+    syncMusicState();
+  });
+  window.addEventListener("lonely-sea:preferences-change", () => {
+    if (extraMode === "projects") renderProjects();
+    else if (extraMode === "character") renderCharacter();
+    else return;
+    bindStage();
+    updatePageControls();
+  });
+  window.addEventListener("lonely-sea:before-site-data-clear", () => {
+    siteDataClearing = true;
+    stopMusic({ immediate: true });
+    clearListenSession();
+  });
+  window.addEventListener("pagehide", () => {
+    if (!siteDataClearing) persistListenSession();
+  });
+
+  const listenDock = document.querySelector("#listen-dock");
+  listenDock?.querySelectorAll("[data-listen-toggle]").forEach((toggle) => {
+    toggle.addEventListener("click", () => toggleMusic());
+  });
+  listenDock?.querySelector("[data-listen-expand]")?.addEventListener("click", (event) => {
+    const expanded = listenDock.classList.toggle("is-expanded");
+    event.currentTarget.setAttribute("aria-expanded", String(expanded));
+    event.currentTarget.setAttribute("aria-label", expanded ? "收起音乐控制" : "展开音乐控制");
+  });
+  listenDock?.querySelector("[data-listen-prev]")?.addEventListener("click", () => {
+    changeMusicSelection(nextMusicIndex(-1), { animate: false });
+  });
+  listenDock?.querySelector("[data-listen-next]")?.addEventListener("click", () => {
+    changeMusicSelection(nextMusicIndex(1), { animate: false });
+  });
+  listenDock?.querySelector("[data-listen-loop]")?.addEventListener("click", () => toggleMusicLoop());
+  listenDock?.querySelector("[data-listen-shuffle]")?.addEventListener("click", () => toggleMusicShuffle());
+  listenDock?.querySelector("[data-listen-stop]")?.addEventListener("click", () => stopMusic());
+  document.addEventListener("pointerdown", (event) => {
+    if (!listenDock?.classList.contains("is-expanded") || listenDock.contains(event.target)) return;
+    listenDock.classList.remove("is-expanded");
+    listenDock.querySelector("[data-listen-expand]")?.setAttribute("aria-expanded", "false");
+  });
+
+  const savedListen = readListenSession();
+  if (savedListen) {
+    musicIndex = savedListen.index;
+    musicLoop = savedListen.loop;
+    musicShuffle = savedListen.shuffle;
+    musicShuffleOrder = savedListen.shuffleOrder;
+    listenSession = true;
+  }
 
   commitMode("cg");
 
+  if (savedListen) {
+    syncListenDock({ extraOpen: false });
+    if (savedListen.playing) startMusic({ startAt: savedListen.currentTime });
+  }
+
   return {
+    activate() {
+      recordBlogActivity("extraModes", extraMode);
+      if (extraMode === "achievement") renderMode();
+      syncListenDock();
+    },
     changePage,
     closeCg,
     deactivate() {
       transitionToken += 1;
+      cgViewerTransitionToken += 1;
       stageTransition?.cancel();
       stageTransition = null;
       window.cancelAnimationFrame(musicWaveFrame);
       musicWaveFrame = 0;
       cgViewerAnimation?.cancel();
       cgViewerAnimation = null;
-      stopMusic({ immediate: true });
+      cgViewer.setAttribute("aria-hidden", "true");
+      cgViewer.classList.remove("is-opening", "is-closing");
+      cgOriginRect = null;
+      syncListenDock({ extraOpen: false });
     },
   };
 }

@@ -1,0 +1,1098 @@
+/* OPTION — 環境設定 · a game configuration folio, in LOAD XIV/XII materials.
+   Same family as LOAD: OPTION in Baskerville on the live sea, three independent
+   ghost entrances (never a segmented control), left index on a dependent spine
+   (no markers), one translucent folio sheet, ghost controls, × BACK.
+   Everything derives from --v4-* so all four scenes re-tint. */
+
+.option-screen.system-screen {
+  background: transparent;
+}
+
+.option-screen.system-screen::before {
+  display: none;
+  content: none;
+}
+
+.option-canvas.system-canvas,
+.option-canvas.special-system-canvas,
+.option-canvas {
+  --opt-ink: var(--v4-ink);
+  --opt-soft: color-mix(in srgb, var(--v4-ink) 62%, transparent);
+  --opt-faint: color-mix(in srgb, var(--v4-ink) 40%, transparent);
+  --opt-line: color-mix(in srgb, var(--v4-ink) 15%, transparent);
+  --opt-line-strong: color-mix(in srgb, var(--v4-ink) 34%, transparent);
+  --opt-edge: color-mix(in srgb, var(--v4-ink) 42%, transparent);
+  --opt-accent: var(--v4-accent);
+  --opt-on-accent: #f3f7f8;
+  --opt-danger: color-mix(in srgb, #b0564a 72%, var(--v4-ink) 28%);
+  display: grid;
+  place-items: center;
+  position: absolute;
+  inset: 0;
+  width: auto;
+  height: auto;
+  overflow: clip;
+  isolation: isolate;
+  container-type: normal;
+  background: transparent;
+  box-shadow: none;
+  font-family: "Yu Mincho", "Hiragino Mincho ProN", "Noto Serif SC", serif;
+}
+
+body[data-scene="night"] .option-canvas,
+body[data-scene="crimson"] .option-canvas {
+  --opt-on-accent: #141c22;
+}
+
+/* EXTRA's seating wash: keeps the photograph, seats the folio. */
+.option-canvas::before {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  display: block;
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--v4-paper) 14%, transparent), transparent 26%),
+    radial-gradient(ellipse at 62% 44%, transparent 42%, color-mix(in srgb, var(--v4-outer) 14%, transparent) 112%);
+  content: "";
+  pointer-events: none;
+}
+
+.option-canvas::after {
+  display: none;
+  content: none;
+}
+
+html[data-weather-layer="overlay"] body[data-route="option"] #weather-canvas,
+html[data-weather-layer="overlay"] body[data-route="option"] .weather-veil {
+  z-index: 27;
+}
+
+.option-canvas .option-safe-frame {
+  position: relative;
+  z-index: 2;
+  width: min(100vw, 177.7778vh);
+  height: min(100vh, 56.25vw);
+  overflow: clip;
+  isolation: isolate;
+  container-type: size;
+  pointer-events: none;
+}
+
+.option-canvas .option-safe-frame::before {
+  content: none;
+}
+
+.option-canvas .option-heading,
+.option-canvas .option-primary,
+.option-canvas .option-actions {
+  pointer-events: auto;
+}
+
+/* ---------- 标题:与 LOAD 同一站位 ---------- */
+
+.option-canvas .option-heading {
+  top: 4.35cqh;
+  left: 4.8cqw;
+  z-index: 8;
+}
+
+.option-canvas .option-heading h2 {
+  margin: 0;
+  color: var(--opt-ink);
+  font: 400 clamp(36px, 3.2cqw, 60px) / .88 Baskerville, "Iowan Old Style", "Yu Mincho", serif;
+  letter-spacing: .08em;
+  text-shadow: 0 .3cqh 1.2cqw var(--v4-shadow);
+}
+
+.option-canvas .option-heading p {
+  display: block;
+  margin: 1.1cqh 0 0;
+  color: var(--opt-soft);
+  font: 400 clamp(10px, .82cqw, 13px) / 1.4 "Yu Mincho", "Noto Serif SC", serif;
+  letter-spacing: .42em;
+  text-shadow: 0 1px .8cqw var(--v4-shadow);
+}
+
+/* ---------- 一级分类:三枚独立按钮(XIV) ---------- */
+
+.option-canvas .option-primary {
+  position: absolute;
+  z-index: 9;
+  top: 4.6cqh;
+  right: 4.8cqw;
+  left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1.05cqw;
+  width: auto;
+  height: 6.6cqh;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  filter: none;
+}
+
+.option-canvas .option-primary button {
+  position: relative;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: .35cqh;
+  width: clamp(96px, 8.8cqw, 136px);
+  height: 100%;
+  min-height: 38px;
+  padding: 0 .85cqw;
+  overflow: hidden;
+  border: 1px solid var(--opt-edge);
+  border-radius: 0;
+  color: color-mix(in srgb, var(--v4-ink) 76%, transparent);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--v4-card) 22%, transparent),
+    color-mix(in srgb, var(--v4-outer) 10%, transparent)
+  );
+  box-shadow:
+    inset 0 1px color-mix(in srgb, white 10%, transparent),
+    0 .3cqh .8cqw color-mix(in srgb, var(--v4-shadow) 26%, transparent);
+  font: 500 clamp(14px, 1.05cqw, 17px) / 1 "Yu Mincho", "Noto Serif SC", serif;
+  letter-spacing: .22em;
+  text-indent: .22em;
+  text-shadow: none;
+  isolation: isolate;
+  transform: translate3d(0, 0, 0);
+  transition: color 180ms ease, border-color 180ms ease, box-shadow 200ms ease, text-shadow 180ms ease;
+}
+
+.option-canvas .option-primary button small {
+  display: block;
+  font: 400 clamp(7px, .56cqw, 9px) / 1 Baskerville, serif;
+  letter-spacing: .34em;
+  text-indent: .34em;
+  color: var(--opt-faint);
+  transition: color 180ms ease;
+}
+
+.option-canvas .option-primary button::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 28%,
+    color-mix(in srgb, var(--v4-accent) 22%, transparent) 50%,
+    transparent 72%
+  );
+  content: "";
+  opacity: 0;
+  transform: none;
+  transition: opacity 200ms ease;
+}
+
+.option-canvas .option-primary button::after {
+  position: absolute;
+  z-index: 1;
+  top: 14%;
+  bottom: 14%;
+  left: 0;
+  display: block;
+  width: 2px;
+  height: auto;
+  background: linear-gradient(180deg, transparent, var(--v4-accent), transparent);
+  box-shadow: none;
+  content: "";
+  opacity: 0;
+  transform: scaleY(.35);
+  transition: opacity 200ms ease, transform 260ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.option-canvas .option-primary button[aria-selected="true"] {
+  color: var(--opt-ink);
+  border-color: color-mix(in srgb, var(--v4-accent) 72%, var(--v4-ink) 20%);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--v4-accent) 18%, transparent),
+    color-mix(in srgb, var(--v4-accent) 12%, var(--v4-card) 40%)
+  );
+  box-shadow:
+    inset 0 1px color-mix(in srgb, white 14%, transparent),
+    0 0 1.1cqw color-mix(in srgb, var(--v4-accent) 22%, transparent);
+  text-shadow: 0 0 1cqw color-mix(in srgb, var(--v4-accent) 30%, transparent);
+}
+
+.option-canvas .option-primary button[aria-selected="true"] small {
+  color: color-mix(in srgb, var(--v4-accent) 82%, var(--v4-ink) 18%);
+}
+
+.option-canvas .option-primary button[aria-selected="true"]::before {
+  opacity: 1;
+}
+
+.option-canvas .option-primary button[aria-selected="true"]::after {
+  opacity: .9;
+  transform: scaleY(1);
+}
+
+/* ---------- 设定 folio:一整张半透明册页 ---------- */
+
+.option-canvas .option-book {
+  position: absolute;
+  z-index: 5;
+  top: 15.6cqh;
+  right: 4.8cqw;
+  bottom: 11.4cqh;
+  left: 4.8cqw;
+  display: grid;
+  grid-template-columns: minmax(11rem, 15.5cqw) minmax(0, 1fr);
+  width: auto;
+  height: auto;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid var(--opt-line-strong);
+  border-radius: 0;
+  background: var(--option-surface);
+  box-shadow: 0 .55cqh 1.4cqw var(--option-shadow);
+  backdrop-filter: blur(16px) saturate(1.04);
+  -webkit-backdrop-filter: blur(16px) saturate(1.04);
+  pointer-events: none;
+}
+
+.option-canvas .option-book::before,
+.option-canvas .option-book::after {
+  content: none;
+}
+
+.option-canvas .option-secondary-shell,
+.option-canvas .option-main {
+  position: relative;
+  z-index: 2;
+  pointer-events: auto;
+}
+
+/* ---------- 二级索引:从属脊线,无标记(XII) ---------- */
+
+.option-canvas .option-secondary-shell {
+  grid-column: 1;
+  min-width: 0;
+  min-height: 0;
+  padding: 3.6cqh 1cqw 3.6cqh 0;
+  overflow: hidden;
+  border-right: 1px solid var(--opt-line);
+  background: transparent;
+  box-shadow: none;
+}
+
+.option-canvas .option-secondary {
+  position: relative;
+  display: grid;
+  align-content: start;
+  height: 100%;
+  gap: .75cqh;
+  background: transparent;
+}
+
+/* 脊线 */
+.option-canvas .option-secondary::before {
+  position: absolute;
+  top: 2cqh;
+  bottom: 2cqh;
+  left: .65cqw;
+  width: 1px;
+  background: linear-gradient(transparent, var(--opt-line-strong) 8%, var(--opt-line-strong) 90%, transparent);
+  content: "";
+  pointer-events: none;
+  mask-image: none;
+  -webkit-mask-image: none;
+}
+
+.option-canvas .option-secondary[hidden] {
+  display: none;
+}
+
+.option-canvas .option-secondary::after {
+  content: none;
+}
+
+.option-canvas .option-secondary button {
+  position: relative;
+  display: block;
+  min-height: 34px;
+  overflow: hidden;
+  padding: 1.15cqh .65cqw 1.15cqh 1.45cqw;
+  border: 0;
+  border-radius: 0;
+  color: color-mix(in srgb, var(--v4-ink) 72%, transparent);
+  background: transparent;
+  box-shadow: none;
+  font: 400 clamp(13px, 1cqw, 16px) / 1.25 "Yu Mincho", "Noto Serif SC", serif;
+  letter-spacing: .16em;
+  text-align: left;
+  text-shadow: 0 1px 0 color-mix(in srgb, white 9%, transparent);
+  transform: none;
+  transition: color 170ms ease, background-color 170ms ease, padding-left 220ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.option-canvas .option-secondary button::before,
+.option-canvas .option-secondary button::after {
+  content: none;
+}
+
+.option-canvas .option-secondary button span,
+.option-canvas .option-secondary button {
+  transform-origin: left center;
+}
+
+.option-canvas .option-secondary button[aria-selected="true"] {
+  padding-left: 1.75cqw;
+  color: var(--opt-ink);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--v4-accent) 22%, transparent), transparent 88%);
+  box-shadow: none;
+  font-weight: 500;
+  text-shadow: 0 0 .75cqw color-mix(in srgb, var(--v4-accent) 22%, transparent);
+}
+
+/* ---------- 设置面板 ---------- */
+
+.option-canvas .option-book .option-main,
+.option-canvas .option-main {
+  grid-column: 2;
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 3.4cqh 3.6cqw 4cqh;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--v4-accent) 34%, transparent) transparent;
+}
+
+.option-canvas .option-main::-webkit-scrollbar {
+  width: 4px;
+}
+
+.option-canvas .option-main::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--v4-accent) 34%, transparent);
+}
+
+.option-canvas .option-panel,
+.option-canvas .option-panel.is-active {
+  position: relative;
+  inset: auto;
+  display: block;
+  padding: 0;
+  overflow: hidden;
+  background: transparent;
+  opacity: 1;
+  transform: none;
+}
+
+.option-canvas .option-panel[hidden] {
+  display: none;
+}
+
+.option-canvas .option-panel-intro {
+  display: flex;
+  align-items: baseline;
+  gap: 1.4cqw;
+  margin: 0;
+  padding-bottom: 1.9cqh;
+  border-bottom: 1px solid var(--opt-line-strong);
+}
+
+.option-canvas .option-panel-intro h3 {
+  margin: 0;
+  color: var(--opt-ink);
+  font: 600 clamp(16px, 1.5cqw, 22px) / 1.1 "Yu Mincho", "Noto Serif SC", serif;
+  letter-spacing: .24em;
+  text-shadow: 0 1px .8cqw var(--v4-shadow);
+}
+
+.option-canvas .option-panel-intro p {
+  margin: 0;
+  color: var(--opt-faint);
+  font: 400 clamp(10px, .8cqw, 12.5px) / 1.4 "Yu Mincho", "Noto Serif SC", serif;
+  letter-spacing: .14em;
+}
+
+.option-canvas .option-panel-note {
+  display: block;
+  margin: 2.1cqh 0 0;
+  color: var(--opt-faint);
+  font: 400 clamp(10px, .82cqw, 12.5px) / 1.9 "Yu Mincho", "Noto Serif SC", serif;
+  letter-spacing: .08em;
+  overflow-wrap: anywhere;
+}
+
+.option-canvas .option-settings {
+  display: grid;
+  align-content: start;
+  height: auto;
+  max-height: none;
+  min-height: 0;
+  overflow: visible;
+}
+
+.option-canvas .option-settings::before {
+  content: none;
+}
+
+.option-canvas .option-setting {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 2cqw;
+  min-height: 7cqh;
+  padding: 2cqh .4cqw 2cqh 1cqw;
+  border-bottom: 1px solid var(--opt-line);
+  isolation: isolate;
+  pointer-events: auto;
+  transition: background-color 170ms ease;
+}
+
+.option-canvas .option-setting::before,
+.option-canvas .option-setting::after {
+  content: none;
+}
+
+.option-canvas .option-setting:focus-within,
+.option-canvas .option-setting:hover {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--v4-accent) 10%, transparent), transparent 62%);
+}
+
+.option-canvas .option-setting-copy {
+  display: block;
+  min-width: 0;
+  padding: 0;
+}
+
+.option-canvas .option-setting-copy strong {
+  display: block;
+  color: var(--opt-ink);
+  font: 600 clamp(14px, 1.08cqw, 17px) / 1.3 "Yu Mincho", "Noto Serif SC", serif;
+  letter-spacing: .12em;
+  text-shadow: 0 1px .7cqw var(--v4-shadow);
+}
+
+.option-canvas .option-setting-copy span {
+  display: block;
+  margin-top: .5cqh;
+  color: var(--opt-soft);
+  font: 400 clamp(10px, .8cqw, 12px) / 1.45 "Yu Mincho", "Noto Serif SC", serif;
+  letter-spacing: .08em;
+}
+
+.option-canvas .option-setting-control {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1.1cqw;
+}
+
+/* ---------- 分段选择:独立小按钮,从不连体 ---------- */
+
+.option-canvas .option-choice-group {
+  display: inline-flex;
+  flex-wrap: wrap;
+  overflow: visible;
+  border: 0;
+  background: transparent;
+  gap: .55cqw;
+}
+
+.option-canvas .option-choice-group button {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  padding: .95cqh 1.15cqw;
+  border: 1px solid color-mix(in srgb, var(--v4-ink) 30%, transparent);
+  border-radius: 0;
+  color: var(--opt-soft);
+  background: color-mix(in srgb, var(--v4-card) 24%, transparent);
+  box-shadow: inset 0 1px color-mix(in srgb, white 8%, transparent);
+  font: 500 clamp(12px, .9cqw, 14px) / 1 "Yu Mincho", "Noto Serif SC", serif;
+  letter-spacing: .1em;
+  text-shadow: none;
+  white-space: nowrap;
+  isolation: isolate;
+  transform: none;
+  transition: color 160ms ease, border-color 160ms ease, background-color 160ms ease;
+}
+
+.option-canvas .option-choice-group button::before,
+.option-canvas .option-choice-group button::after {
+  content: none;
+}
+
+.option-canvas .option-choice-group button[aria-checked="true"] {
+  color: var(--opt-ink);
+  border-color: color-mix(in srgb, var(--v4-accent) 58%, var(--v4-ink) 16%);
+  background: var(--option-control-active);
+  box-shadow: inset 0 1px color-mix(in srgb, white 12%, transparent);
+}
+
+/* ---------- 滑杆:发丝轨 + 方钉 ---------- */
+
+.option-canvas .option-range {
+  display: grid;
+  grid-template-columns: auto minmax(12cqw, 19cqw) auto;
+  align-items: center;
+  gap: .8cqw;
+}
+
+.option-canvas .option-range > span {
+  color: var(--opt-faint);
+  font: 600 clamp(8px, .54cqw, 10px) / 1 "Yu Gothic", "Noto Sans SC", sans-serif;
+  letter-spacing: .12em;
+}
+
+.option-canvas .option-range input {
+  width: 100%;
+  height: 3.2cqh;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  appearance: none;
+  background: transparent;
+  touch-action: pan-y;
+}
+
+.option-canvas .option-range input::-webkit-slider-runnable-track {
+  height: 2px;
+  border: 0;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--v4-accent) 72%, var(--v4-ink) 12%) var(--option-range-progress, 50%),
+    color-mix(in srgb, var(--v4-ink) 22%, transparent) 0
+  );
+  box-shadow: none;
+}
+
+.option-canvas .option-range input::-webkit-slider-thumb {
+  width: 10px;
+  height: 10px;
+  margin-top: -4px;
+  border: 1px solid color-mix(in srgb, var(--v4-accent) 72%, var(--v4-ink) 16%);
+  border-radius: 0;
+  appearance: none;
+  background: var(--v4-card);
+  box-shadow: 0 .2cqh .5cqw var(--v4-shadow);
+  transform: none;
+  transition: background-color 160ms ease;
+}
+
+.option-canvas .option-range input::-moz-range-track {
+  height: 2px;
+  border: 0;
+  background: color-mix(in srgb, var(--v4-ink) 22%, transparent);
+}
+
+.option-canvas .option-range input::-moz-range-progress {
+  height: 2px;
+  background: color-mix(in srgb, var(--v4-accent) 72%, var(--v4-ink) 12%);
+}
+
+.option-canvas .option-range input::-moz-range-thumb {
+  width: 9px;
+  height: 9px;
+  border: 1px solid color-mix(in srgb, var(--v4-accent) 72%, var(--v4-ink) 16%);
+  border-radius: 0;
+  background: var(--v4-card);
+  box-shadow: 0 .2cqh .5cqw var(--v4-shadow);
+  transform: none;
+}
+
+.option-canvas .option-setting-control > .setting-value,
+.option-canvas .setting-value {
+  flex: 0 0 auto;
+  min-width: 3.2em;
+  color: color-mix(in srgb, var(--v4-accent) 68%, var(--v4-ink) 32%);
+  font: italic 400 clamp(13px, .9cqw, 16px) / 1 Baskerville, serif;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  text-shadow: none;
+}
+
+/* ---------- 开关:双格幽灵盒 ---------- */
+
+.option-canvas .option-switch {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  width: clamp(3.2rem, 5cqw, 4.2rem);
+  min-width: 0;
+  min-height: 0;
+  height: clamp(1.35rem, 3.4cqh, 1.75rem);
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--opt-edge);
+  border-radius: 0;
+  color: var(--opt-faint);
+  background: color-mix(in srgb, var(--v4-card) 24%, transparent);
+  box-shadow: inset 0 1px color-mix(in srgb, white 8%, transparent);
+  isolation: isolate;
+  transition: border-color 180ms ease;
+}
+
+.option-canvas .option-switch i {
+  position: absolute;
+  z-index: 0;
+  top: 2px;
+  bottom: 2px;
+  left: 2px;
+  width: calc(50% - 2px);
+  min-width: 0;
+  border: 0;
+  border-radius: 0;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, white 16%, var(--v4-accent)),
+    var(--v4-accent)
+  );
+  clip-path: none;
+  box-shadow: none;
+  transform: translateX(0);
+  transition: transform 200ms cubic-bezier(.22, 1, .36, 1), background-color 180ms ease;
+}
+
+.option-canvas .option-switch[aria-pressed="false"] i {
+  background: color-mix(in srgb, var(--v4-ink) 24%, transparent);
+  transform: translateX(100%);
+}
+
+.option-canvas .option-switch[aria-pressed="true"] {
+  border-color: color-mix(in srgb, var(--v4-accent) 58%, var(--v4-ink) 16%);
+  background: color-mix(in srgb, var(--v4-card) 24%, transparent);
+}
+
+.option-canvas .option-switch i::before {
+  content: none;
+}
+
+.option-canvas .option-switch .setting-value {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+.option-canvas .option-switch::before,
+.option-canvas .option-switch::after {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  font: 500 clamp(10px, .72cqw, 12px) / 1 "Yu Mincho", "Noto Serif SC", serif;
+  letter-spacing: .1em;
+  text-shadow: none;
+  transition: color 180ms ease;
+  content: "开";
+}
+
+.option-canvas .option-switch::after {
+  content: "关";
+}
+
+.option-canvas .option-switch[aria-pressed="true"]::before,
+.option-canvas .option-switch[aria-pressed="false"]::after {
+  color: var(--opt-on-accent);
+}
+
+.option-canvas .option-switch[aria-pressed="true"]::after,
+.option-canvas .option-switch[aria-pressed="false"]::before {
+  color: var(--opt-faint);
+}
+
+/* ---------- 指令按钮:幽灵盒 ---------- */
+
+.option-canvas .option-command {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  padding: 1cqh 1.9cqw;
+  border: 1px solid var(--opt-edge);
+  border-radius: 0;
+  color: var(--opt-ink);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--v4-card) 22%, transparent),
+    color-mix(in srgb, var(--v4-outer) 10%, transparent)
+  );
+  box-shadow: inset 0 1px color-mix(in srgb, white 10%, transparent);
+  font: 500 clamp(12px, .9cqw, 14.5px) / 1 "Yu Mincho", "Noto Serif SC", serif;
+  letter-spacing: .2em;
+  text-indent: .2em;
+  text-shadow: none;
+  white-space: nowrap;
+  isolation: isolate;
+  transition: color 160ms ease, border-color 160ms ease, background-color 160ms ease;
+}
+
+.option-canvas .option-command::before {
+  content: none;
+}
+
+.option-canvas .option-command.option-command-danger {
+  color: var(--opt-danger);
+  border-color: color-mix(in srgb, var(--opt-danger) 45%, transparent);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--v4-card) 22%, transparent),
+    color-mix(in srgb, var(--v4-outer) 10%, transparent)
+  );
+}
+
+.option-canvas .option-command[data-confirm="true"] {
+  color: var(--opt-on-accent);
+  border-color: var(--opt-danger);
+  background: var(--opt-danger);
+}
+
+/* ---------- 底部操作层 ---------- */
+
+.option-canvas .option-actions {
+  position: absolute;
+  z-index: 30;
+  right: 4.8cqw;
+  bottom: 3cqh;
+  left: 4.8cqw;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 5cqh;
+  pointer-events: auto;
+}
+
+.option-canvas .option-state {
+  display: flex;
+  align-items: center;
+  gap: .8cqw;
+  margin: 0;
+  color: var(--opt-soft);
+  font: 500 clamp(10px, .68cqw, 12.5px) / 1.35 "Yu Gothic", "Noto Sans SC", sans-serif;
+  letter-spacing: .14em;
+  text-shadow: 0 1px .8cqw var(--v4-shadow);
+}
+
+.option-canvas .option-state i {
+  display: none;
+}
+
+.option-canvas .option-state b {
+  font: italic 400 1em Baskerville, serif;
+  color: color-mix(in srgb, var(--v4-accent) 68%, var(--v4-ink) 32%);
+}
+
+.option-canvas[data-option-sync="active"] .option-state {
+  color: var(--opt-ink);
+}
+
+/* BACK 使用公共路线箭头,只定位置与颜色 */
+.option-canvas .option-actions .system-back {
+  position: relative;
+  top: auto;
+  right: auto;
+  bottom: auto;
+  left: auto;
+  min-width: 0;
+  min-height: 4cqh;
+  padding: 0 0 .8cqh;
+  border: 0;
+  border-radius: 0;
+  color: var(--v4-soft);
+  background: transparent;
+  box-shadow: none;
+  font: 500 clamp(10px, .68cqw, 13px) / 1 "Yu Gothic", "Noto Sans SC", sans-serif;
+  letter-spacing: .24em;
+  text-indent: 0;
+  opacity: .88;
+  text-shadow: none;
+  isolation: isolate;
+  transition: color 200ms ease, opacity 200ms ease, text-shadow 200ms ease;
+}
+
+.option-canvas .option-actions .system-back::before,
+.option-canvas .option-actions .system-back::after {
+  content: none;
+}
+
+/* ---------- 焦点与悬停 ---------- */
+
+.option-canvas .option-primary button:focus-visible,
+.option-canvas .option-secondary button:focus-visible,
+.option-canvas .option-choice-group button:focus-visible,
+.option-canvas .option-switch:focus-visible,
+.option-canvas .option-command:focus-visible,
+.option-canvas .option-range input:focus-visible,
+.option-canvas .option-actions .system-back:focus-visible {
+  outline: 0;
+  text-decoration: underline;
+  text-decoration-color: currentColor;
+  text-decoration-thickness: 1px;
+  text-underline-offset: .45em;
+  text-shadow: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .option-canvas .option-primary button:hover {
+    color: var(--opt-ink);
+    border-color: color-mix(in srgb, var(--v4-accent) 55%, var(--v4-ink) 22%);
+    background-color: transparent;
+    transform: none;
+  }
+
+  .option-canvas .option-secondary button:hover {
+    color: var(--opt-ink);
+    background: linear-gradient(90deg, color-mix(in srgb, var(--v4-accent) 12%, transparent), transparent 88%);
+    transform: none;
+  }
+
+  .option-canvas .option-choice-group button:hover {
+    color: var(--opt-ink);
+    border-color: color-mix(in srgb, var(--v4-accent) 45%, var(--v4-ink) 20%);
+    background-color: color-mix(in srgb, var(--v4-card) 38%, transparent);
+    transform: none;
+  }
+
+  .option-canvas .option-command:hover {
+    color: var(--opt-ink);
+    border-color: color-mix(in srgb, var(--v4-accent) 58%, var(--v4-ink) 16%);
+    background: var(--option-control-active);
+    transform: none;
+  }
+
+  .option-canvas .option-command.option-command-danger:hover {
+    color: var(--opt-on-accent);
+    border-color: var(--opt-danger);
+    background: var(--opt-danger);
+  }
+
+  .option-canvas .option-switch:hover {
+    border-color: color-mix(in srgb, var(--v4-accent) 55%, var(--v4-ink) 22%);
+  }
+
+  .option-canvas .option-range input:hover::-webkit-slider-thumb {
+    background: color-mix(in srgb, var(--v4-accent) 30%, var(--v4-card) 70%);
+    transform: none;
+  }
+
+  .option-canvas .option-actions .system-back:hover {
+    color: var(--opt-ink);
+    border-color: transparent;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------- 窄横屏 ---------- */
+
+@media (max-width: 1050px) and (orientation: landscape) {
+  .option-canvas .option-book {
+    top: 15cqh;
+    bottom: 12cqh;
+    grid-template-columns: minmax(9.5rem, 17cqw) minmax(0, 1fr);
+  }
+
+  .option-canvas .option-actions {
+    bottom: 2.4cqh;
+  }
+}
+
+/* ---------- 竖屏 ---------- */
+
+@media (max-width: 900px) and (orientation: portrait) {
+  html:not([data-forced-landscape="true"]):not([data-reading-system-fixed="true"]) {
+  .option-canvas .option-safe-frame {
+    width: 100vw;
+    height: 100vh;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .option-canvas .option-heading {
+    top: max(2.2vh, env(safe-area-inset-top));
+    left: 5vw;
+  }
+
+  .option-canvas .option-heading h2 {
+    font-size: clamp(34px, 10.8vw, 48px);
+  }
+
+  .option-canvas .option-heading p {
+    font-size: clamp(10px, 2.8vw, 13px);
+    letter-spacing: .3em;
+  }
+
+  .option-canvas .option-primary {
+    top: max(10.8vh, calc(env(safe-area-inset-top) + 8.6vh));
+    right: 5vw;
+    left: 5vw;
+    justify-content: stretch;
+    gap: 2.4vw;
+    height: 6vh;
+  }
+
+  .option-canvas .option-primary button {
+    flex: 1 1 0;
+    width: auto;
+    font-size: clamp(13px, 3.8vw, 16px);
+    letter-spacing: .14em;
+    text-indent: .14em;
+  }
+
+  .option-canvas .option-book {
+    top: max(18.6vh, calc(env(safe-area-inset-top) + 16.4vh));
+    right: 4vw;
+    bottom: max(8.6vh, calc(env(safe-area-inset-bottom) + 7vh));
+    left: 4vw;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .option-canvas .option-secondary-shell {
+    grid-column: 1;
+    grid-row: 1;
+    padding: 0 2vw;
+    overflow: hidden;
+    border-right: 0;
+    border-bottom: 1px solid var(--opt-line);
+  }
+
+  .option-canvas .option-secondary {
+    display: flex;
+    align-items: stretch;
+    height: auto;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .option-canvas .option-secondary::-webkit-scrollbar {
+    display: none;
+  }
+
+  .option-canvas .option-secondary::before {
+    top: auto;
+    right: 4vw;
+    bottom: 0;
+    left: 4vw;
+    width: auto;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--opt-line-strong) 8%, var(--opt-line-strong) 90%, transparent);
+  }
+
+  .option-canvas .option-secondary button {
+    flex: 0 0 auto;
+    min-height: 0;
+    padding: 1.9vh 3.6vw;
+    font-size: clamp(12px, 3.4vw, 15px);
+    letter-spacing: .1em;
+    white-space: nowrap;
+  }
+
+  .option-canvas .option-secondary button[aria-selected="true"] {
+    padding-left: 3.6vw;
+    background: linear-gradient(180deg, transparent 55%, color-mix(in srgb, var(--v4-accent) 20%, transparent));
+  }
+
+  .option-canvas .option-book .option-main,
+  .option-canvas .option-main {
+    grid-column: 1;
+    grid-row: 2;
+    padding: 2.4vh 4.5vw 2.8vh;
+    scrollbar-width: none;
+  }
+
+  .option-canvas .option-main::-webkit-scrollbar {
+    display: none;
+  }
+
+  .option-canvas .option-panel-intro h3 {
+    font-size: clamp(17px, 5vw, 22px);
+  }
+
+  .option-canvas .option-panel-intro p {
+    font-size: clamp(10px, 2.8vw, 12px);
+  }
+
+  .option-canvas .option-setting {
+    grid-template-columns: minmax(0, 42%) minmax(0, 58%);
+    gap: 3vw;
+    min-height: 0;
+    padding: 2.3vh 1vw 2.3vh 2.4vw;
+  }
+
+  .option-canvas .option-setting-copy strong {
+    font-size: clamp(13px, 3.7vw, 16px);
+  }
+
+  .option-canvas .option-setting-copy span {
+    font-size: clamp(10px, 2.8vw, 12px);
+  }
+
+  .option-canvas .option-setting-control {
+    flex-wrap: wrap;
+    gap: 1.6vw;
+  }
+
+  .option-canvas .option-choice-group button {
+    padding: 1.3vh 2.4vw;
+    font-size: clamp(11px, 3vw, 13px);
+    letter-spacing: .05em;
+  }
+
+  .option-canvas .option-range {
+    grid-template-columns: auto minmax(16vw, 1fr) auto;
+    width: 100%;
+  }
+
+  .option-canvas .option-switch {
+    width: clamp(3.4rem, 16vw, 4.4rem);
+    height: clamp(1.4rem, 3.4vh, 1.9rem);
+  }
+
+  .option-canvas .option-command {
+    padding: 1.3vh 4.6vw;
+    font-size: clamp(11px, 3vw, 13px);
+  }
+
+  .option-canvas .option-actions {
+    right: 4vw;
+    bottom: max(1.8vh, env(safe-area-inset-bottom));
+    left: 4vw;
+  }
+
+  .option-canvas .option-actions .system-back {
+    min-height: 4.8vh;
+    padding-left: 3.4cqw;
+  }
+  }
+}
+
+/* ---------- 减少动态 ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .option-canvas *,
+  .option-canvas *::before,
+  .option-canvas *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+html[data-motion="reduced"] .option-canvas *,
+html[data-motion="reduced"] .option-canvas *::before,
+html[data-motion="reduced"] .option-canvas *::after {
+  animation: none !important;
+  transition: none !important;
+}

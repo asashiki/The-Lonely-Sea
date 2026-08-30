@@ -49,12 +49,12 @@ export const startTopics: StartTopic[] = [
   },
   {
     id: "contact",
-    label: "CONTACT",
-    eyebrow: "DIRECT CONNECTION",
-    title: "可以找到我的地方",
+    label: "CONNECT",
+    eyebrow: "COMMUNICATION SCENE",
+    title: "从这里与 Blog 对话",
     lines: [
-      "公开项目与本站源代码目前保存在 GitHub。其他联系方式会在确认公开范围后再加入。",
-      "这里不会伪造一个无法真正送达的留言表单。",
+      "RSS、访客留言与友链不再是网页角落里的三个链接，而是 Blog 自己负责的通讯场景。",
+      "本机草稿和公开提交会明确分开；没有送达的内容不会被说成已经发布。",
     ],
   },
   {

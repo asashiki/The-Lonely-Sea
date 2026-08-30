@@ -13,7 +13,13 @@ Thumbs.db
 .local/
 dev*.log
 shots/
+tmp/
 autonomous-build/
+
+# Local runtime iterations; only the release selected by release-registry is published.
+public/games/lonely-sea-chapter-one/0.3.0-*/
+!public/games/lonely-sea-chapter-one/0.3.0-4830749c/
+!public/games/lonely-sea-chapter-one/0.3.0-4830749c/**
 load-xiv-entry-buttons/
 恋狱/
 lonely-sea-*.html

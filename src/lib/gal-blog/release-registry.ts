@@ -1,5 +1,6 @@
-import { readFileSync } from "node:fs";
-import { resolve, sep } from "node:path";
+import { createHash } from "node:crypto";
+import { readdirSync, readFileSync } from "node:fs";
+import { relative, resolve, sep } from "node:path";
 
 import {
   GAL_BLOG_CHANNEL,
@@ -23,6 +24,12 @@ type GameDefinition = {
   releases: ReleaseDefinition[];
 };
 
+type IntegrityFile = {
+  path: string;
+  bytes: number;
+  sha256: string;
+};
+
 export interface RegisteredGameRelease {
   releaseId: string;
   packageUrl: string;
@@ -37,21 +44,64 @@ export interface RegisteredGame {
   releases: RegisteredGameRelease[];
 }
 
+export interface PublicStoryFlow {
+  gameSlug: string;
+  releaseId: string;
+  title: string;
+  nodes: Array<{
+    id: string;
+    sceneId: string;
+    title: string;
+    kind: string;
+    replayable: boolean;
+    thumbnail?: string;
+  }>;
+  edges: Array<{
+    id: string;
+    source: string;
+    target: string;
+    label?: string;
+  }>;
+}
+
 const GAME_DEFINITIONS: GameDefinition[] = [
   {
-    slug: "alice-tea-room",
-    title: "爱丽丝茶室",
-    currentReleaseId: null,
-    releases: [],
+    slug: "lonely-sea-chapter-one",
+    title: "孤独之海 · 第一章",
+    currentReleaseId: "0.3.0-4830749c",
+    releases: [
+      {
+        releaseId: "0.3.0-4830749c",
+        directory: "0.3.0-4830749c",
+      },
+    ],
   },
 ];
 
 const SUPPORTED_ACTIONS = new Set<GalBlogAction>([
   "return-menu",
   "open-article",
+  "open-settings",
+  "open-load",
   "open-comment-form",
+  "open-blog-scene",
+  "open-external",
   "save-progress",
   "get-runtime-data",
+]);
+const SUPPORTED_SETTING_KEYS = new Set([
+  "audio.muted",
+  "audio.bgm",
+  "audio.ambient",
+  "audio.effects",
+  "audio.voice",
+  "audio.stopVoiceOnAdvance",
+  "text.scale",
+  "text.speed",
+  "accessibility.reducedMotion",
+  "interface.scale",
+  "interface.cursor",
+  "interface.language",
 ]);
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -85,8 +135,8 @@ function parseManifest(value: unknown, expectedSlug: string, expectedReleaseId: 
   if (value.game.slug !== expectedSlug || value.game.releaseId !== expectedReleaseId) {
     throw new Error("游戏清单与发布目录不一致");
   }
-  if (value.engine.name !== "WebGAL" || value.engine.bundled !== true) {
-    throw new Error("正式游戏包必须内置 WebGAL 运行时");
+  if (!["WebGAL", "Gal Story Runtime"].includes(String(value.engine.name)) || value.engine.bundled !== true) {
+    throw new Error("正式游戏包必须内置受支持的运行时");
   }
   assertString(value.engine.version, "engine.version");
   if (!isSafeRelativePath(value.engine.entry)) throw new Error("engine.entry 不是安全相对路径");
@@ -107,7 +157,9 @@ function parseManifest(value: unknown, expectedSlug: string, expectedReleaseId: 
   }
   if (savePoints.some((point) => !isRecord(point) || point.kind !== "save-point"
     || !isSafeIdentifier(point.id) || typeof point.title !== "string"
-    || !isSafeIdentifier(point.sceneId) || point.resumeMode !== "scene-entry"
+    || !isSafeIdentifier(point.sceneId)
+    || typeof point.resumeMode !== "string"
+    || !["scene-entry", "authored-block"].includes(point.resumeMode)
     || (point.thumbnail !== undefined && !isSafeRelativePath(point.thumbnail)))) {
     throw new Error("游戏清单检查点入口无效");
   }
@@ -127,6 +179,19 @@ function parseManifest(value: unknown, expectedSlug: string, expectedReleaseId: 
     ...value.stateContract.records,
   ];
   if (stateIds.some((id) => !isSafeIdentifier(id))) throw new Error("游戏清单状态白名单包含无效 ID");
+  if (value.settingsContract !== undefined) {
+    if (!isRecord(value.settingsContract)
+      || value.settingsContract.schema !== "gal-blog-settings/v1"
+      || !Array.isArray(value.settingsContract.accepts)
+      || value.settingsContract.accepts.some((key) => typeof key !== "string" || !SUPPORTED_SETTING_KEYS.has(key))) {
+      throw new Error("游戏清单设置契约无效");
+    }
+  }
+  if (value.presentation !== undefined
+    && (!isRecord(value.presentation)
+      || (value.presentation.loaderArt !== undefined && !isSafeRelativePath(value.presentation.loaderArt)))) {
+    throw new Error("游戏包展示资源无效");
+  }
   if (value.bridge.protocol !== GAL_BLOG_PROTOCOL || value.bridge.channel !== GAL_BLOG_CHANNEL) {
     throw new Error("游戏包 Bridge 协议不兼容");
   }
@@ -154,6 +219,58 @@ function parseManifest(value: unknown, expectedSlug: string, expectedReleaseId: 
   return value as unknown as GalBlogPackageManifestV1;
 }
 
+function listReleaseFiles(releaseRoot: string, directory = releaseRoot): string[] {
+  return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+    const path = resolve(directory, entry.name);
+    if (entry.isSymbolicLink()) throw new Error(`游戏包不得包含符号链接：${entry.name}`);
+    if (entry.isDirectory()) return listReleaseFiles(releaseRoot, path);
+    if (!entry.isFile()) throw new Error(`游戏包包含不支持的目录项：${entry.name}`);
+    return relative(releaseRoot, path).split(sep).join("/");
+  });
+}
+
+function parseIntegrity(value: unknown): IntegrityFile[] {
+  if (!isRecord(value) || value.algorithm !== "SHA-256" || !Array.isArray(value.files)) {
+    throw new Error("游戏包完整性清单无效");
+  }
+  const files = value.files;
+  if (files.some((file) => !isRecord(file)
+    || !isSafeRelativePath(file.path)
+    || !Number.isSafeInteger(file.bytes)
+    || Number(file.bytes) < 0
+    || typeof file.sha256 !== "string"
+    || !/^[a-f0-9]{64}$/.test(file.sha256))) {
+    throw new Error("游戏包完整性文件记录无效");
+  }
+  const typedFiles = files as IntegrityFile[];
+  if (new Set(typedFiles.map((file) => file.path)).size !== typedFiles.length) {
+    throw new Error("游戏包完整性清单包含重复路径");
+  }
+  return typedFiles;
+}
+
+function verifyReleaseIntegrity(releaseRoot: string, manifest: GalBlogPackageManifestV1): void {
+  const integrityPath = resolve(releaseRoot, manifest.integrity);
+  if (!integrityPath.startsWith(`${releaseRoot}${sep}`)) throw new Error("完整性清单超出游戏包目录");
+  const files = parseIntegrity(JSON.parse(readFileSync(integrityPath, "utf8")));
+  const expectedPaths = new Set(files.map((file) => file.path));
+  const actualPaths = listReleaseFiles(releaseRoot)
+    .filter((path) => path !== manifest.integrity);
+  if (actualPaths.length !== files.length
+    || actualPaths.some((path) => !expectedPaths.has(path))) {
+    throw new Error("游戏包文件集合与完整性清单不一致");
+  }
+  for (const file of files) {
+    const contents = readFileSync(resolve(releaseRoot, file.path));
+    if (contents.byteLength !== file.bytes) throw new Error(`游戏包文件大小不匹配：${file.path}`);
+    const hash = createHash("sha256").update(contents).digest("hex");
+    if (hash !== file.sha256) throw new Error(`游戏包文件哈希不匹配：${file.path}`);
+  }
+  if (!expectedPaths.has("gal-blog.embed.json") || !expectedPaths.has(manifest.engine.entry)) {
+    throw new Error("游戏包完整性清单未覆盖清单或运行入口");
+  }
+}
+
 function readRelease(game: GameDefinition, release: ReleaseDefinition): RegisteredGameRelease {
   if (!isSafeIdentifier(game.slug) || !isSafeIdentifier(release.releaseId)
     || !isSafeIdentifier(release.directory)) {
@@ -165,6 +282,7 @@ function readRelease(game: GameDefinition, release: ReleaseDefinition): Register
   if (!releaseRoot.startsWith(`${gameRoot}${sep}`)) throw new Error("游戏包目录超出对应游戏目录");
   const manifestPath = resolve(releaseRoot, "gal-blog.embed.json");
   const manifest = parseManifest(JSON.parse(readFileSync(manifestPath, "utf8")), game.slug, release.releaseId);
+  verifyReleaseIntegrity(releaseRoot, manifest);
   const packageUrl = `/games/${game.slug}/${release.directory}`;
   return {
     releaseId: release.releaseId,
@@ -194,7 +312,7 @@ export function listPublicStoryScenes(): Array<{
     const release = game.releases.find((item) => item.releaseId === game.currentReleaseId);
     if (!release) return [];
     return release.manifest.launchTargets.scenes
-      .filter((scene) => scene.replayable)
+      .filter((scene) => scene.replayable && scene.storyEntry === true)
       .map((scene) => ({
         gameSlug: game.slug,
         releaseId: release.releaseId,
@@ -202,5 +320,51 @@ export function listPublicStoryScenes(): Array<{
         title: scene.title,
         thumbnail: scene.thumbnail ? `${release.packageUrl}/${scene.thumbnail}` : undefined,
       }));
+  });
+}
+
+export function listPublicStoryFlows(): PublicStoryFlow[] {
+  return listRegisteredGames().flatMap((game) => {
+    const release = game.releases.find((item) => item.releaseId === game.currentReleaseId);
+    if (!release) return [];
+    const sceneTargets = new Map(release.manifest.launchTargets.scenes.map((scene) => [scene.id, scene]));
+    const nodes = release.manifest.publicRouteMap.nodes.flatMap((value) => {
+      if (!isRecord(value)
+        || !isSafeIdentifier(value.id)
+        || !isSafeIdentifier(value.sceneId)
+        || typeof value.title !== "string"
+        || typeof value.kind !== "string") return [];
+      const target = sceneTargets.get(value.sceneId);
+      return [{
+        id: value.id,
+        sceneId: value.sceneId,
+        title: value.title.slice(0, 120),
+        kind: value.kind.slice(0, 80),
+        replayable: value.kind === "start" || Boolean(target?.replayable),
+        thumbnail: target?.thumbnail ? `${release.packageUrl}/${target.thumbnail}` : undefined,
+      }];
+    });
+    const nodeIds = new Set(nodes.map((node) => node.id));
+    const edges = release.manifest.publicRouteMap.edges.flatMap((value) => {
+      if (!isRecord(value)
+        || !isSafeIdentifier(value.id)
+        || !isSafeIdentifier(value.source)
+        || !isSafeIdentifier(value.target)
+        || !nodeIds.has(value.source)
+        || !nodeIds.has(value.target)) return [];
+      return [{
+        id: value.id,
+        source: value.source,
+        target: value.target,
+        label: typeof value.label === "string" ? value.label.slice(0, 120) : undefined,
+      }];
+    });
+    return nodes.length ? [{
+      gameSlug: game.slug,
+      releaseId: release.releaseId,
+      title: game.title,
+      nodes,
+      edges,
+    }] : [];
   });
 }

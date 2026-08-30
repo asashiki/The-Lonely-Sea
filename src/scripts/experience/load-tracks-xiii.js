@@ -1,7 +1,8 @@
 import {
   GAL_BLOG_SAVE_CHANGE_EVENT,
-  listGalBlogSaves,
+  listGalBlogManualSaves,
 } from "../../lib/gal-blog/save-store";
+import { recordBlogActivity } from "../../lib/blog-activity";
 
 const LAST_LOAD_STORAGE_KEY = "lonely-sea-last-load";
 const KEYBOARD_CURSOR_STORAGE_KEY = "lonely-sea-load-keyboard-cursor";
@@ -11,8 +12,31 @@ const VIEW_DURATION = 270;
 const PAGE_DURATION = 520;
 const FLOW_DURATION = 460;
 
-export function initLoadTracksXiiiConcept({ reduceMotion }) {
-  const loadCanvas = document.querySelector(".tracks-xiii-canvas");
+/**
+ * @param {{
+ *   reduceMotion: { matches: boolean },
+ *   initialPage?: string,
+ *   initialGameFilter?: string,
+ *   root?: Document | HTMLElement,
+ *   initialSaveOperation?: "save" | "load",
+ *   onBack?: () => void,
+ *   onArticleOpen?: (href: string) => void,
+ *   onSaveSlot?: (detail: { slot: number, existingSaveId: string }) => void,
+ * }} options
+ */
+export function initLoadTracksXiiiConcept({
+  reduceMotion,
+  initialPage = "articles",
+  initialGameFilter = "story",
+  root = document,
+  initialSaveOperation = "load",
+  onBack = () => {},
+  onArticleOpen = null,
+  onSaveSlot = () => {},
+}) {
+  const loadCanvas = root.matches?.(".tracks-xiii-canvas")
+    ? root
+    : root.querySelector(".tracks-xiii-canvas");
   if (!loadCanvas) {
     return {
       activate() {},
@@ -21,6 +45,8 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
         return false;
       },
       deactivate() {},
+      refreshSaves() {},
+      setSaveOperation() {},
     };
   }
 
@@ -49,7 +75,7 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
   const pageNav = required("[data-xiii-page-nav]");
   const pageMarkers = required("[data-xiii-page-markers]");
   const pageStatus = required("[data-xiii-page-status]");
-  const routeCurtain = document.querySelector("#route-curtain");
+  const routeCurtain = root.querySelector("#route-curtain") || document.querySelector("#route-curtain");
   const flowShell = required("[data-xiii-flow-shell]");
   const flowExpand = required("[data-xiii-flow-expand]");
   const flowViewport = required("[data-xiii-flow-viewport]");
@@ -80,10 +106,12 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
   const diaryReaderDate = required("[data-xiii-diary-reader-date]");
   const diaryReaderTitle = required("[data-xiii-diary-reader-title]");
   const diaryReaderSummary = required("[data-xiii-diary-reader-summary]");
+  const diaryReaderLinks = required("[data-xiii-diary-reader-links]");
   const diaryReaderClose = required("[data-xiii-diary-reader-close]");
   const firstDiaryYear = required('[data-xiii-index-group="diary"] [data-xiii-filter]').dataset.xiiiFilter;
   const primaryShell = required(".tracks-xiii-primary-shell");
   const systemBack = required(".system-back");
+  const heading = required(".tracks-xiii-heading h2");
   const interfaceInertTargets = [
     systemBack,
     primaryShell,
@@ -96,7 +124,7 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
 
   const activeFilter = {
     articles: "all",
-    game: "save",
+    game: ["save", "flow", "story"].includes(initialGameFilter) ? initialGameFilter : "story",
     diary: firstDiaryYear,
   };
   const diaryPageByYear = {};
@@ -109,7 +137,7 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
       || map.querySelector("[data-xiii-flow-node]");
   });
 
-  let activePage = "articles";
+  let activePage = ["articles", "game", "diary"].includes(initialPage) ? initialPage : "articles";
   let articlePage = 0;
   let savePage = 0;
   let flowTheme = "blue";
@@ -133,6 +161,7 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
   let saveFeedbackTimer = 0;
   let keyboardCursorEnabled = true;
   let keyboardCursorItem = null;
+  let saveOperation = initialSaveOperation === "save" ? "save" : "load";
 
   try {
     keyboardCursorEnabled = localStorage.getItem(KEYBOARD_CURSOR_STORAGE_KEY) !== "false";
@@ -408,7 +437,7 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
   }
 
   function syncSaveSlots() {
-    const saves = listGalBlogSaves();
+    const saves = listGalBlogManualSaves();
     saveSlots.forEach((slot, index) => {
       const save = saves.find((item) => item.slot === index + 1);
       const copy = required(".tracks-xiii-save-copy", slot);
@@ -416,11 +445,16 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
       const title = required("strong", copy);
       const savedAt = required(".tracks-xiii-save-meta time > span", copy);
       const elapsed = required(".tracks-xiii-save-meta > span > span", copy);
+      const command = required(".tracks-xiii-save-command", slot);
       slot.dataset.saveNumber = String(index + 1).padStart(2, "0");
+      delete slot.dataset.saveConfirm;
+      slot.classList.remove("is-save-confirm");
       if (!save) {
         slot.classList.add("is-empty");
-        slot.disabled = true;
-        slot.setAttribute("aria-label", "空存档槽位");
+        slot.disabled = saveOperation !== "save";
+        slot.setAttribute("aria-label", saveOperation === "save"
+          ? `保存到空槽位 ${slot.dataset.saveNumber}`
+          : "空存档槽位");
         ["saveId", "saveTitle", "saveChapter", "saveSection", "saveProgress", "saveSavedAt", "gameSlug", "releaseId", "savePointId"]
           .forEach((key) => delete slot.dataset[key]);
         slot.style.removeProperty("--save-art");
@@ -429,6 +463,7 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
         title.textContent = "EMPTY SLOT";
         savedAt.textContent = "";
         elapsed.textContent = "";
+        command.textContent = saveOperation === "save" ? "SAVE" : "LOAD";
         return;
       }
       slot.classList.remove("is-empty");
@@ -442,7 +477,9 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
       slot.dataset.gameSlug = save.gameSlug;
       slot.dataset.releaseId = save.releaseId;
       slot.dataset.savePointId = save.target.id;
-      slot.setAttribute("aria-label", `读取游戏存档 ${slot.dataset.saveNumber}：${save.title}`);
+      slot.setAttribute("aria-label", saveOperation === "save"
+        ? `覆盖游戏存档 ${slot.dataset.saveNumber}：${save.title}`
+        : `读取游戏存档 ${slot.dataset.saveNumber}：${save.title}`);
       if (save.thumbnail) slot.style.setProperty("--save-art", `url(${JSON.stringify(save.thumbnail)})`);
       else slot.style.removeProperty("--save-art");
       labels[0].textContent = slot.dataset.saveChapter;
@@ -450,7 +487,19 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
       title.textContent = save.title;
       savedAt.textContent = slot.dataset.saveSavedAt;
       elapsed.textContent = slot.dataset.saveProgress;
+      command.textContent = saveOperation === "save" ? "OVERWRITE" : "LOAD";
     });
+    heading.textContent = saveOperation === "save" ? "SAVE" : "LOAD";
+    loadCanvas.dataset.xiiiSaveOperation = saveOperation;
+  }
+
+  function setSaveOperation(operation) {
+    saveOperation = operation === "save" ? "save" : "load";
+    activePage = "game";
+    activeFilter.game = "save";
+    savePage = 0;
+    syncSaveSlots();
+    updateSelectionState();
   }
 
   function saveTotalPages() {
@@ -697,6 +746,11 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
       localStorage.setItem(LAST_LOAD_STORAGE_KEY, href);
     } catch {}
 
+    if (typeof onArticleOpen === "function") {
+      onArticleOpen(href);
+      return;
+    }
+
     if (reduceMotion.matches) {
       window.location.assign(href);
       return;
@@ -757,6 +811,23 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
       });
     if (theme === flowTheme) updateFlowCopy(node, { animate });
     dispatchCue("select", { target: "flow-node" });
+  }
+
+  function enterFlowNode(node) {
+    const gameSlug = node.dataset.gameSlug || "";
+    const releaseId = node.dataset.releaseId || "";
+    const sceneId = node.dataset.sceneId || "";
+    if (!gameSlug || !releaseId || !sceneId) return;
+    dispatchCue("confirm", { target: "flow-node" });
+    window.dispatchEvent(new CustomEvent("lonely-sea:story-enter", {
+      detail: {
+        number: node.dataset.flowNumber || "",
+        title: node.dataset.flowTitle || "",
+        gameSlug,
+        releaseId,
+        sceneId,
+      },
+    }));
   }
 
   async function switchFlowTheme(nextTheme, { animate = true } = {}) {
@@ -1088,6 +1159,23 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
     diaryReaderDate.textContent = month.dataset.diaryDate || "";
     diaryReaderTitle.textContent = month.dataset.diaryTitle || "";
     diaryReaderSummary.textContent = month.dataset.diarySummary || "";
+    recordBlogActivity("diaryMonths", month.dataset.xiiiDiaryMonth || month.dataset.diaryDate || "unknown");
+    let monthRecords = [];
+    try {
+      const parsed = JSON.parse(month.dataset.diaryRecords || "[]");
+      if (Array.isArray(parsed)) monthRecords = parsed;
+    } catch {}
+    diaryReaderLinks.replaceChildren(...monthRecords.flatMap((record) => {
+      if (!record || typeof record !== "object" || typeof record.url !== "string") return [];
+      const link = document.createElement("a");
+      const title = document.createElement("strong");
+      const date = document.createElement("small");
+      link.href = record.url;
+      title.textContent = typeof record.title === "string" ? record.title : "UNTITLED RECORD";
+      date.textContent = typeof record.date === "string" ? record.date : "";
+      link.append(title, date);
+      return [link];
+    }));
     all("[data-xiii-diary-entry]").forEach((candidate) => {
       candidate.setAttribute("aria-pressed", String(candidate === entry));
     });
@@ -1366,6 +1454,7 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
   bindRovingKeys(pageEntrances, "ArrowLeft", "ArrowRight");
   systemBack.addEventListener("click", () => {
     dispatchCue("back", { target: "load" });
+    onBack();
   });
 
   indexGroups.forEach((group) => {
@@ -1395,7 +1484,30 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
   });
 
   function activateSaveSlot(slot, { animate = true } = {}) {
-    if (slot.disabled || !slot.dataset.saveId) return;
+    if (slot.disabled) return;
+    if (saveOperation === "save") {
+      const occupied = Boolean(slot.dataset.saveId);
+      if (occupied && slot.dataset.saveConfirm !== "true") {
+        saveSlots.forEach((candidate) => {
+          delete candidate.dataset.saveConfirm;
+          candidate.classList.remove("is-save-confirm");
+          const command = candidate.querySelector(".tracks-xiii-save-command");
+          if (command) command.textContent = candidate.dataset.saveId ? "OVERWRITE" : "SAVE";
+        });
+        slot.dataset.saveConfirm = "true";
+        slot.classList.add("is-save-confirm");
+        required(".tracks-xiii-save-command", slot).textContent = "CONFIRM";
+        dispatchCue("select", { target: "save-confirm" });
+        return;
+      }
+      dispatchCue("confirm", { target: "save-data" });
+      onSaveSlot({
+        slot: Number(slot.dataset.saveNumber),
+        existingSaveId: slot.dataset.saveId || "",
+      });
+      return;
+    }
+    if (!slot.dataset.saveId) return;
     window.clearTimeout(saveFeedbackTimer);
     saveSlots.forEach((candidate) => {
       candidate.classList.remove("is-load-feedback");
@@ -1444,6 +1556,11 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
     });
     slot.addEventListener("pointerleave", () => {
       slot.classList.remove("is-load-acknowledged");
+      if (slot.dataset.saveConfirm === "true") {
+        delete slot.dataset.saveConfirm;
+        slot.classList.remove("is-save-confirm");
+        required(".tracks-xiii-save-command", slot).textContent = "OVERWRITE";
+      }
     });
     slot.addEventListener("blur", () => {
       slot.classList.remove("is-load-acknowledged");
@@ -1462,6 +1579,7 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
   flowNodes.forEach((node) => {
     node.addEventListener("click", (event) => {
       selectFlowNode(node, { animate: event.detail > 0 });
+      enterFlowNode(node);
     });
   });
   flowThemeButtons.forEach((button) => {
@@ -1565,5 +1683,7 @@ export function initLoadTracksXiiiConcept({ reduceMotion }) {
     changePage,
     closeArticle,
     deactivate,
+    refreshSaves: syncSaveSlots,
+    setSaveOperation,
   };
 }

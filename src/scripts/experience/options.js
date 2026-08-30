@@ -1,228 +1,480 @@
 import { all, required } from "./dom.js";
 import {
-  applyPreferences,
   defaultPreferences,
   normalizePreferences,
+  publishPreferences,
   readPreferences,
-  writePreferences,
 } from "./preferences.js";
+import { initSoundLaboratory } from "./sound-laboratory.js";
+import { readExperienceState, writeExperienceState } from "./state.js";
 
 const KEYBOARD_CURSOR_STORAGE_KEY = "lonely-sea-load-keyboard-cursor";
+const DEFAULT_CATEGORY = "system";
+const DEFAULT_PANEL = "language";
 
-export function initOptions({ onReplayOpening, onResetExperience }) {
+async function clearBrowserSiteData() {
+  // Stop live audio/controllers before clearing storage. Otherwise their
+  // pagehide handlers can write the just-deleted listening session back.
+  window.dispatchEvent(new CustomEvent("lonely-sea:before-site-data-clear"));
+  // WebGAL keeps IndexedDB connections open while its iframe is alive. Close
+  // the same-origin game document first; otherwise deleteDatabase is blocked
+  // and a "clear all" followed by reload can resurrect native engine saves.
+  const gameFrames = [...document.querySelectorAll("iframe[data-game-frame]")];
+  await Promise.all(gameFrames.map((frame) => new Promise((resolve) => {
+    const finish = () => resolve(undefined);
+    frame.addEventListener("load", finish, { once: true });
+    frame.src = "about:blank";
+    window.setTimeout(finish, 1_000);
+  })));
+  try {
+    if ("caches" in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map((key) => caches.delete(key)));
+    }
+  } catch {}
+  try {
+    const registrations = await navigator.serviceWorker?.getRegistrations?.();
+    await Promise.all((registrations || []).map((registration) => registration.unregister()));
+  } catch {}
+  try {
+    if (typeof indexedDB?.databases === "function") {
+      const databases = await indexedDB.databases();
+      await Promise.all(databases.flatMap((database) => {
+        if (!database.name) return [];
+        return [new Promise((resolve) => {
+          const request = indexedDB.deleteDatabase(database.name);
+          const finish = () => resolve(undefined);
+          request.addEventListener("success", finish, { once: true });
+          request.addEventListener("error", finish, { once: true });
+          window.setTimeout(finish, 2_500);
+        })];
+      }));
+    }
+  } catch {}
+  try {
+    const directory = await navigator.storage?.getDirectory?.();
+    if (directory) {
+      for await (const name of directory.keys()) {
+        await directory.removeEntry(name, { recursive: true });
+      }
+    }
+  } catch {}
+  try {
+    document.cookie.split(";").forEach((cookie) => {
+      const name = cookie.split("=")[0]?.trim();
+      if (name) document.cookie = `${name}=; Max-Age=0; path=/; SameSite=Lax`;
+    });
+  } catch {}
+  try { localStorage.clear(); } catch {}
+  try { sessionStorage.clear(); } catch {}
+}
+
+export function initOptions({ onReplayOpening = () => {}, onResetExperience = () => {} } = {}) {
   const optionScreen = required(".option-screen");
   const optionCanvas = required(".option-canvas", optionScreen);
-  const optionTabs = all("[data-option-tab]", optionScreen);
-  const optionPanels = all("[data-option-panel]", optionScreen);
-  const settingRows = all(".setting-row", optionScreen);
-  const optionHeading = required("#option-heading", optionScreen);
-  const optionPage = required("#option-page", optionScreen);
-  const optionHelp = required("#option-help", optionScreen);
-  const optionGuideNumber = required("#option-guide-number", optionScreen);
-  const optionState = required("[data-option-state]", optionScreen);
-  const applyButton = required("#apply-options", optionScreen);
-  const applyLabel = required("span", applyButton);
-  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const primaryButtons = all("[data-option-primary]", optionScreen);
+  const secondaryGroups = all("[data-option-secondary-group]", optionScreen);
+  const secondaryButtons = all("[data-option-secondary]", optionScreen);
+  const panels = all("[data-option-panel]", optionScreen);
+  const settingRows = all(".option-setting[data-setting-key]", optionScreen);
+  const experienceRows = all(".option-setting[data-experience-key]", optionScreen);
+  const stateLabel = required("[data-option-state]", optionScreen);
+  const resetButton = required("#reset-options", optionScreen);
+  const clearButton = required("#clear-browser-data", optionScreen);
+  const replayButton = required("#option-replay-opening", optionScreen);
+  const fullscreenButton = required("#option-toggle-fullscreen", optionScreen);
+  const systemReduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
-  let savedPreferences = readPreferences();
-  let draftPreferences = { ...savedPreferences };
-  let activeTab = optionTabs[0]?.dataset.optionTab || "display";
-  let transition = null;
+  let preferences = readPreferences();
+  let experience = readExperienceState();
+  let activeCategory = DEFAULT_CATEGORY;
+  let activePanel = DEFAULT_PANEL;
   let transitionToken = 0;
+  let resetTimer = 0;
+  let clearTimer = 0;
+  let stateTimer = 0;
+  let soundLaboratory = null;
 
-  function formatValue(row, value) {
-    const range = row.querySelector("[data-setting-range]");
-    if (range) return `${value}${range.dataset.suffix || "%"}`;
-    if (typeof value === "boolean") return value ? "ON" : "OFF";
-    return String(value);
+  function reducedMotion() {
+    return systemReduceMotion.matches || preferences.reducedMotion;
   }
 
-  function setRangeProgress(input) {
+  function primaryButton(id) {
+    return primaryButtons.find((button) => button.dataset.optionPrimary === id);
+  }
+
+  function secondaryButton(owner, id) {
+    return secondaryButtons.find((button) => (
+      button.dataset.optionCategoryOwner === owner && button.dataset.optionSecondary === id
+    ));
+  }
+
+  function firstSecondary(owner) {
+    return secondaryButtons.find((button) => button.dataset.optionCategoryOwner === owner);
+  }
+
+  function panel(owner, id) {
+    return panels.find((item) => (
+      item.dataset.optionPanelOwner === owner && item.dataset.optionPanel === id
+    ));
+  }
+
+  function cancelPanelAnimations() {
+    panels.forEach((item) => item.getAnimations().forEach((animation) => animation.cancel()));
+  }
+
+  function interruptPanelTransition() {
+    transitionToken += 1;
+    cancelPanelAnimations();
+  }
+
+  function rangeProgress(input) {
     const minimum = Number(input.min || 0);
     const maximum = Number(input.max || 100);
     const progress = (Number(input.value) - minimum) / Math.max(1, maximum - minimum);
-    input.closest(".setting-range")?.style.setProperty("--setting-progress", `${progress * 100}%`);
+    input.style.setProperty("--option-range-progress", `${progress * 100}%`);
   }
 
-  function hydrateRow(row) {
-    const key = row.dataset.settingKey;
-    if (!key) return;
-    const value = draftPreferences[key];
-    const output = required("output", row);
-    const range = row.querySelector("[data-setting-range]");
-    const toggle = row.querySelector("[data-setting-toggle]");
-    const choice = row.querySelector("[data-setting-choice]");
+  function formatValue(row, value) {
+    const input = row.querySelector("[data-setting-range]");
+    if (["autoSpeed", "readingAutoSpeed"].includes(row.dataset.settingKey)) return `${Math.round(Number(value) * 10)}%`;
+    if (input) return `${value}${input.hasAttribute("data-suffix") ? input.dataset.suffix : "%"}`;
+    if (typeof value === "boolean") return value ? "开" : "关";
+    return String(value);
+  }
 
+  function hydratePreferenceRow(row) {
+    const key = row.dataset.settingKey;
+    const value = preferences[key];
+    if (value === undefined) return;
+
+    const range = row.querySelector("[data-setting-range]");
     if (range) {
       range.value = String(value);
-      setRangeProgress(range);
+      rangeProgress(range);
     }
+
+    const toggle = row.querySelector("[data-setting-toggle]");
     if (toggle) toggle.setAttribute("aria-pressed", String(Boolean(value)));
-    if (choice) {
-      all("[data-setting-value]", choice).forEach((button) => {
-        button.setAttribute("aria-pressed", String(button.dataset.settingValue === String(value)));
-      });
+
+    all("[data-setting-value]", row).forEach((button) => {
+      const selected = button.dataset.settingValue === String(value);
+      if (button.getAttribute("role") === "radio") button.setAttribute("aria-checked", String(selected));
+      else button.setAttribute("aria-pressed", String(selected));
+      button.tabIndex = selected ? 0 : -1;
+    });
+
+    const output = row.querySelector("output");
+    if (output) output.textContent = formatValue(row, value);
+  }
+
+  function hydrateExperienceRow(row) {
+    const key = row.dataset.experienceKey;
+    const value = experience[key];
+    all("[data-setting-value]", row).forEach((button) => {
+      const selected = button.dataset.settingValue === value;
+      button.setAttribute("aria-checked", String(selected));
+      button.tabIndex = selected ? 0 : -1;
+    });
+  }
+
+  function rowHint(row) {
+    return row.dataset.hint || row.querySelector(".option-setting-copy span")?.textContent?.trim() || "";
+  }
+
+  function setHint(text) {
+    if (optionCanvas.dataset.optionSync === "active") return;
+    stateLabel.textContent = text || "";
+  }
+
+  function showSynced(message = "已保存") {
+    window.clearTimeout(stateTimer);
+    optionCanvas.dataset.optionSync = "active";
+    stateLabel.textContent = message;
+    stateTimer = window.setTimeout(() => {
+      optionCanvas.dataset.optionSync = "idle";
+      stateLabel.textContent = "";
+    }, 900);
+  }
+
+  function publishPreference(key, value, message = "已即时保存") {
+    preferences = publishPreferences(normalizePreferences({ ...preferences, [key]: value }));
+    settingRows.filter((row) => row.dataset.settingKey === key).forEach(hydratePreferenceRow);
+    if (key === "keyboardCursor") {
+      try { localStorage.setItem(KEYBOARD_CURSOR_STORAGE_KEY, String(preferences.keyboardCursor)); } catch {}
+      window.dispatchEvent(new CustomEvent("lonely-sea:keyboard-cursor-change", {
+        detail: { enabled: preferences.keyboardCursor },
+      }));
     }
-    output.textContent = formatValue(row, value);
+    showSynced(message);
   }
 
-  function updateDirtyState(label) {
-    const dirty = JSON.stringify(normalizePreferences(draftPreferences))
-      !== JSON.stringify(normalizePreferences(savedPreferences));
-    optionCanvas.dataset.optionDirty = String(dirty);
-    optionState.textContent = label || (dirty ? "CHANGED" : "SAVED");
+  function publishExperienceValue(key, value) {
+    if (!EXPERIENCE_VALUES[key]?.includes(value)) return;
+    experience = writeExperienceState({ ...experience, [key]: value });
+    experienceRows.filter((row) => row.dataset.experienceKey === key).forEach(hydrateExperienceRow);
+    showSynced("场景已切换");
   }
 
-  function showSettingHelp(row) {
-    if (row?.dataset.help) optionHelp.textContent = row.dataset.help;
-  }
+  function selectPanel(owner, id, { focus = false } = {}) {
+    const nextButton = secondaryButton(owner, id);
+    const nextPanel = panel(owner, id);
+    if (!nextButton || !nextPanel) return;
 
-  function currentTabIndex() {
-    return Math.max(0, optionTabs.findIndex((tab) => tab.dataset.optionTab === activeTab));
-  }
+    activeCategory = owner;
+    activePanel = id;
+    optionCanvas.dataset.optionCategory = owner;
+    optionCanvas.dataset.optionSubcategory = id;
 
-  function commitTab(button) {
-    activeTab = button.dataset.optionTab;
-    const index = optionTabs.indexOf(button);
-    optionTabs.forEach((tab) => {
-      tab.setAttribute("aria-selected", String(tab === button));
-      tab.tabIndex = tab === button ? 0 : -1;
+    secondaryButtons.forEach((button) => {
+      const selected = button === nextButton;
+      button.setAttribute("aria-selected", String(selected));
+      button.tabIndex = selected ? 0 : -1;
     });
-    optionPanels.forEach((panel) => {
-      const visible = panel.dataset.optionPanel === activeTab;
-      panel.classList.toggle("is-active", visible);
-      panel.hidden = !visible;
+    panels.forEach((item) => {
+      const selected = item === nextPanel;
+      item.hidden = !selected;
+      item.classList.toggle("is-active", selected);
     });
-    optionHeading.textContent = activeTab.toUpperCase();
-    optionGuideNumber.textContent = String(index + 1).padStart(2, "0");
-    optionPage.textContent = String(index + 1).padStart(2, "0");
-    showSettingHelp(optionPanels[index]?.querySelector(".setting-row"));
+    soundLaboratory?.setActive(owner === "system" && id === "sound-lab");
+    if (focus) nextButton.focus({ preventScroll: true });
   }
 
-  async function activate(button, { animate = true } = {}) {
-    if (!button || button.dataset.optionTab === activeTab) return;
-    const current = optionPanels.find((panel) => panel.dataset.optionPanel === activeTab);
-    const next = optionPanels.find((panel) => panel.dataset.optionPanel === button.dataset.optionTab);
+  function selectCategory(id, { focus = false, panelId = "" } = {}) {
+    const nextButton = primaryButton(id);
+    if (!nextButton) return;
+    activeCategory = id;
+    optionCanvas.dataset.optionCategory = id;
+
+    primaryButtons.forEach((button) => {
+      const selected = button === nextButton;
+      button.setAttribute("aria-selected", String(selected));
+      button.tabIndex = selected ? 0 : -1;
+    });
+    secondaryGroups.forEach((group) => {
+      group.hidden = group.dataset.optionSecondaryGroup !== id;
+    });
+
+    const target = panelId ? secondaryButton(id, panelId) : firstSecondary(id);
+    selectPanel(id, target?.dataset.optionSecondary || "");
+    if (focus) nextButton.focus({ preventScroll: true });
+  }
+
+  async function transitionToCategory(id, { focus = false, animate = true } = {}) {
     const token = ++transitionToken;
-    transition?.cancel();
-
-    if (!animate || reduceMotion.matches || document.documentElement.dataset.motion === "reduced") {
-      commitTab(button);
+    cancelPanelAnimations();
+    if (!id || id === activeCategory || !animate || reducedMotion()) {
+      selectCategory(id || activeCategory, { focus });
       return;
     }
-
-    transition = current.animate(
-      [
-        { opacity: 1, transform: "translate3d(0,0,0)" },
-        { opacity: 0, transform: "translate3d(0,-10px,0)" },
-      ],
-      { duration: 110, easing: "ease-out", fill: "both" },
-    );
-
-    try {
-      await transition.finished;
-    } catch {
-      return;
+    const current = panel(activeCategory, activePanel);
+    if (current) {
+      const exit = current.animate(
+        [{ opacity: 1, transform: "translate3d(0,0,0)" }, { opacity: 0, transform: "translate3d(-8px,0,0)" }],
+        { duration: 90, easing: "cubic-bezier(.25,1,.5,1)", fill: "both" },
+      );
+      try { await exit.finished; } catch {}
+      exit.cancel();
     }
     if (token !== transitionToken) return;
-
-    commitTab(button);
-    transition = next.animate(
-      [
-        { opacity: 0, transform: "translate3d(0,10px,0)" },
-        { opacity: 1, transform: "translate3d(0,0,0)" },
-      ],
-      { duration: 240, easing: "cubic-bezier(.22,1,.36,1)", fill: "both" },
+    selectCategory(id, { focus });
+    panel(activeCategory, activePanel)?.animate(
+      [{ opacity: 0, transform: "translate3d(8px,0,0)" }, { opacity: 1, transform: "translate3d(0,0,0)" }],
+      { duration: 180, easing: "cubic-bezier(.22,1,.36,1)" },
     );
-
-    try {
-      await transition.finished;
-    } catch {}
-    if (token === transitionToken) {
-      transition?.cancel();
-      transition = null;
-    }
   }
 
-  function changePage(direction) {
-    const next = Math.max(0, Math.min(currentTabIndex() + direction, optionTabs.length - 1));
-    activate(optionTabs[next], { animate: false });
-    optionTabs[next].focus({ preventScroll: true });
+  function moveIn(items, current, direction) {
+    const index = Math.max(0, items.indexOf(current));
+    return items[(index + direction + items.length) % items.length];
   }
 
-  function updateDraft(row, value) {
-    const key = row.dataset.settingKey;
-    if (!key) return;
-    draftPreferences = normalizePreferences({ ...draftPreferences, [key]: value });
-    hydrateRow(row);
-    updateDirtyState();
+  function bindChoiceKeys(buttons, activate) {
+    buttons.forEach((button) => {
+      button.addEventListener("keydown", (event) => {
+        let next = null;
+        if (event.key === "Home") next = buttons[0];
+        if (event.key === "End") next = buttons.at(-1);
+        if (event.key === "ArrowLeft" || event.key === "ArrowUp") next = moveIn(buttons, button, -1);
+        if (event.key === "ArrowRight" || event.key === "ArrowDown") next = moveIn(buttons, button, 1);
+        if (!next) return;
+        event.preventDefault();
+        event.stopPropagation();
+        next.focus({ preventScroll: true });
+        activate(next);
+      });
+    });
   }
 
-  optionTabs.forEach((button) => {
-    button.addEventListener("click", (event) => activate(button, { animate: event.detail > 0 }));
+  soundLaboratory = initSoundLaboratory({ optionScreen });
+
+  primaryButtons.forEach((button) => {
+    button.addEventListener("click", (event) => transitionToCategory(button.dataset.optionPrimary, {
+      animate: event.detail !== 0,
+    }));
+  });
+  bindChoiceKeys(primaryButtons, (button) => transitionToCategory(button.dataset.optionPrimary, {
+    focus: true,
+    animate: false,
+  }));
+
+  secondaryGroups.forEach((group) => {
+    const buttons = all("[data-option-secondary]", group);
+    buttons.forEach((button) => {
+      button.addEventListener("click", () => {
+        interruptPanelTransition();
+        selectPanel(button.dataset.optionCategoryOwner, button.dataset.optionSecondary);
+      });
+    });
+    bindChoiceKeys(buttons, (button) => {
+      interruptPanelTransition();
+      selectPanel(button.dataset.optionCategoryOwner, button.dataset.optionSecondary, { focus: true });
+    });
   });
 
-  settingRows.forEach((row) => {
-    row.addEventListener("pointerenter", () => showSettingHelp(row));
-    row.addEventListener("focusin", () => showSettingHelp(row));
+  function bindHint(row) {
+    const show = () => setHint(rowHint(row));
+    const hide = () => setHint("");
+    row.addEventListener("pointerenter", show);
+    row.addEventListener("focusin", show);
+    row.addEventListener("pointerleave", hide);
+    row.addEventListener("focusout", hide);
+  }
 
+  settingRows.forEach((row) => {
+    bindHint(row);
+    const key = row.dataset.settingKey;
     const range = row.querySelector("[data-setting-range]");
-    range?.addEventListener("input", () => updateDraft(row, Number(range.value)));
+    range?.addEventListener("input", () => publishPreference(key, Number(range.value)));
 
     const toggle = row.querySelector("[data-setting-toggle]");
     toggle?.addEventListener("click", () => {
-      updateDraft(row, toggle.getAttribute("aria-pressed") !== "true");
+      publishPreference(key, toggle.getAttribute("aria-pressed") !== "true");
+    });
+    toggle?.addEventListener("keydown", (event) => {
+      if (!["ArrowLeft", "ArrowRight"].includes(event.key)) return;
+      event.preventDefault();
+      event.stopPropagation();
+      publishPreference(key, event.key === "ArrowRight");
     });
 
-    all("[data-setting-value]", row).forEach((button) => {
-      button.addEventListener("click", () => updateDraft(row, button.dataset.settingValue));
+    const choices = all("[data-setting-value]", row);
+    choices.forEach((button) => {
+      button.addEventListener("click", () => publishPreference(key, button.dataset.settingValue));
     });
+    bindChoiceKeys(choices, (button) => publishPreference(key, button.dataset.settingValue));
   });
 
-  function publishPreferences(label = "SAVED") {
-    savedPreferences = writePreferences(draftPreferences);
-    draftPreferences = { ...savedPreferences };
-    applyPreferences(savedPreferences);
-    try {
-      localStorage.setItem(KEYBOARD_CURSOR_STORAGE_KEY, String(savedPreferences.keyboardCursor));
-    } catch {}
+  all(".option-command-setting", optionScreen).forEach(bindHint);
+
+  experienceRows.forEach((row) => {
+    bindHint(row);
+    const key = row.dataset.experienceKey;
+    const choices = all("[data-setting-value]", row);
+    choices.forEach((button) => {
+      button.addEventListener("click", () => publishExperienceValue(key, button.dataset.settingValue));
+    });
+    bindChoiceKeys(choices, (button) => publishExperienceValue(key, button.dataset.settingValue));
+  });
+
+  resetButton.addEventListener("click", () => {
+    if (resetButton.dataset.confirm !== "true") {
+      resetButton.dataset.confirm = "true";
+      resetButton.textContent = "再次选择以确认";
+      window.clearTimeout(resetTimer);
+      resetTimer = window.setTimeout(() => {
+        resetButton.dataset.confirm = "false";
+        resetButton.textContent = "恢复默认";
+      }, 3_000);
+      return;
+    }
+    window.clearTimeout(resetTimer);
+    resetButton.dataset.confirm = "false";
+    resetButton.textContent = "恢复默认";
+    preferences = publishPreferences({ ...defaultPreferences });
+    try { localStorage.setItem(KEYBOARD_CURSOR_STORAGE_KEY, String(preferences.keyboardCursor)); } catch {}
     window.dispatchEvent(new CustomEvent("lonely-sea:keyboard-cursor-change", {
-      detail: { enabled: savedPreferences.keyboardCursor },
+      detail: { enabled: preferences.keyboardCursor },
     }));
-    window.dispatchEvent(new CustomEvent("lonely-sea:preferences-change", {
-      detail: { preferences: savedPreferences },
-    }));
-    updateDirtyState(label);
+    onResetExperience();
+    soundLaboratory?.reset();
+    experience = readExperienceState();
+    settingRows.forEach(hydratePreferenceRow);
+    experienceRows.forEach(hydrateExperienceRow);
+    showSynced("已恢复默认");
+  });
+
+  clearButton.addEventListener("click", async () => {
+    if (clearButton.dataset.confirm !== "true") {
+      clearButton.dataset.confirm = "true";
+      clearButton.textContent = "再次选择以清除";
+      window.clearTimeout(clearTimer);
+      clearTimer = window.setTimeout(() => {
+        clearButton.dataset.confirm = "false";
+        clearButton.textContent = "清除全部";
+      }, 4_000);
+      return;
+    }
+    window.clearTimeout(clearTimer);
+    clearButton.disabled = true;
+    clearButton.textContent = "正在清除…";
+    stateLabel.textContent = "正在删除本浏览器中的站点数据";
+    await clearBrowserSiteData();
+    window.location.replace("/?freshReset=1");
+  });
+
+  replayButton.addEventListener("click", onReplayOpening);
+
+  function syncFullscreen() {
+    const active = Boolean(document.fullscreenElement);
+    fullscreenButton.setAttribute("aria-pressed", String(active));
+    fullscreenButton.textContent = active ? "退出全屏" : "进入全屏";
   }
 
-  applyButton.addEventListener("click", () => {
-    publishPreferences();
-    applyLabel.textContent = "SAVED";
-    window.setTimeout(() => {
-      applyLabel.textContent = "APPLY";
-      updateDirtyState();
-    }, 900);
+  fullscreenButton.addEventListener("click", async () => {
+    try {
+      if (document.fullscreenElement) await document.exitFullscreen();
+      else await document.documentElement.requestFullscreen();
+    } catch {
+      showSynced("浏览器未允许全屏");
+    }
   });
+  document.addEventListener("fullscreenchange", syncFullscreen);
 
-  required("#reset-options", optionScreen).addEventListener("click", () => {
-    draftPreferences = { ...defaultPreferences };
-    settingRows.forEach(hydrateRow);
-    publishPreferences("DEFAULT");
-    onResetExperience();
-  });
+  function activate(target = {}) {
+    interruptPanelTransition();
+    preferences = readPreferences();
+    experience = readExperienceState();
+    settingRows.forEach(hydratePreferenceRow);
+    experienceRows.forEach(hydrateExperienceRow);
+    const category = primaryButton(target.category) ? target.category : DEFAULT_CATEGORY;
+    const panelId = secondaryButton(category, target.panel) ? target.panel : "";
+    selectCategory(category, { panelId: panelId || undefined });
+    syncFullscreen();
+    optionCanvas.dataset.optionSync = "idle";
+    stateLabel.textContent = "";
+  }
 
-  required("#option-replay-opening", optionScreen).addEventListener("click", onReplayOpening);
-
-  settingRows.forEach(hydrateRow);
-  commitTab(optionTabs[0]);
-  updateDirtyState();
+  activate();
 
   return {
-    changePage,
+    activate,
+    changePage(direction) {
+      const current = Math.max(0, primaryButtons.findIndex((button) => button.dataset.optionPrimary === activeCategory));
+      const next = Math.max(0, Math.min(current + direction, primaryButtons.length - 1));
+      transitionToCategory(primaryButtons[next]?.dataset.optionPrimary, { focus: true, animate: false });
+    },
     deactivate() {
-      transitionToken += 1;
-      transition?.cancel();
-      transition = null;
+      interruptPanelTransition();
+      soundLaboratory?.setActive(false);
+      window.clearTimeout(resetTimer);
+      window.clearTimeout(clearTimer);
+      window.clearTimeout(stateTimer);
+      resetButton.dataset.confirm = "false";
+      resetButton.textContent = "恢复默认";
+      clearButton.dataset.confirm = "false";
+      clearButton.disabled = false;
+      clearButton.textContent = "清除全部";
     },
   };
 }

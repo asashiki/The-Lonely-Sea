@@ -1,18 +1,24 @@
 ---
 import { siteConfig } from "../../site.config.mjs";
+import { ClientRouter } from "astro:transitions";
 import "../styles/global.css";
 import "../styles/cursor.css";
+import "../styles/achievement-toast.css";
 
 interface Props {
   title?: string;
   description?: string;
   noindex?: boolean;
+  clientRouter?: boolean;
+  htmlClass?: string;
 }
 
 const {
   title = siteConfig.name,
   description = siteConfig.description,
   noindex = false,
+  clientRouter = false,
+  htmlClass,
 } = Astro.props;
 
 const documentTitle = title === siteConfig.name ? title : `${title} | ${siteConfig.name}`;
@@ -20,7 +26,7 @@ const canonicalUrl = new URL(Astro.url.pathname, siteConfig.url);
 ---
 
 <!doctype html>
-<html lang={siteConfig.locale}>
+<html lang={siteConfig.locale} class={htmlClass}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
@@ -29,7 +35,9 @@ const canonicalUrl = new URL(Astro.url.pathname, siteConfig.url);
     <meta name="theme-color" content="#071117" />
     {noindex && <meta name="robots" content="noindex" />}
     <link rel="canonical" href={canonicalUrl} />
+    <link rel="alternate" type="application/rss+xml" title={`${siteConfig.name} RSS`} href="/rss.xml" />
     <title>{documentTitle}</title>
+    {clientRouter && <ClientRouter fallback="swap" />}
     <script is:inline>
       try {
         const value = JSON.parse(localStorage.getItem("lonely-sea-preferences-v2") || "{}");
@@ -41,5 +49,10 @@ const canonicalUrl = new URL(Astro.url.pathname, siteConfig.url);
   </head>
   <body>
     <slot />
+    <script>
+      import { initExperienceAudio } from "../scripts/experience/audio.js";
+
+      initExperienceAudio();
+    </script>
   </body>
 </html>

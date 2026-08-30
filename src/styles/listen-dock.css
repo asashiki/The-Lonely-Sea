@@ -1,0 +1,264 @@
+.listen-dock {
+  --listen-ink: var(--v4-ink, var(--reading-ink, #253440));
+  --listen-soft: var(--v4-soft, var(--reading-soft, rgb(37 52 64 / 62%)));
+  --listen-paper: var(--v4-paper, var(--reading-paper, rgb(218 226 224 / 94%)));
+  --listen-accent: var(--v4-accent, var(--reading-accent, #7897a8));
+  position: fixed;
+  z-index: 74;
+  left: 0;
+  bottom: max(1.05rem, env(safe-area-inset-bottom));
+  display: flex;
+  align-items: center;
+  height: 4rem;
+  color: var(--listen-ink);
+  background: transparent;
+  transform: translateX(calc(-100% + 4rem));
+  transition: transform 220ms cubic-bezier(.22, 1, .36, 1), visibility 0s;
+}
+
+.listen-dock[hidden] {
+  display: none !important;
+}
+
+.listen-dock.is-expanded {
+  transform: none;
+}
+
+.listen-dock-panel {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(7.2rem, 1fr) auto;
+  align-items: center;
+  gap: .65rem;
+  width: min(20rem, calc(100vw - 3.2rem));
+  height: 3rem;
+  padding: .35rem 1.45rem .42rem .9rem;
+  border: 0;
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--listen-paper) 96%, transparent) 0 74%,
+    color-mix(in srgb, var(--listen-paper) 76%, transparent) 88%,
+    transparent 100%);
+  box-shadow: 0 .26rem .9rem rgb(3 12 18 / 18%);
+  backdrop-filter: blur(10px) saturate(.9);
+  mask-image: linear-gradient(90deg, #000 0 88%, transparent 100%);
+}
+
+.listen-dock-handle {
+  position: relative;
+  flex: 0 0 4rem;
+  width: 4rem;
+  height: 4rem;
+  margin-left: -1.18rem;
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  cursor: pointer;
+}
+
+.listen-dock-sleeve {
+  position: absolute;
+  z-index: 2;
+  right: .2rem;
+  bottom: .16rem;
+  width: 3.15rem;
+  height: 3.15rem;
+  padding: .13rem;
+  background: color-mix(in srgb, var(--listen-paper) 92%, transparent);
+  box-shadow: .15rem .24rem .65rem rgb(0 0 0 / 28%);
+  transform: rotate(-2.4deg);
+  transition: transform 180ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.listen-dock-sleeve img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0;
+  filter: var(--v4-cover-filter, none);
+  box-shadow: none;
+}
+
+.listen-dock-sleeve img:not([src]) {
+  opacity: 0;
+}
+
+.listen-dock-disc {
+  position: absolute;
+  z-index: 1;
+  top: .45rem;
+  right: -.32rem;
+  width: 2.65rem;
+  height: 2.65rem;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, var(--listen-paper) 0 7%, transparent 8% 18%, color-mix(in srgb, var(--listen-accent) 70%, #111) 19% 23%, transparent 24%),
+    repeating-radial-gradient(circle, #18212a 0 2px, #0c1117 3px 5px);
+  box-shadow: .18rem .2rem .5rem rgb(0 0 0 / 34%);
+  transition: transform 260ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.listen-dock.is-expanded .listen-dock-disc {
+  transform: translateX(.82rem);
+}
+
+.listen-dock.is-expanded .listen-dock-sleeve {
+  transform: rotate(0);
+}
+
+.listen-dock.is-playing .listen-dock-disc {
+  animation: listen-disc 11s linear infinite;
+}
+
+.listen-dock-copy {
+  min-width: 0;
+  margin: 0;
+  pointer-events: none;
+}
+
+.listen-dock-copy strong,
+.listen-dock-copy small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.listen-dock-copy strong {
+  font: 600 13px/1.25 "Yu Mincho", "Noto Serif SC", serif;
+  letter-spacing: .04em;
+}
+
+.listen-dock-copy small {
+  margin-top: .14rem;
+  color: var(--listen-soft);
+  font: 500 10px/1.2 "Yu Gothic", sans-serif;
+}
+
+.listen-dock-progress {
+  position: absolute;
+  right: 2rem;
+  bottom: .18rem;
+  left: .9rem;
+  height: 2px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--listen-ink) 13%, transparent);
+}
+
+.listen-dock-progress i {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--listen-accent);
+  transform: scaleX(var(--listen-progress, 0));
+  transform-origin: left center;
+}
+
+.listen-dock-transport {
+  display: flex;
+  align-items: center;
+  gap: .02rem;
+}
+
+.listen-dock-transport button {
+  display: grid;
+  place-items: center;
+  width: 1.65rem;
+  height: 1.65rem;
+  padding: 0;
+  border: 0;
+  color: var(--listen-soft);
+  background: transparent;
+  cursor: pointer;
+  transition: color 120ms ease, transform 120ms ease;
+}
+
+.listen-dock svg {
+  width: .92rem;
+  height: .92rem;
+  overflow: visible;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.45;
+}
+
+.listen-icon-play path {
+  fill: currentColor;
+  stroke: none;
+}
+
+.listen-icon-pause,
+.listen-dock [data-listen-toggle][aria-pressed="true"] .listen-icon-play {
+  display: none;
+}
+
+.listen-dock [data-listen-toggle][aria-pressed="true"] .listen-icon-pause {
+  display: block;
+}
+
+.listen-dock [aria-pressed="true"] {
+  color: var(--listen-ink);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .listen-dock:not(.is-expanded):hover {
+    transform: translateX(calc(-100% + 4.35rem));
+  }
+
+  .listen-dock-transport button:is(:hover, :focus-visible) {
+    color: var(--listen-accent);
+    outline: 0;
+    transform: translateY(-1px);
+  }
+}
+
+@media (max-width: 760px) {
+  html:not([data-forced-landscape="true"]) .listen-dock {
+    bottom: max(.7rem, env(safe-area-inset-bottom));
+    height: 3.6rem;
+    transform: translateX(calc(-100% + 3.6rem));
+  }
+
+  html:not([data-forced-landscape="true"]) .listen-dock.is-expanded {
+    transform: none;
+  }
+
+  html:not([data-forced-landscape="true"]) .listen-dock-panel {
+    grid-template-columns: minmax(5rem, 1fr) auto;
+    width: min(17rem, calc(100vw - 3rem));
+    height: 2.5rem;
+    gap: .25rem;
+    padding-right: .3rem;
+    padding-left: .55rem;
+  }
+
+  html:not([data-forced-landscape="true"]) .listen-dock-handle {
+    flex-basis: 3.6rem;
+    width: 3.6rem;
+    height: 3.6rem;
+  }
+
+  html:not([data-forced-landscape="true"]) .listen-dock-copy small,
+  html:not([data-forced-landscape="true"]) .listen-dock [data-listen-loop],
+  html:not([data-forced-landscape="true"]) .listen-dock [data-listen-shuffle] {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .listen-dock {
+    transition: none;
+  }
+
+  .listen-dock.is-playing .listen-dock-handle img {
+    animation: none;
+  }
+}
+
+@keyframes listen-disc {
+  to { transform: rotate(1turn); }
+}

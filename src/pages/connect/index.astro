@@ -1,0 +1,62 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import BlogInteractionScene from "../../components/experience/BlogInteractionScene.astro";
+import { communicationConfig, publishedFriends } from "../../data/communication";
+import { getPublishedPosts, postHref } from "../../lib/posts";
+import { siteConfig } from "../../../site.config.mjs";
+import "../../styles/blog-interaction-scene.css";
+import "../../styles/communication-scene.css";
+
+const posts = (await getPublishedPosts()).slice(0, 6).map((post) => ({
+  title: post.data.title,
+  href: postHref(post),
+  date: post.data.published.toISOString().slice(0, 10),
+  description: post.data.description,
+}));
+const rssUrl = new URL("/rss.xml", siteConfig.url).href;
+---
+
+<BaseLayout title="通讯场景" description="以视觉小说方式使用 RSS、访客留言与友链。">
+  <main class="communication-scene" data-communication-scene>
+    <a class="communication-return" href="/?screen=start" aria-label="返回开始页面">BACK</a>
+    <BlogInteractionScene
+      contextKey="site:guestbook"
+      variant="connect"
+      title="订阅这片海"
+      includeRss={true}
+      includeFriends={true}
+      initialView="rss"
+      rssUrl={rssUrl}
+      rssItems={posts}
+      friends={publishedFriends}
+      publicIssueUrl={communicationConfig.publicIssueUrl}
+    />
+  </main>
+
+  <script>
+    import { initBlogInteractionScene, type BlogInteractionView } from "../../scripts/blog-interactions";
+
+    const page = document.querySelector<HTMLElement>("[data-communication-scene]");
+    const scene = page?.querySelector<HTMLElement>("[data-blog-interaction]");
+    if (page && scene) {
+      const controller = initBlogInteractionScene(scene);
+      const requested = new URLSearchParams(window.location.search).get("view");
+      if (requested === "rss" || requested === "comments" || requested === "friends") {
+        controller.selectView(requested as BlogInteractionView);
+      }
+      scene.addEventListener("lonely-sea:interaction-view-change", (event) => {
+        const view = (event as CustomEvent<{ view?: BlogInteractionView }>).detail?.view;
+        if (!view) return;
+        page.dataset.communicationView = view;
+        const url = new URL(window.location.href);
+        url.searchParams.set("view", view);
+        history.replaceState(null, "", url);
+      });
+      window.addEventListener("keydown", (event) => {
+        if (event.key !== "Escape") return;
+        window.location.assign("/?screen=start");
+      });
+      window.addEventListener("pagehide", () => controller.destroy(), { once: true });
+    }
+  </script>
+</BaseLayout>

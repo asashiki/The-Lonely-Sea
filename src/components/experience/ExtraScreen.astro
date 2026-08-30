@@ -17,7 +17,6 @@ const modes = [
 
       <header class="special-page-heading extra-heading">
         <h2>EXTRA</h2>
-        <p>AFTER STORY ARCHIVE</p>
       </header>
 
       <nav class="extra-primary" aria-label="Extra archive sections">
@@ -33,7 +32,7 @@ const modes = [
         ))}
       </nav>
 
-      <section class="extra-stage" id="extra-stage" aria-live="polite"></section>
+      <section class="extra-stage" id="extra-stage" aria-label="Extra archive content"></section>
 
       <div class="v4-edge-turners extra-edge-turners" aria-label="Archive pages">
         <button type="button" data-extra-page-direction="-1" aria-label="Previous page">‹</button>
@@ -41,7 +40,7 @@ const modes = [
       </div>
 
       <footer class="extra-status">
-        <p id="extra-focus"><span>SELECT</span><strong>SCENE ARCHIVE</strong><small>OPEN CG</small></p>
+        <p id="extra-focus" aria-live="polite"><span>SELECT</span><strong>SCENE ARCHIVE</strong><small>OPEN CG</small></p>
         <nav class="extra-page-controls" aria-label="Archive pages">
           <button type="button" data-extra-page-direction="-1" aria-label="Previous page">‹</button>
           <span class="extra-page-count"><b id="extra-page-current">01</b><i>/</i><em id="extra-page-total">02</em></span>
@@ -59,7 +58,7 @@ const modes = [
         </p>
         <button class="cg-viewer-prev" type="button" data-cg-direction="-1" aria-label="Previous CG">‹</button>
         <button class="cg-viewer-next" type="button" data-cg-direction="1" aria-label="Next CG">›</button>
-        <button type="button" class="cg-viewer-close" id="cg-viewer-close"><span>×</span> CLOSE</button>
+        <button type="button" class="cg-viewer-close system-back" id="cg-viewer-close" aria-label="关闭 CG">BACK</button>
       </section>
     </div>
   </div>

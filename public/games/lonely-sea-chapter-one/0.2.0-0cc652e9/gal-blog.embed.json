@@ -1,0 +1,257 @@
+{
+  "bridge": {
+    "allowedHostOrigins": [
+      "http://127.0.0.1:4321",
+      "http://localhost:4321"
+    ],
+    "channel": "gal-blog-game",
+    "optionalActions": [
+      "open-article",
+      "open-settings",
+      "open-load",
+      "save-progress",
+      "open-comment-form",
+      "get-runtime-data"
+    ],
+    "protocol": "gal-blog-bridge/v1",
+    "requiredActions": [
+      "return-menu"
+    ]
+  },
+  "engine": {
+    "bundled": true,
+    "entry": "index.html",
+    "name": "WebGAL",
+    "version": "4.6.2"
+  },
+  "game": {
+    "gameVersion": "0.2.0",
+    "id": "project_lonely_sea_chapter_one",
+    "locale": "zh-CN",
+    "releaseId": "0.2.0-0cc652e9",
+    "slug": "lonely-sea-chapter-one",
+    "title": "孤独之海 · 第一章：灯塔导览"
+  },
+  "integrity": "integrity.json",
+  "launchTargets": {
+    "savePoints": [
+      {
+        "id": "save_root",
+        "kind": "save-point",
+        "resumeMode": "authored-block",
+        "sceneId": "scene_root",
+        "thumbnail": "game/background/project-assets/lighthouse-interior.png",
+        "title": "灯塔的来客"
+      },
+      {
+        "id": "save_site",
+        "kind": "save-point",
+        "resumeMode": "authored-block",
+        "sceneId": "scene_site_menu",
+        "thumbnail": "game/background/project-assets/lighthouse-interior.png",
+        "title": "关于孤独之海"
+      },
+      {
+        "id": "save_master",
+        "kind": "save-point",
+        "resumeMode": "authored-block",
+        "sceneId": "scene_master_menu",
+        "thumbnail": "game/background/project-assets/lighthouse-interior.png",
+        "title": "关于浅仪式"
+      },
+      {
+        "id": "save_alice",
+        "kind": "save-point",
+        "resumeMode": "authored-block",
+        "sceneId": "scene_alice_about",
+        "thumbnail": "game/background/project-assets/lighthouse-interior.png",
+        "title": "关于爱丽丝"
+      },
+      {
+        "id": "save_system",
+        "kind": "save-point",
+        "resumeMode": "authored-block",
+        "sceneId": "scene_site_system_menu",
+        "thumbnail": "game/background/project-assets/lighthouse-interior.png",
+        "title": "系统功能"
+      },
+      {
+        "id": "save_site_more",
+        "kind": "save-point",
+        "resumeMode": "authored-block",
+        "sceneId": "scene_site_more_menu",
+        "thumbnail": "game/background/project-assets/lighthouse-interior.png",
+        "title": "更多关于本站"
+      },
+      {
+        "id": "save_interest",
+        "kind": "save-point",
+        "resumeMode": "authored-block",
+        "sceneId": "scene_master_interest_menu",
+        "thumbnail": "game/background/project-assets/lighthouse-interior.png",
+        "title": "主要兴趣"
+      },
+      {
+        "id": "save_master_more",
+        "kind": "save-point",
+        "resumeMode": "authored-block",
+        "sceneId": "scene_master_more_menu",
+        "thumbnail": "game/background/project-assets/lighthouse-interior.png",
+        "title": "更多关于站长"
+      }
+    ],
+    "scenes": [
+      {
+        "id": "scene_site_system_menu",
+        "kind": "scene",
+        "replayable": true,
+        "thumbnail": "game/background/project-assets/lighthouse-interior.png",
+        "title": "系统功能"
+      },
+      {
+        "id": "scene_alice_about",
+        "kind": "scene",
+        "replayable": true,
+        "thumbnail": "game/background/project-assets/lighthouse-interior.png",
+        "title": "关于 Alice"
+      }
+    ],
+    "start": {
+      "id": "start",
+      "kind": "start",
+      "sceneId": "scene_root"
+    }
+  },
+  "publicRouteMap": {
+    "edges": [
+      {
+        "id": "edge_root_site",
+        "label": "关于本站",
+        "source": "route_root",
+        "target": "route_site"
+      },
+      {
+        "id": "edge_root_master",
+        "label": "关于站长",
+        "source": "route_root",
+        "target": "route_master"
+      },
+      {
+        "id": "edge_root_alice",
+        "label": "关于我",
+        "source": "route_root",
+        "target": "route_alice"
+      },
+      {
+        "id": "edge_site_more",
+        "label": "更多",
+        "source": "route_site",
+        "target": "route_site_more"
+      },
+      {
+        "id": "edge_site_system",
+        "label": "系统功能",
+        "source": "route_site",
+        "target": "route_system"
+      },
+      {
+        "id": "edge_master_more",
+        "label": "更多",
+        "source": "route_master",
+        "target": "route_master_more"
+      },
+      {
+        "id": "edge_master_interest",
+        "label": "主要兴趣",
+        "source": "route_master",
+        "target": "route_interests"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "route_root",
+        "kind": "start",
+        "replayable": false,
+        "sceneId": "scene_root",
+        "title": "START"
+      },
+      {
+        "id": "route_site",
+        "kind": "scene",
+        "replayable": false,
+        "sceneId": "scene_site_menu",
+        "title": "关于本站"
+      },
+      {
+        "id": "route_master",
+        "kind": "scene",
+        "replayable": false,
+        "sceneId": "scene_master_menu",
+        "title": "关于站长"
+      },
+      {
+        "id": "route_alice",
+        "kind": "character-story",
+        "replayable": true,
+        "sceneId": "scene_alice_about",
+        "title": "关于我"
+      },
+      {
+        "id": "route_site_more",
+        "kind": "scene",
+        "replayable": false,
+        "sceneId": "scene_site_more_menu",
+        "title": "更多关于本站"
+      },
+      {
+        "id": "route_system",
+        "kind": "scene",
+        "replayable": true,
+        "sceneId": "scene_site_system_menu",
+        "title": "系统功能"
+      },
+      {
+        "id": "route_master_more",
+        "kind": "scene",
+        "replayable": false,
+        "sceneId": "scene_master_more_menu",
+        "title": "更多关于站长"
+      },
+      {
+        "id": "route_interests",
+        "kind": "scene",
+        "replayable": false,
+        "sceneId": "scene_master_interest_menu",
+        "title": "主要兴趣"
+      }
+    ]
+  },
+  "schema": "gal-blog-game-package/v1",
+  "settingsContract": {
+    "accepts": [
+      "audio.muted",
+      "audio.bgm",
+      "audio.effects",
+      "audio.voice",
+      "text.scale",
+      "text.speed",
+      "accessibility.reducedMotion",
+      "interface.cursor",
+      "interface.language"
+    ],
+    "schema": "gal-blog-settings/v1"
+  },
+  "stateContract": {
+    "launchVariables": [],
+    "persistVariables": [
+      "galblog_resume_point",
+      "player_name"
+    ],
+    "records": [],
+    "saveMode": "checkpoint-v1"
+  },
+  "theme": {
+    "tokens": "game/theme.tokens.json",
+    "webgalTemplate": "game/template/"
+  }
+}

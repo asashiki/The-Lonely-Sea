@@ -7,7 +7,7 @@
       calc(1.7vw * var(--reading-text-scale, 1)),
       calc(1.075rem * var(--reading-text-scale, 1))
     );
-    line-height: 1.86;
+    line-height: var(--reading-line-height, 1.86);
     overflow-wrap: anywhere;
   }
 
@@ -29,15 +29,25 @@
 
   .prose h2 {
     margin-block: 2.8rem 0.9rem;
-    padding: 0.45rem 0 0.55rem 1.1rem;
-    background: linear-gradient(90deg, rgb(var(--reading-accent-rgb) / 11%), transparent 68%);
-    font-size: clamp(1.65rem, 4vw, 2.35rem);
+    padding: 0 0 0.65rem;
+    border-bottom: 1px solid var(--reading-line);
+    font-size: clamp(1.55rem, 3.2vw, 2.05rem);
     letter-spacing: 0.045em;
+  }
+
+  .prose h2::before {
+    display: inline-block;
+    inline-size: 0.65rem;
+    block-size: 1px;
+    margin-inline-end: 0.65rem;
+    background: var(--reading-accent);
+    content: "";
+    vertical-align: 0.34em;
   }
 
   .prose h3 {
     margin-block: 2.1rem 0.75rem;
-    font-size: clamp(1.3rem, 3vw, 1.65rem);
+    font-size: clamp(1.22rem, 2.6vw, 1.5rem);
   }
 
   .prose h4 {
@@ -150,7 +160,8 @@
     padding: 1rem 1.3rem;
     border: 0;
     color: var(--reading-soft);
-    background: linear-gradient(100deg, rgb(var(--reading-accent-rgb) / 10%), transparent);
+    border-inline-start: 2px solid rgb(var(--reading-accent-rgb) / 44%);
+    background: linear-gradient(100deg, rgb(var(--reading-accent-rgb) / 7%), transparent);
     font-style: italic;
 
     > :first-child {
@@ -221,7 +232,9 @@
   }
 
   .prose p > img:only-child {
+    max-block-size: 34rem;
     margin-block: 2rem;
+    object-fit: contain;
   }
 
   .prose table img {

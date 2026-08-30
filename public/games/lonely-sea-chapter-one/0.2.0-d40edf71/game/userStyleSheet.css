@@ -1,0 +1,369 @@
+
+:root {
+  --ls-ink: #173246;
+  --ls-deep: #0b2233;
+  --ls-blue: #2d86ad;
+  --ls-paper: rgba(239, 248, 251, .9);
+  --ls-shadow: rgba(2, 17, 29, .5);
+}
+
+body {
+  font-family: "思源宋体", "Noto Serif CJK SC", serif;
+}
+
+[class*="_MainStage_bgContainer_"],
+[class*="_MainStage_bgContainer_Settled_"] {
+  background-position: center;
+}
+
+[class*="_TextBox_Container_"] {
+  left: 4.8%;
+  right: 4.8%;
+  bottom: 4.2%;
+  z-index: 13 !important;
+  width: auto !important;
+  min-height: 264px;
+  pointer-events: none !important;
+  filter: drop-shadow(0 22px 44px var(--ls-shadow));
+}
+
+html[data-galblog-dialogue-hidden="true"] [class*="_TextBox_Container_"],
+html[data-galblog-dialogue-hidden="true"] #galblog-runtime-menu {
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+[class*="_TextBox_main_"] {
+  inset: auto 0 0 !important;
+  width: 100% !important;
+  min-height: 264px !important;
+  max-height: 264px !important;
+  padding: 64px 108px 54px 132px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background:
+    linear-gradient(100deg, rgba(5, 24, 38, .94), rgba(12, 42, 60, .87) 62%, rgba(21, 62, 82, .76)) !important;
+  color: #f5fbff !important;
+  letter-spacing: .075em !important;
+  font-weight: 500 !important;
+  overflow: visible !important;
+}
+
+[class*="_TextBox_textElement_"] {
+  font-family: "思源宋体", "Noto Serif CJK SC", serif !important;
+  font-size: calc(42px * var(--galblog-text-scale, 1)) !important;
+  line-height: 1.72 !important;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, .42);
+}
+
+[class*="_TextBox_showName_"] {
+  position: absolute !important;
+  left: 92px !important;
+  top: -52px !important;
+  height: 72px !important;
+  min-width: 260px !important;
+  padding: 0 42px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: linear-gradient(110deg, #e8f6fb 0 74%, rgba(232, 246, 251, 0) 74%) !important;
+  color: var(--ls-ink) !important;
+  font-family: "思源宋体", serif !important;
+  font-size: 34px !important;
+  font-weight: 600 !important;
+  line-height: 72px !important;
+  letter-spacing: .16em !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+[class*="_TextBox_showName_"] * {
+  color: var(--ls-ink) !important;
+  text-shadow: none !important;
+}
+
+[class*="_TextBox_ShowName_Background_"] {
+  display: none !important;
+}
+
+[class*="_Choose_Main_"] {
+  align-items: flex-end !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  padding: 96px 112px 360px !important;
+  background: transparent !important;
+  overflow: hidden auto !important;
+}
+
+html[data-galblog-choice-layout="left"] [class*="_Choose_Main_"] {
+  align-items: flex-start !important;
+}
+
+html[data-galblog-choice-layout="right"] [class*="_Choose_Main_"] {
+  align-items: flex-end !important;
+}
+
+[class*="_Choose_item_outer_"] {
+  width: 640px !important;
+  min-width: 0 !important;
+  margin: 10px 0 !important;
+}
+
+[class*="_Choose_item_"]:not([class*="_Choose_item_outer_"]) {
+  position: relative !important;
+  width: 640px !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  margin: 10px 0 !important;
+  padding: 11px 34px 11px 58px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: rgba(238, 248, 252, .88) !important;
+  box-shadow: none !important;
+  clip-path: none !important;
+  font-family: "思源宋体", serif !important;
+  font-size: 31px !important;
+  font-weight: 600 !important;
+  letter-spacing: .15em !important;
+  text-align: left !important;
+  text-shadow: 0 3px 18px rgba(0, 11, 22, .95), 0 0 6px rgba(153, 218, 238, .3) !important;
+  transition: color 120ms ease, transform 120ms cubic-bezier(.22, 1, .36, 1), text-shadow 120ms ease !important;
+}
+
+[class*="_Choose_item_"]:not([class*="_Choose_item_outer_"])::before,
+[class*="_Choose_item_"]:not([class*="_Choose_item_outer_"])::after {
+  position: absolute;
+  top: 50%;
+  color: #c8effa;
+  font-size: .72em;
+  opacity: .46;
+  transform: translateY(-50%);
+  transition: opacity 120ms ease, transform 120ms cubic-bezier(.22, 1, .36, 1);
+}
+
+[class*="_Choose_item_"]:not([class*="_Choose_item_outer_"])::before {
+  left: 22px;
+  content: "◆";
+}
+
+[class*="_Choose_item_"]:not([class*="_Choose_item_outer_"])::after {
+  display: none;
+  content: none;
+}
+
+[class*="_Choose_item_outer_"] > [class*="_Choose_item_"]:not([class*="_Choose_item_outer_"]) {
+  width: 100% !important;
+  margin: 0 !important;
+}
+
+[class*="_Choose_item_disabled_"] {
+  opacity: .46 !important;
+  cursor: not-allowed !important;
+}
+
+[class*="_Choose_item_"]:not([class*="_Choose_item_outer_"]):focus-visible {
+  background: transparent !important;
+  color: #fff !important;
+  outline: 0 !important;
+  text-shadow: 0 3px 20px rgba(0, 8, 18, .98), 0 0 16px rgba(144, 225, 249, .9) !important;
+  transform: translateX(8px) !important;
+}
+
+[class*="_Choose_item_"]:not([class*="_Choose_item_outer_"]):focus-visible::before,
+[class*="_Choose_item_"]:not([class*="_Choose_item_outer_"]):focus-visible::after {
+  opacity: 1;
+  transform: translateY(-50%) scale(1.15);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  [class*="_Choose_item_"]:not([class*="_Choose_item_outer_"]):not([class*="_Choose_item_disabled_"]) {
+    transition: color 120ms ease, transform 120ms cubic-bezier(.22, 1, .36, 1), text-shadow 120ms ease !important;
+  }
+
+  [class*="_Choose_item_"]:not([class*="_Choose_item_outer_"]):not([class*="_Choose_item_disabled_"]):hover {
+    background: transparent !important;
+    color: #fff !important;
+    text-shadow: 0 3px 20px rgba(0, 8, 18, .98), 0 0 16px rgba(144, 225, 249, .9) !important;
+    transform: translateX(8px) !important;
+  }
+
+  [class*="_Choose_item_"]:not([class*="_Choose_item_outer_"]):not([class*="_Choose_item_disabled_"]):hover::before,
+  [class*="_Choose_item_"]:not([class*="_Choose_item_outer_"]):not([class*="_Choose_item_disabled_"]):hover::after {
+    opacity: 1;
+    transform: translateY(-50%) scale(1.15);
+  }
+}
+
+html[data-galblog-choice-columns="2"] [class*="_Choose_Main_"] {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 560px)) !important;
+  align-content: center !important;
+  justify-content: center !important;
+  column-gap: 420px !important;
+  row-gap: 4px !important;
+}
+
+html[data-galblog-choice-columns="2"] [class*="_Choose_item_outer_"],
+html[data-galblog-choice-columns="2"] [class*="_Choose_item_"]:not([class*="_Choose_item_outer_"]) {
+  width: 100% !important;
+}
+
+[class*="_MenuPanel_"] {
+  right: 4.8% !important;
+  bottom: 1.5% !important;
+  height: 58px !important;
+  padding: 0 18px !important;
+  border: 1px solid rgba(225, 242, 248, .28) !important;
+  border-radius: 0 !important;
+  background: rgba(5, 24, 38, .72) !important;
+  color: #eaf7fb !important;
+  box-shadow: none !important;
+}
+
+[class*="_MenuPanel_button_"] {
+  border: 0 !important;
+  color: #eaf7fb !important;
+  font-family: "WebgalUI", sans-serif !important;
+}
+
+[data-gal-blog-native-menu="true"] {
+  display: none !important;
+}
+
+#galblog-runtime-menu {
+  position: absolute;
+  right: 5.2%;
+  bottom: 5.8%;
+  z-index: 2147483000;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border: 0;
+  background: radial-gradient(ellipse at center, rgba(3, 20, 32, .82) 0 42%, rgba(3, 20, 32, .48) 68%, transparent 100%);
+  box-shadow: none;
+}
+
+#galblog-runtime-menu button {
+  min-width: 72px;
+  padding: 7px 10px;
+  border: 0;
+  background: transparent;
+  color: rgba(239, 249, 253, .82);
+  font: 500 28px/1.2 "Times New Roman", serif;
+  letter-spacing: .11em;
+}
+
+#galblog-runtime-menu button:hover,
+#galblog-runtime-menu button:focus-visible {
+  color: #fff;
+  background: radial-gradient(ellipse at center, rgba(127, 205, 231, .26), transparent 72%);
+  outline: 0;
+  text-shadow: 0 0 12px rgba(180, 229, 245, .9);
+}
+
+#galblog-runtime-menu button.is-active,
+#galblog-runtime-menu button[aria-pressed="true"] {
+  color: #d8f7ff;
+  background: radial-gradient(ellipse at center, rgba(106, 203, 235, .23), transparent 70%);
+  text-shadow: 0 0 16px rgba(127, 219, 247, .96);
+  transform: translateY(-2px);
+}
+
+#galblog-runtime-menu button[data-runtime-pending="true"] {
+  color: #fff;
+  opacity: .72;
+  animation: galblog-control-pending .72s ease-in-out infinite alternate;
+}
+
+@keyframes galblog-control-pending {
+  to { opacity: 1; text-shadow: 0 0 18px rgba(158, 230, 250, .92); }
+}
+
+.Textelement_start.galblog-inline-token,
+.Textelement_start.galblog-inline-token [class*="_outer_"],
+.Textelement_start.galblog-inline-token [class*="_inner_"] {
+  color: #aeeeff !important;
+  font-weight: 700 !important;
+  text-shadow: 0 0 11px rgba(88, 200, 235, .82), 0 2px 8px rgba(0, 0, 0, .5) !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+}
+
+.Textelement_start.galblog-inline-token-start:focus-visible,
+.Textelement_start.galblog-inline-token:hover {
+  color: #f5fdff !important;
+  outline: 0 !important;
+  filter: drop-shadow(0 0 7px rgba(137, 225, 249, .9));
+}
+
+html[data-galblog-motion="reduced"] [class*="_TextBox_Container_"],
+html[data-galblog-motion="reduced"] [class*="_Choose_"] {
+  animation: none !important;
+}
+
+@media (max-width: 700px) and (orientation: portrait) {
+  [class*="_TextBox_Container_"],
+  [class*="_TextBox_main_"] {
+    min-height: 380px !important;
+    max-height: 380px !important;
+  }
+
+  [class*="_TextBox_main_"] {
+    padding: 92px 110px 94px !important;
+  }
+
+  [class*="_TextBox_textElement_"] {
+    font-size: calc(84px * var(--galblog-text-scale, 1)) !important;
+    line-height: 1.46 !important;
+  }
+
+  [class*="_TextBox_showName_"] {
+    top: -82px !important;
+    height: 104px !important;
+    min-width: 430px !important;
+    font-size: 62px !important;
+    line-height: 104px !important;
+  }
+
+  [class*="_Choose_Main_"] {
+    padding: 100px 100px 460px !important;
+  }
+
+  [class*="_Choose_item_outer_"] {
+    width: 720px !important;
+    margin: 12px 0 !important;
+  }
+
+  [class*="_Choose_item_"]:not([class*="_Choose_item_outer_"]) {
+    width: 720px !important;
+    margin: 12px 0 !important;
+    padding: 24px 42px 24px 82px !important;
+    font-size: 58px !important;
+  }
+
+  html[data-galblog-choice-columns="2"] [class*="_Choose_Main_"] {
+    grid-template-columns: repeat(2, minmax(0, 680px)) !important;
+    column-gap: 260px !important;
+  }
+
+  #galblog-runtime-menu {
+    right: 5.2%;
+    bottom: 5.8%;
+    gap: 8px;
+    padding: 10px 16px;
+  }
+
+  #galblog-runtime-menu button {
+    min-width: 205px;
+    padding: 16px 20px;
+    font-size: 60px;
+  }
+
+  #galblog-runtime-menu button[data-runtime-action="log"],
+  #galblog-runtime-menu button[data-runtime-action="auto"],
+  #galblog-runtime-menu button[data-runtime-action="skip"] {
+    display: none;
+  }
+}

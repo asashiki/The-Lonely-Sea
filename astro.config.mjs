@@ -4,6 +4,7 @@ import { siteConfig } from "./site.config.mjs";
 import {
   satteriImageAttributes,
   satteriImageLinkPreviews,
+  satteriReadingAnnotations,
 } from "./src/lib/satteri-image-attributes.mjs";
 
 export default defineConfig({
@@ -15,7 +16,11 @@ export default defineConfig({
   },
   markdown: {
     processor: satteri({
-      hastPlugins: [satteriImageAttributes(), satteriImageLinkPreviews()],
+      hastPlugins: [
+        satteriImageAttributes(),
+        satteriImageLinkPreviews(),
+        satteriReadingAnnotations(),
+      ],
     }),
   },
 });

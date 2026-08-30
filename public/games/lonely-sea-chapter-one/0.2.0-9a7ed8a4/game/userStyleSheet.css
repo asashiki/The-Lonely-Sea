@@ -1,0 +1,814 @@
+/* Gal Blog NVL — Type-Moon style full-page novel layer */
+:root {
+  --galblog-nvl-dim: 0.42;
+  --galblog-nvl-ink: #f3eee4;
+  --galblog-nvl-name: #e4d3a0;
+}
+
+#galblog-nvl-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 14;
+  pointer-events: auto;
+  cursor: inherit;
+  background:
+    linear-gradient(180deg, rgba(4, 6, 12, .18) 0%, rgba(4, 6, 12, calc(var(--galblog-nvl-dim) * .72)) 28%, rgba(4, 6, 12, var(--galblog-nvl-dim)) 100%);
+}
+
+#galblog-nvl-layer[hidden] {
+  display: none !important;
+}
+
+html[data-galblog-dialogue-hidden="true"] #galblog-nvl-layer,
+html[data-galblog-dialogue-hidden="true"] #galblog-nvl-backlog {
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+html[data-galblog-choice-active="true"] #galblog-nvl-layer {
+  pointer-events: none;
+  z-index: 12;
+}
+
+#galblog-nvl-menu,
+html[data-galblog-choice-active="true"] #galblog-nvl-menu {
+  pointer-events: auto;
+}
+
+.galblog-nvl-page {
+  position: absolute;
+  top: 16%;
+  bottom: 22%;
+  left: 6.5%;
+  width: 42%;
+  display: flex;
+  flex-direction: column;
+}
+
+.galblog-nvl-lines {
+  flex: 1;
+  overflow: hidden;
+  color: var(--galblog-nvl-ink);
+  font-family: "SourceHanSerifCN-Regular", "Source Han Serif SC", "Noto Serif SC", "Songti SC", "SimSun", serif;
+  font-size: 42px;
+  font-weight: 400;
+  line-height: 1.92;
+  letter-spacing: .055em;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .72);
+  transition: opacity 140ms ease;
+}
+
+#galblog-nvl-layer.is-turning .galblog-nvl-lines {
+  opacity: 0;
+  transition: opacity .3s ease;
+}
+
+.galblog-nvl-lines p {
+  margin: 0 0 .82em;
+  text-indent: 1em;
+  opacity: 1;
+  transition: opacity .3s ease;
+}
+
+.galblog-nvl-lines p.is-entering {
+  opacity: 0;
+}
+
+.galblog-nvl-lines p.is-dialogue {
+  text-indent: 0;
+}
+
+.galblog-nvl-lines p.is-current .galblog-nvl-caret {
+  display: inline-block;
+  width: .55em;
+  margin-left: .08em;
+  color: var(--galblog-nvl-ink);
+  animation: galblog-nvl-caret 1.05s steps(2) infinite;
+}
+
+.galblog-nvl-name {
+  display: block;
+  margin: 0 0 .12em;
+  color: var(--galblog-nvl-name);
+  font-size: .76em;
+  letter-spacing: .2em;
+}
+
+.galblog-nvl-quote {
+  display: block;
+}
+
+.galblog-nvl-next {
+  position: absolute;
+  right: 10.5%;
+  bottom: 8.5%;
+  width: 0;
+  height: 0;
+  border-left: 11px solid transparent;
+  border-right: 11px solid transparent;
+  border-top: 15px solid var(--galblog-nvl-ink);
+  opacity: .7;
+  animation: galblog-nvl-caret 1.15s steps(2) infinite;
+}
+
+html[data-galblog-choice-active="true"] .galblog-nvl-next,
+#galblog-nvl-layer.is-typing .galblog-nvl-next {
+  opacity: 0;
+}
+
+@keyframes galblog-nvl-caret {
+  50% { opacity: .15; }
+}
+
+html[data-story-mode="nvl"] #galblog-runtime-menu {
+  display: none !important;
+}
+
+#galblog-nvl-menu {
+  position: absolute;
+  right: 3.6%;
+  bottom: 4.2%;
+  z-index: 16;
+  min-width: 4.2em;
+  min-height: 2.2em;
+  padding: 12px 22px;
+  border: 0;
+  background: transparent;
+  color: var(--galblog-nvl-name);
+  font-family: "SourceHanSerifCN-Regular", "Source Han Serif SC", "Noto Serif SC", serif;
+  font-size: 28px;
+  letter-spacing: .22em;
+  pointer-events: auto;
+}
+
+html[data-galblog-nvl-paused="true"] #FullScreenClick {
+  pointer-events: none !important;
+}
+
+#galblog-nvl-pause {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  pointer-events: auto;
+  background: rgba(4, 6, 12, .78);
+}
+
+#galblog-nvl-pause[hidden] {
+  display: none !important;
+}
+
+.galblog-nvl-pause__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 420px;
+  padding: 36px 48px;
+  color: var(--galblog-nvl-ink);
+  font-family: "SourceHanSerifCN-Regular", "Source Han Serif SC", "Noto Serif SC", serif;
+}
+
+.galblog-nvl-pause__panel > span {
+  margin-bottom: 12px;
+  color: var(--galblog-nvl-name);
+  letter-spacing: .28em;
+  font-size: 22px;
+}
+
+.galblog-nvl-pause__panel button {
+  padding: 10px 4px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: 400 34px/1.5 inherit;
+  letter-spacing: .12em;
+  text-align: left;
+}
+
+.galblog-nvl-pause__panel button:hover,
+.galblog-nvl-pause__panel button:focus-visible {
+  color: #fff8e8;
+}
+
+#galblog-nvl-toast {
+  position: absolute;
+  left: 50%;
+  top: 12%;
+  z-index: 22;
+  padding: 10px 22px;
+  color: var(--galblog-nvl-ink);
+  font-family: "SourceHanSerifCN-Regular", "Source Han Serif SC", serif;
+  font-size: 28px;
+  letter-spacing: .14em;
+  background: rgba(8, 12, 20, .72);
+  transform: translateX(-50%);
+}
+
+#galblog-nvl-toast[hidden] {
+  display: none !important;
+}
+
+html[data-story-mode="nvl"] [class*="_TextBox_Container_"] {
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+html[data-story-mode="nvl"] [class*="_Intro_"],
+html[data-story-mode="nvl"] [class*="_intro_"],
+html[data-story-mode="nvl"] [class*="_Backlog_"],
+html[data-story-mode="nvl"] [class*="_backlog_"] {
+  display: none !important;
+}
+
+html[data-story-mode="nvl"] [class*="_Choose_Main_"] {
+  z-index: 16 !important;
+  align-items: stretch !important;
+  justify-content: flex-end !important;
+  padding: 0 52% 10% 6.5% !important;
+  background: transparent !important;
+}
+
+html[data-story-mode="nvl"] [class*="_Choose_item_outer_"],
+html[data-story-mode="nvl"] [class*="_Choose_item_"]:not([class*="_Choose_item_outer_"]) {
+  width: min(100%, 1280px) !important;
+  min-width: 0 !important;
+  margin: 6px 0 !important;
+}
+
+html[data-story-mode="nvl"] [class*="_Choose_item_"]:not([class*="_Choose_item_outer_"]) {
+  padding: 10px 8px 10px 1.1em !important;
+  background: transparent !important;
+  color: var(--galblog-nvl-ink) !important;
+  font-family: "SourceHanSerifCN-Regular", "Source Han Serif SC", "Noto Serif SC", "Songti SC", "SimSun", serif !important;
+  font-size: 40px !important;
+  font-weight: 400 !important;
+  letter-spacing: .06em !important;
+  text-align: left !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .72) !important;
+}
+
+html[data-story-mode="nvl"] [class*="_Choose_item_"]:not([class*="_Choose_item_outer_"])::before {
+  left: 0 !important;
+  color: var(--galblog-nvl-name) !important;
+  content: "▶" !important;
+  opacity: .72 !important;
+  font-size: .48em !important;
+}
+
+html[data-story-mode="nvl"] [class*="_Choose_item_"]:not([class*="_Choose_item_outer_"])::after {
+  display: none !important;
+}
+
+html[data-story-mode="nvl"] [class*="_Choose_item_"]:not([class*="_Choose_item_outer_"]):hover,
+html[data-story-mode="nvl"] [class*="_Choose_item_"]:not([class*="_Choose_item_outer_"]):focus-visible {
+  color: #fff8e8 !important;
+  letter-spacing: .08em !important;
+  background: transparent !important;
+}
+
+#galblog-nvl-backlog {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  padding: 5vh 8vw;
+  pointer-events: auto;
+  background: rgba(4, 6, 12, .72);
+}
+
+#galblog-nvl-backlog[hidden] {
+  display: none !important;
+}
+
+.galblog-nvl-backlog__panel {
+  display: flex;
+  flex-direction: column;
+  width: min(1480px, 100%);
+  height: min(1080px, 100%);
+  padding: 36px 48px 28px;
+  border: 1px solid rgba(228, 211, 160, .22);
+  background: rgba(10, 12, 18, .92);
+  color: var(--galblog-nvl-ink);
+}
+
+.galblog-nvl-backlog__panel header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 22px;
+  font-family: "SourceHanSerifCN-Regular", "Source Han Serif SC", "Noto Serif SC", serif;
+  letter-spacing: .18em;
+}
+
+.galblog-nvl-backlog__panel header button {
+  border: 0;
+  background: transparent;
+  color: var(--galblog-nvl-name);
+  font-size: 28px;
+  letter-spacing: .16em;
+}
+
+.galblog-nvl-backlog__pages {
+  flex: 1;
+  overflow: auto;
+  padding-right: 12px;
+  font-family: "SourceHanSerifCN-Regular", "Source Han Serif SC", "Noto Serif SC", "Songti SC", serif;
+  font-size: 34px;
+  line-height: 1.9;
+  letter-spacing: .05em;
+}
+
+.galblog-nvl-backlog__pages article {
+  margin: 0 0 1.6em;
+  padding-bottom: 1.1em;
+  border-bottom: 1px solid rgba(228, 211, 160, .14);
+}
+
+.galblog-nvl-backlog__pages p {
+  margin: 0 0 .7em;
+  text-indent: 1em;
+}
+
+.galblog-nvl-backlog__pages p.is-dialogue {
+  text-indent: 0;
+}
+
+.galblog-nvl-backlog__pages .galblog-nvl-name {
+  font-size: .78em;
+}
+
+html[data-galblog-motion="reduced"] .galblog-nvl-next,
+html[data-galblog-motion="reduced"] .galblog-nvl-lines p.is-current .galblog-nvl-caret,
+html[data-galblog-motion="reduced"] .galblog-nvl-lines {
+  animation: none !important;
+  transition: none !important;
+}
+
+:root {
+  --ls-ink: #173246;
+  --ls-deep: #0b2233;
+  --ls-blue: #2d86ad;
+  --ls-paper: rgba(239, 248, 251, .9);
+  --ls-shadow: rgba(2, 17, 29, .5);
+}
+
+body {
+  font-family: "WebgalUI", "Microsoft YaHei", sans-serif;
+}
+
+[class*="_MainStage_bgContainer_"],
+[class*="_MainStage_bgContainer_Settled_"] {
+  background-position: center;
+}
+
+[class*="_TextBox_Container_"] {
+  left: 4.8%;
+  right: 4.8%;
+  bottom: 4.2%;
+  z-index: 13 !important;
+  width: auto !important;
+  min-height: 264px;
+  pointer-events: none !important;
+  filter: drop-shadow(0 22px 44px var(--ls-shadow));
+}
+
+html[data-galblog-dialogue-hidden="true"] [class*="_TextBox_Container_"],
+html[data-galblog-dialogue-hidden="true"] #galblog-runtime-menu {
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* A choice is its own beat, not a card laid over the previous line.  The
+   compiler restores the prompt for state continuity, but the choice beat keeps
+   the ADV box offstage until the next selected line arrives. */
+html[data-galblog-choice-active="true"] [class*="_TextBox_Container_"] {
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+[class*="_TextBox_main_"] {
+  inset: auto 0 0 !important;
+  width: 100% !important;
+  min-height: 264px !important;
+  max-height: 264px !important;
+  padding: 64px 108px 54px 132px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background:
+    linear-gradient(100deg, rgba(5, 24, 38, .94), rgba(12, 42, 60, .87) 62%, rgba(21, 62, 82, .76)) !important;
+  color: #f5fbff !important;
+  letter-spacing: .035em !important;
+  font-weight: 400 !important;
+  overflow: visible !important;
+}
+
+[class*="_TextBox_textElement_"] {
+  font-family: "WebgalUI", "Microsoft YaHei", sans-serif !important;
+  font-size: calc(40px * var(--galblog-text-scale, 1)) !important;
+  font-weight: 400 !important;
+  line-height: 1.66 !important;
+  text-shadow: none !important;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* WebGAL 默认把每个字渲染为渐变层、粗描边层和占位层。该效果在
+   当前深色 ADV 对话框里会变成发虚的三重字，正文只保留一层清晰字形。 */
+[class*="_TextBox_textElement_"] [class*="_outer_"] {
+  color: #f3f9fc !important;
+  background: none !important;
+  -webkit-background-clip: border-box !important;
+  background-clip: border-box !important;
+  -webkit-text-fill-color: #f3f9fc !important;
+  text-shadow: 0 2px 5px rgba(0, 8, 15, .62) !important;
+}
+
+[class*="_TextBox_textElement_"] [class*="_inner_"] {
+  opacity: 0 !important;
+  -webkit-text-stroke: 0 !important;
+  text-shadow: none !important;
+}
+
+[class*="_TextBox_showName_"] {
+  position: absolute !important;
+  left: 92px !important;
+  top: -52px !important;
+  height: 72px !important;
+  min-width: 260px !important;
+  padding: 0 42px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: linear-gradient(110deg, #e8f6fb 0 74%, rgba(232, 246, 251, 0) 74%) !important;
+  color: var(--ls-ink) !important;
+  font-family: "WebgalUI", "Microsoft YaHei", sans-serif !important;
+  font-size: 34px !important;
+  font-weight: 500 !important;
+  line-height: 72px !important;
+  letter-spacing: .1em !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+[class*="_TextBox_showName_"] * {
+  color: var(--ls-ink) !important;
+  text-shadow: none !important;
+}
+
+[class*="_TextBox_ShowName_Background_"] {
+  display: none !important;
+}
+
+[class*="_Choose_Main_"] {
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  padding: 96px 112px 360px !important;
+  background: radial-gradient(ellipse at 50% 46%, rgba(2, 18, 29, .34) 0 18%, rgba(2, 18, 29, .16) 38%, transparent 64%) !important;
+  overflow: hidden auto !important;
+}
+
+html[data-galblog-choice-layout="left"] [class*="_Choose_Main_"] {
+  align-items: flex-start !important;
+  background: radial-gradient(ellipse at 22% 46%, rgba(2, 18, 29, .34) 0 18%, rgba(2, 18, 29, .16) 38%, transparent 64%) !important;
+}
+
+html[data-galblog-choice-layout="right"] [class*="_Choose_Main_"] {
+  align-items: flex-end !important;
+  background: radial-gradient(ellipse at 78% 46%, rgba(2, 18, 29, .34) 0 18%, rgba(2, 18, 29, .16) 38%, transparent 64%) !important;
+}
+
+[class*="_Choose_item_outer_"] {
+  width: 760px !important;
+  min-width: 0 !important;
+  margin: 12px 0 !important;
+}
+
+[class*="_Choose_item_"]:not([class*="_Choose_item_outer_"]) {
+  position: relative !important;
+  width: 760px !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  margin: 12px 0 !important;
+  padding: 14px 86px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: rgba(244, 251, 254, .96) !important;
+  box-shadow: none !important;
+  clip-path: none !important;
+  font-family: "WebgalUI", "Microsoft YaHei", sans-serif !important;
+  font-size: 40px !important;
+  font-weight: 600 !important;
+  letter-spacing: .08em !important;
+  text-align: center !important;
+  text-shadow: 0 2px 6px rgba(0, 8, 16, .86) !important;
+  transition: color 120ms ease, letter-spacing 120ms ease, transform 120ms cubic-bezier(.22, 1, .36, 1), text-shadow 120ms ease !important;
+}
+
+[class*="_Choose_item_"]:not([class*="_Choose_item_outer_"])::before,
+[class*="_Choose_item_"]:not([class*="_Choose_item_outer_"])::after {
+  position: absolute;
+  top: 50%;
+  color: #d2f4fc;
+  font-size: .58em;
+  opacity: .34;
+  transform: translateY(-50%);
+  transition: opacity 120ms ease, transform 120ms cubic-bezier(.22, 1, .36, 1);
+}
+
+[class*="_Choose_item_"]:not([class*="_Choose_item_outer_"])::before {
+  left: 38px;
+  content: "◇";
+}
+
+[class*="_Choose_item_"]:not([class*="_Choose_item_outer_"])::after {
+  right: 38px;
+  content: "◇";
+}
+
+[class*="_Choose_item_outer_"] > [class*="_Choose_item_"]:not([class*="_Choose_item_outer_"]) {
+  width: 100% !important;
+  margin: 0 !important;
+}
+
+[class*="_Choose_item_disabled_"] {
+  opacity: .46 !important;
+  cursor: not-allowed !important;
+}
+
+[class*="_Choose_item_"]:not([class*="_Choose_item_outer_"]):focus-visible {
+  background: transparent !important;
+  color: #fff !important;
+  outline: 0 !important;
+  letter-spacing: .12em !important;
+  text-shadow: 0 3px 16px rgba(0, 8, 18, .92), 0 0 13px rgba(144, 225, 249, .78) !important;
+  transform: scale(1.025) !important;
+}
+
+[class*="_Choose_item_"]:not([class*="_Choose_item_outer_"]):focus-visible::before,
+[class*="_Choose_item_"]:not([class*="_Choose_item_outer_"]):focus-visible::after {
+  opacity: 1;
+  transform: translateY(-50%) scale(1.15);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  [class*="_Choose_item_"]:not([class*="_Choose_item_outer_"]):not([class*="_Choose_item_disabled_"]) {
+    transition: color 120ms ease, letter-spacing 120ms ease, transform 120ms cubic-bezier(.22, 1, .36, 1), text-shadow 120ms ease !important;
+  }
+
+  [class*="_Choose_item_"]:not([class*="_Choose_item_outer_"]):not([class*="_Choose_item_disabled_"]):hover {
+    background: transparent !important;
+    color: #fff !important;
+    letter-spacing: .12em !important;
+    text-shadow: 0 3px 16px rgba(0, 8, 18, .92), 0 0 13px rgba(144, 225, 249, .78) !important;
+    transform: scale(1.025) !important;
+  }
+
+  [class*="_Choose_item_"]:not([class*="_Choose_item_outer_"]):not([class*="_Choose_item_disabled_"]):hover::before,
+  [class*="_Choose_item_"]:not([class*="_Choose_item_outer_"]):not([class*="_Choose_item_disabled_"]):hover::after {
+    opacity: 1;
+    transform: translateY(-50%) scale(1.15);
+  }
+}
+
+html[data-galblog-choice-columns="2"] [class*="_Choose_Main_"] {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 560px)) !important;
+  align-content: center !important;
+  justify-content: center !important;
+  column-gap: 420px !important;
+  row-gap: 4px !important;
+}
+
+html[data-galblog-choice-columns="2"] [class*="_Choose_item_outer_"],
+html[data-galblog-choice-columns="2"] [class*="_Choose_item_"]:not([class*="_Choose_item_outer_"]) {
+  width: 100% !important;
+}
+
+[class*="_MenuPanel_"] {
+  right: 4.8% !important;
+  bottom: 1.5% !important;
+  height: 58px !important;
+  padding: 0 18px !important;
+  border: 1px solid rgba(225, 242, 248, .28) !important;
+  border-radius: 0 !important;
+  background: rgba(5, 24, 38, .72) !important;
+  color: #eaf7fb !important;
+  box-shadow: none !important;
+}
+
+[class*="_MenuPanel_button_"] {
+  border: 0 !important;
+  color: #eaf7fb !important;
+  font-family: "WebgalUI", sans-serif !important;
+}
+
+[data-gal-blog-native-menu="true"] {
+  display: none !important;
+}
+
+#galblog-runtime-menu {
+  position: absolute;
+  right: 5.2%;
+  bottom: 5.8%;
+  z-index: 2147483000;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border: 0;
+  background: radial-gradient(ellipse at center, rgba(3, 20, 32, .82) 0 42%, rgba(3, 20, 32, .48) 68%, transparent 100%);
+  box-shadow: none;
+}
+
+#galblog-runtime-menu button {
+  min-width: 72px;
+  padding: 7px 10px;
+  border: 0;
+  background: transparent;
+  color: rgba(239, 249, 253, .82);
+  font: 600 25px/1.2 "WebgalUI", "Microsoft YaHei", sans-serif;
+  letter-spacing: .09em;
+}
+
+#galblog-runtime-menu button:hover,
+#galblog-runtime-menu button:focus-visible {
+  color: #fff;
+  background: radial-gradient(ellipse at center, rgba(127, 205, 231, .26), transparent 72%);
+  outline: 0;
+  text-shadow: 0 0 12px rgba(180, 229, 245, .9);
+}
+
+#galblog-runtime-menu button.is-active,
+#galblog-runtime-menu button[aria-pressed="true"] {
+  color: #d8f7ff;
+  background: radial-gradient(ellipse at center, rgba(106, 203, 235, .23), transparent 70%);
+  text-shadow: 0 0 16px rgba(127, 219, 247, .96);
+  transform: translateY(-2px);
+}
+
+#galblog-runtime-menu button[data-runtime-pending="true"] {
+  color: #fff;
+  opacity: .72;
+  animation: galblog-control-pending .72s ease-in-out infinite alternate;
+}
+
+@keyframes galblog-control-pending {
+  to { opacity: 1; text-shadow: 0 0 18px rgba(158, 230, 250, .92); }
+}
+
+.Textelement_start.galblog-inline-token,
+.Textelement_start.galblog-inline-token [class*="_outer_"],
+.Textelement_start.galblog-inline-token [class*="_inner_"] {
+  color: #aeeeff !important;
+  font-weight: 700 !important;
+  text-shadow: 0 0 11px rgba(88, 200, 235, .82), 0 2px 8px rgba(0, 0, 0, .5) !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+}
+
+.Textelement_start.galblog-inline-token [class*="_outer_"] {
+  -webkit-text-fill-color: #aeeeff !important;
+}
+
+.Textelement_start.galblog-inline-token [class*="_inner_"] {
+  opacity: 0 !important;
+}
+
+.Textelement_start.galblog-inline-token-start:focus-visible,
+.Textelement_start.galblog-inline-token:hover {
+  color: #f5fdff !important;
+  outline: 0 !important;
+  filter: drop-shadow(0 0 7px rgba(137, 225, 249, .9));
+}
+
+html[data-galblog-motion="reduced"] [class*="_TextBox_Container_"],
+html[data-galblog-motion="reduced"] [class*="_Choose_"] {
+  animation: none !important;
+}
+
+@media (max-width: 700px) and (orientation: portrait) {
+  [class*="_TextBox_Container_"],
+  [class*="_TextBox_main_"] {
+    min-height: 380px !important;
+    max-height: 380px !important;
+  }
+
+  [class*="_TextBox_main_"] {
+    padding: 92px 110px 94px !important;
+  }
+
+  [class*="_TextBox_textElement_"] {
+    font-size: calc(92px * var(--galblog-text-scale, 1)) !important;
+    line-height: 1.46 !important;
+  }
+
+  [class*="_TextBox_showName_"] {
+    top: -82px !important;
+    height: 104px !important;
+    min-width: 430px !important;
+    font-size: 74px !important;
+    line-height: 104px !important;
+  }
+
+  [class*="_Choose_Main_"] {
+    padding: 100px 100px 460px !important;
+  }
+
+  [class*="_Choose_item_outer_"] {
+    width: 720px !important;
+    margin: 12px 0 !important;
+  }
+
+  [class*="_Choose_item_"]:not([class*="_Choose_item_outer_"]) {
+    width: 720px !important;
+    margin: 12px 0 !important;
+    padding: 24px 42px 24px 82px !important;
+    font-size: 88px !important;
+  }
+
+  html[data-galblog-choice-columns="2"] [class*="_Choose_Main_"] {
+    grid-template-columns: repeat(2, minmax(0, 680px)) !important;
+    column-gap: 260px !important;
+  }
+
+  #galblog-runtime-menu {
+    right: 5.2%;
+    bottom: 5.8%;
+    gap: 8px;
+    padding: 10px 16px;
+  }
+
+  #galblog-runtime-menu button {
+    min-width: 205px;
+    padding: 16px 20px;
+    font-size: 60px;
+  }
+
+  #galblog-runtime-menu button[data-runtime-action="log"],
+  #galblog-runtime-menu button[data-runtime-action="auto"],
+  #galblog-runtime-menu button[data-runtime-action="skip"] {
+    display: none;
+  }
+}
+
+html[data-story-mode="nvl"] {
+  --galblog-nvl-ink: #eef6fa;
+  --galblog-nvl-name: #d7eef6;
+}
+
+#galblog-nvl-layer {
+  background:
+    linear-gradient(180deg, rgba(6, 22, 34, .58) 0%, rgba(8, 28, 42, .46) 22%, rgba(8, 28, 42, .46) 78%, rgba(6, 22, 34, .62) 100%);
+}
+
+.galblog-nvl-lines {
+  font-size: 40px;
+  letter-spacing: .05em;
+}
+
+html[data-story-mode="nvl"] [class*="_MainStage_figContainer_"],
+html[data-story-mode="nvl"] [class*="_figContainer_"] {
+  filter: brightness(.76) saturate(.92);
+}
+
+html[data-story-mode="nvl"] [class*="_Choose_Main_"] {
+  align-items: stretch !important;
+  justify-content: flex-end !important;
+  padding: 0 52% 10% 6.5% !important;
+  background: transparent !important;
+}
+
+html[data-story-mode="nvl"] [class*="_Choose_item_outer_"],
+html[data-story-mode="nvl"] [class*="_Choose_item_"]:not([class*="_Choose_item_outer_"]) {
+  width: min(100%, 1280px) !important;
+  margin: 8px 0 !important;
+}
+
+html[data-story-mode="nvl"] [class*="_Choose_item_"]:not([class*="_Choose_item_outer_"]) {
+  padding: 12px 8px 12px 1.15em !important;
+  background: transparent !important;
+  color: #eef6fa !important;
+  font-family: "SourceHanSerifCN-Regular", "Source Han Serif SC", "Noto Serif SC", "Songti SC", serif !important;
+  font-size: 40px !important;
+  font-weight: 400 !important;
+  letter-spacing: .06em !important;
+  text-align: left !important;
+}
+
+html[data-story-mode="nvl"] [class*="_Choose_item_"]:not([class*="_Choose_item_outer_"])::before {
+  left: 0 !important;
+  color: #d7eef6 !important;
+  content: "▶" !important;
+  opacity: .7 !important;
+  font-size: .46em !important;
+}
+
+html[data-story-mode="nvl"] [class*="_Choose_item_"]:not([class*="_Choose_item_outer_"])::after {
+  display: none !important;
+}

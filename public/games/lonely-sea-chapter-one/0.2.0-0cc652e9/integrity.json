@@ -1,0 +1,726 @@
+{
+  "algorithm": "SHA-256",
+  "files": [
+    {
+      "bytes": 47423,
+      "path": "boot.js",
+      "sha256": "5212df746f334fbd6fe49edfc0689f7ea7208e5e879aace9737fe87be67d0dd4"
+    },
+    {
+      "bytes": 47423,
+      "path": "gal-blog-bridge.js",
+      "sha256": "5212df746f334fbd6fe49edfc0689f7ea7208e5e879aace9737fe87be67d0dd4"
+    },
+    {
+      "bytes": 47423,
+      "path": "gal-blog-runtime.js",
+      "sha256": "5212df746f334fbd6fe49edfc0689f7ea7208e5e879aace9737fe87be67d0dd4"
+    },
+    {
+      "bytes": 6731,
+      "path": "gal-blog.embed.json",
+      "sha256": "ddb958409ebe6090ea9f260b7b04db62965f8ae395a6ec1de0af67e33fb25702"
+    },
+    {
+      "bytes": 278,
+      "path": "game/animation/animationTable.json",
+      "sha256": "d3a44fe7f7e1250c1793c4e2d74a783632a3f22a39a9a9f9daf98c121bdde52d"
+    },
+    {
+      "bytes": 89,
+      "path": "game/animation/blur.json",
+      "sha256": "965309e16249a937d5384173cf21d10403d8e69f3039425e4c135727c1ffdd78"
+    },
+    {
+      "bytes": 48,
+      "path": "game/animation/dotFilm.json",
+      "sha256": "2efd553b8809dc0e8c1a187254fdcf733daa91ef0fff5b6e7ea8e0e549b6bc7d"
+    },
+    {
+      "bytes": 226,
+      "path": "game/animation/enter-from-bottom.json",
+      "sha256": "2396f49e339781990e34b44caafdbc726810cc6a94c989eaf4ae0b571f5f5bdd"
+    },
+    {
+      "bytes": 363,
+      "path": "game/animation/enter-from-left.json",
+      "sha256": "6aaa387afb22c8fe6e0d4b11dec662c7c5ed952bb1db7e018e16cda6436164f1"
+    },
+    {
+      "bytes": 226,
+      "path": "game/animation/enter-from-right.json",
+      "sha256": "b569236fdc773b932b3407ce3d9948cc596cd4c53848ef0ef9d0b71e8941fd8e"
+    },
+    {
+      "bytes": 91,
+      "path": "game/animation/enter.json",
+      "sha256": "9bab93db79685438c2f8474bd17e4281a6c314f90ea8e0f8727145a2132728aa"
+    },
+    {
+      "bytes": 91,
+      "path": "game/animation/exit.json",
+      "sha256": "4e122bde5ce70c46ad8ad601935b4189bcfe37c00bd8344312bdb69626978a29"
+    },
+    {
+      "bytes": 51,
+      "path": "game/animation/glitchFilm.json",
+      "sha256": "65189cdc5fcd7667fe9beef9b4a82bf84abd355adf67298263ffbc12fa0c7f64"
+    },
+    {
+      "bytes": 51,
+      "path": "game/animation/godrayFilm.json",
+      "sha256": "509efc00369455e87141f180613c63342f8f6392d7e556103354aa35e5e0b470"
+    },
+    {
+      "bytes": 241,
+      "path": "game/animation/move-front-and-back.json",
+      "sha256": "90b8e3e622f18f66bc77a670da149745054a1f883163e8212bba2d3862928d5c"
+    },
+    {
+      "bytes": 48,
+      "path": "game/animation/oldFilm.json",
+      "sha256": "f4f5c940af5b877dc9979bef2a09fcecfb52bd215ae097b180b5e8854c513713"
+    },
+    {
+      "bytes": 55,
+      "path": "game/animation/reflectionFilm.json",
+      "sha256": "ce4155afc25bec0c6f420d80132284252ea5227b6b82cede247094990bea9dcd"
+    },
+    {
+      "bytes": 151,
+      "path": "game/animation/removeFilm.json",
+      "sha256": "baeaf07abbc74e8bda9b44bbe9bb54a97263682475f01b68a59185e2f37ebf08"
+    },
+    {
+      "bytes": 48,
+      "path": "game/animation/rgbFilm.json",
+      "sha256": "bf43bd1cf11f31e3aa0c8e4a695c4e74afbd31a54efe890170499f460df545fe"
+    },
+    {
+      "bytes": 330,
+      "path": "game/animation/shake.json",
+      "sha256": "4f9c8348a8220ad4dbfad0e2e183d14c2cef581fc157ec8ed23ddc2a92e22298"
+    },
+    {
+      "bytes": 144,
+      "path": "game/animation/shockwaveIn.json",
+      "sha256": "05b73c6fb5bf9109107dcf6c0f4b59ddb82bf8f52b01300e37c7441b243fe8a3"
+    },
+    {
+      "bytes": 144,
+      "path": "game/animation/shockwaveOut.json",
+      "sha256": "1acf387e175e3cb7666a86cd51aee1f4aee8f822c071a39509f089bf39e66042"
+    },
+    {
+      "bytes": 169814,
+      "path": "game/background/project-assets/blog/extra.png",
+      "sha256": "e80986a5e1720bd2140afcf1ed2e2a67914d26a08f06626dfe60ee2ad0573c84"
+    },
+    {
+      "bytes": 75548,
+      "path": "game/background/project-assets/blog/load.png",
+      "sha256": "93e8c1b574ed1d04c652f11c4073eba179cdf0618f92f216da00f714db158017"
+    },
+    {
+      "bytes": 56436,
+      "path": "game/background/project-assets/blog/option.png",
+      "sha256": "4ddb986a03c6300da5030439826ef46d8d1ee21040b3aa2806a90df1f043fd0a"
+    },
+    {
+      "bytes": 129207,
+      "path": "game/background/project-assets/blog/title.png",
+      "sha256": "8306263c07fbcc63e04bcf3f481827873f560bb9f5d4c3c883c8b217dd078369"
+    },
+    {
+      "bytes": 1982562,
+      "path": "game/background/project-assets/lighthouse-interior.png",
+      "sha256": "8a4af27512bf390f547d1ec576e4ca84ccf16a9580e546131b70c9d24cb7dce0"
+    },
+    {
+      "bytes": 248,
+      "path": "game/config.txt",
+      "sha256": "f6b3019ffb88700315cb5ce876cc395c94e0d7f447f6d875c144b8879671b926"
+    },
+    {
+      "bytes": 71,
+      "path": "game/extensions/entry.js",
+      "sha256": "aaddd8ce5ee31e7100d17aa479f262b9e7027e6eb0f26136ecec53399a572953"
+    },
+    {
+      "bytes": 359,
+      "path": "game/extensions/README.md",
+      "sha256": "8ca51dde6a9a595d1bb2614f477367a142d801aae22712ba6e4aed4b8db0297b"
+    },
+    {
+      "bytes": 725685,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_angry__eyes_close.png",
+      "sha256": "54905e112267cda58dfc113976e8c1b01e89e07c24ca732f88c87a450dedf691"
+    },
+    {
+      "bytes": 726866,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_angry__eyes_half.png",
+      "sha256": "31c3da13660d494ecbf7ba6a300b043ecd02a9a9cc3507b3ba8c71d844fd9242"
+    },
+    {
+      "bytes": 728400,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_angry__mouth_half_open.png",
+      "sha256": "a8d982abbfa17be78ea919df99e363dd48137ea8723976f50eb40fc024804ba2"
+    },
+    {
+      "bytes": 728333,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_angry__mouth_open.png",
+      "sha256": "65ad9e5af20f75440f2459d5077893b64d38ec13377939ec61b20c735418c120"
+    },
+    {
+      "bytes": 728141,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_angry.png",
+      "sha256": "46017a13701e547c6ae0d00e82a0fc61ad6b26a677ae01fc552dfbcc7f9936a2"
+    },
+    {
+      "bytes": 621652,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_laugh__mouth_half_open.png",
+      "sha256": "b27276fcd0da38a87dde2ffe54f8ed0ba1c413584cb5afc26b9f7f1f8557b4be"
+    },
+    {
+      "bytes": 621706,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_laugh__mouth_open.png",
+      "sha256": "29a4d84d45a4c65b7963b9eb9c21c0eaf51705ecb6c4c6e1bd76f63a01aa6d5d"
+    },
+    {
+      "bytes": 621680,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_laugh.png",
+      "sha256": "76527a1c66e62f11f22c52cdb4e6a7f8a1bee2bfeb96aaf5968646c59d575c3c"
+    },
+    {
+      "bytes": 621414,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_normal_casual_side__eyes_close.png",
+      "sha256": "2911adf23b28944fc7454d71144267f453ab6fc95f3f136834e1483cb8ffb2f5"
+    },
+    {
+      "bytes": 623530,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_normal_casual_side__eyes_half.png",
+      "sha256": "f25e423225fce89d68c1a7996a5377b21540e341d7d104d7d80ce8386596b47a"
+    },
+    {
+      "bytes": 624999,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_normal_casual_side__mouth_half_open.png",
+      "sha256": "bd74549c60f35d1658bad5ba18f1ea4615d56bbfa1a13fdebc4a9b0a8c1c8e33"
+    },
+    {
+      "bytes": 625137,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_normal_casual_side__mouth_open.png",
+      "sha256": "51713acb9fec72c9d0e6e4cd83ef0352e88896ad6e3735c5d0f47adffed960b3"
+    },
+    {
+      "bytes": 624895,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_normal_casual_side.png",
+      "sha256": "7af8a92a656d37606c23d842e63b5dd6ae830f29a300c97a17e91573f5b2aba1"
+    },
+    {
+      "bytes": 649926,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_normal_guide__eyes_close.png",
+      "sha256": "848dab658f37a02865e489ad3397a58b5afd1e2314d2c232773d1e61f7b77f9c"
+    },
+    {
+      "bytes": 651661,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_normal_guide__eyes_half.png",
+      "sha256": "a5ffd364a8e667dce3f226ee4729ce5dea70786a177b100a523e22ad7466d938"
+    },
+    {
+      "bytes": 647452,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_normal_guide__mouth_half_open.png",
+      "sha256": "5a9bc39487540cf352fbfc359c04974080a036d3de70a4944e5c7010d6010778"
+    },
+    {
+      "bytes": 647277,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_normal_guide__mouth_open.png",
+      "sha256": "e96f3560334696ac8e06ac5877b1d8bbdd5f6f11b3e3238c333e2daa833757d3"
+    },
+    {
+      "bytes": 652377,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_normal_guide.png",
+      "sha256": "ea92b7ec1fca9f9670e2d7288d60dbd02a0bb3f2cd5ce072e0971379106cd670"
+    },
+    {
+      "bytes": 696101,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_normal_note__eyes_close.png",
+      "sha256": "3c95e731077186dd8b485f6a832048e0967b7993926557f9c26b1c11c8beb362"
+    },
+    {
+      "bytes": 697950,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_normal_note__eyes_half.png",
+      "sha256": "c7602492e43f51a78bb0798389af65317c43b707f1b7f1e34e1632bab2414e9f"
+    },
+    {
+      "bytes": 699006,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_normal_note__mouth_half_open.png",
+      "sha256": "393cbae960f3a0d8df069dc0c0234b144b10be4c604bfd06aa8ae3f1b4c12fac"
+    },
+    {
+      "bytes": 698905,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_normal_note__mouth_open.png",
+      "sha256": "c0cad57a77df15af44b2f0aa53261eeb33f47955c583b696500591ea7282ce4c"
+    },
+    {
+      "bytes": 698790,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_normal_note.png",
+      "sha256": "6ee1fdcc48f8e5bcf34eee8c3b91abbefc789dca56693ccd077bda6600932bbd"
+    },
+    {
+      "bytes": 679927,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_normal_reserved__eyes_close.png",
+      "sha256": "83d23c08a1f6d7b3faa095d8072051367fbbb190ee7211d87e80aa69d282e9bf"
+    },
+    {
+      "bytes": 681066,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_normal_reserved__eyes_half.png",
+      "sha256": "37d66ba64a63c07b932ac556e7a8507f20d4dabd2092044f88faee40c517cceb"
+    },
+    {
+      "bytes": 681941,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_normal_reserved__mouth_half_open.png",
+      "sha256": "c2ea51ad9928d57182923d150e12df3a8e3cad0012cd84786242874b093fa586"
+    },
+    {
+      "bytes": 681949,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_normal_reserved__mouth_open.png",
+      "sha256": "2b874346e0300fb69749b4d624f20a1ff22d144ebba011c3d6ecf6713b0fcd97"
+    },
+    {
+      "bytes": 681750,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_normal_reserved.png",
+      "sha256": "ba0a60e371dbde076e905f4e68e5a0711e4832ded4c437154c1ce5d5f6a72321"
+    },
+    {
+      "bytes": 726769,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_normal_welcome__eyes_close.png",
+      "sha256": "6bfad13ad712e4d6e716b61b7a6170f2c902075cac6dd1dba8289e18adef2ff8"
+    },
+    {
+      "bytes": 728972,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_normal_welcome__eyes_half.png",
+      "sha256": "ad0be4185b43df1044c4b26abfc09e6e86956b20253b378c606f35474b7c6738"
+    },
+    {
+      "bytes": 730208,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_normal_welcome__mouth_half_open.png",
+      "sha256": "a003d755d960f810c85cc40075241beffeae65a5361d92e4b5d2307cee58a6bf"
+    },
+    {
+      "bytes": 730236,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_normal_welcome__mouth_open.png",
+      "sha256": "edd1402f7396ac76c5e49e275707c45a233f524b87581975d3d9fd445c6c2199"
+    },
+    {
+      "bytes": 730028,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_normal_welcome.png",
+      "sha256": "b788b0c863e1cb13747e468f1984c6c8ce3e2eb8a4ca3068de1b37440e9f488e"
+    },
+    {
+      "bytes": 679248,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_sad__eyes_close.png",
+      "sha256": "c3850156d8600aa43a775468955d523486295915300abcb7fd8597ad020e7160"
+    },
+    {
+      "bytes": 681498,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_sad__eyes_half.png",
+      "sha256": "934cb06c10804cb0a18c1f9cb9fae562fe73fe7ad84ba47bd1a5dd6607f481a0"
+    },
+    {
+      "bytes": 681438,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_sad__mouth_half_open.png",
+      "sha256": "1d55f876fc50bdd5dc10d5eccc21bc16d13accad07c6704256e1ddfe7d6f6b2c"
+    },
+    {
+      "bytes": 681415,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_sad__mouth_open.png",
+      "sha256": "359a58dc984a7a16b4cd925dbb4458d56dc1a38b16e758a8a6c1f0852ff5ade3"
+    },
+    {
+      "bytes": 681090,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_sad.png",
+      "sha256": "28bd8d485460459ac3b94498144372f603d5254efaf45c277d6d9386d6900703"
+    },
+    {
+      "bytes": 679844,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_shy__eyes_close.png",
+      "sha256": "b1e223ecfa425e7cae18a754fbd701a11d31dca0e5d10c1783b414f8cffa9012"
+    },
+    {
+      "bytes": 681100,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_shy__eyes_half.png",
+      "sha256": "5dda8749940495921f84767be3b5cee37b887d5420c737078ebea6362c0c6b58"
+    },
+    {
+      "bytes": 681015,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_shy__mouth_half_open.png",
+      "sha256": "8f44b881c10a0a55f80187b1e68d8ac4d4ac836b9773d49d34041923e5b0257c"
+    },
+    {
+      "bytes": 681040,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_shy__mouth_open.png",
+      "sha256": "d58738c616c9d3ffc588c26437f1132432931b3b514f737cdba30d231da87ad8"
+    },
+    {
+      "bytes": 680828,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_shy.png",
+      "sha256": "d9f1fa8348e2d9fbed5f731de746825b883eceb90b44cae765267bf656073f14"
+    },
+    {
+      "bytes": 621493,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_surprised__eyes_close.png",
+      "sha256": "b259767dfe07da973b6444504324e837d515de52a45bbfa0f100c177da707899"
+    },
+    {
+      "bytes": 622676,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_surprised__eyes_half.png",
+      "sha256": "500c4e42105a57f7810ce31e84d581f5301c0d6bf8d52b81a4995be185b726cf"
+    },
+    {
+      "bytes": 624831,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_surprised__mouth_half_open.png",
+      "sha256": "d5f5f0211b4a64a498b0f95cfb936f067dbb7efb79e90f80dc5ee88ced7cdf68"
+    },
+    {
+      "bytes": 624670,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_surprised__mouth_open.png",
+      "sha256": "a287b7b2134f23978b0012dd82e1887ea627fee76fd4307ed58e3cc68bf17ea5"
+    },
+    {
+      "bytes": 624631,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_surprised.png",
+      "sha256": "89018a8cb79499beb4623354e16e8a9b4174c790c22cece2e79b759a179f047d"
+    },
+    {
+      "bytes": 621847,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_thinking__mouth_half_open.png",
+      "sha256": "5c56432398f9824f6d19419a31082e89113fd1c17bfd6696f5b6fbb4f4060494"
+    },
+    {
+      "bytes": 621847,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_thinking__mouth_open.png",
+      "sha256": "5c56432398f9824f6d19419a31082e89113fd1c17bfd6696f5b6fbb4f4060494"
+    },
+    {
+      "bytes": 621714,
+      "path": "game/figure/project-assets/alice-v2/maid_princess_thinking.png",
+      "sha256": "e73642dfdbd7d3727e9927d04351e6340f4007b2769b553376ac32e7c9687ad0"
+    },
+    {
+      "bytes": 327,
+      "path": "game/scene/__launch_save_save-alice.txt",
+      "sha256": "89b51770b968df125f411e1167c29bfbac8af3eb8e14341c26ee0f35dffc30dd"
+    },
+    {
+      "bytes": 332,
+      "path": "game/scene/__launch_save_save-interest.txt",
+      "sha256": "02a450ae2fed5c2be22e0ae0aadbc21a2b18dc8f5fe273d542b20877dc7a4ee8"
+    },
+    {
+      "bytes": 327,
+      "path": "game/scene/__launch_save_save-master-more.txt",
+      "sha256": "6d5ba0f2f7aa0645846ccdd3593a7429fa9937396265ac32c6f9bf6e4355f0ed"
+    },
+    {
+      "bytes": 327,
+      "path": "game/scene/__launch_save_save-master.txt",
+      "sha256": "acfeb6af50cb5aa2a7e38b59345ade01c971a6e12354375902234b20eebe258d"
+    },
+    {
+      "bytes": 320,
+      "path": "game/scene/__launch_save_save-root.txt",
+      "sha256": "abb03db0f2e01e816b2ecd6d869f8b196bcc2bdf4efa6e48eba011dc286d7400"
+    },
+    {
+      "bytes": 325,
+      "path": "game/scene/__launch_save_save-site-more.txt",
+      "sha256": "1f79d1c84cb6d5b84978fc2a4f887d5b7e01666cca3faef443a0e429b517fe6f"
+    },
+    {
+      "bytes": 325,
+      "path": "game/scene/__launch_save_save-site.txt",
+      "sha256": "177dcad327200dd656fdb1670a27956a51e44bd6746cb1db6f3027b25af0adbe"
+    },
+    {
+      "bytes": 327,
+      "path": "game/scene/__launch_save_save-system.txt",
+      "sha256": "231333b029fd51dbb2dc6f717a6abf2e6b722eb0b2a9fc79653fae65aeda2b68"
+    },
+    {
+      "bytes": 327,
+      "path": "game/scene/__launch_scene_scene-alice-about.txt",
+      "sha256": "89b51770b968df125f411e1167c29bfbac8af3eb8e14341c26ee0f35dffc30dd"
+    },
+    {
+      "bytes": 327,
+      "path": "game/scene/__launch_scene_scene-site-system-menu.txt",
+      "sha256": "231333b029fd51dbb2dc6f717a6abf2e6b722eb0b2a9fc79653fae65aeda2b68"
+    },
+    {
+      "bytes": 6670,
+      "path": "game/scene/scene_alice-about.txt",
+      "sha256": "5203242c1dbed576e0141d8d50731eea56ba82814345075e18b6498df960a574"
+    },
+    {
+      "bytes": 3775,
+      "path": "game/scene/scene_master-interests.txt",
+      "sha256": "32f83c7a43bfef145510a38a618d885d7f1ae65dd237db48627db53fb929e430"
+    },
+    {
+      "bytes": 5965,
+      "path": "game/scene/scene_master-menu.txt",
+      "sha256": "7807c60aea4d788bc14701e38f66c841e9b9ca52c4df1a9513a9dd474c49cc29"
+    },
+    {
+      "bytes": 8268,
+      "path": "game/scene/scene_master-more.txt",
+      "sha256": "f884eb3434e74fee73196e64e42f5c4118c5d0e2605fce0e964acb44738a704c"
+    },
+    {
+      "bytes": 4520,
+      "path": "game/scene/scene_root.txt",
+      "sha256": "fc638d7a5bcceec165b146b387383be0aa57ab06c874b62838941cbe49d8f6cd"
+    },
+    {
+      "bytes": 15604,
+      "path": "game/scene/scene_site-menu.txt",
+      "sha256": "2238c4ac86bae84f3df8922247687b6b0c239651fd35dac0192b4b762bb10839"
+    },
+    {
+      "bytes": 5979,
+      "path": "game/scene/scene_site-more.txt",
+      "sha256": "02c11c7e470da7384388bfcdf3deb772fe75850f2ade6949bb7b2b264bb7d32f"
+    },
+    {
+      "bytes": 7097,
+      "path": "game/scene/scene_site-system.txt",
+      "sha256": "cb25e1649445dc75a5331f1dddae378b4d5be8c0068d835d32b8e5e58af390f1"
+    },
+    {
+      "bytes": 320,
+      "path": "game/scene/start.txt",
+      "sha256": "abb03db0f2e01e816b2ecd6d869f8b196bcc2bdf4efa6e48eba011dc286d7400"
+    },
+    {
+      "bytes": 659,
+      "path": "game/template/project-assets/ui/cursor-default.svg",
+      "sha256": "9734d4feeeb1f420f4306a77792652444e1c688e842d49475a154daf3d495a47"
+    },
+    {
+      "bytes": 783,
+      "path": "game/template/project-assets/ui/cursor-select.svg",
+      "sha256": "54b47648d11015a675c60ac76307904888654588b5f6a2e02f1c5956fcdd62a4"
+    },
+    {
+      "bytes": 37,
+      "path": "game/template/Stage/Choose/choose.scss",
+      "sha256": "d96111496799e4fd46196e741fba5c452d61eebb745def99878afa6de7d7c5c9"
+    },
+    {
+      "bytes": 36,
+      "path": "game/template/Stage/TextBox/textbox.scss",
+      "sha256": "32125400ac19e69f985fd524af8f9d9aa525dd7b6d0fc57c25c1eb81e7629c2d"
+    },
+    {
+      "bytes": 18,
+      "path": "game/template/template.json",
+      "sha256": "8ca6807e479dfa9e7e589e8661d8f1b29878119f2d45970fa253d6d1e82bc1b0"
+    },
+    {
+      "bytes": 36,
+      "path": "game/template/UI/Title/title.scss",
+      "sha256": "221149894e14702f39a716eeef7e192f86ebe10b425a146c94f6299db6247d4f"
+    },
+    {
+      "bytes": 72,
+      "path": "game/theme.tokens.json",
+      "sha256": "79bacd38beb8f6eb2a7b72804a9b6da80d21226253639074d23a2af9a0e4368e"
+    },
+    {
+      "bytes": 12186,
+      "path": "game/userStyleSheet.css",
+      "sha256": "6ac812aa5b7c33846eef3ed4f5a69d30b6d8ee9b05f7f5fbdce486d342b8428e"
+    },
+    {
+      "bytes": 100212,
+      "path": "game/vocal/project-assets/voice/chapter-one/alice_close.mp3",
+      "sha256": "28bcb278fdfb2b69f150130511fbf36c1d4511269e61a58d53ec5c9dddb19eb0"
+    },
+    {
+      "bytes": 122676,
+      "path": "game/vocal/project-assets/voice/chapter-one/alice_intro.mp3",
+      "sha256": "230264412dd553eac5b318687e4c0c5693663b9ce181e0f5d2a1c9064934ce94"
+    },
+    {
+      "bytes": 156084,
+      "path": "game/vocal/project-assets/voice/chapter-one/alice_name.mp3",
+      "sha256": "eb067530bed60299ed5cfdd51c67fdd091d65edcfacc65b0b44a413a45120346"
+    },
+    {
+      "bytes": 108276,
+      "path": "game/vocal/project-assets/voice/chapter-one/master_guard.mp3",
+      "sha256": "7d9968f532bf7db66a2dbf70d4b6e5ad034074a08d10fa4b72d21a3faf8a4fdf"
+    },
+    {
+      "bytes": 100212,
+      "path": "game/vocal/project-assets/voice/chapter-one/master_intro.mp3",
+      "sha256": "6318f3419e2b7c700a34ee63f984e185ca5ce870e469b752de888042940ae369"
+    },
+    {
+      "bytes": 132468,
+      "path": "game/vocal/project-assets/voice/chapter-one/root_bridge.mp3",
+      "sha256": "1cdc941109cb7319d1fb880ed10f9dcb7ed9e05f0e6d7db510d4d6a97acfe74c"
+    },
+    {
+      "bytes": 37428,
+      "path": "game/vocal/project-assets/voice/chapter-one/root_choose.mp3",
+      "sha256": "a4113a5014724bd31c216d79e0e029488ba5f66fd558200160eefb6ba9dc8b8e"
+    },
+    {
+      "bytes": 131892,
+      "path": "game/vocal/project-assets/voice/chapter-one/root_welcome.mp3",
+      "sha256": "eadb60aa6db674560bb496b7bf56321ab50288e261f2a743f4e7f6fcaf7e8189"
+    },
+    {
+      "bytes": 177972,
+      "path": "game/vocal/project-assets/voice/chapter-one/site_extra.mp3",
+      "sha256": "b2082491a2fd98137f16e069a452e4680b1c79f09088885b34482b520cf30d31"
+    },
+    {
+      "bytes": 127860,
+      "path": "game/vocal/project-assets/voice/chapter-one/site_intro.mp3",
+      "sha256": "87c5754550338bca9fba4aa89bc4793bd73d1bbfb37a0c1c8d61f0100d4bc545"
+    },
+    {
+      "bytes": 116916,
+      "path": "game/vocal/project-assets/voice/chapter-one/site_load_return.mp3",
+      "sha256": "aa108b59383ea86a1fc6fdc0cd227c1446bdcc8dda6bd89e9ae2ea4c77e1f6b1"
+    },
+    {
+      "bytes": 129012,
+      "path": "game/vocal/project-assets/voice/chapter-one/site_load.mp3",
+      "sha256": "d360105a24f61f2d81de0b1ad6450a70dbace44d84f8a569a70a82e447c1f946"
+    },
+    {
+      "bytes": 164148,
+      "path": "game/vocal/project-assets/voice/chapter-one/site_option.mp3",
+      "sha256": "43199a6560d451d17273d70c75a16f0a028f5d395d73cf45d31415c48698f263"
+    },
+    {
+      "bytes": 162420,
+      "path": "game/vocal/project-assets/voice/chapter-one/site_scope.mp3",
+      "sha256": "4e1c3eb3cd2d648bd0e80d6df892cfb5dfe016171c74c7ab197df3a62cd2629e"
+    },
+    {
+      "bytes": 97908,
+      "path": "game/vocal/project-assets/voice/chapter-one/site_vn.mp3",
+      "sha256": "5df80e2f7a5f06aea152e89394902601eb5cfb6e85959a98eb934e1d8391df39"
+    },
+    {
+      "bytes": 54900,
+      "path": "index.html",
+      "sha256": "b7e3ee4b159d861797d33b51687f0f7e5114b2a6277ff035a535a2c2ffd41550"
+    },
+    {
+      "bytes": 955,
+      "path": "README.md",
+      "sha256": "d42a1e82a4041420b84ee06d29c8561c3cfd13b7d083c28257e32b012838a9cc"
+    },
+    {
+      "bytes": 342,
+      "path": "THIRD_PARTY_NOTICES.md",
+      "sha256": "bafc5f733ba630c298f0a33587fbcd9092253b52b353a35af06210ba25a92b21"
+    },
+    {
+      "bytes": 13706,
+      "path": "vendor/webgal/assets/cherryBlossoms-DzBBkOW8.webp",
+      "sha256": "56cf09c9a41863994f7000786d8972b03dcc214f692c479b78962608109bb0e3"
+    },
+    {
+      "bytes": 517,
+      "path": "vendor/webgal/assets/conentsCash-BBWvsVB4.js",
+      "sha256": "a3405a060bac043a6b0e60c02f9c91aee4aaba64d26ff8aeb4375873eb0c68ee"
+    },
+    {
+      "bytes": 14881,
+      "path": "vendor/webgal/assets/dialog-BDvwibdp.mp3",
+      "sha256": "d5b912353085e44e2fd975dfbfbe6561c38d1c3705687b22bb9bd065791e6bfe"
+    },
+    {
+      "bytes": 1453555,
+      "path": "vendor/webgal/assets/index-BuN51U1e.js",
+      "sha256": "495fb4f343b1734f6891b6b2760476a597f7f09e317dd330c3329e797817c4f5"
+    },
+    {
+      "bytes": 47833,
+      "path": "vendor/webgal/assets/index-Dch1g2w9.css",
+      "sha256": "ea9ea5a2be73a70eb62a83976394862149755450ca84d20870d76b6192299cb7"
+    },
+    {
+      "bytes": 127904,
+      "path": "vendor/webgal/assets/index.es-DgrcV8Ww.js",
+      "sha256": "20b95fdc59b882b46b40b514e91085bbcdba8d725243900db245701f9291324e"
+    },
+    {
+      "bytes": 6183,
+      "path": "vendor/webgal/assets/initRegister-BhLmMkYX.js",
+      "sha256": "7bd88249222f5ee50a560ff63c689ec34cdc565bcf299660d60f4dc07d0078b8"
+    },
+    {
+      "bytes": 10152780,
+      "path": "vendor/webgal/assets/OPPOSans-R-tAcFw8I3.ttf",
+      "sha256": "ea92535935f8b5da18b64bb23e5ffbfef1417b7ae4ff3fc15372a65ee95a9580"
+    },
+    {
+      "bytes": 14965,
+      "path": "vendor/webgal/assets/page-flip-1-CZ8VQh4O.mp3",
+      "sha256": "7df32409e65c6c56707f030a59327de24865e24ad38e243a9ad4a604f4a19161"
+    },
+    {
+      "bytes": 37390,
+      "path": "vendor/webgal/assets/rain-Bd8ZRQ7x.png",
+      "sha256": "e0935c5335c65986437f2c2e0e7c7cdc3c6bd1e603edf6acf6bf8d232331bb4a"
+    },
+    {
+      "bytes": 14663464,
+      "path": "vendor/webgal/assets/ResourceHanRoundedCN-Regular-C1HdCLVq.ttf",
+      "sha256": "1c5c623f008eabef10c45135a48b01b46311f9369c28857355872cfe05f48dc0"
+    },
+    {
+      "bytes": 27182,
+      "path": "vendor/webgal/assets/snow-CJh9m2KR.png",
+      "sha256": "5313a7b0259c483f1329b57c2d2744fe4ee506163a7876b3c8a6111ba8e01978"
+    },
+    {
+      "bytes": 13013172,
+      "path": "vendor/webgal/assets/SourceHanSerifCN-Regular-B_f-kQ2u.ttf",
+      "sha256": "1e60cc2eedfa25bf5e4ecaa794402f581ad770d4c8be46d338bf52064b307ec7"
+    },
+    {
+      "bytes": 9325,
+      "path": "vendor/webgal/assets/switch-1-DI-7VpPw.mp3",
+      "sha256": "99b576bc49cf679b735460e30f1b97f7a07e9f3dc053c266a27d6b719f5e8b5b"
+    },
+    {
+      "bytes": 16725,
+      "path": "vendor/webgal/LICENSE",
+      "sha256": "1f256ecad192880510e84ad60474eab7589218784b9a50bc7ceee34c2b91f1d5"
+    },
+    {
+      "bytes": 2991,
+      "path": "vendor/webgal/runtime-manifest.json",
+      "sha256": "2c38608174572edda9c079fb35f91897a0b08a65a5988d841337523579a3f54c"
+    },
+    {
+      "bytes": 1284,
+      "path": "vendor/webgal/webgal-engine.json",
+      "sha256": "bbd7b1a5a141d7fd7f0d25431b3e3699d69f714ed0aa9c8da5b0c9bcfc0a1a10"
+    },
+    {
+      "bytes": 1830,
+      "path": "vendor/webgal/webgal-serviceworker.js",
+      "sha256": "317a4d6599c5d97c82ad18faa2b216457e9eff4f6e256a1f92acd1ec0f86fa42"
+    }
+  ],
+  "schema": "gal-blog-integrity/v1"
+}

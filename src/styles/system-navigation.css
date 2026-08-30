@@ -1,0 +1,64 @@
+/* Shared route return: one lightweight command across LOAD / EXTRA / OPTION / CG. */
+.system-screen .special-system-canvas .system-back {
+  min-width: 0;
+  min-height: 4.2cqh;
+  padding: 0 0 0 2.55cqw;
+  border: 0;
+  border-radius: 0;
+  color: var(--v4-soft);
+  background: transparent;
+  box-shadow: none;
+  font: 600 clamp(12px, .82cqw, 14px) / 1 "Yu Gothic", sans-serif;
+  letter-spacing: .22em;
+  opacity: .84;
+  text-decoration: none;
+  text-shadow: none;
+  transition: color 160ms ease, opacity 160ms ease, transform 210ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.system-screen .special-system-canvas .system-back::before {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  display: block;
+  width: 1.55cqw;
+  height: 1px;
+  border: 0;
+  background: currentColor;
+  content: "";
+  transform: translateY(-50%);
+  transition: width 210ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.system-screen .special-system-canvas .system-back::after {
+  position: absolute;
+  top: calc(50% - .3cqw);
+  left: .03cqw;
+  display: block;
+  width: .56cqw;
+  height: .56cqw;
+  border: 0;
+  border-bottom: 1px solid currentColor;
+  border-left: 1px solid currentColor;
+  background: transparent;
+  content: "";
+  transform: rotate(45deg);
+  transition: transform 210ms cubic-bezier(.22, 1, .36, 1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .system-screen .special-system-canvas .system-back:is(:hover, :focus-visible) {
+    color: var(--v4-ink);
+    opacity: 1;
+    outline: 0;
+    transform: translateX(-.18cqw);
+  }
+
+  .system-screen .special-system-canvas .system-back:is(:hover, :focus-visible)::before {
+    width: 1.85cqw;
+  }
+
+  .system-screen .special-system-canvas .system-back:is(:hover, :focus-visible)::after {
+    transform: translateX(-.12cqw) rotate(45deg);
+  }
+}

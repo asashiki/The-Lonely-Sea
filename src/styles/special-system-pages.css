@@ -3,7 +3,7 @@
   --special-control-rest: color-mix(in srgb, var(--v4-card) 26%, transparent);
   --special-control-hover: color-mix(in srgb, var(--v4-accent) 13%, var(--v4-card) 28%);
   --special-control-active: color-mix(in srgb, var(--v4-accent) 22%, var(--v4-card) 34%);
-  background: var(--v4-wash), var(--v4-bg) center / cover;
+  background: transparent;
 }
 
 .special-page-heading {
@@ -278,7 +278,7 @@ html[data-vignette="false"] .vignette {
   --option-control: color-mix(in srgb, var(--v4-card) 40%, transparent);
   --option-control-active: color-mix(in srgb, var(--v4-accent) 24%, var(--v4-card) 48%);
   --option-shadow: color-mix(in srgb, var(--v4-shadow) 58%, transparent);
-  background: var(--v4-wash), var(--v4-bg) center / cover;
+  background: transparent;
 }
 
 .option-heading {
@@ -327,15 +327,7 @@ html[data-vignette="false"] .vignette {
 }
 
 .option-primary button::before {
-  position: absolute;
-  right: 1cqw;
-  bottom: 0;
-  left: 1cqw;
-  height: 2px;
-  background: color-mix(in srgb, var(--v4-accent) 76%, var(--v4-ink) 24%);
-  content: "";
-  opacity: 0;
-  transition: opacity 180ms ease;
+  content: none;
 }
 
 .option-primary button[aria-selected="true"] {
@@ -350,7 +342,7 @@ html[data-vignette="false"] .vignette {
 }
 
 .option-primary button[aria-selected="true"]::before {
-  opacity: .72;
+  content: none;
 }
 
 .option-primary button:focus-visible {
@@ -384,14 +376,11 @@ html[data-vignette="false"] .vignette {
   position: relative;
   min-width: 0;
   min-height: 0;
-  padding: 1.3cqh 1.05cqw;
+  padding: 0;
   overflow: hidden;
   border: 0;
-  background:
-    linear-gradient(100deg, var(--option-surface-strong), var(--option-surface) 74%, transparent);
-  box-shadow:
-    inset 0 1px color-mix(in srgb, white 18%, transparent),
-    0 1.2cqh 2.5cqw var(--option-shadow);
+  background: transparent;
+  box-shadow: none;
 }
 
 .option-canvas .option-panel {
@@ -774,7 +763,7 @@ html[data-sub-labels="false"] .option-canvas .setting-label small {
 
 .option-screen[aria-hidden="false"] .option-heading,
 .option-screen[aria-hidden="false"] .option-primary,
-.option-screen[aria-hidden="false"] .option-stage,
+.option-screen[aria-hidden="false"] .option-book,
 .option-screen[aria-hidden="false"] .option-actions {
   animation: special-option-arrive 360ms cubic-bezier(.22, 1, .36, 1) both;
 }
@@ -942,7 +931,7 @@ html[data-motion="reduced"] .option-screen[aria-hidden="false"] .option-actions 
   --extra-surface: color-mix(in srgb, var(--v4-paper) 78%, transparent);
   --extra-surface-strong: color-mix(in srgb, var(--v4-paper) 91%, transparent);
   --extra-shadow: color-mix(in srgb, var(--v4-shadow) 58%, transparent);
-  background: var(--v4-wash), var(--v4-bg) center / cover;
+  background: transparent;
 }
 
 .extra-heading {
@@ -2126,6 +2115,7 @@ html[data-motion="reduced"] .option-screen[aria-hidden="false"] .option-actions 
 }
 
 @media (max-width: 700px) and (orientation: portrait) {
+  html:not([data-forced-landscape="true"]) {
   .start-stage {
     bottom: 10.5cqh;
   }
@@ -2136,6 +2126,7 @@ html[data-motion="reduced"] .option-screen[aria-hidden="false"] .option-actions 
 
   .extra-status {
     right: 21cqw;
+  }
   }
 }
 
@@ -2184,8 +2175,10 @@ html[data-motion="reduced"] .extra-music-disc {
   --extra-dark-glass: color-mix(in srgb, var(--v4-outer) 74%, transparent);
   display: grid;
   place-items: center;
-  width: 100vw;
-  height: 100vh;
+  position: absolute;
+  inset: 0;
+  width: auto;
+  height: auto;
   overflow: clip;
   box-shadow: none;
 }
@@ -2208,9 +2201,9 @@ html[data-motion="reduced"] .extra-music-disc {
 
 .extra-canvas .extra-safe-frame > .system-back {
   top: auto;
-  right: auto;
+  right: 4.8cqw;
   bottom: 3.25cqh;
-  left: 4.8cqw;
+  left: auto;
   z-index: 24;
 }
 
@@ -2220,8 +2213,8 @@ html[data-motion="reduced"] .extra-music-disc {
 }
 
 .extra-canvas .extra-safe-frame > .system-back:focus-visible::before {
-  border-color: var(--extra-line-strong);
-  background: color-mix(in srgb, var(--v4-accent) 14%, transparent);
+  border: 0;
+  background: currentColor;
 }
 
 .extra-canvas .extra-heading {
@@ -2235,10 +2228,7 @@ html[data-motion="reduced"] .extra-music-disc {
 }
 
 .extra-canvas .extra-heading p {
-  display: block;
-  margin-top: 1.2cqh;
-  color: var(--v4-faint);
-  letter-spacing: .2em;
+  display: none;
 }
 
 .extra-canvas .extra-primary {
@@ -2369,7 +2359,7 @@ html[data-motion="reduced"] .extra-music-disc {
 .extra-canvas .extra-status {
   position: absolute;
   z-index: 12;
-  right: 4.8cqw;
+  right: 14.5cqw;
   bottom: 2.65cqh;
   left: 23.2cqw;
   display: flex;
@@ -2521,12 +2511,7 @@ html[data-motion="reduced"] .extra-music-disc {
 }
 
 .extra-canvas .extra-room-heading > p {
-  grid-row: 1;
-  grid-column: 1;
-  margin: 0 0 .75cqh;
-  color: var(--v4-faint);
-  font: 600 clamp(7px, .48cqw, 9px) / 1 "Yu Gothic", sans-serif;
-  letter-spacing: .24em;
+  display: none;
 }
 
 .extra-canvas .extra-room-heading h3 {
@@ -2928,7 +2913,7 @@ html[data-motion="reduced"] .extra-music-disc {
   transform: scaleY(1);
 }
 
-/* PROJECT — a 3×2 project wall with links only over the image. */
+/* PROJECT — a curated wall of real public work. */
 .extra-canvas .extra-project-room {
   display: grid;
   grid-template-columns: 1fr;
@@ -2946,11 +2931,21 @@ html[data-motion="reduced"] .extra-music-disc {
   padding: 1.45cqh .15cqw 1.2cqh;
 }
 
+.extra-canvas .extra-project-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 2cqw;
+  min-width: 0;
+  padding: 1.15cqh .2cqw .25cqh;
+  border-top: 1px solid var(--extra-line);
+}
+
 .extra-canvas .extra-project-record {
   position: relative;
   display: grid;
   grid-template-columns: 1fr;
-  grid-template-rows: minmax(0, 1fr) 6.4cqh;
+  grid-template-rows: minmax(0, 1fr) 8.7cqh;
   min-width: 0;
   min-height: 0;
   padding: 0;
@@ -2969,8 +2964,27 @@ html[data-motion="reduced"] .extra-music-disc {
   min-width: 0;
   min-height: 0;
   overflow: hidden;
-  background: var(--extra-art) center / cover no-repeat;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--v4-accent) 10%, transparent), transparent 54%),
+    repeating-linear-gradient(90deg, transparent 0 2.1cqw, color-mix(in srgb, var(--v4-ink) 5%, transparent) 2.1cqw calc(2.1cqw + 1px)),
+    color-mix(in srgb, var(--v4-paper) 18%, transparent);
   box-shadow: none;
+}
+
+.extra-canvas .extra-project-art.has-art {
+  background: var(--extra-art) center / cover no-repeat;
+}
+
+.extra-canvas .extra-project-mark {
+  position: absolute;
+  z-index: 1;
+  right: 1cqw;
+  bottom: 1.2cqh;
+  left: 1cqw;
+  color: color-mix(in srgb, var(--v4-ink) 42%, transparent);
+  font: italic 400 clamp(18px, 1.75cqw, 32px) / 1 Baskerville, "Iowan Old Style", serif;
+  letter-spacing: .08em;
+  text-align: right;
 }
 
 .extra-canvas .extra-project-art > span {
@@ -2989,6 +3003,7 @@ html[data-motion="reduced"] .extra-music-disc {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: .5cqw;
+  z-index: 2;
   opacity: 0;
   transform: translate3d(0, .8cqh, 0);
   transition:
@@ -3014,20 +3029,36 @@ html[data-motion="reduced"] .extra-music-disc {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   grid-template-rows: 1fr;
-  align-content: center;
+  align-items: center;
   gap: .8cqw;
   min-width: 0;
   padding: .85cqh .8cqw .7cqh;
   border-top: 1px solid var(--extra-line);
 }
 
-.extra-canvas .extra-project-copy > strong {
-  grid-row: 1;
-  grid-column: 1;
+.extra-canvas .extra-project-copy > div {
+  display: grid;
+  gap: .55cqh;
+  min-width: 0;
+}
+
+.extra-canvas .extra-project-copy > div > strong {
   margin: 0;
+  overflow: hidden;
   color: var(--v4-ink);
   font: 400 clamp(11px, .82cqw, 15px) / 1 Baskerville, "Yu Mincho", serif;
   letter-spacing: .07em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.extra-canvas .extra-project-copy > div > small {
+  overflow: hidden;
+  color: var(--v4-faint);
+  font: 500 clamp(6px, .41cqw, 8px) / 1.45 "Yu Gothic", sans-serif;
+  letter-spacing: .04em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .extra-canvas .extra-project-copy > p {
@@ -3048,6 +3079,23 @@ html[data-motion="reduced"] .extra-music-disc {
   clip-path: polygon(8% 0, 100% 0, 92% 100%, 0 100%);
   font: 600 clamp(7px, .48cqw, 9px) / 1 "Yu Gothic", sans-serif;
   letter-spacing: .13em;
+}
+
+.extra-canvas .extra-project-note {
+  display: grid;
+  gap: .65cqh;
+}
+
+.extra-canvas .extra-project-note strong {
+  color: var(--v4-soft);
+  font: 600 clamp(8px, .48cqw, 10px) / 1 "Yu Gothic", sans-serif;
+  letter-spacing: .18em;
+}
+
+.extra-canvas .extra-project-note small {
+  color: var(--v4-faint);
+  font: 500 clamp(7px, .44cqw, 9px) / 1.4 "Yu Gothic", sans-serif;
+  letter-spacing: .06em;
 }
 
 .extra-canvas .extra-project-tide {
@@ -3204,39 +3252,43 @@ html[data-motion="reduced"] .extra-music-disc {
 
 .extra-canvas .extra-bangumi-filters button {
   position: relative;
+  isolation: isolate;
   min-height: 3.35cqh;
-  padding: 0 .75cqw;
+  padding: 0 .85cqw;
   border: 0;
   color: var(--v4-faint);
   background: transparent;
   font: 600 clamp(8px, .5cqw, 10px) / 1 "Yu Gothic", sans-serif;
   letter-spacing: .11em;
   cursor: pointer;
+  transition: color 160ms ease, text-shadow 180ms ease;
+}
+
+.extra-canvas .extra-bangumi-filters button::before {
+  position: absolute;
+  z-index: -1;
+  inset: 8% -20%;
+  background: radial-gradient(ellipse 70% 55% at 50% 50%, color-mix(in srgb, var(--v4-accent) 34%, transparent), transparent 72%);
+  content: "";
+  opacity: 0;
+  filter: blur(.35cqw);
+  transition: opacity 180ms ease;
 }
 
 .extra-canvas .extra-bangumi-filters button::after {
-  position: absolute;
-  right: .65cqw;
-  bottom: 0;
-  left: .65cqw;
-  height: 1px;
-  background: var(--extra-line-strong);
-  content: "";
-  opacity: 0;
-  transform: scaleX(.35);
-  transition:
-    opacity 180ms ease,
-    transform 220ms cubic-bezier(.22, 1, .36, 1);
+  content: none;
 }
 
 .extra-canvas .extra-bangumi-filters button[aria-pressed="true"] {
   color: var(--v4-ink);
-  background: color-mix(in srgb, var(--v4-accent) 10%, transparent);
+  background: transparent;
+  text-shadow:
+    0 0 .55cqw color-mix(in srgb, var(--v4-accent) 42%, transparent),
+    0 0 1.3cqw color-mix(in srgb, var(--v4-accent) 22%, transparent);
 }
 
-.extra-canvas .extra-bangumi-filters button[aria-pressed="true"]::after {
-  opacity: .8;
-  transform: scaleX(1);
+.extra-canvas .extra-bangumi-filters button[aria-pressed="true"]::before {
+  opacity: 1;
 }
 
 .extra-canvas .extra-bangumi-activity {
@@ -3271,11 +3323,15 @@ html[data-motion="reduced"] .extra-music-disc {
   overflow-y: hidden;
   cursor: grab;
   scrollbar-width: none;
-  scroll-behavior: smooth;
-  scroll-snap-type: x proximity;
+  scroll-behavior: auto;
+  scroll-snap-type: none;
   overscroll-behavior: contain;
-  touch-action: pan-y;
+  touch-action: none;
   mask-image: linear-gradient(90deg, #000 0 94%, transparent 100%);
+}
+
+.extra-canvas .extra-bangumi-viewport.has-left-fade {
+  mask-image: linear-gradient(90deg, transparent, #000 3.4% 94%, transparent 100%);
 }
 
 .extra-canvas .extra-bangumi-viewport::-webkit-scrollbar {
@@ -3312,7 +3368,8 @@ html[data-motion="reduced"] .extra-music-disc {
   min-width: 0;
   color: var(--v4-soft);
   text-decoration: none;
-  scroll-snap-align: start;
+  user-select: none;
+  scroll-snap-align: none;
   transform: translate3d(0, 0, 0);
   transition:
     color 180ms ease,
@@ -3368,7 +3425,7 @@ html[data-motion="reduced"] .extra-music-disc {
   text-align: center;
 }
 
-/* MOVIE — exactly two quiet 16:9 frames. */
+/* MOVIE — verified public video records only. */
 .extra-canvas .extra-movie-room {
   display: grid;
   grid-template-rows: 8.2cqh minmax(0, 1fr);
@@ -3376,7 +3433,8 @@ html[data-motion="reduced"] .extra-music-disc {
 
 .extra-canvas .extra-movie-stage {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(34cqw, 50cqw);
+  justify-content: center;
   align-items: center;
   gap: 4.2cqw;
   min-width: 0;
@@ -3396,6 +3454,7 @@ html[data-motion="reduced"] .extra-music-disc {
   background: color-mix(in srgb, var(--v4-paper) 25%, transparent);
   box-shadow: 0 .8cqh 1.8cqw color-mix(in srgb, var(--v4-shadow) 35%, transparent);
   cursor: pointer;
+  text-decoration: none;
 }
 
 .extra-canvas .extra-movie-art {
@@ -3456,10 +3515,10 @@ html[data-motion="reduced"] .extra-music-disc {
   letter-spacing: .11em;
 }
 
-/* ACHIEVEMENT — a scrollable record with compact completion statistics. */
+/* ACHIEVEMENT — reading traces without decorative counters. */
 .extra-canvas .extra-achievement-room {
   display: grid;
-  grid-template-rows: 8.2cqh 9.4cqh minmax(0, 1fr);
+  grid-template-rows: 8.2cqh minmax(0, 1fr);
 }
 
 .extra-canvas .extra-achievement-stats {
@@ -3531,7 +3590,7 @@ html[data-motion="reduced"] .extra-music-disc {
 .extra-canvas .extra-achievement-row {
   position: relative;
   display: grid;
-  grid-template-columns: 7.4cqw minmax(0, 1fr) 10cqw;
+  grid-template-columns: 5.4cqw minmax(0, 1fr) 10cqw;
   align-items: center;
   min-width: 0;
   min-height: 10.1cqh;
@@ -3571,8 +3630,7 @@ html[data-motion="reduced"] .extra-music-disc {
   margin-right: 1.2cqw;
   border-right: 1px solid var(--extra-line);
   color: var(--v4-faint);
-  font: 600 clamp(6px, .39cqw, 8px) / 1 "Yu Gothic", sans-serif;
-  letter-spacing: .16em;
+  font: 400 clamp(13px, 1cqw, 18px) / 1 Baskerville, serif;
 }
 
 .extra-canvas .extra-achievement-row.is-unlocked .extra-achievement-state {
@@ -3740,6 +3798,7 @@ html[data-motion="reduced"] .extra-music-disc {
 
 /* Portrait and narrow canvases keep the sidebar, while content density steps down. */
 @media (max-width: 900px) and (orientation: portrait) {
+  html:not([data-forced-landscape="true"]) {
   .extra-canvas {
     --extra-side: 23.5cqw;
   }
@@ -3786,14 +3845,15 @@ html[data-motion="reduced"] .extra-music-disc {
   }
 
   .extra-canvas .extra-status {
-    right: 3.2cqw;
+    right: 26cqw;
     bottom: 2cqh;
     left: 26cqw;
   }
 
   .extra-canvas .extra-safe-frame > .system-back {
+    right: 3.2cqw;
     bottom: 2.3cqh;
-    left: 3.2cqw;
+    left: auto;
   }
 
   .extra-canvas .extra-room-heading h3 {
@@ -3886,7 +3946,7 @@ html[data-motion="reduced"] .extra-music-disc {
   }
 
   .extra-canvas .extra-project-record {
-    grid-template-rows: minmax(0, 1fr) 6.2cqh;
+    grid-template-rows: minmax(0, 1fr) 8.2cqh;
   }
 
   .extra-canvas .extra-project-copy > p,
@@ -3914,7 +3974,7 @@ html[data-motion="reduced"] .extra-music-disc {
   }
 
   .extra-canvas .extra-achievement-row {
-    grid-template-columns: 10cqw minmax(0, 1fr) 15cqw;
+    grid-template-columns: 8cqw minmax(0, 1fr) 16cqw;
   }
 
   .extra-canvas .extra-achievement-stats {
@@ -3931,6 +3991,7 @@ html[data-motion="reduced"] .extra-music-disc {
 
   .extra-canvas .extra-edge-turners button:first-child {
     left: 22cqw;
+  }
   }
 }
 
@@ -3957,4 +4018,51 @@ html[data-motion="reduced"] .extra-music-disc {
 
 html[data-motion="reduced"] .extra-canvas .extra-music-room.is-playing .extra-music-wave i {
   animation: none;
+}
+
+/* CG opens from the thumbnail itself; the veil follows the image instead of cutting to black. */
+.extra-canvas .cg-viewer {
+  background: transparent;
+  transition:
+    opacity 430ms cubic-bezier(.22, 1, .36, 1),
+    visibility 430ms;
+}
+
+.extra-canvas .cg-viewer-backdrop {
+  opacity: 1;
+  transition: opacity 360ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.extra-canvas .cg-viewer.is-opening .cg-viewer-backdrop,
+.extra-canvas .cg-viewer.is-closing .cg-viewer-backdrop {
+  opacity: 0;
+}
+
+.extra-canvas .cg-viewer-caption,
+.extra-canvas .cg-viewer > button {
+  opacity: 1;
+  transition: opacity 180ms ease;
+}
+
+.extra-canvas .cg-viewer.is-opening .cg-viewer-caption,
+.extra-canvas .cg-viewer.is-opening > button,
+.extra-canvas .cg-viewer.is-closing .cg-viewer-caption,
+.extra-canvas .cg-viewer.is-closing > button {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .extra-canvas .cg-viewer,
+  .extra-canvas .cg-viewer-backdrop,
+  .extra-canvas .cg-viewer-caption,
+  .extra-canvas .cg-viewer > button {
+    transition: none;
+  }
+}
+
+html[data-motion="reduced"] .extra-canvas .cg-viewer,
+html[data-motion="reduced"] .extra-canvas .cg-viewer-backdrop,
+html[data-motion="reduced"] .extra-canvas .cg-viewer-caption,
+html[data-motion="reduced"] .extra-canvas .cg-viewer > button {
+  transition: none;
 }
