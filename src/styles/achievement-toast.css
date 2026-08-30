@@ -10,8 +10,7 @@
   min-height: 5.1rem;
   padding: .8rem 1.5rem .8rem 1rem;
   color: rgb(239 246 247 / 96%);
-  background:
-    linear-gradient(105deg, rgb(93 132 145 / 82%), rgb(14 30 39 / 94%) 48%, rgb(6 14 20 / 86%));
+  background: linear-gradient(105deg, rgb(93 132 145 / 82%), rgb(14 30 39 / 94%) 48%, rgb(6 14 20 / 86%));
   box-shadow: 0 1.2rem 3.5rem rgb(0 0 0 / 34%);
   clip-path: polygon(1.1rem 0, 100% 0, 100% 100%, 0 100%, 0 1.1rem);
   opacity: 0;

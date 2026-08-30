@@ -5,19 +5,17 @@ import {
   publishPreferences,
   readPreferences,
 } from "./preferences.js";
+import { initSoundLaboratory } from "./sound-laboratory.js";
+import { readExperienceState, writeExperienceState } from "./state.js";
 
 const KEYBOARD_CURSOR_STORAGE_KEY = "lonely-sea-load-keyboard-cursor";
-const EXPERIENCE_STORAGE_KEY = "lonely-sea-experience-v1";
-const EXPERIENCE_CHANGE_EVENT = "lonely-sea:experience-preference-change";
 const DEFAULT_CATEGORY = "system";
 const DEFAULT_PANEL = "language";
-const EXPERIENCE_VALUES = Object.freeze({
-  scene: ["mist", "day", "night", "crimson"],
-  weather: ["clear", "snow", "rain"],
-});
-const CATEGORY_LABELS = Object.freeze({ system: "系统设定", game: "游戏设定", blog: "博客设定" });
 
 async function clearBrowserSiteData() {
+  // Stop live audio/controllers before clearing storage. Otherwise their
+  // pagehide handlers can write the just-deleted listening session back.
+  window.dispatchEvent(new CustomEvent("lonely-sea:before-site-data-clear"));
   // WebGAL keeps IndexedDB connections open while its iframe is alive. Close
   // the same-origin game document first; otherwise deleteDatabase is blocked
   // and a "clear all" followed by reload can resurrect native engine saves.
@@ -71,28 +69,6 @@ async function clearBrowserSiteData() {
   try { sessionStorage.clear(); } catch {}
 }
 
-function readExperience() {
-  let source = {};
-  try {
-    const parsed = JSON.parse(localStorage.getItem(EXPERIENCE_STORAGE_KEY) || "{}");
-    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) source = parsed;
-  } catch {}
-  return {
-    scene: EXPERIENCE_VALUES.scene.includes(source.scene) ? source.scene : "mist",
-    weather: EXPERIENCE_VALUES.weather.includes(source.weather) ? source.weather : "snow",
-  };
-}
-
-function writeExperience(next) {
-  const normalized = {
-    scene: EXPERIENCE_VALUES.scene.includes(next.scene) ? next.scene : "mist",
-    weather: EXPERIENCE_VALUES.weather.includes(next.weather) ? next.weather : "snow",
-  };
-  try { localStorage.setItem(EXPERIENCE_STORAGE_KEY, JSON.stringify(normalized)); } catch {}
-  window.dispatchEvent(new CustomEvent(EXPERIENCE_CHANGE_EVENT, { detail: normalized }));
-  return normalized;
-}
-
 export function initOptions({ onReplayOpening = () => {}, onResetExperience = () => {} } = {}) {
   const optionScreen = required(".option-screen");
   const optionCanvas = required(".option-canvas", optionScreen);
@@ -103,7 +79,6 @@ export function initOptions({ onReplayOpening = () => {}, onResetExperience = ()
   const settingRows = all(".option-setting[data-setting-key]", optionScreen);
   const experienceRows = all(".option-setting[data-experience-key]", optionScreen);
   const stateLabel = required("[data-option-state]", optionScreen);
-  const contextLabel = required("[data-option-context]", optionScreen);
   const resetButton = required("#reset-options", optionScreen);
   const clearButton = required("#clear-browser-data", optionScreen);
   const replayButton = required("#option-replay-opening", optionScreen);
@@ -111,13 +86,14 @@ export function initOptions({ onReplayOpening = () => {}, onResetExperience = ()
   const systemReduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
   let preferences = readPreferences();
-  let experience = readExperience();
+  let experience = readExperienceState();
   let activeCategory = DEFAULT_CATEGORY;
   let activePanel = DEFAULT_PANEL;
   let transitionToken = 0;
   let resetTimer = 0;
   let clearTimer = 0;
   let stateTimer = 0;
+  let soundLaboratory = null;
 
   function reducedMotion() {
     return systemReduceMotion.matches || preferences.reducedMotion;
@@ -161,7 +137,7 @@ export function initOptions({ onReplayOpening = () => {}, onResetExperience = ()
 
   function formatValue(row, value) {
     const input = row.querySelector("[data-setting-range]");
-    if (row.dataset.settingKey === "autoSpeed") return `第 ${value} 档`;
+    if (["autoSpeed", "readingAutoSpeed"].includes(row.dataset.settingKey)) return `${Math.round(Number(value) * 10)}%`;
     if (input) return `${value}${input.hasAttribute("data-suffix") ? input.dataset.suffix : "%"}`;
     if (typeof value === "boolean") return value ? "开" : "关";
     return String(value);
@@ -202,13 +178,22 @@ export function initOptions({ onReplayOpening = () => {}, onResetExperience = ()
     });
   }
 
-  function showSynced(message = "已即时保存") {
+  function rowHint(row) {
+    return row.dataset.hint || row.querySelector(".option-setting-copy span")?.textContent?.trim() || "";
+  }
+
+  function setHint(text) {
+    if (optionCanvas.dataset.optionSync === "active") return;
+    stateLabel.textContent = text || "";
+  }
+
+  function showSynced(message = "已保存") {
     window.clearTimeout(stateTimer);
     optionCanvas.dataset.optionSync = "active";
     stateLabel.textContent = message;
     stateTimer = window.setTimeout(() => {
       optionCanvas.dataset.optionSync = "idle";
-      stateLabel.textContent = "设置即时保存";
+      stateLabel.textContent = "";
     }, 900);
   }
 
@@ -226,9 +211,9 @@ export function initOptions({ onReplayOpening = () => {}, onResetExperience = ()
 
   function publishExperienceValue(key, value) {
     if (!EXPERIENCE_VALUES[key]?.includes(value)) return;
-    experience = writeExperience({ ...experience, [key]: value });
+    experience = writeExperienceState({ ...experience, [key]: value });
     experienceRows.filter((row) => row.dataset.experienceKey === key).forEach(hydrateExperienceRow);
-    showSynced("海景已切换");
+    showSynced("场景已切换");
   }
 
   function selectPanel(owner, id, { focus = false } = {}) {
@@ -251,6 +236,7 @@ export function initOptions({ onReplayOpening = () => {}, onResetExperience = ()
       item.hidden = !selected;
       item.classList.toggle("is-active", selected);
     });
+    soundLaboratory?.setActive(owner === "system" && id === "sound-lab");
     if (focus) nextButton.focus({ preventScroll: true });
   }
 
@@ -259,7 +245,6 @@ export function initOptions({ onReplayOpening = () => {}, onResetExperience = ()
     if (!nextButton) return;
     activeCategory = id;
     optionCanvas.dataset.optionCategory = id;
-    contextLabel.textContent = CATEGORY_LABELS[id] || "设置";
 
     primaryButtons.forEach((button) => {
       const selected = button === nextButton;
@@ -321,6 +306,8 @@ export function initOptions({ onReplayOpening = () => {}, onResetExperience = ()
     });
   }
 
+  soundLaboratory = initSoundLaboratory({ optionScreen });
+
   primaryButtons.forEach((button) => {
     button.addEventListener("click", (event) => transitionToCategory(button.dataset.optionPrimary, {
       animate: event.detail !== 0,
@@ -345,7 +332,17 @@ export function initOptions({ onReplayOpening = () => {}, onResetExperience = ()
     });
   });
 
+  function bindHint(row) {
+    const show = () => setHint(rowHint(row));
+    const hide = () => setHint("");
+    row.addEventListener("pointerenter", show);
+    row.addEventListener("focusin", show);
+    row.addEventListener("pointerleave", hide);
+    row.addEventListener("focusout", hide);
+  }
+
   settingRows.forEach((row) => {
+    bindHint(row);
     const key = row.dataset.settingKey;
     const range = row.querySelector("[data-setting-range]");
     range?.addEventListener("input", () => publishPreference(key, Number(range.value)));
@@ -368,7 +365,10 @@ export function initOptions({ onReplayOpening = () => {}, onResetExperience = ()
     bindChoiceKeys(choices, (button) => publishPreference(key, button.dataset.settingValue));
   });
 
+  all(".option-command-setting", optionScreen).forEach(bindHint);
+
   experienceRows.forEach((row) => {
+    bindHint(row);
     const key = row.dataset.experienceKey;
     const choices = all("[data-setting-value]", row);
     choices.forEach((button) => {
@@ -397,7 +397,8 @@ export function initOptions({ onReplayOpening = () => {}, onResetExperience = ()
       detail: { enabled: preferences.keyboardCursor },
     }));
     onResetExperience();
-    experience = readExperience();
+    soundLaboratory?.reset();
+    experience = readExperienceState();
     settingRows.forEach(hydratePreferenceRow);
     experienceRows.forEach(hydrateExperienceRow);
     showSynced("已恢复默认");
@@ -440,16 +441,18 @@ export function initOptions({ onReplayOpening = () => {}, onResetExperience = ()
   });
   document.addEventListener("fullscreenchange", syncFullscreen);
 
-  function activate() {
+  function activate(target = {}) {
     interruptPanelTransition();
     preferences = readPreferences();
-    experience = readExperience();
+    experience = readExperienceState();
     settingRows.forEach(hydratePreferenceRow);
     experienceRows.forEach(hydrateExperienceRow);
-    selectCategory(DEFAULT_CATEGORY, { panelId: DEFAULT_PANEL });
+    const category = primaryButton(target.category) ? target.category : DEFAULT_CATEGORY;
+    const panelId = secondaryButton(category, target.panel) ? target.panel : "";
+    selectCategory(category, { panelId: panelId || undefined });
     syncFullscreen();
     optionCanvas.dataset.optionSync = "idle";
-    stateLabel.textContent = "设置即时保存";
+    stateLabel.textContent = "";
   }
 
   activate();
@@ -463,6 +466,7 @@ export function initOptions({ onReplayOpening = () => {}, onResetExperience = ()
     },
     deactivate() {
       interruptPanelTransition();
+      soundLaboratory?.setActive(false);
       window.clearTimeout(resetTimer);
       window.clearTimeout(clearTimer);
       window.clearTimeout(stateTimer);

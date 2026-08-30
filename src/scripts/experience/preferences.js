@@ -4,6 +4,10 @@ export const PREFERENCES_CHANGE_EVENT = "lonely-sea:preferences-change";
 export const defaultPreferences = Object.freeze({
   particleDensity: 72,
   sceneCrossfade: true,
+  automaticTheme: true,
+  systemWeather: true,
+  weatherLayer: "INSIDE",
+  mobileLandscape: true,
   vignette: true,
   keyboardCursor: true,
   specialCursor: true,
@@ -15,9 +19,11 @@ export const defaultPreferences = Object.freeze({
   ambientVolume: 45,
   interfaceVolume: 70,
   voiceVolume: 80,
+  stopVoiceOnAdvance: false,
   language: "ZH-CN",
   textSize: 100,
   readingLineHeight: 180,
+  readingAutoSpeed: 5,
   autoSpeed: 6,
   subLabels: true,
   typeset: "BLOG",
@@ -32,11 +38,15 @@ export const defaultPreferences = Object.freeze({
 
 const BOOLEAN_KEYS = Object.freeze([
   "sceneCrossfade",
+  "automaticTheme",
+  "systemWeather",
+  "mobileLandscape",
   "vignette",
   "keyboardCursor",
   "specialCursor",
   "masterMuted",
   "bgmEnabled",
+  "stopVoiceOnAdvance",
   "subLabels",
   "articleTransition",
   "smartPreload",
@@ -47,6 +57,7 @@ const BOOLEAN_KEYS = Object.freeze([
 
 const ENUM_VALUES = Object.freeze({
   backgroundQuality: ["HIGH", "BALANCED"],
+  weatherLayer: ["INSIDE", "OVERLAY"],
   language: ["ZH-CN", "JA-JP", "EN-US"],
   typeset: ["BLOG", "NOVEL"],
   openingBehaviour: ["ALWAYS", "ONCE"],
@@ -70,6 +81,7 @@ export function normalizePreferences(value = {}) {
     voiceVolume: clampNumber(source.voiceVolume, 0, 100, defaultPreferences.voiceVolume),
     textSize: clampNumber(source.textSize, 80, 120, defaultPreferences.textSize),
     readingLineHeight: clampNumber(source.readingLineHeight, 150, 210, defaultPreferences.readingLineHeight),
+    readingAutoSpeed: clampNumber(source.readingAutoSpeed, 1, 10, defaultPreferences.readingAutoSpeed),
     autoSpeed: clampNumber(source.autoSpeed, 1, 10, defaultPreferences.autoSpeed),
   };
   BOOLEAN_KEYS.forEach((key) => {
@@ -105,6 +117,10 @@ export function applyPreferences(preferences, root = document.documentElement) {
   root.classList.toggle("has-special-cursor", normalized.specialCursor);
   root.lang = normalized.language === "ZH-CN" ? "zh-CN" : normalized.language;
   root.dataset.sceneCrossfade = String(normalized.sceneCrossfade);
+  root.dataset.systemWeather = String(normalized.systemWeather);
+  root.dataset.weatherLayer = String(normalized.weatherLayer).toLocaleLowerCase("en-US");
+  root.dataset.mobileLandscape = String(normalized.mobileLandscape);
+  syncForcedLandscape(normalized, root);
   root.dataset.vignette = String(normalized.vignette);
   root.dataset.motion = normalized.reducedMotion ? "reduced" : "full";
   root.dataset.subLabels = String(normalized.subLabels);
@@ -133,6 +149,7 @@ export function runtimePreferenceValue(key, preferences = readPreferences()) {
     "audio.ambient": normalized.masterMuted ? 0 : normalized.ambientVolume,
     "audio.effects": normalized.masterMuted ? 0 : normalized.interfaceVolume,
     "audio.voice": normalized.masterMuted ? 0 : normalized.voiceVolume,
+    "audio.stopVoiceOnAdvance": normalized.stopVoiceOnAdvance,
     "interface.scale": normalized.interfaceScale,
     "interface.cursor": normalized.specialCursor,
     "interface.language": normalized.language,
@@ -152,4 +169,19 @@ export function projectRuntimePreferences(keys, preferences = readPreferences())
 
 export function preferencesReduceMotion(preferences = readPreferences()) {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches || preferences.reducedMotion;
+}
+
+export function syncForcedLandscape(preferences = readPreferences(), root = document.documentElement) {
+  const phonePortrait = window.matchMedia("(max-width: 900px) and (orientation: portrait)").matches;
+  const onSpecialPage = Boolean(document.body?.dataset?.route);
+  const forced = preferences.mobileLandscape !== false && phonePortrait && onSpecialPage;
+  root.dataset.forcedLandscape = String(forced);
+  if (forced) {
+    root.style.setProperty("--forced-stage-width", `${window.innerHeight}px`);
+    root.style.setProperty("--forced-stage-height", `${window.innerWidth}px`);
+  } else {
+    root.style.removeProperty("--forced-stage-width");
+    root.style.removeProperty("--forced-stage-height");
+  }
+  return forced;
 }

@@ -1,0 +1,836 @@
+/* SOUND SPECIMEN ARCHIVE — an audition bench inside OPTION.
+   The live oscilloscope is the signature; cards stay disciplined and inherit
+   the current sea scene instead of becoming a separate dashboard. */
+
+.option-canvas .option-panel.sound-lab {
+  --sound-line: color-mix(in srgb, var(--v4-ink) 17%, transparent);
+  --sound-line-strong: color-mix(in srgb, var(--v4-ink) 34%, transparent);
+  --sound-glow: color-mix(in srgb, var(--v4-accent) 46%, transparent);
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 .45cqw 2cqh 0;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--v4-accent) 44%, transparent) transparent;
+}
+
+.option-canvas .option-panel.sound-lab::-webkit-scrollbar {
+  width: 4px;
+}
+
+.option-canvas .option-panel.sound-lab::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--v4-accent) 44%, transparent);
+}
+
+.option-canvas .sound-lab-heading {
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2cqw;
+}
+
+.option-canvas .sound-lab-heading > div {
+  min-width: 0;
+}
+
+.option-canvas .sound-lab-heading h3,
+.option-canvas .sound-lab-heading p {
+  margin-right: 0;
+}
+
+.option-canvas .sound-lab-heading p {
+  margin-top: .65cqh;
+}
+
+.option-canvas .sound-lab-reset {
+  flex: 0 0 auto;
+  padding: .85cqh 1.05cqw;
+  border: 1px solid var(--sound-line-strong);
+  border-radius: 0;
+  color: var(--opt-soft);
+  background: color-mix(in srgb, var(--v4-card) 22%, transparent);
+  font: 500 clamp(9px, .64cqw, 11px) / 1 "Yu Gothic", "Noto Sans SC", sans-serif;
+  letter-spacing: .12em;
+  transition: color 160ms ease, border-color 160ms ease, background-color 160ms ease;
+}
+
+.option-canvas .sound-lab-monitor {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(12rem, .8fr);
+  min-height: 16cqh;
+  margin-top: 2.2cqh;
+  overflow: hidden;
+  border: 1px solid var(--sound-line-strong);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--v4-outer) 42%, transparent), transparent 72%),
+    color-mix(in srgb, #0a151b 74%, var(--v4-paper) 26%);
+  box-shadow: inset 0 1px color-mix(in srgb, white 8%, transparent), 0 .5cqh 1.2cqw color-mix(in srgb, var(--v4-shadow) 28%, transparent);
+}
+
+body[data-scene="day"] .option-canvas .sound-lab-monitor,
+body[data-scene="mist"] .option-canvas .sound-lab-monitor {
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--v4-outer) 28%, transparent), transparent 72%),
+    color-mix(in srgb, #13252b 74%, var(--v4-paper) 26%);
+}
+
+.option-canvas .sound-lab-scope {
+  position: relative;
+  min-width: 0;
+  min-height: 16cqh;
+  overflow: hidden;
+  border-right: 1px solid color-mix(in srgb, white 16%, transparent);
+  color: color-mix(in srgb, var(--v4-accent) 82%, #e7fbff 18%);
+}
+
+.option-canvas .sound-lab-scope::before,
+.option-canvas .sound-lab-scope::after {
+  position: absolute;
+  z-index: 2;
+  right: 0;
+  left: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--v4-accent) 46%, transparent), transparent);
+  content: "";
+  pointer-events: none;
+}
+
+.option-canvas .sound-lab-scope::before {
+  top: 0;
+}
+
+.option-canvas .sound-lab-scope::after {
+  bottom: 0;
+}
+
+.option-canvas .sound-lab-scope canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 16cqh;
+}
+
+.option-canvas .sound-lab-scope-label,
+.option-canvas .sound-lab-scope-time {
+  position: absolute;
+  z-index: 3;
+  top: 1cqh;
+  color: color-mix(in srgb, var(--v4-accent) 72%, #eefaff 28%);
+  font: 500 clamp(8px, .53cqw, 10px) / 1 Consolas, "SFMono-Regular", monospace;
+  letter-spacing: .14em;
+  text-shadow: 0 0 .7cqw var(--sound-glow);
+  pointer-events: none;
+}
+
+.option-canvas .sound-lab-scope-label {
+  left: .9cqw;
+}
+
+.option-canvas .sound-lab-scope-time {
+  right: .9cqw;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .06em;
+}
+
+.option-canvas .sound-lab-now {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: 1fr auto;
+  align-items: center;
+  gap: 1.2cqh 1cqw;
+  min-width: 0;
+  padding: 2cqh 1.4cqw 1.5cqh;
+  color: color-mix(in srgb, var(--v4-ink) 88%, #f2fbff 12%);
+}
+
+.option-canvas .sound-lab-now-index {
+  align-self: start;
+  color: color-mix(in srgb, var(--v4-accent) 78%, #e7fbff 22%);
+  font: italic 400 clamp(28px, 2.4cqw, 42px) / .9 Baskerville, serif;
+  text-shadow: 0 0 1.2cqw var(--sound-glow);
+}
+
+.option-canvas .sound-lab-now p {
+  align-self: start;
+  min-width: 0;
+  margin: 0;
+}
+
+.option-canvas .sound-lab-now p small,
+.option-canvas .sound-lab-now p strong,
+.option-canvas .sound-lab-now p span {
+  display: block;
+}
+
+.option-canvas .sound-lab-now p small {
+  color: color-mix(in srgb, var(--v4-accent) 64%, #eefaff 36%);
+  font: 500 clamp(7px, .49cqw, 9px) / 1.2 Consolas, monospace;
+  letter-spacing: .18em;
+}
+
+.option-canvas .sound-lab-now p strong {
+  margin-top: .8cqh;
+  overflow: hidden;
+  font: 500 clamp(13px, 1cqw, 16px) / 1.25 "Yu Mincho", "Noto Serif SC", serif;
+  letter-spacing: .12em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.option-canvas .sound-lab-now p span {
+  display: -webkit-box;
+  margin-top: .7cqh;
+  overflow: hidden;
+  color: color-mix(in srgb, var(--v4-ink) 58%, #f1f8fa 42%);
+  font: 400 clamp(8px, .57cqw, 10px) / 1.55 "Yu Mincho", "Noto Serif SC", serif;
+  letter-spacing: .05em;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.option-canvas .sound-lab-now > button {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .65cqw;
+  min-height: 3.5cqh;
+  border: 1px solid color-mix(in srgb, var(--v4-accent) 42%, transparent);
+  border-radius: 0;
+  color: color-mix(in srgb, var(--v4-ink) 78%, #f0f7f8 22%);
+  background: color-mix(in srgb, var(--v4-accent) 8%, transparent);
+  font: 500 clamp(8px, .56cqw, 10px) / 1 "Yu Gothic", sans-serif;
+  letter-spacing: .12em;
+}
+
+.option-canvas .sound-lab-now > button i {
+  width: .48cqw;
+  min-width: 6px;
+  aspect-ratio: 1;
+  background: currentColor;
+}
+
+.option-canvas .sound-lab-now > button:disabled {
+  border-color: color-mix(in srgb, var(--v4-ink) 14%, transparent);
+  color: color-mix(in srgb, var(--v4-ink) 28%, transparent);
+  background: transparent;
+}
+
+.option-canvas .sound-lab-palette {
+  display: grid;
+  grid-template-columns: minmax(8rem, 10cqw) minmax(0, 1fr);
+  align-items: stretch;
+  margin-top: 1.6cqh;
+  border-top: 1px solid var(--sound-line);
+  border-bottom: 1px solid var(--sound-line);
+}
+
+.option-canvas .sound-lab-palette > header {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: .5cqh;
+  padding: 1.15cqh 1.1cqw;
+  border-right: 1px solid var(--sound-line);
+}
+
+.option-canvas .sound-lab-palette > header strong {
+  color: var(--opt-ink);
+  font: 600 clamp(10px, .73cqw, 12px) / 1 "Yu Mincho", serif;
+  letter-spacing: .16em;
+}
+
+.option-canvas .sound-lab-palette > header span {
+  color: var(--opt-faint);
+  font: 400 clamp(7px, .49cqw, 9px) / 1.35 "Yu Gothic", sans-serif;
+  letter-spacing: .06em;
+}
+
+.option-canvas .sound-lab-slots {
+  display: flex;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--sound-line-strong) transparent;
+}
+
+.option-canvas .sound-lab-slots button {
+  position: relative;
+  flex: 0 0 auto;
+  min-width: 8.6cqw;
+  padding: 1.1cqh 1.05cqw;
+  border: 0;
+  border-right: 1px solid var(--sound-line);
+  border-radius: 0;
+  color: var(--opt-ink);
+  background: transparent;
+  text-align: left;
+  transition: background-color 160ms ease, color 160ms ease;
+}
+
+.option-canvas .sound-lab-slots button::after {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background: var(--v4-accent);
+  content: "";
+  opacity: 0;
+  transform: scaleX(.4);
+  transition: opacity 160ms ease, transform 200ms ease;
+}
+
+.option-canvas .sound-lab-slots button[aria-pressed="true"] {
+  color: var(--opt-ink);
+  background: color-mix(in srgb, var(--v4-accent) 12%, transparent);
+}
+
+.option-canvas .sound-lab-slots button[aria-pressed="true"]::after {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+.option-canvas .sound-lab-slots small,
+.option-canvas .sound-lab-slots span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.option-canvas .sound-lab-slots small {
+  color: var(--opt-faint);
+  font: 500 clamp(7px, .48cqw, 9px) / 1 "Yu Gothic", sans-serif;
+  letter-spacing: .12em;
+}
+
+.option-canvas .sound-lab-slots span {
+  margin-top: .55cqh;
+  font: 500 clamp(10px, .7cqw, 12px) / 1.2 "Yu Mincho", serif;
+  letter-spacing: .08em;
+}
+
+.option-canvas .sound-lab-tools {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(12rem, 18cqw);
+  align-items: end;
+  gap: 1.2cqw;
+  margin-top: 2.2cqh;
+}
+
+.option-canvas .sound-lab-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5cqw;
+}
+
+.option-canvas .sound-lab-filters button {
+  display: flex;
+  align-items: baseline;
+  gap: .48cqw;
+  padding: .85cqh .9cqw;
+  border: 1px solid var(--sound-line-strong);
+  border-radius: 0;
+  color: var(--opt-soft);
+  background: color-mix(in srgb, var(--v4-card) 14%, transparent);
+  font: 500 clamp(9px, .62cqw, 11px) / 1 "Yu Mincho", serif;
+  letter-spacing: .08em;
+  transition: border-color 160ms ease, color 160ms ease, background-color 160ms ease;
+}
+
+.option-canvas .sound-lab-filters button small {
+  color: var(--opt-faint);
+  font: 400 .72em / 1 Baskerville, serif;
+  letter-spacing: .14em;
+}
+
+.option-canvas .sound-lab-filters button[aria-pressed="true"] {
+  border-color: color-mix(in srgb, var(--v4-accent) 66%, var(--v4-ink) 16%);
+  color: var(--opt-ink);
+  background: color-mix(in srgb, var(--v4-accent) 13%, transparent);
+  box-shadow: inset 0 -2px var(--v4-accent);
+}
+
+.option-canvas .sound-lab-search {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: .7cqw;
+  height: 4.2cqh;
+  padding: 0 .9cqw;
+  border-bottom: 1px solid var(--sound-line-strong);
+  color: var(--opt-faint);
+}
+
+.option-canvas .sound-lab-search > span {
+  font: 500 clamp(8px, .54cqw, 10px) / 1 "Yu Gothic", sans-serif;
+  letter-spacing: .14em;
+}
+
+.option-canvas .sound-lab-search input {
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  color: var(--opt-ink);
+  background: transparent;
+  font: 400 clamp(10px, .7cqw, 12px) / 1 "Yu Mincho", serif;
+  letter-spacing: .07em;
+}
+
+.option-canvas .sound-lab-search input::placeholder {
+  color: var(--opt-faint);
+  opacity: .72;
+}
+
+.option-canvas .sound-lab-search i {
+  position: relative;
+  width: .75cqw;
+  min-width: 9px;
+  aspect-ratio: 1;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+}
+
+.option-canvas .sound-lab-search i::after {
+  position: absolute;
+  right: -45%;
+  bottom: -30%;
+  width: 55%;
+  height: 1px;
+  background: currentColor;
+  content: "";
+  transform: rotate(45deg);
+  transform-origin: left center;
+}
+
+.option-canvas .sound-lab-result {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1cqw;
+  margin: 1.6cqh 0 1cqh;
+  color: var(--opt-soft);
+}
+
+.option-canvas .sound-lab-result span {
+  font: italic 400 clamp(12px, .83cqw, 14px) / 1 Baskerville, "Yu Mincho", serif;
+  letter-spacing: .1em;
+}
+
+.option-canvas .sound-lab-result small {
+  color: var(--opt-faint);
+  font: 400 clamp(8px, .54cqw, 10px) / 1.4 "Yu Gothic", sans-serif;
+  letter-spacing: .06em;
+  text-align: right;
+}
+
+.option-canvas .sound-lab-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+  gap: .9cqw;
+}
+
+.option-canvas .sound-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: clamp(2.8rem, 4.1cqw, 3.8rem) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 0 1cqw;
+  min-height: 18cqh;
+  padding: 1.35cqh 1cqw 1.1cqh;
+  overflow: hidden;
+  border: 1px solid var(--sound-line);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, white 5%, transparent), transparent 46%),
+    color-mix(in srgb, var(--v4-card) 18%, transparent);
+  box-shadow: inset 0 1px color-mix(in srgb, white 6%, transparent);
+  transition: border-color 180ms ease, background-color 180ms ease, transform 200ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.option-canvas .sound-card[hidden] {
+  display: none;
+}
+
+.option-canvas .sound-card::before {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 2px;
+  background: var(--v4-accent);
+  content: "";
+  opacity: 0;
+  transform: scaleY(.2);
+  transition: opacity 180ms ease, transform 260ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.option-canvas .sound-card[data-selected="true"] {
+  border-color: color-mix(in srgb, var(--v4-accent) 45%, var(--v4-ink) 14%);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--v4-accent) 12%, transparent), transparent 52%),
+    color-mix(in srgb, var(--v4-card) 25%, transparent);
+}
+
+.option-canvas .sound-card[data-selected="true"]::before,
+.option-canvas .sound-card[data-playing="true"]::before {
+  opacity: 1;
+  transform: scaleY(1);
+}
+
+.option-canvas .sound-card-play {
+  align-self: start;
+  display: grid;
+  place-items: center;
+  width: clamp(2.7rem, 3.8cqw, 3.5rem);
+  aspect-ratio: 1;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  color: var(--opt-ink);
+  background: transparent;
+}
+
+.option-canvas .sound-card-play-ring {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 76%;
+  aspect-ratio: 1;
+  border: 1px solid var(--sound-line-strong);
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 .38cqw color-mix(in srgb, var(--v4-card) 24%, transparent);
+  transition: border-color 160ms ease, box-shadow 160ms ease, transform 180ms ease;
+}
+
+.option-canvas .sound-card-play-ring::before,
+.option-canvas .sound-card-play-ring::after {
+  position: absolute;
+  inset: -.42cqw;
+  border: 1px solid color-mix(in srgb, var(--v4-accent) 34%, transparent);
+  border-radius: 50%;
+  content: "";
+  opacity: 0;
+}
+
+.option-canvas .sound-card-play-ring i {
+  width: 0;
+  height: 0;
+  margin-left: .15cqw;
+  border-top: .32cqw solid transparent;
+  border-bottom: .32cqw solid transparent;
+  border-left: .52cqw solid currentColor;
+}
+
+.option-canvas .sound-card-play[aria-pressed="true"] .sound-card-play-ring {
+  border-color: var(--v4-accent);
+  color: var(--v4-accent);
+  box-shadow: inset 0 0 0 .38cqw color-mix(in srgb, var(--v4-accent) 10%, transparent), 0 0 1cqw var(--sound-glow);
+}
+
+.option-canvas .sound-card-play[aria-pressed="true"] .sound-card-play-ring::before {
+  opacity: .55;
+  animation: sound-ring 1.5s ease-out infinite;
+}
+
+.option-canvas .sound-card-play[aria-pressed="true"] .sound-card-play-ring i {
+  width: .52cqw;
+  min-width: 6px;
+  height: .52cqw;
+  min-height: 6px;
+  margin: 0;
+  border: 0;
+  background: currentColor;
+}
+
+@keyframes sound-ring {
+  from { opacity: .62; transform: scale(.82); }
+  to { opacity: 0; transform: scale(1.45); }
+}
+
+.option-canvas .sound-card-copy {
+  min-width: 0;
+}
+
+.option-canvas .sound-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .6cqw;
+  margin: 0;
+  color: var(--opt-faint);
+  font: 500 clamp(7px, .48cqw, 9px) / 1 Consolas, monospace;
+  letter-spacing: .12em;
+}
+
+.option-canvas .sound-card-meta time {
+  font-variant-numeric: tabular-nums;
+}
+
+.option-canvas .sound-card-copy h4 {
+  margin: 1cqh 0 0;
+  color: var(--opt-ink);
+  font: 600 clamp(13px, .95cqw, 16px) / 1.15 "Yu Mincho", "Noto Serif SC", serif;
+  letter-spacing: .14em;
+}
+
+.option-canvas .sound-card-copy > small {
+  display: block;
+  margin-top: .36cqh;
+  color: color-mix(in srgb, var(--v4-accent) 62%, var(--opt-soft) 38%);
+  font: italic 400 clamp(8px, .52cqw, 10px) / 1 Baskerville, serif;
+  letter-spacing: .1em;
+}
+
+.option-canvas .sound-card-copy > p:not(.sound-card-meta) {
+  display: -webkit-box;
+  margin: .9cqh 0 0;
+  overflow: hidden;
+  color: var(--opt-soft);
+  font: 400 clamp(9px, .61cqw, 11px) / 1.55 "Yu Mincho", "Noto Serif SC", serif;
+  letter-spacing: .055em;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.option-canvas .sound-card-copy ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .34cqw;
+  margin: .9cqh 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.option-canvas .sound-card-copy li {
+  padding: .34cqh .42cqw;
+  border-left: 1px solid color-mix(in srgb, var(--v4-accent) 48%, transparent);
+  color: var(--opt-faint);
+  font: 500 clamp(7px, .45cqw, 8.5px) / 1 "Yu Gothic", sans-serif;
+  letter-spacing: .07em;
+}
+
+.option-canvas .sound-card-select {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: .8cqw;
+  margin-top: 1.1cqh;
+  padding: .85cqh .8cqw;
+  border: 1px solid var(--sound-line);
+  border-radius: 0;
+  color: var(--opt-soft);
+  background: transparent;
+  text-align: left;
+  transition: color 160ms ease, border-color 160ms ease, background-color 160ms ease;
+}
+
+.option-canvas .sound-card-select span {
+  font: 600 clamp(9px, .64cqw, 11px) / 1 "Yu Mincho", serif;
+  letter-spacing: .14em;
+}
+
+.option-canvas .sound-card-select small {
+  color: var(--opt-faint);
+  font: 400 clamp(7px, .48cqw, 9px) / 1 "Yu Gothic", sans-serif;
+  letter-spacing: .08em;
+}
+
+.option-canvas .sound-card-select[aria-pressed="true"] {
+  border-color: color-mix(in srgb, var(--v4-accent) 56%, var(--v4-ink) 12%);
+  color: var(--opt-ink);
+  background: color-mix(in srgb, var(--v4-accent) 13%, transparent);
+}
+
+.option-canvas .sound-lab button:focus-visible,
+.option-canvas .sound-lab input:focus-visible {
+  outline: 1px solid color-mix(in srgb, var(--v4-accent) 68%, transparent);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .option-canvas .sound-lab-reset:hover,
+  .option-canvas .sound-lab-filters button:hover,
+  .option-canvas .sound-card-select:hover {
+    border-color: color-mix(in srgb, var(--v4-accent) 56%, var(--v4-ink) 14%);
+    color: var(--opt-ink);
+    background-color: color-mix(in srgb, var(--v4-accent) 10%, transparent);
+  }
+
+  .option-canvas .sound-lab-slots button:hover {
+    color: var(--opt-ink);
+    background: color-mix(in srgb, var(--v4-accent) 8%, transparent);
+  }
+
+  .option-canvas .sound-card:hover {
+    border-color: color-mix(in srgb, var(--v4-accent) 38%, var(--v4-ink) 12%);
+    background-color: color-mix(in srgb, var(--v4-card) 28%, transparent);
+    transform: translateY(-2px);
+  }
+
+  .option-canvas .sound-card-play:hover .sound-card-play-ring {
+    border-color: color-mix(in srgb, var(--v4-accent) 66%, var(--v4-ink) 16%);
+    box-shadow: inset 0 0 0 .38cqw color-mix(in srgb, var(--v4-accent) 9%, transparent), 0 0 .7cqw var(--sound-glow);
+    transform: scale(1.06);
+  }
+}
+
+@media (max-width: 1050px) and (orientation: landscape) {
+  .option-canvas .sound-lab-monitor {
+    grid-template-columns: minmax(0, 1.5fr) minmax(11rem, .9fr);
+  }
+
+  .option-canvas .sound-lab-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) and (orientation: portrait) {
+  html:not([data-forced-landscape="true"]) {
+    .option-canvas .sound-lab-heading {
+      align-items: flex-end;
+    }
+
+    .option-canvas .sound-lab-heading p {
+      line-height: 1.35;
+    }
+
+    .option-canvas .sound-lab-reset {
+      padding: 1vh 2.4vw;
+      font-size: clamp(8px, 2.2vw, 10px);
+    }
+
+    .option-canvas .sound-lab-monitor {
+      grid-template-columns: minmax(0, 1fr);
+      min-height: 0;
+    }
+
+    .option-canvas .sound-lab-scope,
+    .option-canvas .sound-lab-scope canvas {
+      min-height: 14vh;
+    }
+
+    .option-canvas .sound-lab-scope {
+      border-right: 0;
+      border-bottom: 1px solid color-mix(in srgb, white 16%, transparent);
+    }
+
+    .option-canvas .sound-lab-now {
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      grid-template-rows: 1fr;
+      padding: 1.7vh 3vw;
+    }
+
+    .option-canvas .sound-lab-now > button {
+      grid-column: auto;
+      align-self: stretch;
+      padding: 0 3vw;
+    }
+
+    .option-canvas .sound-lab-now p span {
+      -webkit-line-clamp: 1;
+    }
+
+    .option-canvas .sound-lab-palette {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .option-canvas .sound-lab-palette > header {
+      flex-direction: row;
+      align-items: baseline;
+      justify-content: space-between;
+      padding: 1.2vh 2.5vw;
+      border-right: 0;
+      border-bottom: 1px solid var(--sound-line);
+    }
+
+    .option-canvas .sound-lab-slots button {
+      min-width: 28vw;
+      padding: 1.35vh 2.8vw;
+    }
+
+    .option-canvas .sound-lab-tools {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1.3vh;
+    }
+
+    .option-canvas .sound-lab-filters {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      padding-bottom: .5vh;
+      scrollbar-width: none;
+    }
+
+    .option-canvas .sound-lab-filters button {
+      flex: 0 0 auto;
+      padding: 1.2vh 2.5vw;
+    }
+
+    .option-canvas .sound-lab-search {
+      height: 5.2vh;
+      padding: 0 2vw;
+    }
+
+    .option-canvas .sound-lab-result {
+      align-items: flex-start;
+    }
+
+    .option-canvas .sound-lab-result small {
+      max-width: 58%;
+    }
+
+    .option-canvas .sound-lab-grid {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1.2vh;
+    }
+
+    .option-canvas .sound-card {
+      grid-template-columns: 14vw minmax(0, 1fr);
+      min-height: 0;
+      padding: 1.7vh 3vw 1.4vh;
+    }
+
+    .option-canvas .sound-card-play {
+      width: 12vw;
+    }
+
+    .option-canvas .sound-card-play-ring i {
+      border-top-width: 1vw;
+      border-bottom-width: 1vw;
+      border-left-width: 1.6vw;
+    }
+
+    .option-canvas .sound-card-copy h4 {
+      font-size: clamp(14px, 4vw, 17px);
+    }
+
+    .option-canvas .sound-card-copy > p:not(.sound-card-meta) {
+      font-size: clamp(10px, 2.8vw, 12px);
+    }
+
+    .option-canvas .sound-card-select {
+      margin-top: 1.3vh;
+      padding: 1.2vh 2.5vw;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .option-canvas .sound-lab *,
+  .option-canvas .sound-lab *::before,
+  .option-canvas .sound-lab *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+html[data-motion="reduced"] .option-canvas .sound-lab *,
+html[data-motion="reduced"] .option-canvas .sound-lab *::before,
+html[data-motion="reduced"] .option-canvas .sound-lab *::after {
+  animation: none !important;
+  transition: none !important;
+}

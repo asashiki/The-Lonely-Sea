@@ -1,19 +1,66 @@
 ---
+import type { PublishedFriend } from "../../data/communication";
+
+export type RssSceneItem = {
+  title: string;
+  href: string;
+  date: string;
+  description?: string;
+};
+
 interface Props {
   contextKey: string;
-  variant?: "page" | "bridge";
+  variant?: "page" | "bridge" | "connect";
   title?: string;
   prompt?: string;
   includeFriends?: boolean;
+  includeRss?: boolean;
+  initialView?: "comments" | "friends" | "rss";
+  rssUrl?: string;
+  rssItems?: RssSceneItem[];
+  friends?: readonly PublishedFriend[];
+  /** Legacy page prop; the game bridge no longer exposes the provider URL. */
+  publicIssueUrl?: string;
 }
 
 const {
   contextKey,
   variant = "page",
-  title = "访客对话",
-  prompt = "这里的声音只会留在你正在使用的浏览器里。",
-  includeFriends = variant === "page",
+  title = "访客留言",
+  prompt = "这里可以写下想留在这段记录后的话。",
+  includeFriends = false,
+  includeRss = false,
+  initialView = includeRss ? "rss" : "comments",
+  rssUrl = "https://asashiki.com/rss.xml",
+  rssItems = [],
+  friends = [],
 } = Astro.props;
+const messageEndpoint = import.meta.env.PUBLIC_LIGHTHOUSE_MESSAGE_ENDPOINT ?? "";
+
+const views = [
+  ...(includeRss ? [{
+    id: "rss",
+    label: "接收新文章",
+    title: "接收新文章",
+    prompt: "选一篇文章，或复制订阅地址。",
+  }] : []),
+  {
+    id: "comments",
+    label: "留下一句话",
+    title: "留下一句话",
+    prompt: "写下留言，或翻看这台设备上的访客簿。",
+  },
+  ...(includeFriends ? [{
+    id: "friends",
+    label: "交换友链",
+    title: "交换友链",
+    prompt: "查看友链，或交换站点地址。",
+  }] : []),
+] as const;
+
+const safeInitialView = views.some((view) => view.id === initialView) ? initialView : views[0]?.id ?? "comments";
+const initialCopy = views.find((view) => view.id === safeInitialView);
+const instanceId = `${variant}-${contextKey}`.replace(/[^a-zA-Z0-9_-]/g, "-");
 ---
 
 <section
@@ -21,96 +68,194 @@ const {
   data-blog-interaction
   data-context-key={contextKey}
   data-source={variant === "bridge" ? "game" : "article"}
-  data-include-friends={String(includeFriends)}
-  aria-labelledby={`blog-interaction-title-${variant}`}
+  data-active-view={safeInitialView}
+  data-message-endpoint={messageEndpoint}
+  aria-labelledby={`blog-interaction-title-${instanceId}`}
 >
   <header class="blog-interaction-heading">
-    <p>
-      <small>LOCAL SCENE</small>
-      <strong id={`blog-interaction-title-${variant}`} data-blog-scene-title>{title}</strong>
-    </p>
-    {includeFriends && (
-      <nav aria-label="交互内容" role="tablist">
-        <button type="button" role="tab" aria-selected="true" data-blog-view="comments">访客留言</button>
-        <button type="button" role="tab" aria-selected="false" data-blog-view="friends">友链来信</button>
+    <h2 id={`blog-interaction-title-${instanceId}`} data-blog-scene-title>{title}</h2>
+    {views.length > 1 && (
+      <nav aria-label="选择通讯动作" role="tablist">
+        {views.map((view) => (
+          <button
+            type="button"
+            role="tab"
+            aria-selected={view.id === safeInitialView}
+            aria-controls={`blog-panel-${instanceId}-${view.id}`}
+            tabindex={view.id === safeInitialView ? 0 : -1}
+            data-blog-view={view.id}
+            data-view-title={view.title}
+            data-view-prompt={view.prompt}
+          >
+            <span>{view.label}</span>
+          </button>
+        ))}
       </nav>
     )}
   </header>
 
-  <div class="blog-interaction-prompt" aria-live="polite">
-    <span data-blog-prompt-speaker>潮汐记录</span>
-    <p data-blog-prompt>{prompt}</p>
-  </div>
+  {includeRss && (
+    <section
+      class="blog-interaction-panel blog-rss-panel"
+      id={`blog-panel-${instanceId}-rss`}
+      data-blog-panel="rss"
+      role="tabpanel"
+      hidden={safeInitialView !== "rss"}
+    >
+      <div class="blog-rss-feed" aria-label="最近文章">
+        <h3>选择一篇文章</h3>
+        {rssItems.length > 0 ? (
+          <ol>
+            {rssItems.slice(0, 6).map((item) => (
+              <li>
+                <a href={item.href} target="_blank" rel="noopener noreferrer">
+                  <span class="blog-choice-cursor" aria-hidden="true">›</span>
+                  <span class="blog-choice-copy">
+                    <strong>{item.title}</strong>
+                    {item.description && <small>{item.description}</small>}
+                  </span>
+                  <time datetime={item.date}>{item.date}</time>
+                </a>
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <p class="blog-scene-empty">暂无公开文章。</p>
+        )}
+      </div>
 
-  <section class="blog-interaction-panel" data-blog-panel="comments" role="tabpanel">
+      <div class="blog-rss-subscribe">
+        <label>
+          <span>RSS 地址</span>
+          <input type="url" value={rssUrl} readonly data-rss-url />
+        </label>
+        <p data-rss-feedback role="status"></p>
+        <div class="blog-dialogue-actions">
+          <button type="button" class="is-primary" data-rss-copy>复制订阅地址</button>
+          {variant === "bridge" && <button type="button" data-host-dialog-cancel>返回剧情</button>}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <section
+    class="blog-interaction-panel blog-comment-panel"
+    id={`blog-panel-${instanceId}-comments`}
+    data-blog-panel="comments"
+    role="tabpanel"
+    hidden={safeInitialView !== "comments"}
+  >
+    {variant === "page" && (
+      <ol class="blog-comment-log" data-blog-comment-list aria-live="polite"></ol>
+    )}
     <div class="blog-dialogue-memory" data-blog-comment-memory aria-live="polite">
       <p class="blog-dialogue-speaker" data-blog-comment-author>潮汐记录</p>
-      <blockquote data-blog-comment-message>还没有本机留言。可以从这里留下第一句话。</blockquote>
+      <blockquote data-blog-comment-message>这台浏览器里还没有留言草稿。</blockquote>
       <p class="blog-dialogue-meta">
         <time data-blog-comment-time></time>
         <span data-blog-comment-position>0 / 0</span>
       </p>
+      <nav class="blog-dialogue-stepper" aria-label="切换本机留言">
+        <button type="button" data-blog-previous aria-label="上一条留言">‹ 上一句</button>
+        <button type="button" data-blog-next aria-label="下一条留言">下一句 ›</button>
+      </nav>
+      {variant === "bridge" && (
+        <div class="blog-dialogue-actions blog-memory-actions">
+          <button type="button" data-comment-intent="compose">继续留言</button>
+          <button type="button" data-host-dialog-cancel>返回剧情</button>
+        </div>
+      )}
     </div>
 
-    <nav class="blog-dialogue-stepper" aria-label="切换留言">
-      <button type="button" data-blog-previous aria-label="上一条留言">上一句</button>
-      <button type="button" data-blog-next aria-label="下一条留言">下一句</button>
-    </nav>
-
     <form class="blog-dialogue-composer" data-blog-comment-form novalidate>
+      <p class="blog-scene-question">你想留下什么？</p>
       <label class="blog-dialogue-name">
         <span>称呼</span>
         <input name="author" type="text" maxlength="40" autocomplete="nickname" placeholder="匿名访客" />
       </label>
       <label class="blog-dialogue-line">
-        <span>台词</span>
-        <textarea name="message" rows="3" maxlength="1000" required placeholder="写下想留在这段场景里的话"></textarea>
+        <span>留言</span>
+        <textarea name="message" rows="3" maxlength="1000" required placeholder="写下想留在这片海里的话"></textarea>
       </label>
-      <p class="blog-dialogue-local-note">仅保存在本机，不会伪装成已经公开发布。</p>
       <p class="blog-dialogue-feedback" data-blog-comment-feedback role="status"></p>
       <div class="blog-dialogue-actions">
-        {variant === "bridge" && <button type="button" data-host-dialog-cancel>返回游戏</button>}
-        <button type="submit">留下这句话</button>
+        <button type="submit" class="is-primary">留下留言</button>
+        {variant === "bridge" && <button type="button" data-comment-intent="view">查看留言</button>}
+        {variant === "bridge" && <button type="button" data-host-dialog-cancel>返回剧情</button>}
       </div>
     </form>
   </section>
 
   {includeFriends && (
-    <section class="blog-interaction-panel" data-blog-panel="friends" role="tabpanel" hidden>
-      <div class="blog-dialogue-memory" data-blog-friend-memory aria-live="polite">
-        <p class="blog-dialogue-speaker" data-blog-friend-title>潮汐记录</p>
-        <blockquote data-blog-friend-note>这里还没有已公开的友链数据。你可以先保存一封本机申请草稿。</blockquote>
-        <p class="blog-dialogue-meta">
-          <a data-blog-friend-url href="" target="_blank" rel="noreferrer" hidden>前往对方站点</a>
-          <span data-blog-friend-position>0 / 0</span>
-        </p>
+    <section
+      class="blog-interaction-panel blog-friends-panel"
+      id={`blog-panel-${instanceId}-friends`}
+      data-blog-panel="friends"
+      role="tabpanel"
+      hidden={safeInitialView !== "friends"}
+    >
+      <div class="blog-published-friends" data-published-friends>
+        <h3>已经相连的站点</h3>
+        {friends.length > 0 ? (
+          <ul>
+            {friends.map((friend) => (
+              <li>
+                <a href={friend.url} target="_blank" rel="noreferrer">
+                  <span class="blog-choice-cursor" aria-hidden="true">›</span>
+                  <span>
+                    <strong>{friend.name}</strong>
+                    <small>{friend.description}</small>
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p class="blog-scene-empty">暂无公开友链。</p>
+        )}
+        {variant === "bridge" && (
+          <div class="blog-dialogue-actions blog-view-actions">
+            <button type="button" data-friend-intent="compose">交换友链</button>
+            <button type="button" data-host-dialog-cancel>返回剧情</button>
+          </div>
+        )}
       </div>
 
-      <nav class="blog-dialogue-stepper" aria-label="切换友链草稿">
-        <button type="button" data-blog-friend-previous aria-label="上一封友链草稿">上一封</button>
-        <button type="button" data-blog-friend-next aria-label="下一封友链草稿">下一封</button>
-      </nav>
+      <div class="blog-dialogue-memory" data-blog-friend-memory aria-live="polite">
+        <p class="blog-dialogue-speaker" data-blog-friend-title>友链申请草稿</p>
+        <blockquote data-blog-friend-note>可以先在本机写好站点信息，再决定是否公开提交。</blockquote>
+        <p class="blog-dialogue-meta">
+          <a data-blog-friend-url href="" target="_blank" rel="noreferrer" hidden>查看草稿站点</a>
+          <span data-blog-friend-position>0 / 0</span>
+        </p>
+        <nav class="blog-dialogue-stepper" aria-label="切换友链草稿">
+          <button type="button" data-blog-friend-previous aria-label="上一封友链草稿">‹ 上一封</button>
+          <button type="button" data-blog-friend-next aria-label="下一封友链草稿">下一封 ›</button>
+        </nav>
+      </div>
 
       <form class="blog-dialogue-composer" data-blog-friend-form novalidate>
+        <p class="blog-scene-question">写一封交换友链的来信？</p>
         <label class="blog-dialogue-name">
           <span>站点名称</span>
-          <input name="title" type="text" maxlength="80" required placeholder="站点名称" />
+          <input name="title" type="text" maxlength="80" required placeholder="你的站点名称" />
         </label>
-        <label class="blog-dialogue-name">
-          <span>网址</span>
+        <label class="blog-dialogue-url">
+          <span>站点地址</span>
           <input name="url" type="url" maxlength="500" inputmode="url" required placeholder="https://example.com" />
         </label>
-        <label class="blog-dialogue-line">
-          <span>想说的话</span>
-          <textarea name="note" rows="2" maxlength="280" placeholder="简短介绍或交换友链的留言"></textarea>
-        </label>
-        <p class="blog-dialogue-local-note">保存的是本机草稿，不会向站长发送申请。</p>
         <p class="blog-dialogue-feedback" data-blog-friend-feedback role="status"></p>
         <div class="blog-dialogue-actions">
-          {variant === "bridge" && <button type="button" data-host-dialog-cancel>返回游戏</button>}
-          <button type="submit">保存这封草稿</button>
+          <button type="submit" class="is-primary">发送申请</button>
+          {variant === "bridge" && <button type="button" data-friend-intent="view">查看友链</button>}
+          {variant === "bridge" && <button type="button" data-host-dialog-cancel>返回剧情</button>}
         </div>
       </form>
     </section>
   )}
+
+  <div class="blog-interaction-prompt" aria-live="polite">
+    <span data-blog-prompt-speaker>ALICE</span>
+    <p data-blog-prompt>{initialCopy?.prompt ?? prompt}</p>
+  </div>
 </section>

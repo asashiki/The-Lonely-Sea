@@ -1,0 +1,94 @@
+---
+interface Props {
+  home?: boolean;
+  reading?: boolean;
+}
+
+const { home = false, reading = false } = Astro.props;
+---
+
+<aside
+  class="ambient-dock"
+  id={home ? "fx-panel" : undefined}
+  data-ambient-dock
+  aria-label="场景控制"
+>
+  <div class="ambient-dock__choices" data-ambient-panel="scene" aria-hidden="true" role="group" aria-label="主题">
+    <button type="button" data-scene-option="mist" aria-pressed="false" aria-label="灰霭" title="灰霭">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8.5h9.2M7 12h13M3.5 15.5h11M16 8.5h4"></path></svg>
+    </button>
+    <button type="button" data-scene-option="day" aria-pressed="false" aria-label="晴昼" title="晴昼">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.7"></circle><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1"></path></svg>
+    </button>
+    <button type="button" data-scene-option="night" aria-pressed="false" aria-label="暗夜" title="暗夜">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 15.2A8.1 8.1 0 0 1 8.8 4.5 8.2 8.2 0 1 0 19.5 15.2Z"></path></svg>
+    </button>
+    <button type="button" data-scene-option="crimson" aria-pressed="false" aria-label="赤夜" title="赤夜">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.1 14.2h13.8M7.4 14.1a4.6 4.6 0 0 1 9.2 0M6.5 17.2h11M9 19.7h6"></path><path d="M12 4.1v2.1M6.7 6.3l1.5 1.5M17.3 6.3l-1.5 1.5M4.7 11h2.1M17.2 11h2.1"></path></svg>
+    </button>
+  </div>
+
+  <div class="ambient-dock__choices" data-ambient-panel="weather" aria-hidden="true" role="group" aria-label="天气">
+    <button type="button" data-weather-option="clear" aria-pressed="false" aria-label="静止" title="静止">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.2 7v10M15.8 7v10"></path></svg>
+    </button>
+    <button type="button" data-weather-option="snow" aria-pressed="false" aria-label="降雪" title="降雪">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M4.2 7.5l15.6 9M4.2 16.5l15.6-9M9.2 4.6 12 7.2l2.8-2.6M9.2 19.4 12 16.8l2.8 2.6"></path></svg>
+    </button>
+    <button type="button" data-weather-option="rain" aria-pressed="false" aria-label="降雨" title="降雨">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.2 14.2h11.5a3.2 3.2 0 0 0 .2-6.4A5.7 5.7 0 0 0 7.2 6.5a3.9 3.9 0 0 0-1 7.7Z"></path><path d="m8 17-1 2M12.5 17l-1 2M17 17l-1 2"></path></svg>
+    </button>
+  </div>
+
+  <button
+    class="ambient-dock__trigger ambient-dock__scene"
+    type="button"
+    data-ambient-trigger="scene"
+    aria-expanded="false"
+    aria-label="切换主题"
+    title="主题"
+  >
+    <svg data-scene-icon="mist" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8.5h9.2M7 12h13M3.5 15.5h11M16 8.5h4"></path></svg>
+    <svg data-scene-icon="day" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2.8v2.3M12 18.9v2.3M2.8 12h2.3M18.9 12h2.3M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M18.5 5.5l-1.7 1.7M7.2 16.8l-1.7 1.7"></path></svg>
+    <svg data-scene-icon="night" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 15.2A8.1 8.1 0 0 1 8.8 4.5 8.2 8.2 0 1 0 19.5 15.2Z"></path></svg>
+    <svg data-scene-icon="crimson" viewBox="0 0 24 24" aria-hidden="true"><path d="M5.1 14.2h13.8M7.4 14.1a4.6 4.6 0 0 1 9.2 0M6.5 17.2h11M9 19.7h6"></path><path d="M12 4.1v2.1M6.7 6.3l1.5 1.5M17.3 6.3l-1.5 1.5M4.7 11h2.1M17.2 11h2.1"></path></svg>
+  </button>
+
+  <button
+    class="ambient-dock__trigger ambient-dock__weather"
+    type="button"
+    data-ambient-trigger="weather"
+    aria-expanded="false"
+    aria-label="切换天气"
+    title="天气"
+  >
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.2 15.5h11.5a3.2 3.2 0 0 0 .2-6.4A5.7 5.7 0 0 0 7.2 7.8a3.9 3.9 0 0 0-1 7.7Z"></path><path d="M8.2 18.3h.01M12.2 18.3h.01M16.2 18.3h.01"></path></svg>
+  </button>
+
+  <button
+    id={home ? "toggle-bgm" : undefined}
+    class="ambient-dock__trigger"
+    type="button"
+    data-bgm-toggle
+    data-reading-bgm={reading ? "" : undefined}
+    aria-pressed="true"
+    aria-label="关闭背景音乐"
+    title="BGM"
+  >
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4h3l4 3V7l-4 3H4Z"></path><path class="ambient-dock__sound-wave" d="M15 9.2a4 4 0 0 1 0 5.6M17.8 6.7a7.3 7.3 0 0 1 0 10.6"></path></svg>
+  </button>
+
+  {reading && (
+    <button
+      class="ambient-dock__trigger ambient-dock__menu"
+      type="button"
+      data-reading-menu-toggle
+      aria-controls="reading-menu"
+      aria-expanded="false"
+      aria-label="打开阅读菜单"
+      title="菜单"
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7.5h14M5 12h14M5 16.5h14"></path></svg>
+    </button>
+  )}
+</aside>

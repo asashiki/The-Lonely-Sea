@@ -1,30 +1,55 @@
 ---
+import {
+  DEFAULT_SOUND_SELECTION,
+  SOUND_CATEGORIES,
+  SOUND_CUE_LABELS,
+  SOUND_PRESETS,
+} from "../../scripts/experience/sound-design.js";
+
+type SoundPresetView = {
+  id: string;
+  title: string;
+  latin: string;
+  category: string;
+  cue: string;
+  duration: number;
+  description: string;
+  tags: string[];
+};
+const soundPresets = SOUND_PRESETS as unknown as SoundPresetView[];
+const cueLabels = SOUND_CUE_LABELS as unknown as Record<string, string>;
+const defaultSoundSelection = DEFAULT_SOUND_SELECTION as unknown as Record<string, string>;
+
 const categories = [
   {
     id: "system",
     label: "系统",
+    latin: "SYSTEM",
     subcategories: [
-      { id: "language", label: "语言" },
+      { id: "language", label: "语言与显示" },
       { id: "accessibility", label: "操作与无障碍" },
-      { id: "data", label: "本机数据" },
-    ],
-  },
-  {
-    id: "game",
-    label: "游戏",
-    subcategories: [
-      { id: "text", label: "文字" },
       { id: "sound", label: "声音" },
-      { id: "display", label: "显示与操作" },
+      { id: "sound-lab", label: "音效试听" },
+      { id: "data", label: "本机数据" },
     ],
   },
   {
     id: "blog",
     label: "博客",
+    latin: "BLOG",
     subcategories: [
       { id: "reading", label: "阅读" },
-      { id: "atmosphere", label: "海景" },
+      { id: "atmosphere", label: "场景与天气" },
       { id: "behaviour", label: "页面行为" },
+    ],
+  },
+  {
+    id: "game",
+    label: "游戏",
+    latin: "GAME",
+    subcategories: [
+      { id: "text", label: "文字" },
+      { id: "voice", label: "角色语音" },
     ],
   },
 ];
@@ -35,7 +60,6 @@ const categories = [
     <div class="option-safe-frame">
       <header class="special-page-heading option-heading">
         <h2>OPTION</h2>
-        <p data-option-context>系统设定</p>
       </header>
 
       <nav class="option-primary" role="tablist" aria-label="设置分类">
@@ -49,6 +73,7 @@ const categories = [
             tabindex={index === 0 ? 0 : -1}
           >
             <span>{category.label}</span>
+            <small aria-hidden="true">{category.latin}</small>
           </button>
         ))}
       </nav>
@@ -84,12 +109,11 @@ const categories = [
         <main class="option-main" data-option-main>
           <section id="option-panel-language" class="option-panel" data-option-panel="language" data-option-panel-owner="system" role="tabpanel">
             <header class="option-panel-intro">
-              <h3>语言</h3>
-              <p>当前 Blog 内容版本</p>
+              <h3>语言与显示</h3>
             </header>
             <div class="option-settings">
-              <div class="option-setting" data-setting-key="language" data-setting-scope="blog">
-                <div class="option-setting-copy"><strong>显示语言</strong><span>当前内容版本</span></div>
+              <div class="option-setting" data-setting-key="language" data-setting-scope="blog" data-hint="同步用于 Blog 与游戏">
+                <div class="option-setting-copy"><strong>显示语言</strong></div>
                 <div class="option-setting-control">
                   <div class="option-choice-group" data-setting-choice role="radiogroup" aria-label="语言">
                     <button type="button" role="radio" data-setting-value="ZH-CN" aria-checked="true">简体中文</button>
@@ -98,26 +122,24 @@ const categories = [
                   </div>
                 </div>
               </div>
+              <div class="option-setting option-command-setting" data-hint="切换整个 Blog 与游戏宿主的全屏状态">
+                <div class="option-setting-copy"><strong>全屏显示</strong></div>
+                <div class="option-setting-control"><button class="option-command" type="button" id="option-toggle-fullscreen" aria-pressed="false">进入全屏</button></div>
+              </div>
             </div>
-            <p class="option-panel-note">语言选择会同步给 Blog 与游戏；尚未翻译的正文暂时保留原文。</p>
           </section>
 
           <section id="option-panel-accessibility" class="option-panel" data-option-panel="accessibility" data-option-panel-owner="system" role="tabpanel" hidden>
             <header class="option-panel-intro">
               <h3>操作与无障碍</h3>
-              <p>对 Blog 与游戏宿主即时生效</p>
             </header>
             <div class="option-settings">
-              <div class="option-setting" data-setting-key="specialCursor" data-setting-scope="blog">
-                <div class="option-setting-copy"><strong>海潮指针</strong><span>Blog 标题与系统页面</span></div>
+              <div class="option-setting" data-setting-key="specialCursor" data-setting-scope="blog" data-hint="用于标题与系统页面">
+                <div class="option-setting-copy"><strong>海潮指针</strong></div>
                 <div class="option-setting-control"><button class="option-switch" type="button" data-setting-toggle aria-pressed="true" aria-label="特殊指针"><i aria-hidden="true"></i><output class="setting-value">开</output></button></div>
               </div>
-              <div class="option-setting" data-setting-key="keyboardCursor" data-setting-scope="blog">
-                <div class="option-setting-copy"><strong>LOAD 键盘焦点</strong><span>索引与存档槽</span></div>
-                <div class="option-setting-control"><button class="option-switch" type="button" data-setting-toggle aria-pressed="true" aria-label="方向键导航"><i aria-hidden="true"></i><output class="setting-value">开</output></button></div>
-              </div>
-              <div class="option-setting" data-setting-key="reducedMotion" data-setting-scope="blog game">
-                <div class="option-setting-copy"><strong>减少动态效果</strong><span>转场与游戏演出</span></div>
+              <div class="option-setting" data-setting-key="reducedMotion" data-setting-scope="blog game" data-hint="减少页面转场与游戏演出">
+                <div class="option-setting-copy"><strong>减少动态效果</strong></div>
                 <div class="option-setting-control"><button class="option-switch" type="button" data-setting-toggle aria-pressed="false" aria-label="减少动态效果"><i aria-hidden="true"></i><output class="setting-value">关</output></button></div>
               </div>
             </div>
@@ -126,23 +148,14 @@ const categories = [
           <section id="option-panel-data" class="option-panel" data-option-panel="data" data-option-panel-owner="system" role="tabpanel" hidden>
             <header class="option-panel-intro">
               <h3>本机数据</h3>
-              <p>仅保存在这台设备</p>
             </header>
             <div class="option-settings">
-              <div class="option-setting" data-setting-key="smartPreload" data-setting-scope="blog">
-                <div class="option-setting-copy"><strong>预先读取相邻文章</strong><span>空闲时载入上一篇与下一篇</span></div>
-                <div class="option-setting-control"><button class="option-switch" type="button" data-setting-toggle aria-pressed="true" aria-label="预先读取相邻文章"><i aria-hidden="true"></i><output class="setting-value">开</output></button></div>
-              </div>
-              <div class="option-setting" data-setting-key="dataSaver" data-setting-scope="blog">
-                <div class="option-setting-copy"><strong>停用文章预读</strong><span>减少相邻文章预取流量</span></div>
-                <div class="option-setting-control"><button class="option-switch" type="button" data-setting-toggle aria-pressed="false" aria-label="节省流量"><i aria-hidden="true"></i><output class="setting-value">关</output></button></div>
-              </div>
-              <div class="option-setting option-command-setting">
-                <div class="option-setting-copy"><strong>恢复默认设置</strong><span>不会删除文章进度与游戏存档</span></div>
+              <div class="option-setting option-command-setting" data-hint="保留文章进度与游戏存档">
+                <div class="option-setting-copy"><strong>恢复默认设置</strong></div>
                 <div class="option-setting-control"><button class="option-command" type="button" id="reset-options">恢复默认</button></div>
               </div>
-              <div class="option-setting option-command-setting">
-                <div class="option-setting-copy"><strong>清除本浏览器数据</strong><span>删除设置、阅读进度、存档与离线缓存</span></div>
+              <div class="option-setting option-command-setting" data-hint="删除设置、阅读进度、存档与离线缓存">
+                <div class="option-setting-copy"><strong>清除本浏览器数据</strong></div>
                 <div class="option-setting-control"><button class="option-command option-command-danger" type="button" id="clear-browser-data">清除全部</button></div>
               </div>
             </div>
@@ -151,58 +164,142 @@ const categories = [
           <section id="option-panel-text" class="option-panel" data-option-panel="text" data-option-panel-owner="game" role="tabpanel" hidden>
             <header class="option-panel-intro">
               <h3>文字</h3>
-              <p>视觉小说对话</p>
             </header>
             <div class="option-settings">
-              <div class="option-setting" data-setting-key="textSize" data-setting-scope="game blog">
-                <div class="option-setting-copy"><strong>对话文字大小</strong><span>同时用于文章正文</span></div>
+              <div class="option-setting" data-setting-key="textSize" data-setting-scope="game blog" data-hint="同时用于游戏对话与文章正文">
+                <div class="option-setting-copy"><strong>对话文字大小</strong></div>
                 <div class="option-setting-control"><label class="option-range"><span>小</span><input type="range" name="text-size" min="80" max="120" step="1" data-setting-range aria-label="对话文字大小"><span>大</span></label><output class="setting-value">100%</output></div>
               </div>
-              <div class="option-setting" data-setting-key="autoSpeed" data-setting-scope="game">
-                <div class="option-setting-copy"><strong>文字推进速度</strong><span>WebGAL 文字显示速度</span></div>
-                <div class="option-setting-control"><label class="option-range"><span>慢</span><input type="range" name="text-speed" min="1" max="10" step="1" data-setting-range data-suffix="" aria-label="文字推进速度"><span>快</span></label><output class="setting-value">第 6 档</output></div>
+              <div class="option-setting" data-setting-key="autoSpeed" data-setting-scope="game" data-hint="调整游戏文字显示与自动推进速度">
+                <div class="option-setting-copy"><strong>文字推进速度</strong></div>
+                <div class="option-setting-control"><label class="option-range"><span>慢</span><input type="range" name="text-speed" min="1" max="10" step="1" data-setting-range data-suffix="" aria-label="文字推进速度"><span>快</span></label><output class="setting-value">60%</output></div>
               </div>
             </div>
           </section>
 
-          <section id="option-panel-sound" class="option-panel" data-option-panel="sound" data-option-panel-owner="game" role="tabpanel" hidden>
+          <section id="option-panel-sound" class="option-panel" data-option-panel="sound" data-option-panel-owner="system" role="tabpanel" hidden>
             <header class="option-panel-intro">
               <h3>声音</h3>
-              <p>Blog 与游戏共用音量</p>
             </header>
             <div class="option-settings option-settings-dense">
-              <div class="option-setting" data-setting-key="masterMuted" data-setting-scope="game blog">
-                <div class="option-setting-copy"><strong>全部静音</strong><span>所有音轨</span></div>
+              <div class="option-setting" data-setting-key="masterMuted" data-setting-scope="game blog" data-hint="关闭 Blog 与游戏的所有音轨">
+                <div class="option-setting-copy"><strong>全部静音</strong></div>
                 <div class="option-setting-control"><button class="option-switch" type="button" data-setting-toggle aria-pressed="false" aria-label="全部静音"><i aria-hidden="true"></i><output class="setting-value">关</output></button></div>
               </div>
-              <div class="option-setting" data-setting-key="bgmEnabled" data-setting-scope="game blog">
-                <div class="option-setting-copy"><strong>背景音乐</strong><span>标题与游戏 BGM</span></div>
+              <div class="option-setting" data-setting-key="bgmEnabled" data-setting-scope="game blog" data-hint="控制标题、文章与游戏的背景音乐">
+                <div class="option-setting-copy"><strong>背景音乐</strong></div>
                 <div class="option-setting-control"><button class="option-switch" type="button" data-setting-toggle aria-pressed="true" aria-label="背景音乐"><i aria-hidden="true"></i><output class="setting-value">开</output></button></div>
               </div>
-              <div class="option-setting" data-setting-key="bgmVolume" data-setting-scope="game blog">
-                <div class="option-setting-copy"><strong>音乐音量</strong><span>BGM</span></div>
+              <div class="option-setting" data-setting-key="bgmVolume" data-setting-scope="game blog" data-hint="调整全局背景音乐音量">
+                <div class="option-setting-copy"><strong>音乐音量</strong></div>
                 <div class="option-setting-control"><label class="option-range"><span>小</span><input type="range" name="bgm-volume" min="0" max="100" step="1" data-setting-range aria-label="背景音乐音量"><span>大</span></label><output class="setting-value">60%</output></div>
               </div>
-              <div class="option-setting" data-setting-key="interfaceVolume" data-setting-scope="game blog">
-                <div class="option-setting-copy"><strong>界面音效</strong><span>确认、返回与推进</span></div>
+              <div class="option-setting" data-setting-key="interfaceVolume" data-setting-scope="game blog" data-hint="调整确认、返回与推进音效">
+                <div class="option-setting-copy"><strong>界面音效</strong></div>
                 <div class="option-setting-control"><label class="option-range"><span>小</span><input type="range" name="interface-volume" min="0" max="100" step="1" data-setting-range aria-label="界面音效音量"><span>大</span></label><output class="setting-value">70%</output></div>
-              </div>
-              <div class="option-setting" data-setting-key="voiceVolume" data-setting-scope="game">
-                <div class="option-setting-copy"><strong>角色语音</strong><span>VOICE</span></div>
-                <div class="option-setting-control"><label class="option-range"><span>小</span><input type="range" name="voice-volume" min="0" max="100" step="1" data-setting-range aria-label="角色语音音量"><span>大</span></label><output class="setting-value">80%</output></div>
               </div>
             </div>
           </section>
 
-          <section id="option-panel-display" class="option-panel" data-option-panel="display" data-option-panel-owner="game" role="tabpanel" hidden>
+          <section id="option-panel-sound-lab" class="option-panel sound-lab" data-option-panel="sound-lab" data-option-panel-owner="system" data-sound-lab data-ui-sound="none" role="tabpanel" hidden>
+            <header class="option-panel-intro sound-lab-heading">
+              <div>
+                <h3>音效试听台</h3>
+                <p>SOUND SPECIMEN ARCHIVE · {soundPresets.length} 种实时音色</p>
+              </div>
+              <button type="button" class="sound-lab-reset" data-sound-reset>恢复初始方案</button>
+            </header>
+
+            <div class="sound-lab-monitor">
+              <div class="sound-lab-scope" data-sound-scope>
+                <canvas width="960" height="168" data-sound-canvas aria-hidden="true"></canvas>
+                <span class="sound-lab-scope-label">LIVE / STEREO</span>
+                <span class="sound-lab-scope-time" data-sound-time>00.00</span>
+              </div>
+              <div class="sound-lab-now">
+                <span class="sound-lab-now-index" data-sound-index>—</span>
+                <p><small>NOW AUDITIONING</small><strong data-sound-now>选择任意标本试听</strong><span data-sound-now-detail>试听期间会暂时收起背景音乐</span></p>
+                <button type="button" data-sound-stop disabled><i aria-hidden="true"></i>停止尾音</button>
+              </div>
+            </div>
+
+            <section class="sound-lab-palette" aria-label="当前采用的音效方案">
+              <header><strong>当前采用</strong><span>选择后立即用于 Blog 界面</span></header>
+              <div class="sound-lab-slots">
+                {Object.entries(defaultSoundSelection).map(([cue, id]) => {
+                  const selected = soundPresets.find((item) => item.id === id);
+                  return (
+                    <button type="button" data-sound-slot={cue} title={`查看${cueLabels[cue]}音效`}>
+                      <small>{cueLabels[cue]}</small>
+                      <span data-sound-slot-title>{selected?.title}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+
+            <div class="sound-lab-tools">
+              <nav class="sound-lab-filters" aria-label="音效分类">
+                {SOUND_CATEGORIES.map((category, index) => (
+                  <button type="button" data-sound-filter={category.id} aria-pressed={index === 0 ? "true" : "false"}>
+                    <span>{category.label}</span><small>{category.latin}</small>
+                  </button>
+                ))}
+              </nav>
+              <label class="sound-lab-search">
+                <span>搜索</span>
+                <input type="search" data-sound-search placeholder="钢琴、卷轴、长尾…" autocomplete="off" />
+                <i aria-hidden="true"></i>
+              </label>
+            </div>
+
+            <p class="sound-lab-result"><span data-sound-result>{soundPresets.length} 个音色</span><small>点击圆形播放键试听；“选用”会替换对应动作的声音。</small></p>
+
+            <div class="sound-lab-grid" data-sound-grid>
+              {soundPresets.map((sound, index) => {
+                const selected = defaultSoundSelection[sound.cue] === sound.id;
+                const category = SOUND_CATEGORIES.find((item) => item.id === sound.category);
+                return (
+                  <article
+                    class="sound-card"
+                    data-sound-card={sound.id}
+                    data-sound-category={sound.category}
+                    data-sound-cue={sound.cue}
+                    data-sound-search-text={`${sound.title} ${sound.latin} ${sound.description} ${sound.tags.join(" ")} ${cueLabels[sound.cue]}`.toLocaleLowerCase("zh-CN")}
+                    data-selected={String(selected)}
+                  >
+                    <button type="button" class="sound-card-play" data-sound-preview={sound.id} aria-label={`试听${sound.title}`} aria-pressed="false">
+                      <span class="sound-card-play-ring" aria-hidden="true"><i></i></span>
+                    </button>
+                    <div class="sound-card-copy">
+                      <p class="sound-card-meta"><span>{String(index + 1).padStart(2, "0")} / {category?.latin}</span><time>{sound.duration.toFixed(1)}s</time></p>
+                      <h4>{sound.title}</h4>
+                      <small>{sound.latin}</small>
+                      <p>{sound.description}</p>
+                      <ul aria-label="音色特征">{sound.tags.map((tag) => <li>{tag}</li>)}</ul>
+                    </div>
+                    <button type="button" class="sound-card-select" data-sound-select={sound.id} data-sound-target={sound.cue} aria-pressed={selected}>
+                      <span data-sound-select-label>{selected ? "正在使用" : "选用"}</span>
+                      <small>用于 {cueLabels[sound.cue]}</small>
+                    </button>
+                  </article>
+                );
+              })}
+            </div>
+          </section>
+
+          <section id="option-panel-voice" class="option-panel" data-option-panel="voice" data-option-panel-owner="game" role="tabpanel" hidden>
             <header class="option-panel-intro">
-              <h3>显示与操作</h3>
-              <p>游戏宿主画面</p>
+              <h3>角色语音</h3>
             </header>
             <div class="option-settings">
-              <div class="option-setting option-command-setting">
-                <div class="option-setting-copy"><strong>全屏显示</strong><span>再次选择可退出</span></div>
-                <div class="option-setting-control"><button class="option-command" type="button" id="option-toggle-fullscreen" aria-pressed="false">进入全屏</button></div>
+              <div class="option-setting" data-setting-key="voiceVolume" data-setting-scope="game" data-hint="调整爱丽丝的游戏语音音量">
+                <div class="option-setting-copy"><strong>爱丽丝</strong></div>
+                <div class="option-setting-control"><label class="option-range"><span>小</span><input type="range" name="voice-volume" min="0" max="100" step="1" data-setting-range aria-label="爱丽丝语音音量"><span>大</span></label><output class="setting-value">80%</output></div>
+              </div>
+              <div class="option-setting" data-setting-key="stopVoiceOnAdvance" data-setting-scope="game" data-hint="关闭时，语音会播放到结束或下一句语音开始">
+                <div class="option-setting-copy"><strong>推进时停止语音</strong></div>
+                <div class="option-setting-control"><button class="option-switch" type="button" data-setting-toggle aria-pressed="false" aria-label="推进时停止语音"><i aria-hidden="true"></i><output class="setting-value">关</output></button></div>
               </div>
             </div>
           </section>
@@ -210,19 +307,22 @@ const categories = [
           <section id="option-panel-reading" class="option-panel" data-option-panel="reading" data-option-panel-owner="blog" role="tabpanel" hidden>
             <header class="option-panel-intro">
               <h3>阅读</h3>
-              <p>文章 PAGE</p>
             </header>
             <div class="option-settings">
-              <div class="option-setting" data-setting-key="typeset" data-setting-scope="blog">
-                <div class="option-setting-copy"><strong>正文排版</strong><span>长文或小说式留白</span></div>
-                <div class="option-setting-control"><div class="option-choice-group" data-setting-choice role="radiogroup" aria-label="正文排版"><button type="button" role="radio" data-setting-value="BLOG" aria-checked="true">长文</button><button type="button" role="radio" data-setting-value="NOVEL" aria-checked="false">小说</button></div></div>
+              <div class="option-setting" data-setting-key="typeset" data-setting-scope="blog" data-hint="调整 Markdown 正文的段落留白">
+                <div class="option-setting-copy"><strong>段落间距</strong></div>
+                <div class="option-setting-control"><div class="option-choice-group" data-setting-choice role="radiogroup" aria-label="段落间距"><button type="button" role="radio" data-setting-value="BLOG" aria-checked="true">舒展</button><button type="button" role="radio" data-setting-value="NOVEL" aria-checked="false">紧凑</button></div></div>
               </div>
-              <div class="option-setting" data-setting-key="readingLineHeight" data-setting-scope="blog">
-                <div class="option-setting-copy"><strong>正文行距</strong><span>仅影响文章</span></div>
+              <div class="option-setting" data-setting-key="readingLineHeight" data-setting-scope="blog" data-hint="只影响文章正文行距">
+                <div class="option-setting-copy"><strong>正文行距</strong></div>
                 <div class="option-setting-control"><label class="option-range"><span>紧</span><input type="range" name="reading-line-height" min="150" max="210" step="5" data-setting-range aria-label="正文行距"><span>松</span></label><output class="setting-value">180%</output></div>
               </div>
-              <div class="option-setting" data-setting-key="autoSavePosition" data-setting-scope="blog">
-                <div class="option-setting-copy"><strong>记录阅读位置</strong><span>供 CONTINUE 继续阅读</span></div>
+              <div class="option-setting" data-setting-key="readingAutoSpeed" data-setting-scope="blog" data-hint="调整文章 AUTO 的自动滚动速度">
+                <div class="option-setting-copy"><strong>自动阅读速度</strong></div>
+                <div class="option-setting-control"><label class="option-range"><span>慢</span><input type="range" name="reading-auto-speed" min="1" max="10" step="1" data-setting-range aria-label="自动阅读速度"><span>快</span></label><output class="setting-value">50%</output></div>
+              </div>
+              <div class="option-setting" data-setting-key="autoSavePosition" data-setting-scope="blog" data-hint="供 CONTINUE 恢复文章阅读位置">
+                <div class="option-setting-copy"><strong>记录阅读位置</strong></div>
                 <div class="option-setting-control"><button class="option-switch" type="button" data-setting-toggle aria-pressed="true" aria-label="记录阅读位置"><i aria-hidden="true"></i><output class="setting-value">开</output></button></div>
               </div>
             </div>
@@ -230,24 +330,35 @@ const categories = [
 
           <section id="option-panel-atmosphere" class="option-panel" data-option-panel="atmosphere" data-option-panel-owner="blog" role="tabpanel" hidden>
             <header class="option-panel-intro">
-              <h3>海景</h3>
-              <p>标题与系统页面共用</p>
+              <h3>场景与天气</h3>
             </header>
             <div class="option-settings option-settings-dense">
-              <div class="option-setting" data-experience-key="scene">
-                <div class="option-setting-copy"><strong>背景时段</strong><span>四种主场景</span></div>
+              <div class="option-setting" data-setting-key="automaticTheme" data-setting-scope="blog" data-hint="开启时，每次新会话按现实时间每 8 小时轮换主题；手动选择只影响当前会话">
+                <div class="option-setting-copy"><strong>主题随现实时间</strong></div>
+                <div class="option-setting-control"><button class="option-switch" type="button" data-setting-toggle aria-pressed="true" aria-label="主题随现实时间"><i aria-hidden="true"></i><output class="setting-value">开</output></button></div>
+              </div>
+              <div class="option-setting" data-experience-key="scene" data-hint="切换标题与系统页面的背景时段">
+                <div class="option-setting-copy"><strong>背景时段</strong></div>
                 <div class="option-setting-control"><div class="option-choice-group option-choice-group-wide" data-experience-choice role="radiogroup" aria-label="背景时段"><button type="button" role="radio" data-setting-value="mist">灰霭</button><button type="button" role="radio" data-setting-value="day">晴昼</button><button type="button" role="radio" data-setting-value="night">暗夜</button><button type="button" role="radio" data-setting-value="crimson">赤夜</button></div></div>
               </div>
-              <div class="option-setting" data-experience-key="weather">
-                <div class="option-setting-copy"><strong>天气</strong><span>标题画面粒子</span></div>
+              <div class="option-setting" data-experience-key="weather" data-hint="切换标题与系统页面天气">
+                <div class="option-setting-copy"><strong>天气</strong></div>
                 <div class="option-setting-control"><div class="option-choice-group" data-experience-choice role="radiogroup" aria-label="天气"><button type="button" role="radio" data-setting-value="clear">无</button><button type="button" role="radio" data-setting-value="snow">雪</button><button type="button" role="radio" data-setting-value="rain">雨</button></div></div>
               </div>
-              <div class="option-setting" data-setting-key="particleDensity" data-setting-scope="blog">
-                <div class="option-setting-copy"><strong>天气密度</strong><span>雪与雨的数量</span></div>
+              <div class="option-setting" data-setting-key="systemWeather" data-setting-scope="blog" data-hint="LOAD、EXTRA 与 OPTION 使用当前雨雪效果">
+                <div class="option-setting-copy"><strong>系统页天气</strong></div>
+                <div class="option-setting-control"><button class="option-switch" type="button" data-setting-toggle aria-pressed="true" aria-label="系统页天气"><i aria-hidden="true"></i><output class="setting-value">开</output></button></div>
+              </div>
+              <div class="option-setting" data-setting-key="weatherLayer" data-setting-scope="blog" data-hint="选择雨雪位于系统文字下方或上方">
+                <div class="option-setting-copy"><strong>天气位置</strong></div>
+                <div class="option-setting-control"><div class="option-choice-group" data-setting-choice role="radiogroup" aria-label="天气位置"><button type="button" role="radio" data-setting-value="INSIDE" aria-checked="true">界面后</button><button type="button" role="radio" data-setting-value="OVERLAY" aria-checked="false">界面前</button></div></div>
+              </div>
+              <div class="option-setting" data-setting-key="particleDensity" data-setting-scope="blog" data-hint="调整雨雪粒子的数量">
+                <div class="option-setting-copy"><strong>天气密度</strong></div>
                 <div class="option-setting-control"><label class="option-range"><span>少</span><input type="range" name="particle-density" min="0" max="100" step="1" data-setting-range aria-label="天气密度"><span>多</span></label><output class="setting-value">72%</output></div>
               </div>
-              <div class="option-setting" data-setting-key="vignette" data-setting-scope="blog">
-                <div class="option-setting-copy"><strong>标题画面暗角</strong><span>仅影响 TITLE</span></div>
+              <div class="option-setting" data-setting-key="vignette" data-setting-scope="blog" data-hint="只影响标题画面的暗角">
+                <div class="option-setting-copy"><strong>标题画面暗角</strong></div>
                 <div class="option-setting-control"><button class="option-switch" type="button" data-setting-toggle aria-pressed="true" aria-label="画面暗角"><i aria-hidden="true"></i><output class="setting-value">开</output></button></div>
               </div>
             </div>
@@ -256,27 +367,30 @@ const categories = [
           <section id="option-panel-behaviour" class="option-panel" data-option-panel="behaviour" data-option-panel-owner="blog" role="tabpanel" hidden>
             <header class="option-panel-intro">
               <h3>页面行为</h3>
-              <p>打开、离开与外部链接</p>
             </header>
             <div class="option-settings option-settings-dense">
-              <div class="option-setting" data-setting-key="sceneCrossfade" data-setting-scope="blog">
-                <div class="option-setting-copy"><strong>系统页面转场</strong><span>标题、LOAD、EXTRA 与 OPTION</span></div>
+              <div class="option-setting" data-setting-key="mobileLandscape" data-setting-scope="blog" data-hint="手机打开标题与系统页时自动横屏。文章页保持竖屏阅读">
+                <div class="option-setting-copy"><strong>手机自动横屏</strong></div>
+                <div class="option-setting-control"><button class="option-switch" type="button" data-setting-toggle aria-pressed="true" aria-label="手机自动横屏"><i aria-hidden="true"></i><output class="setting-value">开</output></button></div>
+              </div>
+              <div class="option-setting" data-setting-key="sceneCrossfade" data-setting-scope="blog" data-hint="用于标题、LOAD、EXTRA 与 OPTION">
+                <div class="option-setting-copy"><strong>系统页面转场</strong></div>
                 <div class="option-setting-control"><button class="option-switch" type="button" data-setting-toggle aria-pressed="true" aria-label="系统页面转场"><i aria-hidden="true"></i><output class="setting-value">开</output></button></div>
               </div>
-              <div class="option-setting" data-setting-key="articleTransition" data-setting-scope="blog">
-                <div class="option-setting-copy"><strong>文章转场</strong><span>LOAD 与 PAGE 之间</span></div>
+              <div class="option-setting" data-setting-key="articleTransition" data-setting-scope="blog" data-hint="用于 LOAD 与文章页面之间">
+                <div class="option-setting-copy"><strong>文章转场</strong></div>
                 <div class="option-setting-control"><button class="option-switch" type="button" data-setting-toggle aria-pressed="true" aria-label="文章转场"><i aria-hidden="true"></i><output class="setting-value">开</output></button></div>
               </div>
-              <div class="option-setting" data-setting-key="openingBehaviour" data-setting-scope="blog">
-                <div class="option-setting-copy"><strong>开场演出</strong><span>进入标题时</span></div>
+              <div class="option-setting" data-setting-key="openingBehaviour" data-setting-scope="blog" data-hint="设置标题开场演出的播放时机">
+                <div class="option-setting-copy"><strong>开场演出</strong></div>
                 <div class="option-setting-control"><div class="option-choice-group" data-setting-choice role="radiogroup" aria-label="开场演出"><button type="button" role="radio" data-setting-value="ONCE">每次会话</button><button type="button" role="radio" data-setting-value="ALWAYS">每次进入</button></div></div>
               </div>
-              <div class="option-setting" data-setting-key="externalLinks" data-setting-scope="blog">
-                <div class="option-setting-copy"><strong>站外链接</strong><span>离开当前文章时</span></div>
+              <div class="option-setting" data-setting-key="externalLinks" data-setting-scope="blog" data-hint="选择站外链接的打开方式">
+                <div class="option-setting-copy"><strong>站外链接</strong></div>
                 <div class="option-setting-control"><div class="option-choice-group" data-setting-choice role="radiogroup" aria-label="站外链接"><button type="button" role="radio" data-setting-value="NEW">新标签页</button><button type="button" role="radio" data-setting-value="CURRENT">当前页面</button></div></div>
               </div>
-              <div class="option-setting option-command-setting">
-                <div class="option-setting-copy"><strong>开场演出预览</strong><span>立即回到标题播放</span></div>
+              <div class="option-setting option-command-setting" data-hint="返回标题并立即重播开场">
+                <div class="option-setting-copy"><strong>开场演出预览</strong></div>
                 <div class="option-setting-control"><button class="option-command" type="button" id="option-replay-opening">重播开场</button></div>
               </div>
             </div>

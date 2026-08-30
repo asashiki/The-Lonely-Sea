@@ -287,10 +287,14 @@ export const externalActivity = Object.freeze({
 
 export const movieItems = Object.freeze([
   {
-    title: "CODING RECORDS",
-    meta: "YOUTUBE PLAYLIST",
+    title: "The First Tide",
+    meta: "OPENING MOVIE",
+    art: sceneArt.mist,
+  },
+  {
+    title: "After Story",
+    meta: "ENDING MOVIE",
     art: sceneArt.night,
-    href: "https://youtube.com/playlist?list=PLmVWZWmYfprlU3UfP3oEar5W2cnO3WW4L",
   },
 ]);
 
@@ -346,6 +350,7 @@ export const achievementItems = Object.freeze([
   { id: "after-the-silence", title: "AFTER THE SILENCE", name: "静默之后", detail: "播放一首鉴赏室音乐。" },
   { id: "bangumi-record", title: "BANGUMI RECORD", name: "收藏见证", detail: "访问同步后的 BANGUMI 记录。" },
   { id: "archive-walker", title: "ARCHIVE WALKER", name: "鉴赏室漫游者", detail: "访问 EXTRA 的全部房间。" },
+  { id: "heart-to-heart", title: "HEART TO HEART", name: "读到海的尽头", detail: "完整读完一篇文章，使好感度达到 100%。" },
 ]);
 
 export const extraDefaults = Object.freeze({
@@ -353,7 +358,7 @@ export const extraDefaults = Object.freeze({
   music: ["星が瞬くこんな夜に", "SELECT MUSIC"],
   projects: ["mcp-switch", "OPEN PROJECT"],
   bangumi: ["BANGUMI RECORD", "OPEN RECORD"],
-  movie: ["CODING RECORDS", "OPEN PLAYLIST"],
-  character: ["Alice", "MEET CHARACTER"],
-  achievement: ["FIRST LANDFALL", "ACHIEVEMENT"],
+  movie: ["MOVIE", "影像记录尚未解锁"],
+  character: ["爱丽丝", "灯塔的向导"],
+  achievement: ["成就记录", "移动光标查看达成条件"],
 });

@@ -68,19 +68,11 @@ const GAME_DEFINITIONS: GameDefinition[] = [
   {
     slug: "lonely-sea-chapter-one",
     title: "孤独之海 · 第一章",
-    currentReleaseId: "0.2.0-9a7ed8a4",
+    currentReleaseId: "0.3.0-4830749c",
     releases: [
       {
-        releaseId: "0.2.0-9a7ed8a4",
-        directory: "0.2.0-9a7ed8a4",
-      },
-      {
-        releaseId: "0.2.0-0cc652e9",
-        directory: "0.2.0-0cc652e9",
-      },
-      {
-        releaseId: "0.2.0-d40edf71",
-        directory: "0.2.0-d40edf71",
+        releaseId: "0.3.0-4830749c",
+        directory: "0.3.0-4830749c",
       },
     ],
   },
@@ -92,6 +84,8 @@ const SUPPORTED_ACTIONS = new Set<GalBlogAction>([
   "open-settings",
   "open-load",
   "open-comment-form",
+  "open-blog-scene",
+  "open-external",
   "save-progress",
   "get-runtime-data",
 ]);
@@ -101,6 +95,7 @@ const SUPPORTED_SETTING_KEYS = new Set([
   "audio.ambient",
   "audio.effects",
   "audio.voice",
+  "audio.stopVoiceOnAdvance",
   "text.scale",
   "text.speed",
   "accessibility.reducedMotion",
@@ -140,8 +135,8 @@ function parseManifest(value: unknown, expectedSlug: string, expectedReleaseId: 
   if (value.game.slug !== expectedSlug || value.game.releaseId !== expectedReleaseId) {
     throw new Error("游戏清单与发布目录不一致");
   }
-  if (value.engine.name !== "WebGAL" || value.engine.bundled !== true) {
-    throw new Error("正式游戏包必须内置 WebGAL 运行时");
+  if (!["WebGAL", "Gal Story Runtime"].includes(String(value.engine.name)) || value.engine.bundled !== true) {
+    throw new Error("正式游戏包必须内置受支持的运行时");
   }
   assertString(value.engine.version, "engine.version");
   if (!isSafeRelativePath(value.engine.entry)) throw new Error("engine.entry 不是安全相对路径");
@@ -191,6 +186,11 @@ function parseManifest(value: unknown, expectedSlug: string, expectedReleaseId: 
       || value.settingsContract.accepts.some((key) => typeof key !== "string" || !SUPPORTED_SETTING_KEYS.has(key))) {
       throw new Error("游戏清单设置契约无效");
     }
+  }
+  if (value.presentation !== undefined
+    && (!isRecord(value.presentation)
+      || (value.presentation.loaderArt !== undefined && !isSafeRelativePath(value.presentation.loaderArt)))) {
+    throw new Error("游戏包展示资源无效");
   }
   if (value.bridge.protocol !== GAL_BLOG_PROTOCOL || value.bridge.channel !== GAL_BLOG_CHANNEL) {
     throw new Error("游戏包 Bridge 协议不兼容");
@@ -312,7 +312,7 @@ export function listPublicStoryScenes(): Array<{
     const release = game.releases.find((item) => item.releaseId === game.currentReleaseId);
     if (!release) return [];
     return release.manifest.launchTargets.scenes
-      .filter((scene) => scene.replayable)
+      .filter((scene) => scene.replayable && scene.storyEntry === true)
       .map((scene) => ({
         gameSlug: game.slug,
         releaseId: release.releaseId,

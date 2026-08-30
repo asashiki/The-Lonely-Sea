@@ -20,16 +20,18 @@ const FLOW_DURATION = 460;
  *   root?: Document | HTMLElement,
  *   initialSaveOperation?: "save" | "load",
  *   onBack?: () => void,
+ *   onArticleOpen?: (href: string) => void,
  *   onSaveSlot?: (detail: { slot: number, existingSaveId: string }) => void,
  * }} options
  */
 export function initLoadTracksXiiiConcept({
   reduceMotion,
-  initialPage = "game",
-  initialGameFilter = "save",
+  initialPage = "articles",
+  initialGameFilter = "story",
   root = document,
   initialSaveOperation = "load",
   onBack = () => {},
+  onArticleOpen = null,
   onSaveSlot = () => {},
 }) {
   const loadCanvas = root.matches?.(".tracks-xiii-canvas")
@@ -122,7 +124,7 @@ export function initLoadTracksXiiiConcept({
 
   const activeFilter = {
     articles: "all",
-    game: ["save", "flow", "story"].includes(initialGameFilter) ? initialGameFilter : "save",
+    game: ["save", "flow", "story"].includes(initialGameFilter) ? initialGameFilter : "story",
     diary: firstDiaryYear,
   };
   const diaryPageByYear = {};
@@ -135,7 +137,7 @@ export function initLoadTracksXiiiConcept({
       || map.querySelector("[data-xiii-flow-node]");
   });
 
-  let activePage = ["articles", "game", "diary"].includes(initialPage) ? initialPage : "game";
+  let activePage = ["articles", "game", "diary"].includes(initialPage) ? initialPage : "articles";
   let articlePage = 0;
   let savePage = 0;
   let flowTheme = "blue";
@@ -744,6 +746,11 @@ export function initLoadTracksXiiiConcept({
       localStorage.setItem(LAST_LOAD_STORAGE_KEY, href);
     } catch {}
 
+    if (typeof onArticleOpen === "function") {
+      onArticleOpen(href);
+      return;
+    }
+
     if (reduceMotion.matches) {
       window.location.assign(href);
       return;
@@ -804,6 +811,23 @@ export function initLoadTracksXiiiConcept({
       });
     if (theme === flowTheme) updateFlowCopy(node, { animate });
     dispatchCue("select", { target: "flow-node" });
+  }
+
+  function enterFlowNode(node) {
+    const gameSlug = node.dataset.gameSlug || "";
+    const releaseId = node.dataset.releaseId || "";
+    const sceneId = node.dataset.sceneId || "";
+    if (!gameSlug || !releaseId || !sceneId) return;
+    dispatchCue("confirm", { target: "flow-node" });
+    window.dispatchEvent(new CustomEvent("lonely-sea:story-enter", {
+      detail: {
+        number: node.dataset.flowNumber || "",
+        title: node.dataset.flowTitle || "",
+        gameSlug,
+        releaseId,
+        sceneId,
+      },
+    }));
   }
 
   async function switchFlowTheme(nextTheme, { animate = true } = {}) {
@@ -1555,6 +1579,7 @@ export function initLoadTracksXiiiConcept({
   flowNodes.forEach((node) => {
     node.addEventListener("click", (event) => {
       selectFlowNode(node, { animate: event.detail > 0 });
+      enterFlowNode(node);
     });
   });
   flowThemeButtons.forEach((button) => {

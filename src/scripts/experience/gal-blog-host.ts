@@ -21,6 +21,8 @@ const IMPLEMENTED_REQUIRED_ACTIONS = new Set<GalBlogAction>([
   "open-settings",
   "open-load",
   "open-comment-form",
+  "open-blog-scene",
+  "open-external",
   "save-progress",
   "get-runtime-data",
 ]);
@@ -47,6 +49,8 @@ type HostOptions = {
     status: "success" | "cancel" | "failure";
     slot?: number;
     navigateTo?: string;
+    target?: { kind: "save-point"; id: string };
+    state?: { variables: Record<string, GalBlogScalar>; records: string[] };
     message?: string;
   }>;
   onStateChange: (state: HostState, message: string) => void;
@@ -212,7 +216,7 @@ export class GalBlogHost {
       },
     };
     this.launchSent = true;
-    this.options.onStateChange("waiting", "WAITING FOR WEBGAL");
+    this.options.onStateChange("waiting", "WAITING FOR GAME");
     this.send(launch);
   }
 
@@ -286,9 +290,31 @@ export class GalBlogHost {
     if (action === "open-article") {
       const slug = typeof input.slug === "string" ? input.slug : "";
       const path = this.options.articlePaths.get(slug);
-      return path
-        ? makeResult(request, { status: "success", slug, navigateTo: path })
-        : makeResult(request, { status: "failure", code: "ARTICLE_NOT_FOUND" });
+      if (!path) return makeResult(request, { status: "failure", code: "ARTICLE_NOT_FOUND" });
+      const opened = window.open(path, "_blank", "noopener,noreferrer");
+      if (opened) opened.opener = null;
+      return makeResult(request, opened
+        ? { status: "success", slug, path }
+        : { status: "failure", code: "POPUP_BLOCKED" });
+    }
+    if (action === "open-external") {
+      const rawUrl = typeof input.url === "string" ? input.url : "";
+      try {
+        const url = new URL(rawUrl);
+        const allowed = url.protocol === "https:"
+          && ["asashiki.com", "714.fyi", "github.com"].includes(url.hostname)
+          && (url.hostname !== "github.com"
+            || url.pathname.startsWith("/asashiki/")
+            || url.pathname.startsWith("/sponsors/asashiki"));
+        if (!allowed) throw new Error("unsupported destination");
+        const opened = window.open(url.href, "_blank", "noopener,noreferrer");
+        if (opened) opened.opener = null;
+        return makeResult(request, opened
+          ? { status: "success", url: url.href }
+          : { status: "failure", code: "POPUP_BLOCKED" });
+      } catch {
+        return makeResult(request, { status: "failure", code: "EXTERNAL_URL_REJECTED" });
+      }
     }
     if (action === "open-settings") {
       return makeResult(request, await this.options.onOpenSettings());
@@ -317,7 +343,7 @@ export class GalBlogHost {
         });
       }
     }
-    if (action === "open-comment-form") {
+    if (action === "open-comment-form" || action === "open-blog-scene") {
       return makeResult(request, await this.options.onOpenCommentForm(input));
     }
     if (action === "save-progress") {

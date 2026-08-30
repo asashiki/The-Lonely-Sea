@@ -3,6 +3,7 @@ import BaseLayout from "../../../layouts/BaseLayout.astro";
 import LoadTracksXiiiConcept from "../../../components/experience/LoadTracksXiiiConcept.astro";
 import OptionScreen from "../../../components/experience/OptionScreen.astro";
 import BlogInteractionScene from "../../../components/experience/BlogInteractionScene.astro";
+import { publishedFriends } from "../../../data/communication";
 import { getExperienceRecords } from "../../../lib/experience-records";
 import { getPublishedPosts, postHref, postSlug } from "../../../lib/posts";
 import { listRegisteredGames, type RegisteredGame } from "../../../lib/gal-blog/release-registry";
@@ -10,7 +11,9 @@ import { siteConfig } from "../../../../site.config.mjs";
 import "../../../styles/experience.css";
 import "../../../styles/special-system-pages.css";
 import "../../../styles/option-refinement.css";
+import "../../../styles/load-tracks-xiii.css";
 import "../../../styles/blog-interaction-scene.css";
+import "../../../styles/blog-interaction-bridge.css";
 
 export function getStaticPaths() {
   return listRegisteredGames().map((game) => ({
@@ -25,13 +28,21 @@ interface Props {
 
 const { game } = Astro.props;
 const currentRelease = game.releases.find((release) => release.releaseId === game.currentReleaseId);
-const loaderArtUrl = currentRelease
-  ? `${currentRelease.packageUrl}/game/figure/project-assets/alice-v2/maid_princess_normal_welcome.png`
+const loaderArtUrl = currentRelease?.manifest.presentation?.loaderArt
+  ? `${currentRelease.packageUrl}/${currentRelease.manifest.presentation.loaderArt}`
   : "/assets/lonely-sea/characters/alice/idle.png";
-const articles = (await getPublishedPosts()).map((post) => ({
+const publishedPosts = await getPublishedPosts();
+const articles = publishedPosts.map((post) => ({
   slug: postSlug(post),
   path: postHref(post),
 }));
+const rssItems = publishedPosts.slice(0, 6).map((post) => ({
+  title: post.data.title,
+  href: postHref(post),
+  date: post.data.published.toISOString().slice(0, 10),
+  description: post.data.description,
+}));
+const rssUrl = new URL("/rss.xml", siteConfig.url).href;
 const records = await getExperienceRecords();
 const configJson = JSON.stringify({ game, articles }).replaceAll("<", "\\u003c");
 ---
@@ -77,6 +88,10 @@ const configJson = JSON.stringify({ game, articles }).replaceAll("<", "\\u003c")
       title="留下这段话"
       prompt="这句话会交还给当前故事，并保存在这台设备中。"
       includeFriends={true}
+      includeRss={true}
+      rssUrl={rssUrl}
+      rssItems={rssItems}
+      friends={publishedFriends}
     />
   </dialog>
 

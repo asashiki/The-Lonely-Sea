@@ -6,14 +6,20 @@ import OpeningSequence from "../components/experience/OpeningSequence.astro";
 import OptionScreen from "../components/experience/OptionScreen.astro";
 import StartScreen from "../components/experience/StartScreen.astro";
 import TitleStage from "../components/experience/TitleStage.astro";
+import ListenDock from "../components/experience/ListenDock.astro";
 import { getExperienceRecords } from "../lib/experience-records";
 import "../styles/experience.css";
 import "../styles/cursor.css";
 import "../styles/special-system-pages.css";
 import "../styles/extra-refinement.css";
 import "../styles/option-refinement.css";
+import "../styles/sound-laboratory.css";
+import "../styles/load-tracks-xiii.css";
 import "../styles/extra-live-data.css";
+import "../styles/listen-dock.css";
+import "../styles/ambient-dock.css";
 import "../styles/achievement-toast.css";
+import "../styles/system-navigation.css";
 import { siteConfig } from "../../site.config.mjs";
 
 const canonicalUrl = new URL(Astro.url.pathname, siteConfig.url);
@@ -36,6 +42,14 @@ const records = await getExperienceRecords();
     try {
       const value = JSON.parse(localStorage.getItem("lonely-sea-preferences-v2") || "{}");
       document.documentElement.classList.toggle("has-special-cursor", value.specialCursor !== false);
+      document.documentElement.dataset.weatherLayer = value.weatherLayer === "OVERLAY" ? "overlay" : "inside";
+      document.documentElement.dataset.mobileLandscape = String(value.mobileLandscape !== false);
+      const phonePortrait = window.matchMedia("(max-width: 900px) and (orientation: portrait)").matches;
+      if (value.mobileLandscape !== false && phonePortrait) {
+        document.documentElement.dataset.forcedLandscape = "true";
+        document.documentElement.style.setProperty("--forced-stage-width", `${window.innerHeight}px`);
+        document.documentElement.style.setProperty("--forced-stage-height", `${window.innerWidth}px`);
+      }
     } catch {
       document.documentElement.classList.add("has-special-cursor");
     }
@@ -58,28 +72,17 @@ const records = await getExperienceRecords();
 
   <section class="first-language" data-first-language-gate aria-hidden="true" hidden>
     <div class="first-language__copy">
-      <small>FIRST START / LANGUAGE</small>
-      <h2>选择语言</h2>
-      <p>此项会同时用于 Blog 与游戏，也可以稍后在 OPTION 中修改。</p>
-      <div role="radiogroup" aria-label="首次启动语言">
-        <button type="button" data-first-language="ZH-CN"><b>简体中文</b><span>CHINESE</span></button>
-        <button type="button" data-first-language="EN-US"><b>English</b><span>ENGLISH</span></button>
-        <button type="button" data-first-language="JA-JP"><b>日本語</b><span>JAPANESE</span></button>
+      <h2>LANGUAGE</h2>
+      <div role="radiogroup" aria-label="Language">
+        <button type="button" data-first-language="ZH-CN"><b>简体中文</b></button>
+        <button type="button" data-first-language="EN-US"><b>English</b></button>
+        <button type="button" data-first-language="JA-JP"><b>日本語</b></button>
       </div>
+      <button type="button" class="first-language__fullscreen" data-first-fullscreen aria-pressed="false">全屏显示</button>
     </div>
   </section>
 
-  <aside class="listen-dock" id="listen-dock" hidden aria-hidden="true">
-    <button type="button" data-listen-toggle aria-pressed="false" aria-label="Play playlist">
-      <span class="listen-dock-glyph" aria-hidden="true"></span>
-    </button>
-    <p>
-      <strong data-listen-title></strong>
-      <small data-listen-artist></small>
-    </p>
-    <button type="button" data-listen-next aria-label="Next track">›</button>
-    <button type="button" data-listen-stop aria-label="Stop playlist">×</button>
-  </aside>
+  <ListenDock />
 
   <ExitDialog />
 

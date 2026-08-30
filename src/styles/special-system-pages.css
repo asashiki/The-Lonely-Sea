@@ -3,7 +3,7 @@
   --special-control-rest: color-mix(in srgb, var(--v4-card) 26%, transparent);
   --special-control-hover: color-mix(in srgb, var(--v4-accent) 13%, var(--v4-card) 28%);
   --special-control-active: color-mix(in srgb, var(--v4-accent) 22%, var(--v4-card) 34%);
-  background: var(--v4-wash), var(--v4-bg) center / cover;
+  background: transparent;
 }
 
 .special-page-heading {
@@ -278,7 +278,7 @@ html[data-vignette="false"] .vignette {
   --option-control: color-mix(in srgb, var(--v4-card) 40%, transparent);
   --option-control-active: color-mix(in srgb, var(--v4-accent) 24%, var(--v4-card) 48%);
   --option-shadow: color-mix(in srgb, var(--v4-shadow) 58%, transparent);
-  background: var(--v4-wash), var(--v4-bg) center / cover;
+  background: transparent;
 }
 
 .option-heading {
@@ -327,15 +327,7 @@ html[data-vignette="false"] .vignette {
 }
 
 .option-primary button::before {
-  position: absolute;
-  right: 1cqw;
-  bottom: 0;
-  left: 1cqw;
-  height: 2px;
-  background: color-mix(in srgb, var(--v4-accent) 76%, var(--v4-ink) 24%);
-  content: "";
-  opacity: 0;
-  transition: opacity 180ms ease;
+  content: none;
 }
 
 .option-primary button[aria-selected="true"] {
@@ -350,7 +342,7 @@ html[data-vignette="false"] .vignette {
 }
 
 .option-primary button[aria-selected="true"]::before {
-  opacity: .72;
+  content: none;
 }
 
 .option-primary button:focus-visible {
@@ -384,14 +376,11 @@ html[data-vignette="false"] .vignette {
   position: relative;
   min-width: 0;
   min-height: 0;
-  padding: 1.3cqh 1.05cqw;
+  padding: 0;
   overflow: hidden;
   border: 0;
-  background:
-    linear-gradient(100deg, var(--option-surface-strong), var(--option-surface) 74%, transparent);
-  box-shadow:
-    inset 0 1px color-mix(in srgb, white 18%, transparent),
-    0 1.2cqh 2.5cqw var(--option-shadow);
+  background: transparent;
+  box-shadow: none;
 }
 
 .option-canvas .option-panel {
@@ -774,7 +763,7 @@ html[data-sub-labels="false"] .option-canvas .setting-label small {
 
 .option-screen[aria-hidden="false"] .option-heading,
 .option-screen[aria-hidden="false"] .option-primary,
-.option-screen[aria-hidden="false"] .option-stage,
+.option-screen[aria-hidden="false"] .option-book,
 .option-screen[aria-hidden="false"] .option-actions {
   animation: special-option-arrive 360ms cubic-bezier(.22, 1, .36, 1) both;
 }
@@ -942,7 +931,7 @@ html[data-motion="reduced"] .option-screen[aria-hidden="false"] .option-actions 
   --extra-surface: color-mix(in srgb, var(--v4-paper) 78%, transparent);
   --extra-surface-strong: color-mix(in srgb, var(--v4-paper) 91%, transparent);
   --extra-shadow: color-mix(in srgb, var(--v4-shadow) 58%, transparent);
-  background: var(--v4-wash), var(--v4-bg) center / cover;
+  background: transparent;
 }
 
 .extra-heading {
@@ -2126,6 +2115,7 @@ html[data-motion="reduced"] .option-screen[aria-hidden="false"] .option-actions 
 }
 
 @media (max-width: 700px) and (orientation: portrait) {
+  html:not([data-forced-landscape="true"]) {
   .start-stage {
     bottom: 10.5cqh;
   }
@@ -2136,6 +2126,7 @@ html[data-motion="reduced"] .option-screen[aria-hidden="false"] .option-actions 
 
   .extra-status {
     right: 21cqw;
+  }
   }
 }
 
@@ -2184,8 +2175,10 @@ html[data-motion="reduced"] .extra-music-disc {
   --extra-dark-glass: color-mix(in srgb, var(--v4-outer) 74%, transparent);
   display: grid;
   place-items: center;
-  width: 100vw;
-  height: 100vh;
+  position: absolute;
+  inset: 0;
+  width: auto;
+  height: auto;
   overflow: clip;
   box-shadow: none;
 }
@@ -2220,8 +2213,8 @@ html[data-motion="reduced"] .extra-music-disc {
 }
 
 .extra-canvas .extra-safe-frame > .system-back:focus-visible::before {
-  border-color: var(--extra-line-strong);
-  background: color-mix(in srgb, var(--v4-accent) 14%, transparent);
+  border: 0;
+  background: currentColor;
 }
 
 .extra-canvas .extra-heading {
@@ -2235,10 +2228,7 @@ html[data-motion="reduced"] .extra-music-disc {
 }
 
 .extra-canvas .extra-heading p {
-  display: block;
-  margin-top: 1.2cqh;
-  color: var(--v4-faint);
-  letter-spacing: .2em;
+  display: none;
 }
 
 .extra-canvas .extra-primary {
@@ -2521,12 +2511,7 @@ html[data-motion="reduced"] .extra-music-disc {
 }
 
 .extra-canvas .extra-room-heading > p {
-  grid-row: 1;
-  grid-column: 1;
-  margin: 0 0 .75cqh;
-  color: var(--v4-faint);
-  font: 600 clamp(7px, .48cqw, 9px) / 1 "Yu Gothic", sans-serif;
-  letter-spacing: .24em;
+  display: none;
 }
 
 .extra-canvas .extra-room-heading h3 {
@@ -2944,6 +2929,16 @@ html[data-motion="reduced"] .extra-music-disc {
   min-width: 0;
   min-height: 0;
   padding: 1.45cqh .15cqw 1.2cqh;
+}
+
+.extra-canvas .extra-project-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 2cqw;
+  min-width: 0;
+  padding: 1.15cqh .2cqw .25cqh;
+  border-top: 1px solid var(--extra-line);
 }
 
 .extra-canvas .extra-project-record {
@@ -3803,6 +3798,7 @@ html[data-motion="reduced"] .extra-music-disc {
 
 /* Portrait and narrow canvases keep the sidebar, while content density steps down. */
 @media (max-width: 900px) and (orientation: portrait) {
+  html:not([data-forced-landscape="true"]) {
   .extra-canvas {
     --extra-side: 23.5cqw;
   }
@@ -3996,6 +3992,7 @@ html[data-motion="reduced"] .extra-music-disc {
   .extra-canvas .extra-edge-turners button:first-child {
     left: 22cqw;
   }
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -4021,4 +4018,51 @@ html[data-motion="reduced"] .extra-music-disc {
 
 html[data-motion="reduced"] .extra-canvas .extra-music-room.is-playing .extra-music-wave i {
   animation: none;
+}
+
+/* CG opens from the thumbnail itself; the veil follows the image instead of cutting to black. */
+.extra-canvas .cg-viewer {
+  background: transparent;
+  transition:
+    opacity 430ms cubic-bezier(.22, 1, .36, 1),
+    visibility 430ms;
+}
+
+.extra-canvas .cg-viewer-backdrop {
+  opacity: 1;
+  transition: opacity 360ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.extra-canvas .cg-viewer.is-opening .cg-viewer-backdrop,
+.extra-canvas .cg-viewer.is-closing .cg-viewer-backdrop {
+  opacity: 0;
+}
+
+.extra-canvas .cg-viewer-caption,
+.extra-canvas .cg-viewer > button {
+  opacity: 1;
+  transition: opacity 180ms ease;
+}
+
+.extra-canvas .cg-viewer.is-opening .cg-viewer-caption,
+.extra-canvas .cg-viewer.is-opening > button,
+.extra-canvas .cg-viewer.is-closing .cg-viewer-caption,
+.extra-canvas .cg-viewer.is-closing > button {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .extra-canvas .cg-viewer,
+  .extra-canvas .cg-viewer-backdrop,
+  .extra-canvas .cg-viewer-caption,
+  .extra-canvas .cg-viewer > button {
+    transition: none;
+  }
+}
+
+html[data-motion="reduced"] .extra-canvas .cg-viewer,
+html[data-motion="reduced"] .extra-canvas .cg-viewer-backdrop,
+html[data-motion="reduced"] .extra-canvas .cg-viewer-caption,
+html[data-motion="reduced"] .extra-canvas .cg-viewer > button {
+  transition: none;
 }

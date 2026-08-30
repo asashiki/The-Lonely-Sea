@@ -52,6 +52,14 @@
   transform: scaleX(1);
 }
 
+.extra-canvas .extra-room-heading > p {
+  display: none;
+}
+
+.extra-canvas .extra-room-heading h3 {
+  grid-row: 1;
+}
+
 .extra-canvas .extra-status {
   height: 4.6cqh;
   border-top: 0;
@@ -558,7 +566,7 @@
 }
 
 .extra-canvas .extra-project-room {
-  grid-template-rows: 8.2cqh 11.5cqh minmax(0, 1fr);
+  grid-template-rows: 8.2cqh minmax(0, 1fr) 11.5cqh;
 }
 
 .extra-canvas .extra-project-toolbar {
@@ -568,7 +576,7 @@
   gap: 2cqw;
   min-width: 0;
   padding: 1.3cqh .2cqw;
-  border-bottom: 1px solid var(--extra-line);
+  border-top: 1px solid var(--extra-line);
 }
 
 .extra-canvas .extra-project-tide {
@@ -1671,6 +1679,10 @@
   .extra-canvas .extra-music-wave-deck .extra-music-toggle:focus-visible,
   .extra-canvas .extra-music-wave-deck .extra-music-skip:hover,
   .extra-canvas .extra-music-wave-deck .extra-music-skip:focus-visible,
+  .extra-canvas .extra-music-wave-deck .extra-music-loop:hover,
+  .extra-canvas .extra-music-wave-deck .extra-music-loop:focus-visible,
+  .extra-canvas .extra-music-wave-deck .extra-music-shuffle:hover,
+  .extra-canvas .extra-music-wave-deck .extra-music-shuffle:focus-visible,
   .extra-canvas .extra-music-cover:hover,
   .extra-canvas .extra-music-cover:focus-visible {
     color: var(--v4-ink);
@@ -1774,6 +1786,15 @@
 }
 
 @media (max-width: 900px) and (orientation: portrait) {
+  .extra-canvas .extra-project-room {
+    grid-template-rows: 8.2cqh minmax(0, 1fr);
+  }
+
+  .extra-canvas .extra-project-toolbar {
+    display: none;
+  }
+
+  html:not([data-forced-landscape="true"]) {
   .extra-canvas .extra-edge-turners button:first-child {
     left: calc(26cqw - 2.55cqw - .45cqw);
   }
@@ -1917,6 +1938,7 @@
 
   .extra-canvas .extra-achievement-row em {
     font-size: clamp(8px, 2cqw, 10px);
+  }
   }
 }
 

@@ -1,0 +1,890 @@
+{
+  "schema": "gal-blog-game-package/v1",
+  "game": {
+    "id": "project_lonely_sea_chapter_one",
+    "slug": "lonely-sea-chapter-one",
+    "title": "灯塔导览",
+    "gameVersion": "0.3.0",
+    "releaseId": "0.3.0-4830749c",
+    "locale": "zh-CN"
+  },
+  "engine": {
+    "name": "Gal Story Runtime",
+    "version": "1.2.3",
+    "bundled": true,
+    "entry": "index.html"
+  },
+  "launchTargets": {
+    "start": {
+      "kind": "start",
+      "id": "start",
+      "sceneId": "scene_root"
+    },
+    "scenes": [
+      {
+        "kind": "scene",
+        "id": "route_root",
+        "title": "START",
+        "sceneId": "scene_root",
+        "replayable": true,
+        "storyEntry": false
+      },
+      {
+        "kind": "scene",
+        "id": "route_site",
+        "title": "关于本站",
+        "sceneId": "scene_site",
+        "replayable": true,
+        "storyEntry": false
+      },
+      {
+        "kind": "scene",
+        "id": "route_master",
+        "title": "关于主人",
+        "sceneId": "scene_master",
+        "replayable": true,
+        "storyEntry": false
+      },
+      {
+        "kind": "scene",
+        "id": "route_alice",
+        "title": "关于爱丽丝",
+        "sceneId": "scene_alice_router",
+        "replayable": true,
+        "storyEntry": false
+      },
+      {
+        "kind": "scene",
+        "id": "route_site_load",
+        "title": "关于 LOAD",
+        "sceneId": "scene_site_load",
+        "replayable": true,
+        "storyEntry": false
+      },
+      {
+        "kind": "scene",
+        "id": "route_site_extra",
+        "title": "关于 EXTRA",
+        "sceneId": "scene_site_extra",
+        "replayable": true,
+        "storyEntry": false
+      },
+      {
+        "kind": "scene",
+        "id": "route_site_option",
+        "title": "关于 OPTION",
+        "sceneId": "scene_site_option",
+        "replayable": true,
+        "storyEntry": false
+      },
+      {
+        "kind": "scene",
+        "id": "route_site_vn",
+        "title": "关于视觉小说",
+        "sceneId": "scene_site_vn",
+        "replayable": true,
+        "storyEntry": false
+      },
+      {
+        "kind": "scene",
+        "id": "route_comments",
+        "title": "访客留言",
+        "sceneId": "scene_comments",
+        "replayable": true,
+        "storyEntry": true
+      },
+      {
+        "kind": "scene",
+        "id": "route_friends",
+        "title": "友链交换",
+        "sceneId": "scene_friends",
+        "replayable": true,
+        "storyEntry": true
+      },
+      {
+        "kind": "scene",
+        "id": "route_rss",
+        "title": "RSS 订阅",
+        "sceneId": "scene_rss",
+        "replayable": true,
+        "storyEntry": true
+      },
+      {
+        "kind": "scene",
+        "id": "route_lab",
+        "title": "游戏试验场",
+        "sceneId": "scene_lab",
+        "replayable": true,
+        "storyEntry": false
+      },
+      {
+        "kind": "scene",
+        "id": "route_site_more",
+        "title": "更多关于本站",
+        "sceneId": "scene_site_more",
+        "replayable": true,
+        "storyEntry": false
+      },
+      {
+        "kind": "scene",
+        "id": "route_history",
+        "title": "本站历史",
+        "sceneId": "scene_history",
+        "replayable": true,
+        "storyEntry": false
+      },
+      {
+        "kind": "scene",
+        "id": "route_progress",
+        "title": "制作进度",
+        "sceneId": "scene_progress",
+        "replayable": true,
+        "storyEntry": false
+      },
+      {
+        "kind": "scene",
+        "id": "route_scraps",
+        "title": "设计废案",
+        "sceneId": "scene_scraps",
+        "replayable": true,
+        "storyEntry": false
+      },
+      {
+        "kind": "scene",
+        "id": "route_support",
+        "title": "打赏",
+        "sceneId": "scene_support",
+        "replayable": true,
+        "storyEntry": false
+      },
+      {
+        "kind": "scene",
+        "id": "route_master_work",
+        "title": "在做什么",
+        "sceneId": "scene_master_work",
+        "replayable": true,
+        "storyEntry": false
+      },
+      {
+        "kind": "scene",
+        "id": "route_interests",
+        "title": "主要兴趣",
+        "sceneId": "scene_interests",
+        "replayable": true,
+        "storyEntry": false
+      },
+      {
+        "kind": "scene",
+        "id": "route_contact",
+        "title": "联系方式",
+        "sceneId": "scene_contact",
+        "replayable": true,
+        "storyEntry": false
+      },
+      {
+        "kind": "scene",
+        "id": "route_master_more",
+        "title": "更多关于主人",
+        "sceneId": "scene_master_more",
+        "replayable": true,
+        "storyEntry": false
+      },
+      {
+        "kind": "scene",
+        "id": "route_anime",
+        "title": "动画相关",
+        "sceneId": "scene_anime",
+        "replayable": true,
+        "storyEntry": false
+      },
+      {
+        "kind": "scene",
+        "id": "route_games",
+        "title": "游戏相关",
+        "sceneId": "scene_games",
+        "replayable": true,
+        "storyEntry": false
+      },
+      {
+        "kind": "scene",
+        "id": "route_computer",
+        "title": "计算机相关",
+        "sceneId": "scene_computer_router",
+        "replayable": true,
+        "storyEntry": false
+      },
+      {
+        "kind": "scene",
+        "id": "route_devices",
+        "title": "软件设备",
+        "sceneId": "scene_devices",
+        "replayable": true,
+        "storyEntry": false
+      },
+      {
+        "kind": "scene",
+        "id": "route_name",
+        "title": "网名由来",
+        "sceneId": "scene_name",
+        "replayable": true,
+        "storyEntry": false
+      },
+      {
+        "kind": "scene",
+        "id": "route_philosophy",
+        "title": "哲学思想",
+        "sceneId": "scene_philosophy",
+        "replayable": true,
+        "storyEntry": false
+      },
+      {
+        "kind": "scene",
+        "id": "route_family",
+        "title": "原生家庭",
+        "sceneId": "scene_family",
+        "replayable": true,
+        "storyEntry": false
+      },
+      {
+        "kind": "scene",
+        "id": "route_life",
+        "title": "人生经历",
+        "sceneId": "scene_life",
+        "replayable": true,
+        "storyEntry": false
+      },
+      {
+        "kind": "scene",
+        "id": "route_feed",
+        "title": "投喂",
+        "sceneId": "scene_feed",
+        "replayable": true,
+        "storyEntry": false
+      },
+      {
+        "kind": "scene",
+        "id": "route_alice_1",
+        "title": "爱丽丝 · 1",
+        "sceneId": "scene_alice_1",
+        "replayable": true,
+        "storyEntry": false
+      },
+      {
+        "kind": "scene",
+        "id": "route_alice_2",
+        "title": "爱丽丝 · 2",
+        "sceneId": "scene_alice_2",
+        "replayable": true,
+        "storyEntry": false
+      },
+      {
+        "kind": "scene",
+        "id": "route_alice_3",
+        "title": "爱丽丝 · 3",
+        "sceneId": "scene_alice_3",
+        "replayable": true,
+        "storyEntry": false
+      },
+      {
+        "kind": "scene",
+        "id": "route_alice_4",
+        "title": "爱丽丝 · 4",
+        "sceneId": "scene_alice_4",
+        "replayable": true,
+        "storyEntry": false
+      },
+      {
+        "kind": "scene",
+        "id": "route_alice_5",
+        "title": "爱丽丝 · 5",
+        "sceneId": "scene_alice_5",
+        "replayable": true,
+        "storyEntry": false
+      },
+      {
+        "kind": "scene",
+        "id": "route_alice_6",
+        "title": "爱丽丝 · 6",
+        "sceneId": "scene_alice_6",
+        "replayable": true,
+        "storyEntry": false
+      },
+      {
+        "kind": "scene",
+        "id": "route_alice_7",
+        "title": "爱丽丝 · 7",
+        "sceneId": "scene_alice_7",
+        "replayable": true,
+        "storyEntry": false
+      }
+    ],
+    "savePoints": [
+      {
+        "kind": "save-point",
+        "id": "save_scene_root",
+        "title": "START · 灯塔的来客",
+        "sceneId": "scene_root",
+        "blockId": "save_block_scene_root",
+        "resumeMode": "authored-block",
+        "thumbnail": "assets/bg-lighthouse-room-lighthouse-interior.png"
+      },
+      {
+        "kind": "save-point",
+        "id": "save_scene_site",
+        "title": "关于本站",
+        "sceneId": "scene_site",
+        "blockId": "save_block_scene_site",
+        "resumeMode": "authored-block",
+        "thumbnail": "assets/bg-lighthouse-room-lighthouse-interior.png"
+      },
+      {
+        "kind": "save-point",
+        "id": "save_scene_site_load",
+        "title": "关于 LOAD",
+        "sceneId": "scene_site_load",
+        "blockId": "save_block_scene_site_load",
+        "resumeMode": "authored-block",
+        "thumbnail": "assets/bg-blog-load-load.png"
+      },
+      {
+        "kind": "save-point",
+        "id": "save_scene_site_extra",
+        "title": "关于 EXTRA",
+        "sceneId": "scene_site_extra",
+        "blockId": "save_block_scene_site_extra",
+        "resumeMode": "authored-block",
+        "thumbnail": "assets/bg-blog-extra-extra.png"
+      },
+      {
+        "kind": "save-point",
+        "id": "save_scene_site_option",
+        "title": "关于 OPTION",
+        "sceneId": "scene_site_option",
+        "blockId": "save_block_scene_site_option",
+        "resumeMode": "authored-block",
+        "thumbnail": "assets/bg-blog-option-option.png"
+      },
+      {
+        "kind": "save-point",
+        "id": "save_scene_site_vn",
+        "title": "关于视觉小说",
+        "sceneId": "scene_site_vn",
+        "blockId": "save_block_scene_site_vn",
+        "resumeMode": "authored-block",
+        "thumbnail": "assets/bg-blog-title-title.png"
+      },
+      {
+        "kind": "save-point",
+        "id": "save_scene_system",
+        "title": "系统功能",
+        "sceneId": "scene_system",
+        "blockId": "save_block_scene_system",
+        "resumeMode": "authored-block",
+        "thumbnail": "assets/bg-lighthouse-room-lighthouse-interior.png"
+      },
+      {
+        "kind": "save-point",
+        "id": "save_scene_comments",
+        "title": "留言",
+        "sceneId": "scene_comments",
+        "blockId": "save_block_scene_comments",
+        "resumeMode": "authored-block",
+        "thumbnail": "assets/bg-lighthouse-room-lighthouse-interior.png"
+      },
+      {
+        "kind": "save-point",
+        "id": "save_scene_comments_success",
+        "title": "留言 · 已收下",
+        "sceneId": "scene_comments_success",
+        "blockId": "save_block_scene_comments_success",
+        "resumeMode": "authored-block",
+        "thumbnail": "assets/bg-lighthouse-room-lighthouse-interior.png"
+      },
+      {
+        "kind": "save-point",
+        "id": "save_scene_comments_cancel",
+        "title": "留言 · 稍后",
+        "sceneId": "scene_comments_cancel",
+        "blockId": "save_block_scene_comments_cancel",
+        "resumeMode": "authored-block",
+        "thumbnail": "assets/bg-lighthouse-room-lighthouse-interior.png"
+      },
+      {
+        "kind": "save-point",
+        "id": "save_scene_friends",
+        "title": "友链",
+        "sceneId": "scene_friends",
+        "blockId": "save_block_scene_friends",
+        "resumeMode": "authored-block",
+        "thumbnail": "assets/bg-lighthouse-room-lighthouse-interior.png"
+      },
+      {
+        "kind": "save-point",
+        "id": "save_scene_friends_success",
+        "title": "友链 · 已记下",
+        "sceneId": "scene_friends_success",
+        "blockId": "save_block_scene_friends_success",
+        "resumeMode": "authored-block",
+        "thumbnail": "assets/bg-lighthouse-room-lighthouse-interior.png"
+      },
+      {
+        "kind": "save-point",
+        "id": "save_scene_friends_cancel",
+        "title": "友链 · 稍后",
+        "sceneId": "scene_friends_cancel",
+        "blockId": "save_block_scene_friends_cancel",
+        "resumeMode": "authored-block",
+        "thumbnail": "assets/bg-lighthouse-room-lighthouse-interior.png"
+      },
+      {
+        "kind": "save-point",
+        "id": "save_scene_rss",
+        "title": "RSS",
+        "sceneId": "scene_rss",
+        "blockId": "save_block_scene_rss",
+        "resumeMode": "authored-block",
+        "thumbnail": "assets/bg-lighthouse-room-lighthouse-interior.png"
+      },
+      {
+        "kind": "save-point",
+        "id": "save_scene_rss_success",
+        "title": "RSS · 已订阅",
+        "sceneId": "scene_rss_success",
+        "blockId": "save_block_scene_rss_success",
+        "resumeMode": "authored-block",
+        "thumbnail": "assets/bg-lighthouse-room-lighthouse-interior.png"
+      },
+      {
+        "kind": "save-point",
+        "id": "save_scene_rss_cancel",
+        "title": "RSS · 稍后",
+        "sceneId": "scene_rss_cancel",
+        "blockId": "save_block_scene_rss_cancel",
+        "resumeMode": "authored-block",
+        "thumbnail": "assets/bg-lighthouse-room-lighthouse-interior.png"
+      },
+      {
+        "kind": "save-point",
+        "id": "save_scene_lab",
+        "title": "游戏试验场",
+        "sceneId": "scene_lab",
+        "blockId": "save_block_scene_lab",
+        "resumeMode": "authored-block",
+        "thumbnail": "assets/bg-lighthouse-room-lighthouse-interior.png"
+      },
+      {
+        "kind": "save-point",
+        "id": "save_scene_site_more",
+        "title": "更多关于本站",
+        "sceneId": "scene_site_more",
+        "blockId": "save_block_scene_site_more",
+        "resumeMode": "authored-block",
+        "thumbnail": "assets/bg-lighthouse-room-lighthouse-interior.png"
+      },
+      {
+        "kind": "save-point",
+        "id": "save_scene_history",
+        "title": "本站历史",
+        "sceneId": "scene_history",
+        "blockId": "save_block_scene_history",
+        "resumeMode": "authored-block",
+        "thumbnail": "assets/bg-lighthouse-room-lighthouse-interior.png"
+      },
+      {
+        "kind": "save-point",
+        "id": "save_scene_progress",
+        "title": "制作进度",
+        "sceneId": "scene_progress",
+        "blockId": "save_block_scene_progress",
+        "resumeMode": "authored-block",
+        "thumbnail": "assets/bg-lighthouse-room-lighthouse-interior.png"
+      },
+      {
+        "kind": "save-point",
+        "id": "save_scene_scraps",
+        "title": "设计废案",
+        "sceneId": "scene_scraps",
+        "blockId": "save_block_scene_scraps",
+        "resumeMode": "authored-block",
+        "thumbnail": "assets/bg-lighthouse-room-lighthouse-interior.png"
+      },
+      {
+        "kind": "save-point",
+        "id": "save_scene_support",
+        "title": "打赏",
+        "sceneId": "scene_support",
+        "blockId": "save_block_scene_support",
+        "resumeMode": "authored-block",
+        "thumbnail": "assets/bg-support-cg-support-cg.jpg"
+      },
+      {
+        "kind": "save-point",
+        "id": "save_scene_master",
+        "title": "关于主人",
+        "sceneId": "scene_master",
+        "blockId": "save_block_scene_master",
+        "resumeMode": "authored-block",
+        "thumbnail": "assets/bg-lighthouse-room-lighthouse-interior.png"
+      },
+      {
+        "kind": "save-point",
+        "id": "save_scene_master_work",
+        "title": "在做什么",
+        "sceneId": "scene_master_work",
+        "blockId": "save_block_scene_master_work",
+        "resumeMode": "authored-block",
+        "thumbnail": "assets/bg-lighthouse-room-lighthouse-interior.png"
+      },
+      {
+        "kind": "save-point",
+        "id": "save_scene_contact",
+        "title": "联系方式",
+        "sceneId": "scene_contact",
+        "blockId": "save_block_scene_contact",
+        "resumeMode": "authored-block",
+        "thumbnail": "assets/bg-lighthouse-room-lighthouse-interior.png"
+      },
+      {
+        "kind": "save-point",
+        "id": "save_scene_interests",
+        "title": "主要兴趣",
+        "sceneId": "scene_interests",
+        "blockId": "save_block_scene_interests",
+        "resumeMode": "authored-block",
+        "thumbnail": "assets/bg-lighthouse-room-lighthouse-interior.png"
+      },
+      {
+        "kind": "save-point",
+        "id": "save_scene_anime",
+        "title": "动画相关",
+        "sceneId": "scene_anime",
+        "blockId": "save_block_scene_anime",
+        "resumeMode": "authored-block",
+        "thumbnail": "assets/bg-lighthouse-room-lighthouse-interior.png"
+      },
+      {
+        "kind": "save-point",
+        "id": "save_scene_games",
+        "title": "游戏相关",
+        "sceneId": "scene_games",
+        "blockId": "save_block_scene_games",
+        "resumeMode": "authored-block",
+        "thumbnail": "assets/bg-lighthouse-room-lighthouse-interior.png"
+      },
+      {
+        "kind": "save-point",
+        "id": "save_scene_master_more",
+        "title": "更多关于主人",
+        "sceneId": "scene_master_more",
+        "blockId": "save_block_scene_master_more",
+        "resumeMode": "authored-block",
+        "thumbnail": "assets/bg-lighthouse-room-lighthouse-interior.png"
+      },
+      {
+        "kind": "save-point",
+        "id": "save_scene_computer",
+        "title": "计算机相关",
+        "sceneId": "scene_computer",
+        "blockId": "save_block_scene_computer",
+        "resumeMode": "authored-block",
+        "thumbnail": "assets/bg-lighthouse-room-lighthouse-interior.png"
+      },
+      {
+        "kind": "save-point",
+        "id": "save_scene_computer_extra",
+        "title": "计算机相关 · 补充",
+        "sceneId": "scene_computer_extra",
+        "blockId": "save_block_scene_computer_extra",
+        "resumeMode": "authored-block",
+        "thumbnail": "assets/bg-lighthouse-room-lighthouse-interior.png"
+      },
+      {
+        "kind": "save-point",
+        "id": "save_scene_devices",
+        "title": "软件设备",
+        "sceneId": "scene_devices",
+        "blockId": "save_block_scene_devices",
+        "resumeMode": "authored-block",
+        "thumbnail": "assets/bg-lighthouse-room-lighthouse-interior.png"
+      },
+      {
+        "kind": "save-point",
+        "id": "save_scene_name",
+        "title": "网名由来",
+        "sceneId": "scene_name",
+        "blockId": "save_block_scene_name",
+        "resumeMode": "authored-block",
+        "thumbnail": "assets/bg-lighthouse-room-lighthouse-interior.png"
+      },
+      {
+        "kind": "save-point",
+        "id": "save_scene_philosophy",
+        "title": "哲学思想",
+        "sceneId": "scene_philosophy",
+        "blockId": "save_block_scene_philosophy",
+        "resumeMode": "authored-block",
+        "thumbnail": "assets/bg-lighthouse-room-lighthouse-interior.png"
+      },
+      {
+        "kind": "save-point",
+        "id": "save_scene_family",
+        "title": "原生家庭",
+        "sceneId": "scene_family",
+        "blockId": "save_block_scene_family",
+        "resumeMode": "authored-block",
+        "thumbnail": "assets/bg-lighthouse-room-lighthouse-interior.png"
+      },
+      {
+        "kind": "save-point",
+        "id": "save_scene_life",
+        "title": "人生经历",
+        "sceneId": "scene_life",
+        "blockId": "save_block_scene_life",
+        "resumeMode": "authored-block",
+        "thumbnail": "assets/bg-lighthouse-room-lighthouse-interior.png"
+      },
+      {
+        "kind": "save-point",
+        "id": "save_scene_feed",
+        "title": "投喂",
+        "sceneId": "scene_feed",
+        "blockId": "save_block_scene_feed",
+        "resumeMode": "authored-block",
+        "thumbnail": "assets/bg-support-cg-support-cg.jpg"
+      },
+      {
+        "kind": "save-point",
+        "id": "save_scene_alice_1",
+        "title": "关于爱丽丝 · 1",
+        "sceneId": "scene_alice_1",
+        "blockId": "save_block_scene_alice_1",
+        "resumeMode": "authored-block",
+        "thumbnail": "assets/bg-lighthouse-room-lighthouse-interior.png"
+      },
+      {
+        "kind": "save-point",
+        "id": "save_scene_alice_2",
+        "title": "关于爱丽丝 · 2",
+        "sceneId": "scene_alice_2",
+        "blockId": "save_block_scene_alice_2",
+        "resumeMode": "authored-block",
+        "thumbnail": "assets/bg-lighthouse-room-lighthouse-interior.png"
+      },
+      {
+        "kind": "save-point",
+        "id": "save_scene_alice_3",
+        "title": "关于爱丽丝 · 3",
+        "sceneId": "scene_alice_3",
+        "blockId": "save_block_scene_alice_3",
+        "resumeMode": "authored-block",
+        "thumbnail": "assets/bg-lighthouse-room-lighthouse-interior.png"
+      },
+      {
+        "kind": "save-point",
+        "id": "save_scene_alice_4",
+        "title": "关于爱丽丝 · 4",
+        "sceneId": "scene_alice_4",
+        "blockId": "save_block_scene_alice_4",
+        "resumeMode": "authored-block",
+        "thumbnail": "assets/bg-lighthouse-room-lighthouse-interior.png"
+      },
+      {
+        "kind": "save-point",
+        "id": "save_scene_alice_5",
+        "title": "关于爱丽丝 · 5",
+        "sceneId": "scene_alice_5",
+        "blockId": "save_block_scene_alice_5",
+        "resumeMode": "authored-block",
+        "thumbnail": "assets/bg-lighthouse-room-lighthouse-interior.png"
+      },
+      {
+        "kind": "save-point",
+        "id": "save_scene_alice_6",
+        "title": "关于爱丽丝 · 6",
+        "sceneId": "scene_alice_6",
+        "blockId": "save_block_scene_alice_6",
+        "resumeMode": "authored-block",
+        "thumbnail": "assets/bg-lighthouse-room-lighthouse-interior.png"
+      },
+      {
+        "kind": "save-point",
+        "id": "save_scene_alice_7",
+        "title": "关于爱丽丝 · 7",
+        "sceneId": "scene_alice_7",
+        "blockId": "save_block_scene_alice_7",
+        "resumeMode": "authored-block",
+        "thumbnail": "assets/bg-lighthouse-room-lighthouse-interior.png"
+      }
+    ]
+  },
+  "publicRouteMap": {
+    "layoutDirection": "left-right",
+    "nodes": [
+      {
+        "id": "route_root",
+        "kind": "start",
+        "title": "START",
+        "sceneId": "scene_root",
+        "x": 0,
+        "y": 0,
+        "replayable": true
+      },
+      {
+        "id": "route_site",
+        "kind": "scene",
+        "title": "关于本站",
+        "sceneId": "scene_site",
+        "x": 1,
+        "y": 0,
+        "replayable": true
+      },
+      {
+        "id": "route_master",
+        "kind": "scene",
+        "title": "关于主人",
+        "sceneId": "scene_master",
+        "x": 1,
+        "y": 1,
+        "replayable": true
+      },
+      {
+        "id": "route_alice",
+        "kind": "character-story",
+        "title": "关于爱丽丝",
+        "sceneId": "scene_alice_router",
+        "characterId": "char_alice",
+        "x": 1,
+        "y": 2,
+        "replayable": true
+      },
+      {
+        "id": "route_site_more",
+        "kind": "scene",
+        "title": "更多关于本站",
+        "sceneId": "scene_site_more",
+        "x": 2,
+        "y": 8,
+        "replayable": true
+      },
+      {
+        "id": "route_interests",
+        "kind": "scene",
+        "title": "主要兴趣",
+        "sceneId": "scene_interests",
+        "x": 2,
+        "y": 10,
+        "replayable": true
+      },
+      {
+        "id": "route_master_more",
+        "kind": "scene",
+        "title": "更多关于主人",
+        "sceneId": "scene_master_more",
+        "x": 2,
+        "y": 12,
+        "replayable": true
+      }
+    ],
+    "edges": [
+      {
+        "id": "edge_root_site",
+        "source": "route_root",
+        "target": "route_site",
+        "label": "关于本站"
+      },
+      {
+        "id": "edge_root_master",
+        "source": "route_root",
+        "target": "route_master",
+        "label": "关于主人"
+      },
+      {
+        "id": "edge_root_alice",
+        "source": "route_root",
+        "target": "route_alice",
+        "label": "关于爱丽丝"
+      },
+      {
+        "id": "edge_site_more",
+        "source": "route_site",
+        "target": "route_site_more",
+        "label": "更多"
+      },
+      {
+        "id": "edge_master_interest",
+        "source": "route_master",
+        "target": "route_interests",
+        "label": "主要兴趣"
+      },
+      {
+        "id": "edge_master_more",
+        "source": "route_master",
+        "target": "route_master_more",
+        "label": "更多"
+      }
+    ]
+  },
+  "stateContract": {
+    "saveMode": "checkpoint-v1",
+    "launchVariables": [
+      "alice_visits",
+      "computer_visits",
+      "runtime.scene",
+      "runtime.index",
+      "runtime.block"
+    ],
+    "persistVariables": [
+      "alice_visits",
+      "computer_visits",
+      "runtime.scene",
+      "runtime.index",
+      "runtime.block"
+    ],
+    "records": []
+  },
+  "settingsContract": {
+    "schema": "gal-blog-settings/v1",
+    "accepts": [
+      "audio.muted",
+      "audio.bgm",
+      "audio.ambient",
+      "audio.effects",
+      "audio.voice",
+      "audio.stopVoiceOnAdvance",
+      "text.scale",
+      "text.speed",
+      "accessibility.reducedMotion",
+      "interface.scale",
+      "interface.cursor",
+      "interface.language"
+    ]
+  },
+  "bridge": {
+    "protocol": "gal-blog-bridge/v1",
+    "channel": "gal-blog-game",
+    "allowedHostOrigins": [
+      "https://asashiki.com",
+      "http://127.0.0.1:4321",
+      "http://localhost:4321",
+      "http://127.0.0.1:4322",
+      "http://localhost:4322"
+    ],
+    "requiredActions": [
+      "return-menu",
+      "open-settings",
+      "open-load",
+      "save-progress",
+      "open-blog-scene"
+    ],
+    "optionalActions": [
+      "open-article",
+      "open-comment-form",
+      "open-external",
+      "get-runtime-data"
+    ]
+  },
+  "presentation": {
+    "loaderArt": "assets/fig-alice-welcome-maid_princess_normal_welcome.png"
+  },
+  "integrity": "integrity.json"
+}

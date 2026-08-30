@@ -1,0 +1,12 @@
+---
+import LoadScreen from "../components/experience/LoadScreen.astro";
+import OptionScreen from "../components/experience/OptionScreen.astro";
+import { getExperienceRecords } from "../lib/experience-records";
+
+const records = await getExperienceRecords();
+---
+
+<div data-reading-system-fragment>
+  <LoadScreen records={records} />
+  <OptionScreen />
+</div>

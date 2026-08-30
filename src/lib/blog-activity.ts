@@ -7,6 +7,7 @@ const BUCKETS = [
   "diaryMonths",
   "cgItems",
   "musicTracks",
+  "articleCompletions",
 ] as const;
 
 export type BlogActivityBucket = typeof BUCKETS[number];
@@ -23,6 +24,7 @@ function emptyState(): BlogActivityState {
     diaryMonths: {},
     cgItems: {},
     musicTracks: {},
+    articleCompletions: {},
   };
 }
 

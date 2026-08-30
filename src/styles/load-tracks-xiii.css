@@ -25,22 +25,27 @@
 .tracks-xiii-canvas .system-back {
   right: 4.7cqw;
   bottom: 3cqh;
-  min-width: 7.4cqw;
+  min-width: 0;
   min-height: 4cqh;
   color: var(--xiii-soft);
   font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", sans-serif;
   font-size: clamp(10px, .68cqw, 13px);
-  letter-spacing: .18em;
+  letter-spacing: .24em;
   opacity: .88;
 }
 
 .tracks-xiii-canvas .system-back::before {
-  border-color: var(--xiii-edge);
+  width: 1.45cqw;
+  border: 0;
   color: var(--xiii-ink);
-  background: var(--xiii-surface-soft);
-  padding: 0 0 .08em .02em;
-  line-height: 1;
-  text-indent: 0;
+  background: currentColor;
+}
+
+.tracks-xiii-canvas .system-back::after {
+  border: 0;
+  border-bottom: 1px solid currentColor;
+  border-left: 1px solid currentColor;
+  background: transparent;
 }
 
 .tracks-xiii-canvas .system-back:hover,
@@ -3863,6 +3868,7 @@ html.tracks-xiii-diary-open body {
 }
 
 @media (max-width: 900px) and (orientation: portrait) {
+  html:not([data-forced-landscape="true"]):not([data-reading-system-fixed="true"]) {
   .tracks-xiii-canvas {
     --xiii-stage-inline: 3.4cqw;
     --xiii-index-width: 21.5cqw;
@@ -3990,5 +3996,6 @@ html.tracks-xiii-diary-open body {
 
   .tracks-xiii-canvas .tracks-xiii-reference-switcher {
     display: none;
+  }
   }
 }

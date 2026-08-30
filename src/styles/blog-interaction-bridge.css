@@ -1,0 +1,344 @@
+/* 游戏内通讯不是网页弹窗：保留舞台，以选择项和对白框完成交互。 */
+dialog.blog-interaction-modal {
+  inset: 0;
+  width: 100vw;
+  height: 100svh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  color: #f2f5f4;
+  background: transparent;
+}
+
+dialog.blog-interaction-modal::backdrop {
+  background: rgb(1 6 10 / 30%);
+  backdrop-filter: blur(2px);
+}
+
+section.blog-interaction-scene.is-bridge {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: clamp(1.5rem, 4svh, 3rem) clamp(2rem, 7vw, 7rem) 0;
+  overflow: hidden;
+  color: #f2f5f4;
+  background:
+    radial-gradient(ellipse 54% 48% at 50% 42%, rgb(133 174 185 / 17%), transparent 72%),
+    linear-gradient(180deg, rgb(2 9 14 / 52%), rgb(2 9 14 / 18%) 46%, rgb(2 9 14 / 72%));
+  box-shadow: none;
+}
+
+section.blog-interaction-scene.is-bridge .blog-interaction-heading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+}
+
+section.blog-interaction-scene.is-bridge .blog-interaction-heading h2 {
+  margin: 0;
+  color: #f7f4ec;
+  font: 400 clamp(1.45rem, 3.1svh, 2.35rem) / 1.2 var(--font-display);
+  letter-spacing: .12em;
+  text-shadow: 0 .2rem 1.6rem rgb(0 0 0 / 70%);
+}
+
+section.blog-interaction-scene.is-bridge .blog-interaction-heading nav {
+  display: none;
+}
+
+section.blog-interaction-scene.is-bridge .blog-interaction-panel {
+  min-height: 0;
+  margin: 0 auto;
+  overflow: auto;
+  scrollbar-width: none;
+}
+
+section.blog-interaction-scene.is-bridge .blog-interaction-panel::-webkit-scrollbar {
+  display: none;
+}
+
+section.blog-interaction-scene.is-bridge :is(.blog-comment-panel, .blog-friends-panel) {
+  display: grid;
+  place-content: center;
+  width: min(58rem, 86vw);
+}
+
+section.blog-interaction-scene.is-bridge[data-active-view="comments"][data-interaction-intent="compose"] .blog-dialogue-memory,
+section.blog-interaction-scene.is-bridge[data-active-view="comments"][data-interaction-intent="view"] .blog-dialogue-composer,
+section.blog-interaction-scene.is-bridge[data-active-view="friends"][data-interaction-intent="compose"] :is(.blog-published-friends, .blog-dialogue-memory),
+section.blog-interaction-scene.is-bridge[data-active-view="friends"][data-interaction-intent="view"] :is(.blog-dialogue-composer, .blog-dialogue-memory) {
+  display: none;
+}
+
+section.blog-interaction-scene.is-bridge .blog-dialogue-composer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(.8rem, 2svh, 1.4rem) clamp(1rem, 2.5vw, 2.2rem);
+  width: min(58rem, 84vw);
+  padding: 0;
+  background: transparent;
+}
+
+section.blog-interaction-scene.is-bridge .blog-dialogue-composer .blog-scene-question,
+section.blog-interaction-scene.is-bridge .blog-dialogue-composer .blog-dialogue-line,
+section.blog-interaction-scene.is-bridge .blog-dialogue-composer .blog-dialogue-local-note,
+section.blog-interaction-scene.is-bridge .blog-dialogue-composer .blog-dialogue-feedback,
+section.blog-interaction-scene.is-bridge .blog-dialogue-composer .blog-dialogue-actions {
+  grid-column: 1;
+}
+
+section.blog-interaction-scene.is-bridge .blog-dialogue-composer .blog-dialogue-name,
+section.blog-interaction-scene.is-bridge .blog-dialogue-composer .blog-dialogue-url {
+  width: min(27rem, 100%);
+  justify-self: center;
+}
+
+section.blog-interaction-scene.is-bridge .blog-dialogue-composer .blog-dialogue-line {
+  width: 100%;
+}
+
+section.blog-interaction-scene.is-bridge .blog-dialogue-composer label {
+  display: grid;
+  gap: .55rem;
+}
+
+section.blog-interaction-scene.is-bridge .blog-dialogue-composer label > span,
+section.blog-interaction-scene.is-bridge .blog-rss-subscribe label > span {
+  color: rgb(239 243 241 / 82%);
+  font: 400 clamp(.95rem, 2svh, 1.18rem) / 1.2 var(--font-display);
+  letter-spacing: .08em;
+}
+
+section.blog-interaction-scene.is-bridge .blog-dialogue-composer :is(input, textarea),
+section.blog-interaction-scene.is-bridge .blog-rss-subscribe input {
+  width: 100%;
+  border: 0;
+  border-radius: .2rem;
+  color: #fff;
+  background: rgb(4 17 24 / 72%);
+  box-shadow: inset 0 0 2.4rem rgb(122 164 176 / 8%), 0 .8rem 2.4rem rgb(0 0 0 / 16%);
+  font: 400 clamp(1rem, 2.15svh, 1.25rem) / 1.55 var(--font-display);
+  caret-color: #d9b878;
+}
+
+section.blog-interaction-scene.is-bridge .blog-dialogue-composer input {
+  min-height: 3.4rem;
+  padding: .7rem 1rem;
+}
+
+section.blog-interaction-scene.is-bridge .blog-dialogue-composer textarea {
+  min-height: clamp(7rem, 15svh, 10rem);
+  padding: .9rem 1rem;
+  resize: none;
+}
+
+section.blog-interaction-scene.is-bridge .blog-scene-question {
+  margin: 0 0 .35rem;
+  color: #fff;
+  font: 400 clamp(1.15rem, 2.55svh, 1.55rem) / 1.5 var(--font-display);
+  text-align: center;
+}
+
+section.blog-interaction-scene.is-bridge :is(.blog-dialogue-local-note, .blog-dialogue-feedback, .blog-scene-empty, [data-rss-feedback]) {
+  margin: 0;
+  color: rgb(235 241 240 / 72%);
+  font: 400 clamp(.9rem, 1.8svh, 1.08rem) / 1.5 var(--font-display);
+  text-align: center;
+}
+
+section.blog-interaction-scene.is-bridge .blog-dialogue-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(.3rem, 1vw, .8rem);
+}
+
+section.blog-interaction-scene.is-bridge .blog-dialogue-actions :is(button, a) {
+  position: relative;
+  min-width: 12.5rem;
+  min-height: 3.25rem;
+  padding: .65rem 2rem;
+  border: 0;
+  border-radius: 0;
+  color: #f5f3ec;
+  background: linear-gradient(90deg, transparent, rgb(3 13 19 / 86%) 16%, rgb(4 18 25 / 92%) 50%, rgb(3 13 19 / 86%) 84%, transparent);
+  font: 400 clamp(1rem, 2svh, 1.2rem) / 1 var(--font-display);
+  text-align: center;
+  text-shadow: 0 .12rem .5rem rgb(0 0 0 / 90%);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+section.blog-interaction-scene.is-bridge .blog-dialogue-actions :is(button, a):is(:hover, :focus-visible) {
+  outline: 0;
+  color: #fff;
+  background: linear-gradient(90deg, transparent, rgb(72 119 132 / 82%) 16%, rgb(6 25 34 / 94%) 50%, rgb(72 119 132 / 82%) 84%, transparent);
+  text-shadow: 0 0 1.3rem rgb(216 184 120 / 48%);
+}
+
+section.blog-interaction-scene.is-bridge .blog-dialogue-actions :is(button, a)::before {
+  position: absolute;
+  top: 50%;
+  left: 1.25rem;
+  color: #d9b878;
+  content: "›";
+  opacity: 0;
+  transform: translateY(-52%);
+}
+
+section.blog-interaction-scene.is-bridge .blog-dialogue-actions :is(button, a):is(:hover, :focus-visible)::before {
+  opacity: 1;
+}
+
+section.blog-interaction-scene.is-bridge .blog-rss-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: center;
+  gap: clamp(1rem, 2.5svh, 2rem);
+  width: min(60rem, 88vw);
+}
+
+section.blog-interaction-scene.is-bridge .blog-rss-feed h3,
+section.blog-interaction-scene.is-bridge .blog-published-friends h3 {
+  margin: 0 0 1rem;
+  color: rgb(244 247 246 / 78%);
+  font: 400 clamp(1rem, 2.1svh, 1.25rem) / 1.2 var(--font-display);
+  text-align: center;
+  letter-spacing: .08em;
+}
+
+section.blog-interaction-scene.is-bridge :is(.blog-rss-feed ol, .blog-published-friends ul) {
+  display: grid;
+  gap: .25rem;
+  max-width: 54rem;
+  margin: 0 auto;
+  padding: 0;
+  list-style: none;
+}
+
+section.blog-interaction-scene.is-bridge .blog-published-friends ul {
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: .4rem 1.2rem;
+}
+
+section.blog-interaction-scene.is-bridge :is(.blog-rss-feed li, .blog-published-friends li) {
+  border: 0;
+  background: transparent;
+}
+
+section.blog-interaction-scene.is-bridge :is(.blog-rss-feed a, .blog-published-friends a) {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  align-items: center;
+  min-height: 3.15rem;
+  padding: .45rem 1.25rem;
+  border: 0;
+  color: rgb(243 246 245 / 82%);
+  background: transparent;
+  font: 400 clamp(1rem, 2.15svh, 1.28rem) / 1.35 var(--font-display);
+  text-align: left;
+  text-decoration: none;
+}
+
+section.blog-interaction-scene.is-bridge :is(.blog-rss-feed a, .blog-published-friends a):is(:hover, :focus-visible) {
+  outline: 0;
+  color: #fff;
+  background: radial-gradient(ellipse at center, rgb(115 158 170 / 20%), transparent 76%);
+  text-shadow: 0 0 1.1rem rgb(196 222 229 / 48%);
+}
+
+section.blog-interaction-scene.is-bridge .blog-choice-cursor {
+  color: #d9b878;
+  opacity: 0;
+  transform: translateX(-.5rem);
+  transition: opacity 120ms ease, transform 120ms ease;
+}
+
+section.blog-interaction-scene.is-bridge :is(.blog-rss-feed a, .blog-published-friends a):is(:hover, :focus-visible) .blog-choice-cursor {
+  opacity: 1;
+  transform: none;
+}
+
+section.blog-interaction-scene.is-bridge :is(.blog-rss-feed small, .blog-rss-feed time, .blog-published-friends small) {
+  display: none;
+}
+
+section.blog-interaction-scene.is-bridge .blog-rss-subscribe {
+  display: grid;
+  grid-column: 1;
+  gap: .75rem;
+  width: min(52rem, 82vw);
+  margin: 0 auto;
+}
+
+section.blog-interaction-scene.is-bridge .blog-rss-subscribe label {
+  display: none;
+}
+
+section.blog-interaction-scene.is-bridge :is(.blog-dialogue-feedback, [data-rss-feedback]):empty {
+  display: none;
+}
+
+section.blog-interaction-scene.is-bridge .blog-interaction-prompt {
+  align-self: end;
+  width: calc(100% + clamp(4rem, 14vw, 14rem));
+  min-height: clamp(8.5rem, 22svh, 12rem);
+  margin-left: calc(clamp(2rem, 7vw, 7rem) * -1);
+  padding: clamp(1.25rem, 2.8svh, 2rem) clamp(3rem, 10vw, 10rem);
+  color: #f5f7f6;
+  background: linear-gradient(90deg, rgb(2 10 15 / 96%), rgb(5 18 25 / 94%) 68%, rgb(2 10 15 / 97%));
+  box-shadow: 0 -1.2rem 4rem rgb(0 0 0 / 20%);
+}
+
+section.blog-interaction-scene.is-bridge .blog-interaction-prompt span {
+  display: block;
+  margin: 0 0 .55rem;
+  color: #d9b878;
+  font: 400 clamp(1rem, 2.1svh, 1.25rem) / 1 var(--font-display);
+  letter-spacing: .1em;
+}
+
+section.blog-interaction-scene.is-bridge .blog-interaction-prompt p {
+  max-width: 62rem;
+  margin: 0;
+  color: #f4f6f5;
+  font: 400 clamp(1.05rem, 2.35svh, 1.45rem) / 1.65 var(--font-display);
+}
+
+@media (max-width: 52rem) {
+  section.blog-interaction-scene.is-bridge {
+    padding-inline: 2rem;
+  }
+
+  section.blog-interaction-scene.is-bridge .blog-dialogue-composer {
+    grid-template-columns: 1fr;
+    width: min(42rem, 88vw);
+  }
+
+  section.blog-interaction-scene.is-bridge .blog-dialogue-composer > * {
+    grid-column: 1;
+  }
+
+  section.blog-interaction-scene.is-bridge .blog-dialogue-composer textarea {
+    min-height: 6rem;
+  }
+
+  section.blog-interaction-scene.is-bridge .blog-interaction-prompt {
+    width: calc(100% + 4rem);
+    margin-left: -2rem;
+    padding-inline: 3rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  section.blog-interaction-scene.is-bridge .blog-choice-cursor {
+    transition: none;
+  }
+}

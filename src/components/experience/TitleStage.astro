@@ -1,5 +1,6 @@
 ---
 import { siteConfig } from "../../../site.config.mjs";
+import AmbientDock from "./AmbientDock.astro";
 ---
 
 <div class="scene-stack" aria-hidden="true">
@@ -9,6 +10,7 @@ import { siteConfig } from "../../../site.config.mjs";
   <div class="scene-image" data-scene="crimson"></div>
   <div class="atmosphere"></div>
 </div>
+<div class="stage-wash" aria-hidden="true"></div>
 
 <div class="weather-veil" aria-hidden="true"></div>
 <canvas id="weather-canvas" aria-hidden="true"></canvas>
@@ -22,7 +24,6 @@ import { siteConfig } from "../../../site.config.mjs";
 </header>
 
 <nav class="title-menu" aria-label="主菜单">
-  <p class="menu-note"><span>MAIN MENU</span></p>
   <ol class="menu-list">
     <li><button class="menu-button" type="button" data-command="START" data-ui-sound="start"><span class="menu-name" data-text="START">START</span></button></li>
     <li><button class="menu-button" type="button" data-command="LOAD" data-ui-sound="open"><span class="menu-name" data-text="LOAD">LOAD</span></button></li>
@@ -31,41 +32,7 @@ import { siteConfig } from "../../../site.config.mjs";
     <li><button class="menu-button" type="button" data-command="OPTION" data-ui-sound="open"><span class="menu-name" data-text="OPTION">OPTION</span></button></li>
     <li><button class="menu-button" type="button" data-command="EXIT" data-ui-sound="open"><span class="menu-name" data-text="EXIT">EXIT</span></button></li>
   </ol>
-  <p class="menu-status" id="menu-status" aria-live="polite">WEATHER TEST / SNOW</p>
+  <p class="menu-status" id="menu-status" aria-live="polite" hidden></p>
 </nav>
 
-<aside class="fx-panel" id="fx-panel" aria-label="场景与天气控制">
-  <div class="fx-row">
-    <span class="fx-label">SCENE</span>
-    <div class="fx-options">
-      <button class="fx-button" type="button" data-scene-option="mist" aria-pressed="true">灰霭</button>
-      <button class="fx-button" type="button" data-scene-option="day" aria-pressed="false">晴天</button>
-      <button class="fx-button" type="button" data-scene-option="night" aria-pressed="false">暗夜</button>
-      <button class="fx-button" type="button" data-scene-option="crimson" aria-pressed="false">赤夜</button>
-    </div>
-  </div>
-  <div class="fx-row">
-    <span class="fx-label">WEATHER</span>
-    <div class="fx-options">
-      <button class="fx-button" type="button" data-weather-option="clear" aria-pressed="false">静止</button>
-      <button class="fx-button" type="button" data-weather-option="snow" aria-pressed="true">降雪</button>
-      <button class="fx-button" type="button" data-weather-option="rain" aria-pressed="false">降雨</button>
-      <button class="fx-button" type="button" id="hide-fx">隐藏测试栏</button>
-    </div>
-  </div>
-  <div class="fx-row">
-    <span class="fx-label">SYSTEM</span>
-    <div class="fx-options">
-      <button class="fx-button" type="button" id="replay-opening">重播开场</button>
-    </div>
-  </div>
-  <div class="fx-row">
-    <span class="fx-label">BGM</span>
-    <div class="fx-options">
-      <button class="fx-button" type="button" id="toggle-bgm" data-bgm-toggle aria-pressed="true">ON</button>
-    </div>
-  </div>
-</aside>
-
-<button class="fx-reveal" id="show-fx" type="button" hidden>FX TEST</button>
-<small class="build-mark">{siteConfig.latinName} / XIII SYSTEM</small>
+<AmbientDock home />

@@ -13,6 +13,7 @@ import {
   projectTagOrder,
 } from "../../data/extra-content.js";
 import { all, required } from "./dom.js";
+import { clearListenSession, readListenSession, writeListenSession } from "./listen-session.js";
 import { preferencesReduceMotion, readPreferences } from "./preferences.js";
 import { recordBlogActivity } from "../../lib/blog-activity";
 import { resolveAchievements } from "../../lib/experience-achievements";
@@ -21,6 +22,10 @@ import { writeArticleContinue } from "../../lib/experience-continue";
 const CG_PAGE_SIZE = 9;
 const PROJECT_PAGE_SIZE = 6;
 const BANGUMI_PAGE_SIZE = 5;
+
+function hasBangumiComment(item) {
+  return typeof item?.comment === "string" && item.comment.trim().length > 0;
+}
 function escapeHtml(value) {
   return String(value)
     .replaceAll("&", "&amp;")
@@ -62,6 +67,22 @@ function heatmapMarkup(entries, className = "") {
 
 function waveMarkup() {
   return '<canvas class="extra-music-wave" data-music-wave aria-hidden="true"></canvas>';
+}
+
+function achievementIcon(id) {
+  const paths = {
+    "first-landfall": '<path d="M7 18.5c2.8-1.2 4.8-3.5 5.2-6.3M12 12.2c.4-3.2 2-5.6 4.8-7.1M9.2 7.3c1.2.4 2 1.4 2.1 2.6M14.6 15.2c1.4.2 2.5 1 3.2 2.3"/>',
+    "first-checkpoint": '<path d="M7 20V4.2M8 5h9l-2.2 3L17 11H8"/>',
+    "returning-reader": '<path d="M4.8 6.2c3.2-.9 5.6-.3 7.2 1.2v11c-1.6-1.5-4-2.1-7.2-1.2v-11ZM19.2 6.2c-3.2-.9-5.6-.3-7.2 1.2v11c1.6-1.5 4-2.1 7.2-1.2v-11Z"/>',
+    "four-tides": '<circle cx="12" cy="12" r="7"/><path d="M12 5v14M5 12h14M7 7l10 10M17 7 7 17"/>',
+    "monthly-archive": '<path d="M5 7h14v12H5zM8 4v5M16 4v5M5 10h14"/>',
+    "memory-keeper": '<path d="M5 6.5h14v11H5zM8 14l2.7-3 2.1 2 1.7-1.7L19 16M15.5 9h.01"/>',
+    "after-the-silence": '<path d="M9.5 17.5V7l8-2v10.5M9.5 11l8-2M7.5 19.5c1.1 0 2-.6 2-1.4s-.9-1.4-2-1.4-2 .6-2 1.4.9 1.4 2 1.4ZM15.5 17.5c1.1 0 2-.6 2-1.4s-.9-1.4-2-1.4-2 .6-2 1.4.9 1.4 2 1.4Z"/>',
+    "bangumi-record": '<path d="M7 4.5h10v15l-5-3-5 3v-15Z"/><path d="M9.5 8h5M9.5 11h5"/>',
+    "archive-walker": '<path d="M8 20V9l4-5 4 5v11M5 20h14M9.5 11h5M10 15h4"/>',
+    "heart-to-heart": '<path d="M12 20s-7-4-7-9.1C5 8.2 6.8 6.5 9 6.5c1.5 0 2.5.8 3 2 0.5-1.2 1.5-2 3-2 2.2 0 4 1.7 4 4.4C19 16 12 20 12 20Z"/>',
+  };
+  return `<svg viewBox="0 0 24 24" aria-hidden="true">${paths[id] || paths["archive-walker"]}</svg>`;
 }
 
 function projectLanguage() {
@@ -150,14 +171,15 @@ export function initExtraScreen() {
   let cgIndex = 0;
   let musicIndex = 0;
   let musicShuffle = false;
+  let musicLoop = false;
   let musicShuffleOrder = [];
   let listenSession = false;
   let bangumiCategory = "all";
   let bangumiStatus = "all";
+  let bangumiCommentsOnly = false;
   let bangumiIndex = 0;
   let projectCategory = "all";
   let projectTag = "all";
-  let characterExpressionIndex = 0;
   let stageTransition = null;
   let transitionToken = 0;
   let audioContext = null;
@@ -174,14 +196,36 @@ export function initExtraScreen() {
   let pageSliding = false;
   let cgOriginRect = null;
   let cgViewerAnimation = null;
+  let cgViewerTransitionToken = 0;
   let bangumiFocusLayer = 0;
   let bangumiFocusToken = 0;
   let bangumiShelfToken = 0;
   let projectGridToken = 0;
+  let siteDataClearing = false;
 
   function setFocus(title, action) {
     required("strong", extraFocus).textContent = title;
-    required("small", extraFocus).textContent = action || "OPEN";
+    required("small", extraFocus).textContent = action || "";
+  }
+
+  function persistListenSession() {
+    if (siteDataClearing) {
+      clearListenSession();
+      return;
+    }
+    if (!listenSession) {
+      clearListenSession();
+      return;
+    }
+    writeListenSession({
+      active: true,
+      playing: musicPlaying,
+      index: musicIndex,
+      loop: musicLoop,
+      shuffle: musicShuffle,
+      shuffleOrder: musicShuffleOrder,
+      currentTime: musicPlayer?.currentTime || 0,
+    });
   }
 
   function syncMusicState() {
@@ -189,10 +233,15 @@ export function initExtraScreen() {
     extraCanvas.dataset.musicMuted = String(musicMuted);
     extraStage.querySelector(".extra-music-room")?.classList.toggle("is-playing", musicPlaying);
     extraCanvas.dataset.musicShuffle = String(musicShuffle);
+    extraCanvas.dataset.musicLoop = String(musicLoop);
+    persistListenSession();
     window.dispatchEvent(new CustomEvent("lonely-sea:listen-hold", { detail: { active: listenSession } }));
     syncListenDock();
     all("[data-music-shuffle]", extraStage).forEach((button) => {
       button.setAttribute("aria-pressed", String(musicShuffle));
+    });
+    all("[data-music-loop]", extraStage).forEach((button) => {
+      button.setAttribute("aria-pressed", String(musicLoop));
     });
     all("[data-music-toggle]", extraStage).forEach((toggle) => {
       toggle.setAttribute("aria-pressed", String(musicPlaying));
@@ -230,6 +279,17 @@ export function initExtraScreen() {
     else musicShuffleOrder = [];
     syncMusicState();
     setFocus(musicItems[musicIndex].title, musicShuffle ? "SHUFFLE ON" : "SHUFFLE OFF");
+  }
+
+  function applyMusicLoop() {
+    if (musicPlayer) musicPlayer.loop = musicLoop;
+  }
+
+  function toggleMusicLoop() {
+    musicLoop = !musicLoop;
+    applyMusicLoop();
+    syncMusicState();
+    setFocus(musicItems[musicIndex].title, musicLoop ? "LOOP ON" : "LOOP OFF");
   }
 
   function pauseMusic() {
@@ -287,9 +347,12 @@ export function initExtraScreen() {
     }, Math.ceil((release + .05) * 1000));
   }
 
-  async function startMusic() {
+  async function startMusic({ startAt = 0 } = {}) {
     const current = musicItems[musicIndex];
     if (musicPlayer && !musicPlaying && musicPlayer.src) {
+      if (startAt > 0) {
+        try { musicPlayer.currentTime = startAt; } catch {}
+      }
       try {
         await musicPlayer.play();
       } catch {
@@ -302,16 +365,19 @@ export function initExtraScreen() {
       setFocus(current.title, "PLAYING");
       return;
     }
-    stopMusic({ immediate: true });
+    stopMusic({ immediate: true, releaseSession: false });
 
     if (current.src) {
       const player = new Audio(current.src);
       player.preload = "auto";
-      player.loop = false;
+      player.loop = musicLoop;
       player.volume = Math.min(1, Math.max(0, readPreferences().bgmVolume / 100 * .58));
       player.muted = musicMuted;
+      if (startAt > 0) {
+        try { player.currentTime = startAt; } catch {}
+      }
       player.addEventListener("ended", () => {
-        if (musicPlayer !== player) return;
+        if (musicPlayer !== player || musicLoop) return;
         changeMusicSelection(nextMusicIndex(1), { animate: true });
       });
       musicPlayer = player;
@@ -535,10 +601,11 @@ export function initExtraScreen() {
 
   function filteredBangumiItems() {
     return bangumiItems.filter((item) => {
+      if (bangumiCommentsOnly && !hasBangumiComment(item)) return false;
       const categoryMatches = bangumiCategory === "all" || item.category === bangumiCategory;
       const statusMatches =
         bangumiStatus === "all"
-        || (bangumiStatus === "active" && ["playing", "watching"].includes(item.status))
+        || (bangumiStatus === "active" && ["playing", "watching", "reading"].includes(item.status))
         || item.status === bangumiStatus;
       return categoryMatches && statusMatches;
     });
@@ -655,6 +722,7 @@ export function initExtraScreen() {
               <strong>${musicPlaying ? "PAUSE" : "PLAY"}</strong>
             </button>
             ${waveMarkup()}
+            <button class="extra-music-loop" type="button" data-music-loop aria-pressed="${musicLoop}" aria-label="Repeat this track">LOOP</button>
             <button class="extra-music-shuffle" type="button" data-music-shuffle aria-pressed="${musicShuffle}" aria-label="Shuffle playlist">SHUFFLE</button>
             <button class="extra-music-skip is-next" type="button" data-music-step="1" aria-label="Next track">›</button>
           </div>
@@ -706,24 +774,34 @@ export function initExtraScreen() {
     mark.addEventListener("click", () => setOpen(!source.classList.contains("is-open")));
   }
 
-  function syncListenDock() {
+  function syncListenDock({ extraOpen } = {}) {
     const dock = document.querySelector("#listen-dock");
     if (!(dock instanceof HTMLElement)) return;
-    const extraOpen = extraCanvas.closest("[data-screen]")?.getAttribute("aria-hidden") === "false";
-    const hide = !listenSession || (extraOpen && extraMode === "music");
+    const screenOpen = extraOpen ?? extraCanvas.closest("[data-screen]")?.getAttribute("aria-hidden") === "false";
+    const hide = !listenSession || (screenOpen && extraMode === "music");
+    const current = musicItems[musicIndex];
     dock.hidden = hide;
     dock.setAttribute("aria-hidden", String(hide));
-    if (hide) return;
-    const current = musicItems[musicIndex];
+    if (hide) {
+      dock.classList.remove("is-expanded");
+      dock.querySelector("[data-listen-expand]")?.setAttribute("aria-expanded", "false");
+    }
+    dock.classList.toggle("is-playing", musicPlaying);
     const title = dock.querySelector("[data-listen-title]");
     const artist = dock.querySelector("[data-listen-artist]");
-    const toggle = dock.querySelector("[data-listen-toggle]");
+    const cover = dock.querySelector("[data-listen-cover]");
     if (title) title.textContent = current.title;
     if (artist) artist.textContent = current.artist;
-    if (toggle instanceof HTMLElement) {
+    if (cover instanceof HTMLImageElement && current.cover && cover.getAttribute("src") !== current.cover) {
+      cover.onerror = () => cover.removeAttribute("src");
+      cover.src = current.cover;
+    }
+    all("[data-listen-toggle]", dock).forEach((toggle) => {
       toggle.setAttribute("aria-pressed", String(musicPlaying));
       toggle.setAttribute("aria-label", musicPlaying ? "Pause playlist" : "Play playlist");
-    }
+    });
+    dock.querySelector("[data-listen-loop]")?.setAttribute("aria-pressed", String(musicLoop));
+    dock.querySelector("[data-listen-shuffle]")?.setAttribute("aria-pressed", String(musicShuffle));
   }
 
   function projectCardsMarkup(items) {
@@ -960,6 +1038,9 @@ export function initExtraScreen() {
           summary: `<b data-project-count>${filteredItems.length}</b> / ${projectItems.length}`,
           note: copy.note,
         })}
+        <div class="extra-project-grid">
+          ${projectCardsMarkup(items)}
+        </div>
         <section class="extra-project-toolbar">
           <div class="extra-project-filter">
             <nav aria-label="Project category">
@@ -984,9 +1065,6 @@ export function initExtraScreen() {
             ${heatmapMarkup(externalActivity.github, "extra-project-heatmap")}
           </div>
         </section>
-        <div class="extra-project-grid">
-          ${projectCardsMarkup(items)}
-        </div>
       </div>
     `;
   }
@@ -1052,6 +1130,15 @@ export function initExtraScreen() {
     all("[data-bangumi-status]", extraStage).forEach((button) => {
       button.setAttribute("aria-pressed", String(button.dataset.bangumiStatus === bangumiStatus));
     });
+    const commentFilter = extraStage.querySelector("[data-bangumi-comment-filter]");
+    if (commentFilter) {
+      commentFilter.setAttribute("aria-pressed", String(bangumiCommentsOnly));
+      commentFilter.textContent = bangumiCommentsOnly ? "COMMENTS ONLY" : "ALL RECORDS";
+      commentFilter.setAttribute(
+        "aria-label",
+        bangumiCommentsOnly ? "Show all Bangumi records" : "Show only records with comments",
+      );
+    }
   }
 
   function paintBangumiShelf({ animate = true } = {}) {
@@ -1129,6 +1216,7 @@ export function initExtraScreen() {
       ["all", "ALL"],
       ["anime", "ANIME"],
       ["game", "GAMES"],
+      ["book", "BOOKS"],
     ];
     const statuses = [
       ["all", "ALL"],
@@ -1141,7 +1229,7 @@ export function initExtraScreen() {
         ${roomHeading({
           eyebrow: "BANGUMI RECORD",
           title: "BANGUMI",
-          summary: `<b data-bangumi-count>${items.length}</b> / ${bangumiItems.length} RECORDS`,
+          summary: `<b data-bangumi-count>${items.length}</b> RECORDS`,
           note: `SYNCED ${new Date(externalActivity.syncedAt).toLocaleDateString("zh-CN", { timeZone: "Asia/Tokyo" })}`,
         })}
         <section class="extra-bangumi-toolbar">
@@ -1159,6 +1247,14 @@ export function initExtraScreen() {
                   ${label}
                 </button>
               `).join("")}
+              <button
+                type="button"
+                data-bangumi-comment-filter
+                aria-pressed="${bangumiCommentsOnly}"
+                aria-label="${bangumiCommentsOnly ? "Show all Bangumi records" : "Show only records with comments"}"
+              >
+                ${bangumiCommentsOnly ? "COMMENTS ONLY" : "ALL RECORDS"}
+              </button>
             </nav>
           </div>
           <div class="extra-bangumi-activity">
@@ -1184,17 +1280,17 @@ export function initExtraScreen() {
         ${roomHeading({
           eyebrow: "VIDEO ARCHIVE",
           title: "MOVIE",
-          summary: "REAL RECORDS ONLY",
-          note: "当前仅收录已有的公开视频列表",
+          summary: "",
         })}
         <div class="extra-movie-stage">
           ${movieItems.map((item) => `
-            <a
+            <div
               class="extra-movie-frame"
+              role="button"
+              tabindex="0"
               data-focus-title="${escapeHtml(item.title)}"
-              data-focus-action="OPEN PLAYLIST"
-              href="${escapeHtml(item.href)}"
-              ${externalAttributes()}
+              data-focus-action="尚未解锁"
+              aria-disabled="true"
               style="${artStyle(item.art)}"
             >
               <span class="extra-movie-art" aria-hidden="true"></span>
@@ -1203,7 +1299,7 @@ export function initExtraScreen() {
                 <small>${escapeHtml(item.meta)}</small>
                 <strong>${escapeHtml(item.title)}</strong>
               </span>
-            </a>
+            </div>
           `).join("")}
         </div>
       </div>
@@ -1212,36 +1308,41 @@ export function initExtraScreen() {
 
   function renderCharacter() {
     const character = characterItems[0];
-    const expression = character.expressions[characterExpressionIndex] || character.expressions[0];
+    const language = projectLanguage();
+    const copy = language === "JA-JP"
+      ? {
+          name: "アリス",
+          role: "灯台の案内役",
+          description: "孤独の海の灯台に暮らし、訪れた人を文章や記録、物語の入口へ案内している。",
+          line: "お帰りなさいませ。次の記録も、私がご案内します。",
+        }
+      : language === "EN-US"
+        ? {
+            name: "Alice",
+            role: "Lighthouse Guide",
+            description: "She watches over the lighthouse and guides visitors to essays, records, and stories across the Lonely Sea.",
+            line: "Welcome back. I will guide you to the next record.",
+          }
+        : {
+            name: "爱丽丝",
+            role: "灯塔向导",
+            description: "驻守在孤独之海的灯塔里，负责把来访者带往文章、记录与故事的入口。",
+            line: "欢迎回来。下一份记录，也由我为您带路。",
+          };
     extraStage.innerHTML = `
-      <div class="extra-room extra-character-room">
-        ${roomHeading({
-          eyebrow: "A VOICE FROM THE LIGHTHOUSE",
-          title: "CHARACTER",
-          summary: "ALICE · LIGHTHOUSE NAVIGATOR",
-        })}
-        <section class="extra-character-stage" data-character-stage>
-          <article class="extra-character-profile is-active" data-character-profile="0">
-            <div class="extra-character-visual" data-character-portrait style="${artStyle(expression.art)}" aria-hidden="true">
-              <span class="extra-character-art"></span>
-            </div>
-            <div class="extra-character-dossier">
-              <p class="extra-character-file">THE LIGHTHOUSE NAVIGATOR</p>
-              <h4>${escapeHtml(character.name)}<small>${escapeHtml(character.localizedName)}</small></h4>
-              <p class="extra-character-role">${escapeHtml(character.role)}</p>
-              <blockquote data-character-line>${escapeHtml(expression.line)}</blockquote>
-              <p class="extra-character-description">${escapeHtml(character.description)}</p>
-              <nav class="extra-character-expressions" aria-label="Alice expressions">
-                ${character.expressions.map((item, index) => `
-                  <button type="button" data-character-expression="${index}" aria-pressed="${index === characterExpressionIndex}">
-                    ${escapeHtml(item.label)}
-                  </button>
-                `).join("")}
-              </nav>
-              <button class="extra-character-intro" type="button" data-character-scene="${escapeHtml(character.sceneId)}">
-                <span>READ INTRODUCTION</span><small>OPEN IN GAME ↗</small>
-              </button>
-            </div>
+      <div class="extra-room extra-character-room extra-character-room-v3">
+        <header class="extra-character-heading">
+          <h3>CHARACTER</h3>
+        </header>
+        <section class="extra-character-stage extra-character-presentation">
+          <div class="extra-character-visual" style="${artStyle(character.art)}" aria-hidden="true">
+            <span class="extra-character-art"></span>
+          </div>
+          <article class="extra-character-profile-copy">
+            <h4>${escapeHtml(copy.name)}</h4>
+            <p class="extra-character-role">${escapeHtml(copy.role)}</p>
+            <p class="extra-character-description">${escapeHtml(copy.description)}</p>
+            <blockquote>${escapeHtml(copy.line)}</blockquote>
           </article>
         </section>
       </div>
@@ -1251,16 +1352,12 @@ export function initExtraScreen() {
   function renderAchievement() {
     const resolvedItems = resolveAchievements();
     const unlocked = resolvedItems.filter((item) => item.unlocked);
-    const latest = [...unlocked]
-      .sort((left, right) => Date.parse(left.unlockedAt) - Date.parse(right.unlockedAt))
-      .at(-1);
     extraStage.innerHTML = `
       <div class="extra-room extra-achievement-room">
         ${roomHeading({
           eyebrow: "RECORD OF ARRIVAL",
-          title: "ACHIEVEMENTS",
-          summary: "TRACES LEFT BY READING",
-          note: latest ? `LATEST · ${latest.name}` : "尚未取得记录",
+          title: "ACHIEVE",
+          summary: `${unlocked.length} / ${resolvedItems.length}`,
         })}
         <div class="extra-achievement-browser extra-scroll-shell">
           <div class="extra-achievement-ledger" id="extra-achievement-scroll" data-extra-scroll aria-label="Achievement list" tabindex="0">
@@ -1268,14 +1365,15 @@ export function initExtraScreen() {
               <article
                 class="extra-achievement-row${item.unlocked ? " is-unlocked" : " is-locked"}"
                 data-focus-title="${escapeHtml(item.name)}"
-                data-focus-action="${item.unlocked ? "ACHIEVEMENT UNLOCKED" : "LOCKED ACHIEVEMENT"}"
+                data-focus-action="${escapeHtml(item.detail)}"
+                data-achievement-id="${escapeHtml(item.id)}"
+                tabindex="0"
               >
-                <span class="extra-achievement-state" aria-label="${item.unlocked ? "已取得" : "未取得"}">${item.unlocked ? "✓" : "◇"}</span>
+                <span class="extra-achievement-state" aria-label="${item.unlocked ? "已取得" : "未取得"}">${achievementIcon(item.id)}</span>
                 <div>
                   <strong>${escapeHtml(item.name)}</strong>
-                  <small><b>${escapeHtml(item.title)}</b>${escapeHtml(item.detail)}</small>
                 </div>
-                <em>${escapeHtml(item.unlocked ? "已取得" : "尚未取得")}</em>
+                <em>${escapeHtml(item.unlocked ? (item.date || "已取得") : "未取得")}</em>
               </article>
             `).join("")}
           </div>
@@ -1289,8 +1387,13 @@ export function initExtraScreen() {
     if (!item?.comment) return;
     const text = extraStage.querySelector("[data-bangumi-nvl-text]");
     if (text) text.textContent = item.comment;
+    const body = extraStage.querySelector(".extra-bangumi-nvl-body");
+    if (body) body.scrollTop = 0;
     extraCanvas.classList.add("is-reading-note");
-    window.requestAnimationFrame(() => bindScrollRails());
+    window.requestAnimationFrame(() => {
+      if (body) body.scrollTop = 0;
+      bindScrollRails();
+    });
   }
 
   function closeBangumiReader() {
@@ -1526,26 +1629,6 @@ export function initExtraScreen() {
     showBangumiFocus(index, { animate, commit: true });
   }
 
-  function selectCharacterExpression(index) {
-    const character = characterItems[0];
-    const expression = character.expressions[index];
-    if (!expression || index === characterExpressionIndex) return;
-    characterExpressionIndex = index;
-    const portrait = required("[data-character-portrait]", extraStage);
-    portrait.style.setProperty("--extra-art", `url("${expression.art}")`);
-    required("[data-character-line]", extraStage).textContent = expression.line;
-    all("[data-character-expression]", extraStage).forEach((button) => {
-      button.setAttribute("aria-pressed", String(Number(button.dataset.characterExpression) === index));
-    });
-    if (!preferencesReduceMotion()) {
-      portrait.animate(
-        [{ opacity: .7, transform: "translate3d(0,7px,0)" }, { opacity: 1, transform: "translate3d(0,0,0)" }],
-        { duration: 230, easing: "cubic-bezier(.22,1,.36,1)" },
-      );
-    }
-    setFocus(`${character.name} · ${expression.label}`, "EXPRESSION SELECTED");
-  }
-
   function changeMusicSelection(index, { animate = true } = {}) {
     const next = (index + musicItems.length) % musicItems.length;
     if (next === musicIndex) return;
@@ -1557,7 +1640,12 @@ export function initExtraScreen() {
     const room = extraStage.querySelector(".extra-music-room");
     const now = extraStage.querySelector(".extra-music-now");
     const copy = extraStage.querySelector(".extra-music-current");
-    if (!room || !now || !copy) return;
+    if (!room || !now || !copy) {
+      listenSession = keepSession || resume;
+      if (resume) startMusic();
+      else syncListenDock();
+      return;
+    }
 
     room.dataset.musicTone = current.tone;
     now.style.setProperty("--extra-art", `url("${current.cover}")`);
@@ -1621,6 +1709,7 @@ export function initExtraScreen() {
     });
 
     extraStage.querySelector("[data-music-shuffle]")?.addEventListener("click", () => toggleMusicShuffle());
+    extraStage.querySelector("[data-music-loop]")?.addEventListener("click", () => toggleMusicLoop());
 
     all("[data-music-toggle]", extraStage).forEach((toggle) => {
       toggle.addEventListener("click", () => toggleMusic());
@@ -1662,21 +1751,14 @@ export function initExtraScreen() {
         paintBangumiShelf({ animate: event.detail > 0 });
       });
     });
+    extraStage.querySelector("[data-bangumi-comment-filter]")?.addEventListener("click", (event) => {
+      bangumiCommentsOnly = !bangumiCommentsOnly;
+      extraPage = 0;
+      syncBangumiFilters();
+      paintBangumiShelf({ animate: event.detail > 0 });
+    });
 
     bindBangumiCards();
-
-    all("[data-character-expression]", extraStage).forEach((button) => {
-      button.addEventListener("click", () => selectCharacterExpression(Number(button.dataset.characterExpression)));
-    });
-    const characterIntro = extraStage.querySelector("[data-character-scene]");
-    characterIntro?.addEventListener("click", () => {
-      window.dispatchEvent(new CustomEvent("lonely-sea:story-enter", {
-        detail: {
-          gameSlug: "lonely-sea-chapter-one",
-          sceneId: characterIntro.dataset.characterScene,
-        },
-      }));
-    });
 
     bindBangumiViewport();
     bindScrollRails();
@@ -1719,7 +1801,8 @@ export function initExtraScreen() {
       button.setAttribute("aria-pressed", String(button.dataset.extraMode === mode));
     });
     renderMode();
-    setFocus(...extraDefaults[mode]);
+    if (mode === "achievement") setFocus("", "");
+    else setFocus(...extraDefaults[mode]);
     syncListenDock();
   }
 
@@ -1766,12 +1849,26 @@ export function initExtraScreen() {
     }
   }
 
+  async function preloadCgArt(url) {
+    const image = new Image();
+    image.src = url;
+    if (image.complete) return Promise.resolve();
+    if (typeof image.decode === "function") return image.decode().catch(() => {});
+    return new Promise((resolve) => {
+      image.addEventListener("load", resolve, { once: true });
+      image.addEventListener("error", resolve, { once: true });
+    });
+  }
+
   function openCg(index, origin = null, { direction = 0 } = {}) {
     const item = cgItems[index];
     if (!item?.unlocked) return;
     const wasOpen = cgViewer.getAttribute("aria-hidden") === "false";
+    const transitionId = ++cgViewerTransitionToken;
     cgViewerAnimation?.cancel();
     cgViewerAnimation = null;
+    cgViewer.classList.remove("is-closing");
+    cgViewer.classList.toggle("is-opening", !wasOpen);
     cgIndex = index;
     recordBlogActivity("cgItems", String(index));
     cgViewerArt.style.setProperty("--cg-art", `url("${item.art}")`);
@@ -1786,39 +1883,47 @@ export function initExtraScreen() {
 
     const originArt = origin?.querySelector(".extra-cg-art") ?? origin;
     cgOriginRect = originArt?.getBoundingClientRect?.() ?? null;
-    if (preferencesReduceMotion()) return;
-
-    const targetRect = cgViewerArt.getBoundingClientRect();
-    let firstFrame = {
-      opacity: .18,
-      transform: `translate3d(${direction * 2.8}cqw,0,0) scale(.985)`,
-    };
-    if (cgOriginRect && targetRect.width && targetRect.height) {
-      const originCenterX = cgOriginRect.left + cgOriginRect.width / 2;
-      const originCenterY = cgOriginRect.top + cgOriginRect.height / 2;
-      const targetCenterX = targetRect.left + targetRect.width / 2;
-      const targetCenterY = targetRect.top + targetRect.height / 2;
-      firstFrame = {
-        opacity: .32,
-        transform: `translate3d(${originCenterX - targetCenterX}px,${originCenterY - targetCenterY}px,0) scale(${cgOriginRect.width / targetRect.width},${cgOriginRect.height / targetRect.height})`,
-      };
-    } else if (wasOpen) {
-      firstFrame.opacity = .12;
+    if (preferencesReduceMotion()) {
+      cgViewer.classList.remove("is-opening");
+      return;
     }
 
-    cgViewerArt.style.transformOrigin = "center";
-    cgViewerAnimation = cgViewerArt.animate(
-      [
-        firstFrame,
-        { opacity: 1, transform: "translate3d(0,0,0) scale(1)" },
-      ],
-      { duration: cgOriginRect ? 430 : 260, easing: "cubic-bezier(.22,1,.36,1)" },
-    );
-    cgViewerAnimation.finished
-      .catch(() => {})
-      .finally(() => {
-        cgViewerAnimation = null;
-      });
+    const animateOpen = () => {
+      if (transitionId !== cgViewerTransitionToken || cgViewer.getAttribute("aria-hidden") === "true") return;
+      cgViewer.classList.remove("is-opening");
+      const targetRect = cgViewerArt.getBoundingClientRect();
+      let firstFrame = {
+        opacity: 1,
+        transform: `translate3d(${direction * 2.8}cqw,0,0) scale(.985)`,
+      };
+      if (cgOriginRect && targetRect.width && targetRect.height) {
+        const originCenterX = cgOriginRect.left + cgOriginRect.width / 2;
+        const originCenterY = cgOriginRect.top + cgOriginRect.height / 2;
+        const targetCenterX = targetRect.left + targetRect.width / 2;
+        const targetCenterY = targetRect.top + targetRect.height / 2;
+        firstFrame = {
+          opacity: 1,
+          transform: `translate3d(${originCenterX - targetCenterX}px,${originCenterY - targetCenterY}px,0) scale(${cgOriginRect.width / targetRect.width},${cgOriginRect.height / targetRect.height})`,
+        };
+      }
+
+      cgViewerArt.style.transformOrigin = "center";
+      const animation = cgViewerArt.animate(
+        [
+          firstFrame,
+          { opacity: 1, transform: "translate3d(0,0,0) scale(1)" },
+        ],
+        { duration: cgOriginRect ? 430 : 260, easing: "cubic-bezier(.22,1,.36,1)" },
+      );
+      cgViewerAnimation = animation;
+      animation.finished
+        .catch(() => {})
+        .finally(() => {
+          if (cgViewerAnimation === animation) cgViewerAnimation = null;
+        });
+    };
+
+    preloadCgArt(item.art).then(() => window.requestAnimationFrame(animateOpen));
   }
 
   function moveCgViewer(direction) {
@@ -1832,10 +1937,14 @@ export function initExtraScreen() {
 
   function closeCg() {
     if (cgViewer.getAttribute("aria-hidden") === "true") return false;
+    const transitionId = ++cgViewerTransitionToken;
     cgViewerAnimation?.cancel();
     cgViewerAnimation = null;
+    cgViewer.classList.remove("is-opening");
+    cgViewer.classList.add("is-closing");
     if (preferencesReduceMotion() || !cgOriginRect) {
       cgViewer.setAttribute("aria-hidden", "true");
+      cgViewer.classList.remove("is-closing");
       cgOriginRect = null;
       return true;
     }
@@ -1845,7 +1954,7 @@ export function initExtraScreen() {
     const originCenterY = cgOriginRect.top + cgOriginRect.height / 2;
     const targetCenterX = targetRect.left + targetRect.width / 2;
     const targetCenterY = targetRect.top + targetRect.height / 2;
-    cgViewerAnimation = cgViewerArt.animate(
+    const animation = cgViewerArt.animate(
       [
         { opacity: 1, transform: "translate3d(0,0,0) scale(1)" },
         {
@@ -1853,12 +1962,16 @@ export function initExtraScreen() {
           transform: `translate3d(${originCenterX - targetCenterX}px,${originCenterY - targetCenterY}px,0) scale(${cgOriginRect.width / targetRect.width},${cgOriginRect.height / targetRect.height})`,
         },
       ],
-      { duration: 280, easing: "cubic-bezier(.25,1,.5,1)" },
+      { duration: 280, easing: "cubic-bezier(.25,1,.5,1)", fill: "forwards" },
     );
-    cgViewerAnimation.finished
+    cgViewerAnimation = animation;
+    animation.finished
       .catch(() => {})
       .finally(() => {
+        if (cgViewerAnimation !== animation || transitionId !== cgViewerTransitionToken) return;
         cgViewer.setAttribute("aria-hidden", "true");
+        cgViewer.classList.remove("is-closing", "is-opening");
+        animation.cancel();
         cgViewerAnimation = null;
         cgOriginRect = null;
       });
@@ -1960,6 +2073,7 @@ export function initExtraScreen() {
     button.addEventListener("click", () => moveCgViewer(Number(button.dataset.cgDirection)));
   });
   cgViewerClose.addEventListener("click", closeCg);
+  cgViewer.querySelector(".cg-viewer-backdrop")?.addEventListener("click", closeCg);
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
       if (musicPlaying) musicPlayer?.pause();
@@ -1973,21 +2087,60 @@ export function initExtraScreen() {
     syncMusicState();
   });
   window.addEventListener("lonely-sea:preferences-change", () => {
-    if (extraMode !== "projects") return;
-    renderProjects();
+    if (extraMode === "projects") renderProjects();
+    else if (extraMode === "character") renderCharacter();
+    else return;
     bindStage();
     updatePageControls();
   });
-  window.addEventListener("pagehide", () => stopMusic({ immediate: true }));
+  window.addEventListener("lonely-sea:before-site-data-clear", () => {
+    siteDataClearing = true;
+    stopMusic({ immediate: true });
+    clearListenSession();
+  });
+  window.addEventListener("pagehide", () => {
+    if (!siteDataClearing) persistListenSession();
+  });
 
   const listenDock = document.querySelector("#listen-dock");
-  listenDock?.querySelector("[data-listen-toggle]")?.addEventListener("click", () => toggleMusic());
+  listenDock?.querySelectorAll("[data-listen-toggle]").forEach((toggle) => {
+    toggle.addEventListener("click", () => toggleMusic());
+  });
+  listenDock?.querySelector("[data-listen-expand]")?.addEventListener("click", (event) => {
+    const expanded = listenDock.classList.toggle("is-expanded");
+    event.currentTarget.setAttribute("aria-expanded", String(expanded));
+    event.currentTarget.setAttribute("aria-label", expanded ? "收起音乐控制" : "展开音乐控制");
+  });
+  listenDock?.querySelector("[data-listen-prev]")?.addEventListener("click", () => {
+    changeMusicSelection(nextMusicIndex(-1), { animate: false });
+  });
   listenDock?.querySelector("[data-listen-next]")?.addEventListener("click", () => {
     changeMusicSelection(nextMusicIndex(1), { animate: false });
   });
+  listenDock?.querySelector("[data-listen-loop]")?.addEventListener("click", () => toggleMusicLoop());
+  listenDock?.querySelector("[data-listen-shuffle]")?.addEventListener("click", () => toggleMusicShuffle());
   listenDock?.querySelector("[data-listen-stop]")?.addEventListener("click", () => stopMusic());
+  document.addEventListener("pointerdown", (event) => {
+    if (!listenDock?.classList.contains("is-expanded") || listenDock.contains(event.target)) return;
+    listenDock.classList.remove("is-expanded");
+    listenDock.querySelector("[data-listen-expand]")?.setAttribute("aria-expanded", "false");
+  });
+
+  const savedListen = readListenSession();
+  if (savedListen) {
+    musicIndex = savedListen.index;
+    musicLoop = savedListen.loop;
+    musicShuffle = savedListen.shuffle;
+    musicShuffleOrder = savedListen.shuffleOrder;
+    listenSession = true;
+  }
 
   commitMode("cg");
+
+  if (savedListen) {
+    syncListenDock({ extraOpen: false });
+    if (savedListen.playing) startMusic({ startAt: savedListen.currentTime });
+  }
 
   return {
     activate() {
@@ -1999,13 +2152,17 @@ export function initExtraScreen() {
     closeCg,
     deactivate() {
       transitionToken += 1;
+      cgViewerTransitionToken += 1;
       stageTransition?.cancel();
       stageTransition = null;
       window.cancelAnimationFrame(musicWaveFrame);
       musicWaveFrame = 0;
       cgViewerAnimation?.cancel();
       cgViewerAnimation = null;
-      syncListenDock();
+      cgViewer.setAttribute("aria-hidden", "true");
+      cgViewer.classList.remove("is-opening", "is-closing");
+      cgOriginRect = null;
+      syncListenDock({ extraOpen: false });
     },
   };
 }

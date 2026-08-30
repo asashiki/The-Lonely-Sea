@@ -11,6 +11,8 @@ export type GalBlogAction =
   | "open-settings"
   | "open-load"
   | "open-comment-form"
+  | "open-blog-scene"
+  | "open-external"
   | "save-progress"
   | "get-runtime-data";
 export type GalBlogSettingKey =
@@ -19,6 +21,7 @@ export type GalBlogSettingKey =
   | "audio.ambient"
   | "audio.effects"
   | "audio.voice"
+  | "audio.stopVoiceOnAdvance"
   | "text.scale"
   | "text.speed"
   | "accessibility.reducedMotion"
@@ -64,7 +67,7 @@ export interface GalBlogPackageManifestV1 {
     locale: string;
   };
   engine: {
-    name: "WebGAL";
+    name: "WebGAL" | "Gal Story Runtime";
     version: string;
     bundled: true;
     entry: string;
@@ -75,7 +78,9 @@ export interface GalBlogPackageManifestV1 {
       kind: "scene";
       id: string;
       title: string;
+      sceneId?: string;
       replayable: boolean;
+      storyEntry?: boolean;
       thumbnail?: string;
     }>;
     savePoints: Array<{
@@ -83,6 +88,7 @@ export interface GalBlogPackageManifestV1 {
       id: string;
       title: string;
       sceneId: string;
+      blockId?: string;
       resumeMode: "scene-entry" | "authored-block";
       thumbnail?: string;
     }>;
@@ -111,6 +117,9 @@ export interface GalBlogPackageManifestV1 {
   theme?: {
     tokens?: string;
     webgalTemplate?: string;
+  };
+  presentation?: {
+    loaderArt?: string;
   };
   integrity: string;
 }

@@ -11,8 +11,10 @@ import {
   applyPreferences,
   publishPreferences,
   readPreferences,
+  syncForcedLandscape,
 } from "./experience/preferences.js";
 import { initExperienceAudio } from "./experience/audio.js";
+import { initAmbientDock } from "./experience/ambient-dock.js";
 import {
   createGalBlogLaunchIntent,
   createGalBlogLaunchUrl,
@@ -22,8 +24,14 @@ import { getGalBlogSave, listGalBlogSaves } from "../lib/gal-blog/save-store";
 import { resolveContinueTarget } from "../lib/experience-continue";
 import { recordBlogActivity } from "../lib/blog-activity";
 import { initAchievementSystem } from "../lib/experience-achievements";
+import {
+  EXPERIENCE_CHANGE_EVENT,
+  EXPERIENCE_STORAGE_KEY,
+  resolveExperienceState,
+  sceneForCurrentTime,
+  writeExperienceState,
+} from "./experience/state.js";
 
-const EXPERIENCE_STORAGE_KEY = "lonely-sea-experience-v1";
 const OPENING_STORAGE_KEY = "lonely-sea-opening-seen";
 const ROUTES = new Set(["start", "load", "extra", "option"]);
 
@@ -39,7 +47,6 @@ const body = document.body;
 const stage = required(".stage");
 const titleMenu = required(".title-menu");
 const fxPanel = required("#fx-panel");
-const showFx = required("#show-fx");
 const status = required("#menu-status");
 const opening = required("#opening");
 const routeCurtain = required("#route-curtain");
@@ -53,6 +60,7 @@ const bgmButton = required("#toggle-bgm");
 const continueButton = required('[data-command="CONTINUE"]');
 const languageGate = required("[data-first-language-gate]");
 const languageButtons = all("[data-first-language]", languageGate);
+const firstFullscreenButton = required("[data-first-fullscreen]", languageGate);
 const startCommand = required('[data-command="START"]');
 let continueTarget = null;
 const reduceMotion = {
@@ -69,16 +77,26 @@ let requestedRoute = routeQuery.get("screen");
 if (!ROUTES.has(requestedRoute)) requestedRoute = null;
 const requestedLoadPage = ["articles", "game", "diary"].includes(routeQuery.get("loadPage"))
   ? routeQuery.get("loadPage")
-  : "game";
+  : "articles";
 const requestedGameFilter = ["save", "flow", "story"].includes(routeQuery.get("loadFilter"))
   ? routeQuery.get("loadFilter")
-  : "save";
+  : "story";
+const requestedOptionCategory = ["system", "blog", "game"].includes(routeQuery.get("optionCategory"))
+  ? routeQuery.get("optionCategory")
+  : "system";
+const requestedOptionPanel = routeQuery.get("optionPanel") || "";
+const requestedReturnTarget = (() => {
+  const value = routeQuery.get("returnTo") || "";
+  return value.startsWith("/") && !value.startsWith("//") ? value : "";
+})();
+let useRequestedOptionTarget = requestedRoute === "option";
 let routeBusy = false;
 let openingTimers = [];
 
 function beginExternalNavigation(url, label = "NOW LOADING") {
   if (routeBusy) return false;
   routeBusy = true;
+  experienceAudio.suspendForExternalNavigation();
   const active = document.activeElement instanceof HTMLElement ? document.activeElement : null;
   active?.setAttribute("aria-busy", "true");
   routeCurtain.querySelector("strong").textContent = label;
@@ -120,6 +138,21 @@ function launchFirstChapter() {
   }
 }
 
+function syncFirstFullscreen() {
+  const active = Boolean(document.fullscreenElement);
+  firstFullscreenButton.setAttribute("aria-pressed", String(active));
+  firstFullscreenButton.textContent = active ? "退出全屏" : "全屏显示";
+}
+
+firstFullscreenButton.addEventListener("click", async () => {
+  try {
+    if (document.fullscreenElement) await document.exitFullscreen();
+    else await document.documentElement.requestFullscreen();
+  } catch {}
+  syncFirstFullscreen();
+});
+document.addEventListener("fullscreenchange", syncFirstFullscreen);
+
 languageButtons.forEach((button, index) => {
   button.addEventListener("click", () => {
     preferences = publishPreferences({ ...readPreferences(), language: button.dataset.firstLanguage });
@@ -139,26 +172,12 @@ languageButtons.forEach((button, index) => {
   });
 });
 
-function readExperience() {
-  try {
-    const parsed = JSON.parse(localStorage.getItem(EXPERIENCE_STORAGE_KEY) || "{}");
-    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
-  } catch {
-    return {};
-  }
-}
-
-const savedExperience = readExperience();
-if (sceneLabels[savedExperience.scene]) body.dataset.scene = savedExperience.scene;
-if (weatherLabels[savedExperience.weather]) body.dataset.weather = savedExperience.weather;
+const savedExperience = resolveExperienceState(preferences, Math.random, { persist: !freshResetBoot });
+body.dataset.scene = savedExperience.scene;
+body.dataset.weather = savedExperience.weather;
 
 function persistExperience() {
-  try {
-    localStorage.setItem(EXPERIENCE_STORAGE_KEY, JSON.stringify({
-      scene: body.dataset.scene,
-      weather: weather.value,
-    }));
-  } catch {}
+  writeExperienceState({ scene: body.dataset.scene, weather: weather.value }, { emit: false });
 }
 
 function refreshStatus(message = "") {
@@ -203,7 +222,7 @@ function setRoute(route) {
   if (route !== "extra") extraScreen.deactivate();
   if (route !== "option") optionScreen.deactivate();
   body.dataset.route = route;
-  experienceAudio.setTitleActive(route === "title" && opening.classList.contains("is-dismissed"));
+  experienceAudio.setTitleActive(opening.classList.contains("is-dismissed"));
   titleMenu.inert = route !== "title";
   fxPanel.inert = route !== "title";
   screens.forEach((screen) => {
@@ -211,9 +230,13 @@ function setRoute(route) {
   });
   if (route === "load") loadScreen.activate();
   if (route === "extra") extraScreen.activate?.();
-  if (route === "option") optionScreen.activate();
-  if (route === "title") weather.start();
-  else weather.stop();
+  if (route === "option") {
+    optionScreen.activate(useRequestedOptionTarget
+      ? { category: requestedOptionCategory, panel: requestedOptionPanel }
+      : undefined);
+    useRequestedOptionTarget = false;
+  }
+  weather.start();
 }
 
 function navigateTo(route, { instant = false } = {}) {
@@ -298,7 +321,6 @@ function syncBgmButton(event) {
   const enabled = event?.detail?.enabled ?? experienceAudio.isBgmEnabled();
   bgmButton.setAttribute("aria-pressed", String(enabled));
   bgmButton.setAttribute("aria-label", enabled ? "关闭背景音乐" : "开启背景音乐");
-  bgmButton.textContent = enabled ? "ON" : "OFF";
 }
 
 const loadScreen = initLoadTracksXiiiConcept({
@@ -313,6 +335,7 @@ const optionScreen = initOptions({
   onResetExperience: resetExperience,
 });
 const exitDialog = initExitDialog();
+initAmbientDock(fxPanel);
 
 function syncContinueButton() {
   continueTarget = resolveContinueTarget(listGalBlogSaves());
@@ -334,11 +357,14 @@ window.addEventListener("lonely-sea:preferences-change", (event) => {
   preferences = applyPreferences(event.detail?.preferences || readPreferences());
   const densityChanged = preferences.particleDensity !== previousPreferences.particleDensity;
   const motionChanged = preferences.reducedMotion !== previousPreferences.reducedMotion;
+  const landscapeChanged = preferences.mobileLandscape !== previousPreferences.mobileLandscape;
   if (densityChanged) weather.setDensity(preferences.particleDensity / 100);
   else if (motionChanged) weather.handlePreferenceChange();
+  if (landscapeChanged) weather.resize();
+  if (preferences.automaticTheme && !previousPreferences.automaticTheme) setScene(sceneForCurrentTime());
 });
 
-window.addEventListener("lonely-sea:experience-preference-change", (event) => {
+window.addEventListener(EXPERIENCE_CHANGE_EVENT, (event) => {
   const next = event.detail || {};
   if (sceneLabels[next.scene]) setScene(next.scene);
   if (weatherLabels[next.weather]) setWeather(next.weather);
@@ -396,7 +422,13 @@ all("[data-command]").forEach((button) => {
 });
 
 all("[data-back]").forEach((button) => {
-  button.addEventListener("click", (event) => navigateTo("title", { instant: event.detail === 0 }));
+  button.addEventListener("click", (event) => {
+    if (requestedReturnTarget && ["load", "option"].includes(body.dataset.route)) {
+      beginExternalNavigation(requestedReturnTarget, "RETURNING TO ARTICLE");
+      return;
+    }
+    navigateTo("title", { instant: event.detail === 0 });
+  });
 });
 
 all("[data-scene-option]").forEach((button) => {
@@ -413,17 +445,6 @@ opening.addEventListener("keydown", (event) => {
     dismissOpening();
   }
 });
-required("#replay-opening").addEventListener("click", replayOpeningFromTitle);
-
-required("#hide-fx").addEventListener("click", () => {
-  fxPanel.hidden = true;
-  showFx.hidden = false;
-});
-showFx.addEventListener("click", () => {
-  showFx.hidden = true;
-  fxPanel.hidden = false;
-});
-
 function moveTitleFocus(direction) {
   const buttons = all(".menu-button:not(:disabled)");
   const current = buttons.indexOf(document.activeElement);
@@ -508,11 +529,6 @@ document.addEventListener("keydown", (event) => {
   if (key === "c") setWeather("clear");
   if (key === "s") setWeather("snow");
   if (key === "r") setWeather("rain");
-  if (key === "f") {
-    const willShow = fxPanel.hidden;
-    fxPanel.hidden = !willShow;
-    showFx.hidden = willShow;
-  }
 });
 
 document.addEventListener("visibilitychange", () => {
@@ -520,7 +536,14 @@ document.addEventListener("visibilitychange", () => {
   else weather.start();
 });
 reduceMotion.addEventListener("change", weather.handlePreferenceChange);
-window.addEventListener("resize", weather.resize, { passive: true });
+window.addEventListener("resize", () => {
+  syncForcedLandscape(preferences);
+  weather.resize();
+}, { passive: true });
+window.matchMedia("(orientation: portrait)").addEventListener("change", () => {
+  syncForcedLandscape(preferences);
+  weather.resize();
+});
 
 weather.resize();
 updatePressed("[data-scene-option]", body.dataset.scene, "sceneOption");

@@ -8,7 +8,7 @@ import type { RegisteredGame } from "../../lib/gal-blog/release-registry";
 import { GalBlogHost, type HostState } from "./gal-blog-host";
 import { initLoadTracksXiiiConcept } from "./load-tracks-xiii.js";
 import { initOptions } from "./options.js";
-import { readPreferences } from "./preferences.js";
+import { readPreferences, syncForcedLandscape } from "./preferences.js";
 import { initAchievementSystem } from "../../lib/experience-achievements";
 import { initBlogInteractionScene } from "../blog-interactions";
 
@@ -39,14 +39,26 @@ if (root && configNode) {
     status: "success" | "cancel" | "failure";
     slot?: number;
     navigateTo?: string;
+    target?: { kind: "save-point"; id: string };
+    state?: { variables: Record<string, string | number | boolean>; records: string[] };
     message?: string;
   }) => void) | null = null;
   let loadOperation: "save" | "load" = "load";
+  let activeReleaseId = "";
 
   window.addEventListener("pagehide", () => commentController?.destroy(), { once: true });
 
   document.body.dataset.scene = "night";
   document.body.dataset.route = "game";
+  const portraitMedia = window.matchMedia("(orientation: portrait)");
+  const syncGameLandscape = () => syncForcedLandscape(readPreferences());
+  syncGameLandscape();
+  window.addEventListener("resize", syncGameLandscape, { passive: true });
+  portraitMedia.addEventListener("change", syncGameLandscape);
+  window.addEventListener("pagehide", () => {
+    window.removeEventListener("resize", syncGameLandscape);
+    portraitMedia.removeEventListener("change", syncGameLandscape);
+  }, { once: true });
   const optionController = settingsScreen ? initOptions({
     onReplayOpening() {
       try { sessionStorage.removeItem("lonely-sea-opening-seen"); } catch {}
@@ -88,8 +100,14 @@ if (root && configNode) {
       typeof input.prompt === "string" ? input.prompt : "输入会返回当前游戏，并保存在这台设备的本地记录中。",
       typeof input.placeholder === "string" ? input.placeholder : "",
     );
-    const interactionMode = input.mode === "friends" ? "friends" : "comments";
+    const requestedMode = typeof input.scene === "string" ? input.scene : input.mode;
+    const interactionMode = requestedMode === "friends"
+      ? "friends"
+      : requestedMode === "rss"
+        ? "rss"
+        : "comments";
     commentController.selectView(interactionMode);
+    commentController.setIntent(input.mode === "compose" ? "compose" : "view");
     commentController.resetComposer();
 
     return new Promise((resolve) => {
@@ -99,6 +117,7 @@ if (root && configNode) {
         settled = true;
         commentScene.removeEventListener("lonely-sea:comment-saved", saved);
         commentScene.removeEventListener("lonely-sea:friend-saved", friendSaved);
+        commentScene.removeEventListener("lonely-sea:rss-copied", rssCopied);
         commentDialog.removeEventListener("cancel", cancel);
         cancelButtons.forEach((button) => button.removeEventListener("click", cancelClick));
         if (commentDialog.open) commentDialog.close(result.status);
@@ -113,6 +132,10 @@ if (root && configNode) {
         const value = (event as CustomEvent).detail?.draft?.url;
         finish({ status: "success", value: typeof value === "string" ? value : "" });
       };
+      const rssCopied = (event: Event) => {
+        const value = (event as CustomEvent).detail?.url;
+        finish({ status: "success", value: typeof value === "string" ? value : "" });
+      };
       const cancel = (event: Event) => {
         event.preventDefault();
         finish({ status: "cancel" });
@@ -121,6 +144,7 @@ if (root && configNode) {
       const cancelButtons = [...commentScene.querySelectorAll<HTMLButtonElement>("[data-host-dialog-cancel]")];
       commentScene.addEventListener("lonely-sea:comment-saved", saved);
       commentScene.addEventListener("lonely-sea:friend-saved", friendSaved);
+      commentScene.addEventListener("lonely-sea:rss-copied", rssCopied);
       commentDialog.addEventListener("cancel", cancel);
       cancelButtons.forEach((button) => button.addEventListener("click", cancelClick));
       if (iframe) iframe.inert = true;
@@ -145,6 +169,8 @@ if (root && configNode) {
     status: "success" | "cancel" | "failure";
     slot?: number;
     navigateTo?: string;
+    target?: { kind: "save-point"; id: string };
+    state?: { variables: Record<string, string | number | boolean>; records: string[] };
     message?: string;
   } = { status: "cancel" }): void {
     if (!loadScreen || loadScreen.hidden) return;
@@ -195,6 +221,8 @@ if (root && configNode) {
     status: "success" | "cancel" | "failure";
     slot?: number;
     navigateTo?: string;
+    target?: { kind: "save-point"; id: string };
+    state?: { variables: Record<string, string | number | boolean>; records: string[] };
     message?: string;
   }> {
     if (!loadScreen || !loadBack || !loadController || resolveLoad || resolveSettings) {
@@ -222,6 +250,14 @@ if (root && configNode) {
     const save = typeof saveId === "string" ? getGalBlogSave(saveId) : null;
     if (!save) {
       closeLoad({ status: "failure", message: "存档已经不存在" });
+      return;
+    }
+    if (save.releaseId === activeReleaseId) {
+      closeLoad({
+        status: "success",
+        target: save.target,
+        state: { variables: save.variables, records: save.records },
+      });
       return;
     }
     closeLoad({ status: "success", navigateTo: createSaveLaunchUrl(save) });
@@ -266,6 +302,7 @@ if (root && configNode) {
         : "STUDIO PACKAGE NOT YET REGISTERED";
       setState("unavailable", message);
     } else {
+      activeReleaseId = release.releaseId;
       iframe.hidden = false;
       const host = new GalBlogHost({
         iframe,

@@ -4,31 +4,28 @@ export function initExitDialog() {
   const exitDialog = required("#exit-dialog");
   const stage = required(".stage");
   const exitCommand = required('[data-command="EXIT"]');
-  const noButton = required('[data-exit-modal-answer="no"]');
+  const firstLink = required(".exit-dialog-link");
 
   function open() {
     exitDialog.setAttribute("aria-hidden", "false");
     stage.inert = true;
-    noButton.focus({ preventScroll: true });
+    const focusFirstLink = () => firstLink.focus({ preventScroll: true });
+    focusFirstLink();
+    window.setTimeout(() => {
+      if (exitDialog.getAttribute("aria-hidden") === "false") focusFirstLink();
+    }, 0);
   }
 
-  function close(message) {
+  function close() {
     if (exitDialog.getAttribute("aria-hidden") === "true") return false;
     exitDialog.setAttribute("aria-hidden", "true");
     stage.inert = false;
-    if (message) {
-      const note = required(".menu-note span");
-      note.textContent = message;
-      window.setTimeout(() => { note.textContent = "MAIN MENU"; }, 1700);
-    }
     exitCommand.focus({ preventScroll: true });
     return true;
   }
 
   exitCommand.addEventListener("click", open);
   all("[data-close-exit]").forEach((button) => button.addEventListener("click", () => close()));
-  noButton.addEventListener("click", () => close());
-  required('[data-exit-modal-answer="yes"]').addEventListener("click", () => close("SESSION ENDED / THE SEA WILL WAIT"));
 
   return { close };
 }

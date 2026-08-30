@@ -2,7 +2,6 @@
 import type { ExperienceRecord } from "../../lib/experience-records";
 import { LOAD_SLOT_CAPACITY } from "../../lib/experience-records";
 import { listPublicStoryFlows, listPublicStoryScenes } from "../../lib/gal-blog/release-registry";
-import "../../styles/load-tracks-xiii.css";
 
 interface Props {
   records: ExperienceRecord[];
@@ -128,6 +127,9 @@ const flowAtlases = listPublicStoryFlows().map((flow, flowIndex) => {
         title: node.title,
         summary: branchLabels.length ? `后续：${branchLabels.join(" / ")}` : "当前公开路线的终点。",
         art: node.thumbnail ?? "/assets/lonely-sea/mist.png",
+        gameSlug: flow.gameSlug,
+        releaseId: flow.releaseId,
+        sceneId: node.id,
         x: position.x,
         y: position.y,
         unlocked: true,
@@ -142,7 +144,7 @@ if (!flowAtlases.length) {
     label: "NO STORY DATA",
     chapters: [{ y: 3, label: "0 / EMPTY" }],
     paths: [],
-    nodes: [{ id: "empty", number: "--", title: "暂无公开流程", summary: "游戏包尚未提供路线图。", art: "", x: 50, y: 18, unlocked: false }],
+    nodes: [{ id: "empty", number: "--", title: "暂无公开流程", summary: "游戏包尚未提供路线图。", art: "", gameSlug: "", releaseId: "", sceneId: "", x: 50, y: 18, unlocked: false }],
   });
 }
 
@@ -152,7 +154,7 @@ const articleEmptySlots = Array.from(
   (_, index) => index,
 );
 const saveSlots = Array.from({ length: LOAD_SLOT_CAPACITY }, (_, index) => index);
-const lockedStorySlots = Array.from({ length: 7 }, (_, index) => index);
+const lockedStorySlots = Array.from({ length: Math.max(0, 10 - storyScenes.length) }, (_, index) => index);
 ---
 
 <div
@@ -317,6 +319,9 @@ const lockedStorySlots = Array.from({ length: 7 }, (_, index) => index);
                         data-flow-title={node.title}
                         data-flow-summary={node.summary}
                         data-flow-art={node.art}
+                        data-game-slug={node.gameSlug}
+                        data-release-id={node.releaseId}
+                        data-scene-id={node.sceneId}
                         aria-label={node.unlocked ? node.title : "未解锁场景"}
                         aria-pressed={node.unlocked ? nodeIndex === 0 : undefined}
                         disabled={!node.unlocked}

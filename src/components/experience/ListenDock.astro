@@ -1,0 +1,41 @@
+<aside class="listen-dock" id="listen-dock" hidden aria-hidden="true">
+  <div class="listen-dock-panel">
+    <p class="listen-dock-copy">
+      <strong data-listen-title></strong>
+      <small data-listen-artist></small>
+    </p>
+    <div class="listen-dock-transport" aria-label="音乐控制">
+      <button type="button" data-listen-prev aria-label="上一曲">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5v14M18 6l-8 6 8 6V6Z" /></svg>
+      </button>
+      <button type="button" data-listen-toggle aria-pressed="false" aria-label="播放">
+        <svg class="listen-icon-play" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 9 6-9 6V6Z" /></svg>
+        <svg class="listen-icon-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6v12M16 6v12" /></svg>
+      </button>
+      <button type="button" data-listen-next aria-label="下一曲">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 8 6-8 6V6ZM17 5v14" /></svg>
+      </button>
+      <button type="button" data-listen-loop aria-pressed="false" aria-label="单曲循环">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h9l2 2-2 2M17 17H8l-2-2 2-2" /><path d="m15 6 2 1-2 1M9 16l-2 1 2 1" /></svg>
+      </button>
+      <button type="button" data-listen-shuffle aria-pressed="false" aria-label="随机播放">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 7h2c4 0 4 10 8 10h2M16 5l2 2-2 2M6 17h2c1.6 0 2.5-1.5 3.4-3.3M13 9.5C14 8 14.7 7 16 7h2M16 15l2 2-2 2" /></svg>
+      </button>
+      <button type="button" data-listen-stop aria-label="关闭音乐">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17" /></svg>
+      </button>
+    </div>
+    <span class="listen-dock-progress" aria-hidden="true"><i></i></span>
+  </div>
+
+  <button
+    type="button"
+    class="listen-dock-handle"
+    data-listen-expand
+    aria-expanded="false"
+    aria-label="打开音乐控制"
+  >
+    <span class="listen-dock-disc" aria-hidden="true"></span>
+    <span class="listen-dock-sleeve"><img data-listen-cover alt="" referrerpolicy="no-referrer" /></span>
+  </button>
+</aside>

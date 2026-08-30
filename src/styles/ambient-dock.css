@@ -1,0 +1,189 @@
+.ambient-dock {
+  --ambient-dock-ink: var(--ink, var(--reading-ink, #24323a));
+  --ambient-dock-soft: var(--ink-soft, var(--reading-soft, rgb(36 50 58 / 68%)));
+  --ambient-dock-paper: var(--halo, var(--reading-paper, rgb(248 250 250 / 88%)));
+  --ambient-dock-accent: var(--accent, var(--reading-accent, #56798a));
+  position: fixed;
+  z-index: 72;
+  right: max(.9rem, env(safe-area-inset-right));
+  bottom: 0;
+  left: auto;
+  display: flex;
+  align-items: center;
+  width: auto;
+  height: 2.15rem;
+  padding: .2rem .3rem;
+  border: 0;
+  border-radius: 1.1rem 1.1rem 0 0;
+  color: var(--ambient-dock-ink);
+  background: color-mix(in srgb, var(--ambient-dock-paper) 86%, transparent);
+  box-shadow: 0 0 .45rem rgb(3 13 19 / 22%), inset 0 0 0 1px color-mix(in srgb, white 18%, transparent);
+  backdrop-filter: blur(6px) saturate(.9);
+  transition: color .3s ease, background-color .3s ease, opacity .18s ease;
+}
+
+body.is-ready[data-route="title"] .ambient-dock {
+  opacity: .98;
+}
+
+body:not([data-route="title"]) .ambient-dock#fx-panel {
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+body[data-scene="night"] .ambient-dock,
+body[data-scene="crimson"] .ambient-dock,
+.reading-system:is([data-reading-scene="night"], [data-reading-scene="crimson"]) .ambient-dock {
+  background: color-mix(in srgb, var(--ambient-dock-paper) 94%, rgb(8 14 24 / 48%));
+  box-shadow:
+    0 .16rem .95rem rgb(0 0 0 / 44%),
+    inset 0 0 0 1px color-mix(in srgb, var(--ambient-dock-accent) 34%, white 12%);
+}
+
+body[data-scene="night"] .ambient-dock button,
+body[data-scene="crimson"] .ambient-dock button,
+.reading-system:is([data-reading-scene="night"], [data-reading-scene="crimson"]) .ambient-dock button {
+  color: color-mix(in srgb, var(--ambient-dock-ink) 72%, var(--ambient-dock-accent) 28%);
+}
+
+.ambient-dock button {
+  position: relative;
+  display: grid;
+  flex: 0 0 1.8rem;
+  place-items: center;
+  width: 1.8rem;
+  height: 1.75rem;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  color: var(--ambient-dock-soft);
+  background: transparent;
+  box-shadow: none;
+  cursor: pointer;
+  transition: color .14s ease, opacity .14s ease, transform .16s cubic-bezier(.22, 1, .36, 1);
+}
+
+.ambient-dock button svg {
+  width: 1.05rem;
+  height: 1.05rem;
+  overflow: visible;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.65;
+}
+
+.ambient-dock__scene [data-scene-icon] {
+  display: none;
+}
+
+.ambient-dock__scene[data-current-scene="mist"] [data-scene-icon="mist"],
+.ambient-dock__scene[data-current-scene="day"] [data-scene-icon="day"],
+.ambient-dock__scene[data-current-scene="night"] [data-scene-icon="night"],
+.ambient-dock__scene[data-current-scene="crimson"] [data-scene-icon="crimson"] {
+  display: block;
+}
+
+.ambient-dock button:is(:hover, :focus-visible),
+.ambient-dock button[aria-pressed="true"],
+.ambient-dock button[aria-expanded="true"] {
+  color: var(--ambient-dock-accent);
+  outline: 0;
+  transform: translateY(-1px);
+}
+
+.ambient-dock button:focus-visible {
+  box-shadow: 0 0 0 1px currentColor;
+}
+
+.ambient-dock button[aria-pressed="false"] .ambient-dock__sound-wave {
+  opacity: .22;
+}
+
+.ambient-dock__choices {
+  position: static;
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  width: 0;
+  height: 1.75rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  opacity: 0;
+  overflow: clip;
+  transform: translateX(.35rem);
+  visibility: hidden;
+  transition: width .22s cubic-bezier(.22, 1, .36, 1), opacity .12s ease, transform .22s cubic-bezier(.22, 1, .36, 1), visibility 0s linear .22s;
+}
+
+.ambient-dock__choices[data-ambient-panel="scene"][aria-hidden="false"] {
+  width: 7.2rem;
+}
+
+.ambient-dock__choices[data-ambient-panel="weather"][aria-hidden="false"] {
+  width: 5.4rem;
+}
+
+.ambient-dock__choices[aria-hidden="false"] {
+  opacity: 1;
+  transform: none;
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+.ambient-dock__choices[aria-hidden="true"] {
+  width: 0;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(.35rem);
+  visibility: hidden;
+}
+
+.ambient-dock__menu {
+  margin-left: .08rem;
+}
+
+@media (max-width: 44rem) {
+  .ambient-dock {
+    right: max(.45rem, env(safe-area-inset-right));
+    height: 2.35rem;
+    padding-inline: .35rem;
+  }
+
+  .ambient-dock button {
+    flex-basis: 2rem;
+    width: 2rem;
+    height: 1.95rem;
+  }
+
+  .ambient-dock button svg {
+    width: 1.12rem;
+    height: 1.12rem;
+  }
+
+  .ambient-dock__choices {
+    height: 1.95rem;
+  }
+
+  .ambient-dock__choices[data-ambient-panel="scene"][aria-hidden="false"] {
+    width: 8rem;
+  }
+
+  .ambient-dock__choices[data-ambient-panel="weather"][aria-hidden="false"] {
+    width: 6rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient-dock,
+  .ambient-dock *,
+  .ambient-dock *::before,
+  .ambient-dock *::after {
+    transition-duration: .01ms !important;
+  }
+}

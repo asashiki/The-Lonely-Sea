@@ -58,7 +58,6 @@ export function consumeGalBlogLaunchIntent(
   if (!sessionId) return null;
   const key = storageKey(sessionId);
   const raw = sessionStorage.getItem(key);
-  sessionStorage.removeItem(key);
   if (!raw) return null;
   try {
     const value = JSON.parse(raw) as Partial<GalBlogLaunchIntentV1>;

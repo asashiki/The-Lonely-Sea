@@ -70,6 +70,7 @@ function derivedUnlockDates(): Record<string, string> {
     "after-the-silence": thresholdDate(Object.values(activity.musicTracks), 1),
     "bangumi-record": activity.extraModes.bangumi || "",
     "archive-walker": requiredValuesDate(activity.extraModes, Object.keys(extraDefaults)),
+    "heart-to-heart": thresholdDate(Object.values(activity.articleCompletions), 1),
   };
 }
 

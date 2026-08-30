@@ -1,0 +1,424 @@
+.communication-scene {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100svh;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 58% 78% at 72% 43%, rgb(137 174 185 / 18%), transparent 68%),
+    linear-gradient(90deg, rgb(5 14 20 / 48%), rgb(5 14 20 / 8%) 54%, rgb(4 10 15 / 34%)),
+    url("/assets/lonely-sea/night.png") center / cover;
+  isolation: isolate;
+}
+
+.communication-scene::before {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgb(3 8 12 / 18%), transparent 46%, rgb(3 8 12 / 72%)),
+    radial-gradient(ellipse at 12% 20%, rgb(188 213 219 / 8%), transparent 48%);
+  content: "";
+  pointer-events: none;
+}
+
+.communication-return {
+  position: absolute;
+  z-index: 20;
+  left: max(2rem, env(safe-area-inset-left));
+  bottom: max(1.25rem, env(safe-area-inset-bottom));
+  min-height: 2.75rem;
+  padding: .65rem 0 .65rem 1.9rem;
+  color: rgb(232 241 243 / 72%);
+  font: 600 .65rem/1 var(--font-sans);
+  letter-spacing: .18em;
+  text-decoration: none;
+  transition: color 200ms ease, text-shadow 200ms ease;
+}
+
+.communication-return::before {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 1.2rem;
+  height: 1px;
+  background: currentColor;
+  content: "";
+  transform: translateY(-50%);
+  transition: width 240ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.communication-return::after {
+  position: absolute;
+  top: calc(50% - .28rem);
+  left: 0;
+  width: .52rem;
+  height: .52rem;
+  border-bottom: 1px solid currentColor;
+  border-left: 1px solid currentColor;
+  content: "";
+  transform: rotate(45deg);
+}
+
+.communication-return:hover,
+.communication-return:focus-visible {
+  color: #f2f8f9;
+  text-shadow: 0 0 .8rem rgb(183 217 223 / 42%);
+}
+
+.communication-return:hover::before,
+.communication-return:focus-visible::before {
+  width: 1.9rem;
+}
+
+.communication-return:focus-visible {
+  outline: 0;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: .45em;
+}
+
+.blog-interaction-scene.is-connect {
+  --interaction-ink: #edf5f6;
+  --interaction-soft: rgb(231 241 243 / 76%);
+  --interaction-faint: rgb(225 238 241 / 52%);
+  --interaction-accent: #b3d1d7;
+  --interaction-field: rgb(5 16 23 / 44%);
+  --interaction-focus: rgb(157 194 202 / 15%);
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: minmax(0, 62vw) minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) minmax(9rem, 21svh);
+  gap: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100svh;
+  margin: 0;
+  padding: clamp(1.5rem, 4.5vw, 5rem) clamp(1.5rem, 5vw, 6rem) 0;
+  overflow: hidden;
+  background: transparent;
+  isolation: isolate;
+}
+
+.blog-interaction-scene.is-connect::before {
+  display: none;
+}
+
+.is-connect .blog-connect-figure {
+  position: absolute;
+  z-index: -1;
+  right: clamp(-4rem, -3vw, 0rem);
+  bottom: 15svh;
+  width: min(43vw, 43rem);
+  height: 82svh;
+  pointer-events: none;
+}
+
+.is-connect .blog-connect-figure img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  filter: drop-shadow(0 2rem 2.8rem rgb(0 0 0 / 30%));
+  visibility: hidden;
+}
+
+.is-connect[data-active-view="rss"] [data-connect-figure="rss"],
+.is-connect[data-active-view="comments"] [data-connect-figure="comments"],
+.is-connect[data-active-view="friends"] [data-connect-figure="friends"] {
+  visibility: visible;
+}
+
+.is-connect .blog-interaction-heading {
+  position: relative;
+  z-index: 5;
+  grid-column: 1;
+  grid-row: 1;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 2rem;
+  padding-right: clamp(1rem, 5vw, 5rem);
+}
+
+.is-connect .blog-interaction-heading strong {
+  font: 400 clamp(1.7rem, 3.2vw, 3.4rem)/1.05 var(--font-display);
+  letter-spacing: .08em;
+  text-shadow: 0 .3rem 1.4rem rgb(0 0 0 / 28%);
+}
+
+.is-connect .blog-interaction-heading nav {
+  display: flex;
+  gap: .4rem;
+  margin: 0;
+}
+
+.is-connect .blog-interaction-heading button {
+  min-width: 5.2rem;
+  padding: .65rem .8rem;
+  color: rgb(228 240 242 / 62%);
+  text-align: center;
+}
+
+.is-connect .blog-interaction-heading button::before {
+  display: none;
+}
+
+.is-connect .blog-interaction-heading button[aria-selected="true"] {
+  color: #f2f7f8;
+  background: radial-gradient(ellipse at center, rgb(170 207 214 / 18%), transparent 74%);
+  text-shadow: 0 0 1rem rgb(183 217 223 / 42%);
+}
+
+.is-connect .blog-interaction-panel {
+  z-index: 3;
+  grid-column: 1;
+  grid-row: 2;
+  align-self: stretch;
+  min-height: 0;
+  margin-top: clamp(1rem, 3vh, 2.4rem);
+  padding-right: clamp(1rem, 5vw, 5rem);
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(172 205 212 / 36%) transparent;
+}
+
+.is-connect .blog-interaction-panel[hidden] {
+  display: none;
+}
+
+.is-connect .blog-interaction-prompt {
+  position: relative;
+  z-index: 8;
+  grid-column: 1 / -1;
+  grid-row: 3;
+  display: grid;
+  grid-template-columns: minmax(6rem, 9rem) minmax(0, 1fr);
+  align-content: center;
+  gap: .9rem 2rem;
+  width: calc(100% + clamp(3rem, 10vw, 12rem));
+  min-height: 100%;
+  margin-left: calc(clamp(1.5rem, 5vw, 6rem) * -1);
+  padding: 1.5rem max(clamp(5rem, 12vw, 14rem), env(safe-area-inset-right)) max(1.4rem, env(safe-area-inset-bottom)) max(clamp(5rem, 12vw, 14rem), env(safe-area-inset-left));
+  background:
+    radial-gradient(ellipse at 58% 22%, rgb(150 187 196 / 13%), transparent 46%),
+    linear-gradient(90deg, rgb(5 16 23 / 96%), rgb(7 20 28 / 92%) 62%, rgb(4 12 18 / 97%));
+  box-shadow: 0 -1.5rem 4.5rem rgb(0 0 0 / 24%);
+}
+
+.is-connect .blog-interaction-prompt span {
+  align-self: start;
+  color: #d2e6ea;
+  font: 500 .78rem/1.5 var(--font-latin);
+  letter-spacing: .18em;
+}
+
+.is-connect .blog-interaction-prompt p {
+  max-width: 58rem;
+  color: rgb(243 248 249 / 88%);
+  font: 400 clamp(.95rem, 1.45vw, 1.22rem)/1.85 var(--font-display);
+  letter-spacing: .035em;
+}
+
+.is-connect .blog-dialogue-memory {
+  min-height: clamp(6.5rem, 14vh, 9rem);
+  padding: 1rem .25rem;
+}
+
+.is-connect .blog-dialogue-memory blockquote {
+  font-size: clamp(.95rem, 1.35vw, 1.2rem);
+}
+
+.is-connect .blog-dialogue-composer {
+  padding: clamp(.8rem, 1.8vw, 1.35rem);
+  background: transparent;
+  box-shadow: none;
+}
+
+.is-connect .blog-dialogue-composer input,
+.is-connect .blog-dialogue-composer textarea,
+.is-connect .blog-rss-subscribe input {
+  background: rgb(224 239 242 / 8%);
+}
+
+.is-connect .blog-dialogue-actions button[type="submit"],
+.is-connect .blog-dialogue-actions [data-rss-copy] {
+  color: #f2f7f8;
+  background: rgb(163 199 207 / 16%);
+}
+
+.is-connect .blog-rss-feed a,
+.is-connect .blog-published-friends a {
+  border: 0;
+}
+
+.is-connect .blog-rss-feed a:focus-visible,
+.is-connect .blog-published-friends a:focus-visible {
+  background: var(--interaction-focus);
+}
+
+.is-connect :is(button, a):focus-visible {
+  outline: 0;
+  color: #fff;
+  background: radial-gradient(ellipse at center, rgb(176 211 217 / 20%), transparent 78%);
+  text-shadow: 0 0 1rem rgb(190 220 225 / 48%);
+}
+
+.is-connect .blog-rss-panel {
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+}
+
+.is-connect .blog-rss-subscribe {
+  order: -1;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  padding: .75rem .8rem 0;
+}
+
+.is-connect .blog-rss-subscribe label {
+  grid-column: 1;
+}
+
+.is-connect .blog-rss-subscribe > p {
+  grid-column: 1;
+}
+
+.is-connect .blog-rss-subscribe .blog-dialogue-actions {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: end;
+}
+
+@media (max-width: 70rem) {
+  .blog-interaction-scene.is-connect {
+    grid-template-columns: minmax(0, 74vw) minmax(0, 1fr);
+  }
+
+  .is-connect .blog-connect-figure {
+    right: -9vw;
+    opacity: .62;
+  }
+
+  .is-connect .blog-interaction-panel,
+  .is-connect .blog-interaction-heading {
+    padding-right: 3vw;
+  }
+}
+
+@media (max-width: 50rem), (max-height: 38rem) {
+  .communication-scene {
+    overflow: auto;
+  }
+
+  .communication-return {
+    top: max(.7rem, env(safe-area-inset-top));
+    right: max(.7rem, env(safe-area-inset-right));
+    bottom: auto;
+    left: auto;
+  }
+
+  .blog-interaction-scene.is-connect {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(22rem, 1fr) auto;
+    min-height: 100svh;
+    height: auto;
+    padding: max(1.2rem, env(safe-area-inset-top)) 1.1rem 0;
+    overflow: visible;
+  }
+
+  .is-connect .blog-connect-figure {
+    display: none;
+  }
+
+  .is-connect .blog-interaction-heading {
+    display: grid;
+    gap: 1rem;
+    padding: 0 3.2rem 0 0;
+  }
+
+  .is-connect .blog-interaction-heading nav {
+    justify-content: start;
+  }
+
+  .is-connect .blog-interaction-heading button {
+    min-width: 4.4rem;
+    padding-inline: .55rem;
+  }
+
+  .is-connect .blog-interaction-panel {
+    margin-top: 1rem;
+    padding: 0 0 1.2rem;
+    overflow: visible;
+  }
+
+  .is-connect .blog-interaction-prompt {
+    width: calc(100% + 2.2rem);
+    margin-left: -1.1rem;
+    padding: 1.25rem max(1.2rem, env(safe-area-inset-right)) max(1.4rem, env(safe-area-inset-bottom)) max(1.2rem, env(safe-area-inset-left));
+  }
+
+  .is-connect .blog-rss-panel,
+  .is-connect .blog-interaction-panel {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .is-connect .blog-dialogue-composer {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .is-connect .blog-dialogue-line,
+  .is-connect .blog-dialogue-local-note,
+  .is-connect .blog-dialogue-feedback,
+  .is-connect .blog-dialogue-actions {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .is-connect .blog-dialogue-actions {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 32rem) {
+  .is-connect .blog-interaction-prompt {
+    grid-template-columns: 1fr;
+    gap: .45rem;
+  }
+
+  .is-connect .blog-rss-feed a {
+    grid-template-columns: 1fr;
+  }
+
+  .is-connect .blog-rss-feed time {
+    grid-row: auto;
+  }
+
+  .is-connect .blog-rss-subscribe {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .is-connect .blog-rss-subscribe .blog-dialogue-actions {
+    grid-column: 1;
+    grid-row: auto;
+    justify-content: start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .communication-return,
+  .communication-return::before {
+    transition: none;
+  }
+
+  .is-connect *,
+  .is-connect *::before,
+  .is-connect *::after {
+    scroll-behavior: auto;
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+  }
+}
