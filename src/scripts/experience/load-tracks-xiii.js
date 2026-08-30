@@ -102,11 +102,6 @@ export function initLoadTracksXiiiConcept({
   const storyCancel = required("[data-xiii-story-cancel]");
   const diaryMonths = all("[data-xiii-diary-month]");
   const diaryReader = required("[data-xiii-diary-reader]");
-  const diaryReaderArt = required("[data-xiii-diary-reader-art]");
-  const diaryReaderDate = required("[data-xiii-diary-reader-date]");
-  const diaryReaderTitle = required("[data-xiii-diary-reader-title]");
-  const diaryReaderSummary = required("[data-xiii-diary-reader-summary]");
-  const diaryReaderLinks = required("[data-xiii-diary-reader-links]");
   const diaryReaderClose = required("[data-xiii-diary-reader-close]");
   const firstDiaryYear = required('[data-xiii-index-group="diary"] [data-xiii-filter]').dataset.xiiiFilter;
   const primaryShell = required(".tracks-xiii-primary-shell");
@@ -1146,56 +1141,18 @@ export function initLoadTracksXiiiConcept({
     move(event);
   }
 
-  function openDiaryReader(entry, { animate = true } = {}) {
+  function openDiaryReader(entry) {
     const month = entry.closest("[data-xiii-diary-month]");
     if (!month) return;
 
-    diaryReaderAnimation?.cancel();
-    diaryReaderTrigger = entry;
-    diaryReaderArt.style.setProperty(
-      "--diary-reader-art",
-      `url("${month.dataset.diaryArt || "/assets/lonely-sea/mist.png"}")`,
-    );
-    diaryReaderDate.textContent = month.dataset.diaryDate || "";
-    diaryReaderTitle.textContent = month.dataset.diaryTitle || "";
-    diaryReaderSummary.textContent = month.dataset.diarySummary || "";
-    recordBlogActivity("diaryMonths", month.dataset.xiiiDiaryMonth || month.dataset.diaryDate || "unknown");
-    let monthRecords = [];
-    try {
-      const parsed = JSON.parse(month.dataset.diaryRecords || "[]");
-      if (Array.isArray(parsed)) monthRecords = parsed;
-    } catch {}
-    diaryReaderLinks.replaceChildren(...monthRecords.flatMap((record) => {
-      if (!record || typeof record !== "object" || typeof record.url !== "string") return [];
-      const link = document.createElement("a");
-      const title = document.createElement("strong");
-      const date = document.createElement("small");
-      link.href = record.url;
-      title.textContent = typeof record.title === "string" ? record.title : "UNTITLED RECORD";
-      date.textContent = typeof record.date === "string" ? record.date : "";
-      link.append(title, date);
-      return [link];
-    }));
-    all("[data-xiii-diary-entry]").forEach((candidate) => {
-      candidate.setAttribute("aria-pressed", String(candidate === entry));
-    });
+    if (month.dataset.diaryPlayable !== "true") return;
 
-    diaryReader.setAttribute("aria-hidden", "false");
-    setInterfaceInert(true);
-    diaryMonths.forEach((month) => {
-      month.inert = true;
-    });
-    loadCanvas.classList.add("has-open-diary-reader");
-    document.documentElement.classList.add("tracks-xiii-diary-open");
-    dispatchCue("open", { target: "diary" });
-    if (animate && !reduceMotion.matches) {
-      diaryReaderAnimation = diaryReader.animate(
-        [{ opacity: 0 }, { opacity: 1 }],
-        { duration: 230, easing: "cubic-bezier(0.22, 1, 0.36, 1)" },
-      );
-      diaryReaderAnimation.finished.catch(() => {});
-    }
-    diaryReaderClose.focus({ preventScroll: true });
+    const monthId = month.dataset.xiiiDiaryMonth || "";
+    recordBlogActivity("diaryMonths", monthId);
+    dispatchCue("confirm", { target: "nvl-chapter" });
+    window.dispatchEvent(new CustomEvent("lonely-sea:open-nvl", {
+      detail: { monthId, chapterId: monthId },
+    }));
   }
 
   function closeDiaryReader({ animate = false } = {}) {
@@ -1572,8 +1529,8 @@ export function initLoadTracksXiiiConcept({
     });
   });
   all("[data-xiii-diary-entry]").forEach((entry) => {
-    entry.addEventListener("click", (event) => {
-      openDiaryReader(entry, { animate: event.detail > 0 });
+    entry.addEventListener("click", () => {
+      openDiaryReader(entry);
     });
   });
   flowNodes.forEach((node) => {
