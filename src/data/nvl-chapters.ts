@@ -21,6 +21,8 @@ export interface NvlSceneInit {
   povName: string;
   timestamp: string;
   bgStyle: string;
+  /** Optional future CG/background hook; gradients remain the asset-free fallback. */
+  bgImage?: string;
 }
 
 export interface NvlPageBlock {
@@ -639,5 +641,4 @@ export const NVL_CHAPTERS: Record<string, NvlChapter> = {
     ],
   },
 };
-
 

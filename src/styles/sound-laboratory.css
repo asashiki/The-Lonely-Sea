@@ -613,6 +613,13 @@ body[data-scene="mist"] .option-canvas .sound-lab-monitor {
   letter-spacing: .07em;
 }
 
+.option-canvas .sound-lab[data-sound-lab-language]:not([data-sound-lab-language="ZH-CN"]) .sound-card-copy > small,
+.option-canvas .sound-lab[data-sound-lab-language]:not([data-sound-lab-language="ZH-CN"]) .sound-card-copy > p:not(.sound-card-meta),
+.option-canvas .sound-lab[data-sound-lab-language]:not([data-sound-lab-language="ZH-CN"]) .sound-card-copy > ul,
+.option-canvas .sound-lab[data-sound-lab-language]:not([data-sound-lab-language="ZH-CN"]) .sound-lab-filters button small {
+  display: none;
+}
+
 .option-canvas .sound-card-select {
   grid-column: 1 / -1;
   display: flex;

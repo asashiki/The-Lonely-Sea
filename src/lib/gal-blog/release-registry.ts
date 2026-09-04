@@ -67,7 +67,7 @@ export interface PublicStoryFlow {
 const GAME_DEFINITIONS: GameDefinition[] = [
   {
     slug: "lonely-sea-chapter-one",
-    title: "孤独之海 · 第一章",
+    title: "灯塔导览 · 序章",
     currentReleaseId: "0.3.0-4830749c",
     releases: [
       {

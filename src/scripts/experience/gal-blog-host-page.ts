@@ -4,6 +4,7 @@ import {
   createSaveLaunchUrl,
 } from "../../lib/gal-blog/launch-session";
 import { getGalBlogSave } from "../../lib/gal-blog/save-store";
+import { getNvlSave } from "../../lib/nvl/save-store";
 import type { RegisteredGame } from "../../lib/gal-blog/release-registry";
 import { GalBlogHost, type HostState } from "./gal-blog-host";
 import { initLoadTracksXiiiConcept } from "./load-tracks-xiii.js";
@@ -11,6 +12,10 @@ import { initOptions } from "./options.js";
 import { readPreferences, syncForcedLandscape } from "./preferences.js";
 import { initAchievementSystem } from "../../lib/experience-achievements";
 import { initBlogInteractionScene } from "../blog-interactions";
+import {
+  EXPERIENCE_CHANGE_EVENT,
+  readExperienceState,
+} from "./state.js";
 
 type PageConfig = {
   game: RegisteredGame;
@@ -48,7 +53,14 @@ if (root && configNode) {
 
   window.addEventListener("pagehide", () => commentController?.destroy(), { once: true });
 
-  document.body.dataset.scene = "night";
+  const syncHostScene = (scene = readExperienceState().scene): void => {
+    document.body.dataset.scene = ["mist", "day", "night", "crimson"].includes(scene) ? scene : "mist";
+  };
+  syncHostScene();
+  const handleExperienceChange = (event: Event): void => {
+    syncHostScene((event as CustomEvent<{ scene?: string }>).detail?.scene);
+  };
+  window.addEventListener(EXPERIENCE_CHANGE_EVENT, handleExperienceChange);
   document.body.dataset.route = "game";
   const portraitMedia = window.matchMedia("(orientation: portrait)");
   const syncGameLandscape = () => syncForcedLandscape(readPreferences());
@@ -58,6 +70,7 @@ if (root && configNode) {
   window.addEventListener("pagehide", () => {
     window.removeEventListener("resize", syncGameLandscape);
     portraitMedia.removeEventListener("change", syncGameLandscape);
+    window.removeEventListener(EXPERIENCE_CHANGE_EVENT, handleExperienceChange);
   }, { once: true });
   const optionController = settingsScreen ? initOptions({
     onReplayOpening() {
@@ -205,7 +218,7 @@ if (root && configNode) {
 
   function openSettings(): Promise<{ status: "success" | "cancel" }> {
     if (!settingsScreen || !settingsBack || resolveSettings || resolveLoad) return Promise.resolve({ status: "cancel" });
-    optionController?.activate();
+    optionController?.activate({ category: "game", panel: "text" });
     settingsBack.setAttribute("aria-label", "返回游戏");
     settingsBack.title = "返回游戏";
     settingsScreen.setAttribute("aria-hidden", "false");
@@ -246,7 +259,20 @@ if (root && configNode) {
 
   window.addEventListener("lonely-sea:save-select", (event) => {
     if (!resolveLoad || loadOperation !== "load") return;
-    const saveId = (event as CustomEvent).detail?.saveId;
+    const detail = (event as CustomEvent).detail;
+    const saveId = detail?.saveId;
+    if (detail?.saveKind === "nvl") {
+      const nvlSave = typeof saveId === "string" ? getNvlSave(saveId) : null;
+      if (!nvlSave) {
+        closeLoad({ status: "failure", message: "NVL 存档已经不存在" });
+        return;
+      }
+      const target = new URL("/", window.location.origin);
+      target.searchParams.set("nvlSave", nvlSave.id);
+      closeLoad({ status: "cancel" });
+      window.location.assign(target.href);
+      return;
+    }
     const save = typeof saveId === "string" ? getGalBlogSave(saveId) : null;
     if (!save) {
       closeLoad({ status: "failure", message: "存档已经不存在" });
@@ -273,6 +299,9 @@ if (root && configNode) {
     if (statusMessage) statusMessage.textContent = message;
     if (iframe && (state === "error" || state === "unavailable")) iframe.hidden = true;
     if (errorReturn) errorReturn.hidden = state !== "error" && state !== "unavailable";
+    if (window.parent !== window && ["ready", "error", "unavailable"].includes(state)) {
+      window.parent.postMessage({ type: "lonely-sea:shell-ready" }, window.location.origin);
+    }
   }
 
   try {
@@ -323,6 +352,10 @@ if (root && configNode) {
           setState("loading", "LOADING NEXT SCENE");
           hostRoot.dataset.navigationPending = "true";
           host.dispose();
+          if (window.parent !== window) {
+            window.parent.postMessage({ type: "lonely-sea:game-navigate", path }, window.location.origin);
+            return;
+          }
           window.requestAnimationFrame(() => window.requestAnimationFrame(() => window.location.assign(path)));
         },
       });

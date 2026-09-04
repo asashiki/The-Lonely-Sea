@@ -24,11 +24,36 @@ const gameSections = [
 ];
 
 const publishedStoryScenes = listPublicStoryScenes();
+const routeTitles = new Map<string, { en: string; ja: string }>([
+  ["START", { en: "START", ja: "START" }],
+  ["关于本站", { en: "About this Blog", ja: "この Blog について" }],
+  ["关于主人", { en: "About the owner", ja: "ご主人様について" }],
+  ["关于爱丽丝", { en: "About Alice", ja: "アリスについて" }],
+  ["更多", { en: "More", ja: "もう少し" }],
+  ["更多关于本站", { en: "More about this Blog", ja: "この Blog の続き" }],
+  ["主要兴趣", { en: "Interests", ja: "主な興味" }],
+  ["更多关于主人", { en: "More about the owner", ja: "ご主人様の続き" }],
+  ["访客留言", { en: "Guestbook", ja: "ゲストメッセージ" }],
+  ["友链交换", { en: "Link exchange", ja: "リンク交換" }],
+  ["RSS 订阅", { en: "RSS feed", ja: "RSS 購読" }],
+]);
+const routeCopy = (title: string) => routeTitles.get(title) ?? { en: title, ja: title };
+const archiveTitles = new Map<string, { en: string; ja: string }>([
+  ["2026年4月归档", { en: "April 2026 Archive", ja: "2026年4月の記録" }],
+  ["2026年6月归档", { en: "June 2026 Archive", ja: "2026年6月の記録" }],
+  ["2026年8月归档", { en: "August 2026 Archive", ja: "2026年8月の記録" }],
+]);
+const archiveCopy = (title: string) => archiveTitles.get(title) ?? { en: title, ja: title };
+const fallbackSceneArt = (index: number) => `/assets/cg/generated/scene-${String((index % 20) + 1).padStart(2, "0")}.webp`;
+const publicSceneArt = (thumbnail: string | undefined, index: number) => (
+  !thumbnail || thumbnail.includes("bg-lighthouse-room") ? fallbackSceneArt(index) : thumbnail
+);
 const storyScenes = publishedStoryScenes.map((scene, index) => ({
   number: String(index + 1).padStart(2, "0"),
   title: scene.title,
   summary: "",
-  art: scene.thumbnail ?? "/assets/lonely-sea/mist.png",
+  art: publicSceneArt(scene.thumbnail, index + 11),
+  localizedTitle: routeCopy(scene.title),
   gameSlug: scene.gameSlug,
   releaseId: scene.releaseId,
   sceneId: scene.sceneId,
@@ -62,6 +87,7 @@ const dynamicDiaryMonths = [...diaryGroups.entries()].map(([id, entries]) => {
     monthNumber,
     dateLabel: `${year} / ${monthNumber}`,
     title,
+    localizedTitle: archiveCopy(title),
     summary,
     art: first.coverUrl,
     playable: false,
@@ -81,14 +107,11 @@ const nvlDiaryMonths = [
     monthNumber: "04",
     dateLabel: "2026 / 04",
     title: "2026年4月归档",
+    localizedTitle: archiveCopy("2026年4月归档"),
     summary: "那段时间，我第一次把 OpenClaw 和 Gemini 接进日常……",
     art: "/assets/lonely-sea/mist.png",
     playable: true,
-    records: [{
-      title: "2026年4月 · 安娜篇：始源之夜与侦探的花丸",
-      date: "2026.04.30",
-      url: "/posts/2026/diary-2026-04/",
-    }],
+    records: [],
   },
   {
     id: "2026-06",
@@ -97,14 +120,11 @@ const nvlDiaryMonths = [
     monthNumber: "06",
     dateLabel: "2026 / 06",
     title: "2026年6月归档",
+    localizedTitle: archiveCopy("2026年6月归档"),
     summary: "那段时间，我在十小时的车程、答辩和新的 AI 对话之间来回切换……",
     art: "/assets/lonely-sea/crimson.png",
     playable: true,
-    records: [{
-      title: "2026年6月 · Claude篇：十小时铁轨、答辩与深海之母",
-      date: "2026.06.30",
-      url: "/posts/2026/diary-2026-06/",
-    }],
+    records: [],
   },
   {
     id: "2026-08",
@@ -113,14 +133,11 @@ const nvlDiaryMonths = [
     monthNumber: "08",
     dateLabel: "2026 / 08",
     title: "2026年8月归档",
+    localizedTitle: archiveCopy("2026年8月归档"),
     summary: "那段时间，我开始整理 Reset 之后的生活，也重新看了看这座灯塔……",
     art: "/assets/lonely-sea/night.png",
     playable: false,
-    records: [{
-      title: "2026年8月 · 爱丽丝篇：Reset 的黎明、全领域矩阵与灯塔",
-      date: "2026.08.31",
-      url: "/posts/2026/diary-2026-08/",
-    }],
+    records: [],
   },
 ];
 
@@ -167,6 +184,7 @@ const flowAtlases = listPublicStoryFlows().map((flow, flowIndex) => {
   return {
     id: flowIndex === 0 ? "blue" : `story-${flowIndex + 1}`,
     label: flow.title,
+    localizedLabel: { en: "Lighthouse Guide · Prologue", ja: "灯台案内 · 序章" },
     chapters: Array.from({ length: maxDepth + 1 }, (_, depth) => ({
       y: Math.max(3, 10 + (depth / maxDepth) * 112 - 9),
       label: depth === 0 ? "0 / START" : `${depth} / ${depth === 1 ? "MAIN BRANCH" : "DETAIL BRANCH"}`,
@@ -183,13 +201,20 @@ const flowAtlases = listPublicStoryFlows().map((flow, flowIndex) => {
       const branchLabels = flow.edges
         .filter((edge) => edge.source === node.id)
         .map((edge) => edge.label || nodeById.get(edge.target)?.title)
-        .filter(Boolean);
+        .filter((label): label is string => Boolean(label));
       return {
         id: node.id,
         number: String(index + 1).padStart(2, "0"),
         title: node.title,
+        localizedTitle: routeCopy(node.title),
         summary: branchLabels.length ? `后续：${branchLabels.join(" / ")}` : "当前公开路线的终点。",
-        art: node.thumbnail ?? "/assets/lonely-sea/mist.png",
+        localizedSummary: branchLabels.length
+          ? {
+              en: `Next: ${branchLabels.map((label) => routeCopy(label).en).join(" / ")}`,
+              ja: `次へ：${branchLabels.map((label) => routeCopy(label).ja).join(" / ")}`,
+            }
+          : { en: "End of the published route.", ja: "公開ルートの終点です。" },
+        art: publicSceneArt(node.thumbnail, index),
         gameSlug: flow.gameSlug,
         releaseId: flow.releaseId,
         sceneId: node.id,
@@ -205,9 +230,16 @@ if (!flowAtlases.length) {
   flowAtlases.push({
     id: "blue",
     label: "NO STORY DATA",
+    localizedLabel: { en: "NO STORY DATA", ja: "STORY DATA なし" },
     chapters: [{ y: 3, label: "0 / EMPTY" }],
     paths: [],
-    nodes: [{ id: "empty", number: "--", title: "暂无公开流程", summary: "游戏包尚未提供路线图。", art: "", gameSlug: "", releaseId: "", sceneId: "", x: 50, y: 18, unlocked: false }],
+    nodes: [{
+      id: "empty", number: "--", title: "暂无公开流程",
+      localizedTitle: { en: "No published route", ja: "公開ルートなし" },
+      summary: "游戏包尚未提供路线图。",
+      localizedSummary: { en: "The game package has no route map yet.", ja: "ゲームパッケージにルート図がありません。" },
+      art: "", gameSlug: "", releaseId: "", sceneId: "", x: 50, y: 18, unlocked: false,
+    }],
   });
 }
 
@@ -345,7 +377,14 @@ const lockedStorySlots = Array.from({ length: Math.max(0, 10 - storyScenes.lengt
               <div class="tracks-xiii-flow-tools">
                 <div class="tracks-xiii-flow-themes" role="group" aria-label="切换流程图">
                   {flowAtlases.map((atlas, index) => (
-                    <button type="button" data-xiii-flow-theme-option={atlas.id} aria-pressed={index === 0}>{atlas.label}</button>
+                    <button
+                      type="button"
+                      data-xiii-flow-theme-option={atlas.id}
+                      data-flow-label-zh={atlas.label}
+                      data-flow-label-en={atlas.localizedLabel?.en ?? atlas.label}
+                      data-flow-label-ja={atlas.localizedLabel?.ja ?? atlas.label}
+                      aria-pressed={index === 0}
+                    >{atlas.label}</button>
                   ))}
                 </div>
                 <button class="tracks-xiii-flow-expand" type="button" data-xiii-flow-expand aria-label="放大流程图" aria-expanded="false">
@@ -380,7 +419,13 @@ const lockedStorySlots = Array.from({ length: Math.max(0, 10 - storyScenes.lengt
                         data-flow-theme={atlas.id}
                         data-flow-number={node.number}
                         data-flow-title={node.title}
+                        data-flow-title-zh={node.title}
+                        data-flow-title-en={node.localizedTitle?.en ?? node.title}
+                        data-flow-title-ja={node.localizedTitle?.ja ?? node.title}
                         data-flow-summary={node.summary}
+                        data-flow-summary-zh={node.summary}
+                        data-flow-summary-en={node.localizedSummary?.en ?? node.summary}
+                        data-flow-summary-ja={node.localizedSummary?.ja ?? node.summary}
                         data-flow-art={node.art}
                         data-game-slug={node.gameSlug}
                         data-release-id={node.releaseId}
@@ -410,6 +455,7 @@ const lockedStorySlots = Array.from({ length: Math.max(0, 10 - storyScenes.lengt
                     <small data-xiii-flow-detail-number>SCENE {initialFlowNode?.number}</small>
                     <h3 data-xiii-flow-detail-title>{initialFlowNode?.title}</h3>
                     <p data-xiii-flow-detail-summary>{initialFlowNode?.summary}</p>
+                    <button type="button" class="tracks-xiii-flow-detail-enter" data-xiii-flow-enter>ENTER</button>
                   </div>
                 </div>
               </aside>
@@ -434,6 +480,9 @@ const lockedStorySlots = Array.from({ length: Math.max(0, 10 - storyScenes.lengt
                     data-xiii-story-slot
                     data-story-number={scene.number}
                     data-story-title={scene.title}
+                    data-story-title-zh={scene.title}
+                    data-story-title-en={scene.localizedTitle.en}
+                    data-story-title-ja={scene.localizedTitle.ja}
                     data-game-slug={"gameSlug" in scene ? scene.gameSlug : undefined}
                     data-release-id={"releaseId" in scene ? scene.releaseId : undefined}
                     data-scene-id={"sceneId" in scene ? scene.sceneId : undefined}
@@ -466,12 +515,15 @@ const lockedStorySlots = Array.from({ length: Math.max(0, 10 - storyScenes.lengt
         <section class="tracks-xiii-panel tracks-xiii-diary" id="tracks-xiii-panel-diary" data-xiii-panel="diary" role="region" aria-label="日记记录" aria-hidden="true">
           {diaryMonths.map((entry, index) => (
             <article
-              class="tracks-xiii-diary-month"
+              class={`tracks-xiii-diary-month${entry.playable ? "" : " is-unavailable"}`}
               data-xiii-diary-month={entry.id}
               data-diary-year={entry.year}
               data-diary-date={entry.dateLabel}
               data-diary-label={`${entry.month} / ${entry.year}`}
               data-diary-title={entry.title}
+              data-diary-title-zh={entry.title}
+              data-diary-title-en={entry.localizedTitle?.en ?? entry.title}
+              data-diary-title-ja={entry.localizedTitle?.ja ?? entry.title}
               data-diary-summary={entry.summary}
               data-diary-art={entry.art}
               data-diary-playable={String(entry.playable)}
@@ -484,15 +536,14 @@ const lockedStorySlots = Array.from({ length: Math.max(0, 10 - storyScenes.lengt
                 <small>{entry.month} — MONTHLY ARCHIVE</small>
                 <h3>{entry.title}</h3>
                 <p>{entry.summary}</p>
-                <span>OPEN THIS MONTH</span>
+                <span>{entry.playable ? "OPEN NVL RECORD" : "NVL RECORD NOT AVAILABLE"}</span>
               </div>
               <button
-                class="tracks-xiii-diary-cover"
+                class={`tracks-xiii-diary-cover${entry.playable ? "" : " is-unavailable"}`}
                 type="button"
                 data-xiii-diary-entry={entry.playable ? "" : undefined}
                 aria-label={entry.playable ? `读取 ${entry.dateLabel} 日记` : `${entry.dateLabel} 日记归档`}
-                aria-disabled={entry.playable ? undefined : "true"}
-                tabindex={entry.playable ? undefined : "-1"}
+                disabled={!entry.playable}
                 aria-pressed="false"
                 style={`--diary-art:url('${entry.art}')`}
               >
@@ -502,24 +553,6 @@ const lockedStorySlots = Array.from({ length: Math.max(0, 10 - storyScenes.lengt
               </button>
             </article>
           ))}
-
-          <section
-            class="tracks-xiii-diary-reader"
-            data-xiii-diary-reader
-            role="dialog"
-            aria-modal="true"
-            aria-hidden="true"
-            aria-label="日记阅读预览"
-          >
-            <div class="tracks-xiii-diary-reader-art" data-xiii-diary-reader-art style={`--diary-reader-art:url('${diaryMonths[0]?.art}')`} aria-hidden="true"></div>
-            <div class="tracks-xiii-diary-reader-copy">
-              <time data-xiii-diary-reader-date>{diaryMonths[0]?.dateLabel}</time>
-              <h3 data-xiii-diary-reader-title>{diaryMonths[0]?.title}</h3>
-              <p data-xiii-diary-reader-summary>{diaryMonths[0]?.summary}</p>
-              <nav class="tracks-xiii-diary-reader-links" data-xiii-diary-reader-links aria-label="本月文章"></nav>
-            </div>
-            <button class="tracks-xiii-diary-reader-close" type="button" data-xiii-diary-reader-close>RETURN</button>
-          </section>
         </section>
       </div>
     </div>
