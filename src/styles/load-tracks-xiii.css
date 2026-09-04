@@ -1774,6 +1774,34 @@ html.tracks-xiii-flow-open body {
   }
 }
 
+.tracks-xiii-flow-detail-enter {
+  position: absolute;
+  right: 2.3cqw;
+  bottom: 2.5cqh;
+  padding: .4em 0;
+  border: 0;
+  color: var(--tracks-accent, var(--v4-accent));
+  background: transparent;
+  font: 500 clamp(10px, .72cqw, 13px)/1 "Yu Gothic", sans-serif;
+  letter-spacing: .2em;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(.4rem);
+  transition: color 140ms ease, opacity 150ms ease, transform 180ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.tracks-xiii-canvas.has-expanded-flow .tracks-xiii-flow-detail-enter {
+  opacity: 1;
+  pointer-events: auto;
+  transform: none;
+}
+
+.tracks-xiii-flow-detail-enter:is(:hover, :focus-visible) {
+  color: var(--tracks-ink, var(--v4-ink));
+  outline: 0;
+  text-shadow: 0 0 1rem color-mix(in srgb, currentColor 36%, transparent);
+}
+
 @container (max-width: 1050px) {
   .tracks-xiii-primary-shell {
     right: 3.8cqw;

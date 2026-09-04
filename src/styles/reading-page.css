@@ -1031,10 +1031,12 @@ html[data-system-weather="false"] .reading-system-layer > #weather-canvas.readin
   position: absolute;
   z-index: -1;
   top: 0;
-  right: -1.75rem;
+  right: .2rem;
   bottom: 0;
   left: -1.5rem;
-  background: radial-gradient(ellipse at 82% 50%, rgb(164 205 214 / 16%), transparent 67%);
+  background: radial-gradient(ellipse at 58% 50%, rgb(164 205 214 / 18%), transparent 68%);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 24%, #000 74%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 24%, #000 74%, transparent);
   content: "";
   opacity: 0;
   transform: translateX(.5rem) scaleX(.9);
@@ -1062,6 +1064,11 @@ html[data-system-weather="false"] .reading-system-layer > #weather-canvas.readin
 }
 
 .reading-system.is-menu-open .ambient-dock {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.reading-system.is-menu-open .reading-scroll-rail {
   opacity: 0;
   pointer-events: none;
 }

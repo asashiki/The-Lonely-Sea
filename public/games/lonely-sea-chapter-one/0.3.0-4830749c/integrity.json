@@ -43,13 +43,13 @@
     },
     {
       "path": "assets/cursor-default-cursor-default.svg",
-      "bytes": 659,
-      "sha256": "9734d4feeeb1f420f4306a77792652444e1c688e842d49475a154daf3d495a47"
+      "bytes": 676,
+      "sha256": "dff12afa88a14557f80d8ef4dc65115668166b20c3354564131405d6c3ad376f"
     },
     {
       "path": "assets/cursor-select-cursor-select.svg",
-      "bytes": 783,
-      "sha256": "54b47648d11015a675c60ac76307904888654588b5f6a2e02f1c5956fcdd62a4"
+      "bytes": 801,
+      "sha256": "b511cd8d87a2dd11c51d72436567c57414ada9a5c93b20bc290a374421a6aa3c"
     },
     {
       "path": "assets/fig-alice-casual-side-maid_princess_normal_casual_side.png",
@@ -828,8 +828,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 1105613,
-      "sha256": "830fbe19b7c98478fcb2fbe220b1417c1a13ad948a322630e992852c921385ac"
+      "bytes": 1106260,
+      "sha256": "7303699d43984c815f222154707f99f7970c15f36448c610d597dde68f544f0a"
     },
     {
       "path": "manifest.json",

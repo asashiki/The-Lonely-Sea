@@ -155,44 +155,46 @@ body[data-cursor="special"] :is(button, a, input[type="button"], input[type="sub
 .choices {
   position: absolute;
   z-index: 9;
-  top: 13cqh;
+  top: 47%;
   bottom: auto;
   left: calc(var(--crop-x) + 5vw);
   display: flex;
-  width: min(47cqw, 56vw);
-  max-height: 50cqh;
+  width: min(42cqw, 42rem);
+  max-height: 54cqh;
   flex-direction: column;
-  gap: .65cqh;
-  transform: none;
+  gap: .9cqh;
+  transform: translateY(-50%);
 }
-.choices.left { right: auto; left: calc(var(--crop-x) + 5vw); transform: none; }
-.choices.center { left: 50%; width: min(52cqw, 62vw); transform: translateX(-50%); }
-.choices.right { right: calc(var(--crop-x) + 5vw); left: auto; transform: none; }
+.choices.left { right: auto; left: calc(var(--crop-x) + 6vw); transform: translateY(-50%); }
+.choices.center { left: 50%; width: min(44cqw, 44rem); transform: translate(-50%, -50%); }
+.choices.right { right: calc(var(--crop-x) + 6vw); left: auto; transform: translateY(-50%); }
 .choices.two { display: grid; width: min(54cqw, 64vw); grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 1.5vw; }
 .choices.two.left { left: calc(var(--crop-x) + 4vw); }
 .choices p { grid-column: 1 / -1; margin: 0 0 1.2cqh 1.35em; color: var(--stage-muted); text-align: left; letter-spacing: .08em; }
 .choices.center p { margin-left: 0; text-align: center; }
 .choices button {
   position: relative;
-  min-height: 6.2cqh;
-  padding: .48em 2.5em;
+  min-height: 5.6cqh;
+  padding: .42em 3em;
   border: 0;
-  background: linear-gradient(90deg, transparent, rgb(3 12 18 / 88%) 12%, rgb(4 17 24 / 92%) 50%, rgb(3 12 18 / 88%) 88%, transparent);
-  color: #f6f2e9;
-  font-size: clamp(16px, 2.25cqh, 24px);
+  background: linear-gradient(90deg, transparent 0, rgb(7 22 29 / 72%) 12%, rgb(8 25 33 / 88%) 50%, rgb(7 22 29 / 72%) 88%, transparent 100%);
+  color: rgb(244 244 239 / 88%);
+  font-size: clamp(15px, 2.05cqh, 22px);
   text-align: left;
   letter-spacing: .055em;
   text-shadow: 0 .12em .45em rgb(0 0 0 / 88%);
   cursor: pointer;
-  transition: color 90ms ease, filter 90ms ease, text-shadow 90ms ease;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 11%, #000 89%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 11%, #000 89%, transparent);
+  transition: color 100ms ease, filter 100ms ease, text-shadow 100ms ease, transform 120ms cubic-bezier(.22, 1, .36, 1), background 120ms ease;
 }
 .choices button::before {
   position: absolute;
   top: 50%;
-  left: 1.15em;
+  left: 1.55em;
   color: var(--stage-brass);
-  content: "›";
-  font-size: 1.05em;
+  content: "◆";
+  font-size: .52em;
   opacity: 0;
   transform: translateY(-52%);
 }
@@ -200,9 +202,10 @@ body[data-cursor="special"] :is(button, a, input[type="button"], input[type="sub
 .choices.center button::before { left: calc(50% - 5.4em); }
 .choices button:hover, .choices button.hovered, .choices button:focus-visible, .choices button.active {
   outline: none;
-  background: linear-gradient(90deg, transparent, rgb(78 123 136 / 84%) 12%, rgb(7 27 36 / 94%) 50%, rgb(78 123 136 / 84%) 88%, transparent);
+  background: linear-gradient(90deg, transparent 0, rgb(73 116 127 / 58%) 13%, rgb(13 38 47 / 94%) 50%, rgb(73 116 127 / 58%) 87%, transparent 100%);
   color: #fff;
   text-shadow: 0 0 16px rgb(216 181 120 / 32%);
+  transform: translateX(.28rem);
 }
 .choices button:hover::before,
 .choices button.hovered::before,
@@ -417,6 +420,7 @@ function runtimeLocale(){var value=String(settings["interface.language"]||"ZH-CN
 function localizedCopy(item,key,fallback){var copies=item&&item[key];return copies&&copies[runtimeLocale()]||fallback||""}
 function dialogueCopy(block){return interpolate(localizedCopy(block,"localizedText",block.text))}
 function choiceCopy(option){return localizedCopy(option,"localizedLabel",option.label)}
+function characterDisplayName(owner){if(!owner)return runtimeLocale()==="ja-JP"?"キャラクター":runtimeLocale()==="en-US"?"Character":"角色";if(owner.id==="char_alice")return runtimeLocale()==="ja-JP"?"アリス":runtimeLocale()==="en-US"?"Alice":"爱丽丝";return owner.displayName||owner.name||""}
 function evaluate(source){if(!source)return true;var match=source.match(/^\s*([\w\u4e00-\u9fff]+)\s*(==|!=|>=|<=|>|<)\s*(.+?)\s*$/);if(!match)return !!state.variables[source.trim()];var left=state.variables[match[1]],raw=match[3].replace(/^[\"']|[\"']$/g,""),right=raw==="true"?true:raw==="false"?false:isNaN(Number(raw))?raw:Number(raw);return match[2]==="=="?left==right:match[2]==="!="?left!=right:match[2]===">="?Number(left)>=Number(right):match[2]==="<="?Number(left)<=Number(right):match[2]===">"?Number(left)>Number(right):Number(left)<Number(right)}
 function variableName(id){var item=(game.variables||[]).find(function(value){return value.id===id});return item?item.name:id}
 function applyOperation(operation){var name=variableName(operation.variableId),current=state.variables[name];state.variables[name]=operation.operation==="toggle"?!current:operation.operation==="add"?Number(current||0)+Number(operation.value||0):operation.operation==="subtract"?Number(current||0)-Number(operation.value||0):(operation.value===undefined?(operation.expression||""):operation.value)}
@@ -480,7 +484,7 @@ function process(){
       var owner=character(block.characterId),figure=state.figures.find(function(item){return item.characterId===block.characterId});
       if(figure){figure.expressionId=block.expressionId||figure.expressionId;figure.position=block.position||figure.position;figure.transform=Object.assign({},figure.transform||{},block.transform||{})}
       else if(block.expressionId||block.position||block.transform)state.figures.push({characterId:block.characterId,expressionId:block.expressionId||(owner&&owner.defaultExpressionId),position:block.position||"center",transform:block.transform,visible:true});
-      state.log.push({speaker:owner?owner.displayName:"角色",text:dialogueCopy(block),blockId:block.id,sceneId:state.sceneId,voiceAssetId:block.voiceAssetId});
+      state.log.push({speaker:characterDisplayName(owner),text:dialogueCopy(block),blockId:block.id,sceneId:state.sceneId,voiceAssetId:block.voiceAssetId});
       state.waiting="advance";render();playVoice(block);return;
     }
     if(block.type==="narration"){state.log.push({speaker:block.mode==="nvl"||state.mode==="nvl"?"NVL":"旁白",text:interpolate(block.text),blockId:block.id,sceneId:state.sceneId});state.waiting="advance";render();return}
@@ -568,7 +572,7 @@ function renderFigures(){
     var key=appearance.id||appearance.assetId;if(wrap.dataset.expressionId===key)return;
     wrap.dataset.expressionId=key;var token=renderTokens[figure.characterId]||{alive:true,blinkAt:performance.now()+2000+Math.random()*4000,revision:0};token.alive=true;token.characterId=figure.characterId;token.revision=(token.revision||0)+1;renderTokens[figure.characterId]=token;
     if(appearance.facialMotion&&appearance.facialMotion.parts){var canvas=wrap.querySelector("canvas")||document.createElement("canvas");canvas.width=(appearance.facialMotion.canvas&&appearance.facialMotion.canvas.width)||1024;canvas.height=(appearance.facialMotion.canvas&&appearance.facialMotion.canvas.height)||1536;if(!canvas.isConnected){wrap.replaceChildren(canvas)}void animateFace(canvas,appearance,appearance.facialMotion,token,token.revision)}
-    else{var image=wrap.querySelector("img")||document.createElement("img"),source=asset(appearance.assetId),revision=token.revision;image.alt=owner?owner.displayName:"角色";loadImage(source).then(function(){if(token.revision===revision){image.src=source;if(!image.isConnected)wrap.replaceChildren(image)}})}
+    else{var image=wrap.querySelector("img")||document.createElement("img"),source=asset(appearance.assetId),revision=token.revision;image.alt=characterDisplayName(owner);loadImage(source).then(function(){if(token.revision===revision){image.src=source;if(!image.isConnected)wrap.replaceChildren(image)}})}
   });
   Array.from(figures.children).forEach(function(node){if(!active.has(node.dataset.characterId)){var token=renderTokens[node.dataset.characterId];if(token)token.alive=false;node.remove()}});
 }

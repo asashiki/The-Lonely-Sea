@@ -49,6 +49,7 @@ const categories = [
     latin: "GAME",
     subcategories: [
       { id: "text", label: "文字" },
+      { id: "game-sound", label: "声音" },
       { id: "voice", label: "角色语音" },
     ],
   },
@@ -72,8 +73,7 @@ const categories = [
             aria-controls={`option-secondary-${category.id}`}
             tabindex={index === 0 ? 0 : -1}
           >
-            <span>{category.label}</span>
-            <small aria-hidden="true">{category.latin}</small>
+            <span>{category.latin}</span>
           </button>
         ))}
       </nav>
@@ -186,12 +186,12 @@ const categories = [
                 <div class="option-setting-copy"><strong>全部静音</strong></div>
                 <div class="option-setting-control"><button class="option-switch" type="button" data-setting-toggle aria-pressed="false" aria-label="全部静音"><i aria-hidden="true"></i><output class="setting-value">关</output></button></div>
               </div>
-              <div class="option-setting" data-setting-key="bgmEnabled" data-setting-scope="game blog" data-hint="控制标题、文章与游戏的背景音乐">
-                <div class="option-setting-copy"><strong>背景音乐</strong></div>
+              <div class="option-setting" data-setting-key="bgmEnabled" data-setting-scope="blog" data-hint="控制标题、文章与鉴赏室的背景音乐">
+                <div class="option-setting-copy"><strong>站点背景音乐</strong></div>
                 <div class="option-setting-control"><button class="option-switch" type="button" data-setting-toggle aria-pressed="true" aria-label="背景音乐"><i aria-hidden="true"></i><output class="setting-value">开</output></button></div>
               </div>
-              <div class="option-setting" data-setting-key="bgmVolume" data-setting-scope="game blog" data-hint="调整全局背景音乐音量">
-                <div class="option-setting-copy"><strong>音乐音量</strong></div>
+              <div class="option-setting" data-setting-key="bgmVolume" data-setting-scope="blog" data-hint="调整标题、文章与鉴赏室的音乐音量">
+                <div class="option-setting-copy"><strong>站点音乐音量</strong></div>
                 <div class="option-setting-control"><label class="option-range"><span>小</span><input type="range" name="bgm-volume" min="0" max="100" step="1" data-setting-range aria-label="背景音乐音量"><span>大</span></label><output class="setting-value">60%</output></div>
               </div>
               <div class="option-setting" data-setting-key="interfaceVolume" data-setting-scope="game blog" data-hint="调整确认、返回与推进音效">
@@ -285,6 +285,22 @@ const categories = [
                   </article>
                 );
               })}
+            </div>
+          </section>
+
+          <section id="option-panel-game-sound" class="option-panel" data-option-panel="game-sound" data-option-panel-owner="game" role="tabpanel" hidden>
+            <header class="option-panel-intro">
+              <h3>声音</h3>
+            </header>
+            <div class="option-settings">
+              <div class="option-setting" data-setting-key="gameBgmEnabled" data-setting-scope="game" data-hint="只控制游戏自己的背景音乐">
+                <div class="option-setting-copy"><strong>游戏背景音乐</strong></div>
+                <div class="option-setting-control"><button class="option-switch" type="button" data-setting-toggle aria-pressed="true" aria-label="游戏背景音乐"><i aria-hidden="true"></i><output class="setting-value">开</output></button></div>
+              </div>
+              <div class="option-setting" data-setting-key="gameBgmVolume" data-setting-scope="game" data-hint="调整游戏内 BGM 音量，不影响站点音乐">
+                <div class="option-setting-copy"><strong>游戏音乐音量</strong></div>
+                <div class="option-setting-control"><label class="option-range"><span>小</span><input type="range" name="game-bgm-volume" min="0" max="100" step="1" data-setting-range aria-label="游戏背景音乐音量"><span>大</span></label><output class="setting-value">62%</output></div>
+              </div>
             </div>
           </section>
 

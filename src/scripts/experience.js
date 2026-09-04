@@ -16,6 +16,12 @@ import {
 import { initExperienceAudio } from "./experience/audio.js";
 import { initAmbientDock } from "./experience/ambient-dock.js";
 import {
+  fullscreenLabel,
+  isDocumentFullscreen,
+  onDocumentFullscreenChange,
+  toggleDocumentFullscreen,
+} from "./experience/fullscreen.js";
+import {
   createGalBlogLaunchIntent,
   createGalBlogLaunchUrl,
   createSaveLaunchUrl,
@@ -67,7 +73,10 @@ const languageGate = required("[data-first-language-gate]");
 const languageButtons = all("[data-first-language]", languageGate);
 const firstFullscreenButton = required("[data-first-fullscreen]", languageGate);
 const startCommand = required('[data-command="START"]');
+const gameShell = required("[data-game-shell]");
+const gameShellFrame = required("[data-game-shell-frame]", gameShell);
 let continueTarget = null;
+let pendingFirstGameLaunch = null;
 const reduceMotion = {
   get matches() {
     return systemReduceMotion.matches || preferences.reducedMotion;
@@ -101,6 +110,8 @@ let openingTimers = [];
 
 function beginExternalNavigation(url, label = "NOW LOADING") {
   if (routeBusy) return false;
+  const destination = new URL(url, window.location.href);
+  if (destination.origin === window.location.origin) return openGameShell(destination.href, label);
   routeBusy = true;
   experienceAudio.suspendForExternalNavigation();
   const active = document.activeElement instanceof HTMLElement ? document.activeElement : null;
@@ -113,6 +124,87 @@ function beginExternalNavigation(url, label = "NOW LOADING") {
   window.requestAnimationFrame(() => window.requestAnimationFrame(() => window.location.assign(url)));
   return true;
 }
+
+function openGameShell(url, label = "CONNECTING STORY") {
+  if (routeBusy) return false;
+  routeBusy = true;
+  experienceAudio.suspendForExternalNavigation();
+  routeCurtain.querySelector("strong").textContent = label;
+  routeCurtain.classList.add("is-covering");
+  routeCurtain.setAttribute("aria-hidden", "false");
+  gameShell.hidden = false;
+  gameShell.setAttribute("aria-hidden", "false");
+  stage.inert = true;
+  gameShellFrame.src = url;
+  return true;
+}
+
+function closeGameShell() {
+  gameShell.hidden = true;
+  gameShell.setAttribute("aria-hidden", "true");
+  gameShellFrame.src = "about:blank";
+  stage.inert = false;
+  routeCurtain.classList.remove("is-covering");
+  routeCurtain.setAttribute("aria-hidden", "true");
+  routeBusy = false;
+  experienceAudio.setTitleActive(opening.classList.contains("is-dismissed"));
+}
+
+function launchGame(url, label) {
+  return openGameShell(url, label);
+}
+
+function requestGameLaunch(url, label) {
+  if (!hasStoredPreferences()) {
+    pendingFirstGameLaunch = { url, label };
+    openLanguageGate();
+    return true;
+  }
+  return launchGame(url, label);
+}
+
+gameShellFrame.addEventListener("load", () => {
+  if (gameShell.hidden || gameShellFrame.src === "about:blank") return;
+  const destination = new URL(gameShellFrame.src, window.location.href);
+  if (destination.pathname.startsWith("/start/stories/")) return;
+  routeCurtain.classList.remove("is-covering");
+  routeCurtain.setAttribute("aria-hidden", "true");
+  routeBusy = false;
+  gameShellFrame.focus({ preventScroll: true });
+});
+
+window.addEventListener("message", (event) => {
+  if (event.origin !== window.location.origin || event.source !== gameShellFrame.contentWindow) return;
+  if (event.data?.type === "lonely-sea:shell-cover") {
+    routeBusy = true;
+    routeCurtain.querySelector("strong").textContent = String(event.data.label || "NOW LOADING");
+    routeCurtain.classList.add("is-covering");
+    routeCurtain.setAttribute("aria-hidden", "false");
+    return;
+  }
+  if (event.data?.type === "lonely-sea:shell-ready") {
+    routeCurtain.classList.remove("is-covering");
+    routeCurtain.setAttribute("aria-hidden", "true");
+    routeBusy = false;
+    gameShellFrame.focus({ preventScroll: true });
+    return;
+  }
+  if (event.data?.type !== "lonely-sea:game-navigate") return;
+  const target = new URL(String(event.data.path || ""), window.location.origin);
+  if (target.origin !== window.location.origin) return;
+  if (target.pathname === "/") {
+    closeGameShell();
+    const route = target.searchParams.get("screen");
+    if (ROUTES.has(route)) navigateTo(route, { instant: true });
+    else navigateTo("title", { instant: true });
+    return;
+  }
+  routeBusy = true;
+  routeCurtain.querySelector("strong").textContent = "OPENING RECORD";
+  routeCurtain.classList.add("is-covering");
+  routeCurtain.setAttribute("aria-hidden", "false");
+  gameShellFrame.src = target.href;
+});
 
 function hasStoredPreferences() {
   try { return localStorage.getItem(PREFERENCES_STORAGE_KEY) !== null; } catch { return false; }
@@ -129,7 +221,13 @@ function openLanguageGate() {
   languageGate.hidden = false;
   languageGate.setAttribute("aria-hidden", "false");
   stage.inert = true;
-  languageButtons[0]?.focus({ preventScroll: true });
+  const language = readPreferences().language;
+  languageButtons.forEach((button) => {
+    button.setAttribute("aria-checked", String(button.dataset.firstLanguage === language));
+  });
+  languageButtons.find((button) => button.dataset.firstLanguage === language)
+    ?.focus({ preventScroll: true });
+  syncFirstFullscreen();
 }
 
 function launchFirstChapter() {
@@ -138,32 +236,36 @@ function launchFirstChapter() {
       gameSlug: "lonely-sea-chapter-one",
       target: { kind: "start", id: "start" },
     });
-    beginExternalNavigation(createGalBlogLaunchUrl(intent), "CONNECTING STORY");
+    requestGameLaunch(createGalBlogLaunchUrl(intent), "CONNECTING STORY");
   } catch {
     refreshStatus("GAME LAUNCH UNAVAILABLE");
   }
 }
 
 function syncFirstFullscreen() {
-  const active = Boolean(document.fullscreenElement);
+  const active = isDocumentFullscreen();
+  const label = fullscreenLabel(active);
   firstFullscreenButton.setAttribute("aria-pressed", String(active));
-  firstFullscreenButton.textContent = active ? "退出全屏" : "全屏显示";
+  firstFullscreenButton.textContent = label;
 }
 
 firstFullscreenButton.addEventListener("click", async () => {
-  try {
-    if (document.fullscreenElement) await document.exitFullscreen();
-    else await document.documentElement.requestFullscreen();
-  } catch {}
+  try { await toggleDocumentFullscreen(); } catch {}
   syncFirstFullscreen();
 });
-document.addEventListener("fullscreenchange", syncFirstFullscreen);
+onDocumentFullscreenChange(syncFirstFullscreen);
 
 languageButtons.forEach((button, index) => {
   button.addEventListener("click", () => {
     preferences = publishPreferences({ ...readPreferences(), language: button.dataset.firstLanguage });
+    languageButtons.forEach((item) => {
+      item.setAttribute("aria-checked", String(item === button));
+    });
     closeLanguageGate({ focusStart: false });
-    launchFirstChapter();
+    const pendingLaunch = pendingFirstGameLaunch;
+    pendingFirstGameLaunch = null;
+    if (pendingLaunch) launchGame(pendingLaunch.url, pendingLaunch.label);
+    else launchFirstChapter();
   });
   button.addEventListener("keydown", (event) => {
     const direction = ["ArrowUp", "ArrowLeft"].includes(event.key)
@@ -251,6 +353,12 @@ function navigateTo(route, { instant = false } = {}) {
   const useTransition = !instant && !reduceMotion.matches && preferences.sceneCrossfade;
   if (!useTransition) body.classList.add("is-route-instant");
   setRoute(route);
+  if (useTransition && route !== "title") {
+    required(`[data-screen="${route}"]`).animate(
+      [{ opacity: .08 }, { opacity: 1 }],
+      { duration: 180, easing: "cubic-bezier(.22,1,.36,1)" },
+    ).finished.catch(() => {});
+  }
   if (!useTransition) window.requestAnimationFrame(() => body.classList.remove("is-route-instant"));
   routeBusy = false;
   if (route !== "title") {
@@ -333,6 +441,7 @@ const loadScreen = initLoadTracksXiiiConcept({
   reduceMotion,
   initialPage: requestedLoadPage,
   initialGameFilter: requestedGameFilter,
+  onArticleOpen: (href) => beginExternalNavigation(href, "OPENING RECORD"),
 });
 const extraScreen = initExtraScreen();
 const startScreen = initStartScreen({ reduceMotion });
@@ -388,7 +497,7 @@ window.addEventListener("lonely-sea:story-enter", (event) => {
       releaseId: releaseId || undefined,
       target: { kind: "scene", id: sceneId },
     });
-    beginExternalNavigation(createGalBlogLaunchUrl(intent), "OPENING STORY");
+    requestGameLaunch(createGalBlogLaunchUrl(intent), "OPENING STORY");
   } catch {
     refreshStatus("STORY LAUNCH UNAVAILABLE");
   }
@@ -410,7 +519,7 @@ window.addEventListener("lonely-sea:save-select", (event) => {
   const save = getGalBlogSave(event.detail?.saveId || "");
   if (!save) return;
   try {
-    beginExternalNavigation(createSaveLaunchUrl(save), "READING SAVE DATA");
+    requestGameLaunch(createSaveLaunchUrl(save), "READING SAVE DATA");
   } catch {
     refreshStatus("SAVE DATA UNAVAILABLE");
   }
@@ -420,8 +529,7 @@ all("[data-command]").forEach((button) => {
   button.addEventListener("click", (event) => {
     const command = button.dataset.command;
     if (command === "START") {
-      if (!hasStoredPreferences()) openLanguageGate();
-      else launchFirstChapter();
+      launchFirstChapter();
       return;
     }
     if (command === "CONTINUE" && continueTarget) {
@@ -439,7 +547,7 @@ all("[data-command]").forEach((button) => {
         return;
       }
       const save = getGalBlogSave(continueTarget.saveId);
-      if (save) beginExternalNavigation(createSaveLaunchUrl(save), "CONTINUING STORY");
+      if (save) requestGameLaunch(createSaveLaunchUrl(save), "CONTINUING STORY");
       else syncContinueButton();
       return;
     }

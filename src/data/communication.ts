@@ -15,5 +15,10 @@ export const communicationConfig = Object.freeze({
   }),
 });
 
-// 只在确认真实站点信息后加入；空数组会显示真实的空状态，不生成示例友链。
-export const publishedFriends: readonly PublishedFriend[] = Object.freeze([]);
+export const publishedFriends: readonly PublishedFriend[] = Object.freeze([
+  Object.freeze({
+    name: "714.fyi",
+    url: "https://714.fyi/",
+    description: "通往同一片孤独之海的另一处入口。",
+  }),
+]);

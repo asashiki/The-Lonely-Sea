@@ -7,13 +7,12 @@ import {
   listNvlSaves,
 } from "../../lib/nvl/save-store";
 import { recordBlogActivity } from "../../lib/blog-activity";
+import { readPreferences } from "./preferences.js";
 
 const LAST_LOAD_STORAGE_KEY = "lonely-sea-last-load";
 const KEYBOARD_CURSOR_STORAGE_KEY = "lonely-sea-load-keyboard-cursor";
 const PAGE_CAPACITY = 6;
 const ARTICLE_SLOT_CAPACITY = 24;
-const VIEW_DURATION = 270;
-const PAGE_DURATION = 520;
 const FLOW_DURATION = 460;
 
 /**
@@ -70,7 +69,6 @@ export function initLoadTracksXiiiConcept({
   const saveSlots = all("[data-xiii-save-slot]");
   const articleGrid = required("[data-xiii-article-grid]");
   const saveGrid = required(".tracks-xiii-save-grid");
-  const stage = required(".tracks-xiii-stage");
   const index = required(".tracks-xiii-index");
   const indexStack = required(".tracks-xiii-index-stack");
   const view = required("[data-xiii-view-transition]");
@@ -93,6 +91,7 @@ export function initLoadTracksXiiiConcept({
   const flowDetailNumber = required("[data-xiii-flow-detail-number]");
   const flowDetailTitle = required("[data-xiii-flow-detail-title]");
   const flowDetailSummary = required("[data-xiii-flow-detail-summary]");
+  const flowDetailEnter = required("[data-xiii-flow-enter]");
   const flowScrollIndicator = required("[data-xiii-flow-scroll-indicator]");
   const flowScrollThumb = required("[data-xiii-flow-scroll-thumb]");
   const storyScroll = required("[data-xiii-story-scroll]");
@@ -145,12 +144,9 @@ export function initLoadTracksXiiiConcept({
   let flowThemeAnimations = [];
   let flowDrag = null;
   let storyTrigger = null;
+  let storyTriggerKind = "story";
   let articleNavigationTimers = [];
   let transitionSerial = 0;
-  let transitionGhost = null;
-  let transitionIncomingGhost = null;
-  let transitionIndexGhost = null;
-  let transitionIncomingIndexGhost = null;
   let transitionAnimations = [];
   let transitionCleanupTimer = 0;
   let saveFeedbackTimer = 0;
@@ -169,20 +165,53 @@ export function initLoadTracksXiiiConcept({
     }));
   }
 
+  function languageSuffix() {
+    const language = readPreferences().language;
+    return language === "EN-US" ? "En" : language === "JA-JP" ? "Ja" : "Zh";
+  }
+
+  function localizedData(node, prefix) {
+    const suffix = languageSuffix();
+    return node?.dataset?.[`${prefix}${suffix}`]
+      || node?.dataset?.[`${prefix}Zh`]
+      || node?.dataset?.[prefix]
+      || "";
+  }
+
+  function applyLoadLanguage() {
+    flowThemeButtons.forEach((button) => {
+      button.textContent = localizedData(button, "flowLabel");
+    });
+    flowNodes.forEach((node) => {
+      node.dataset.flowTitle = localizedData(node, "flowTitle");
+      node.dataset.flowSummary = localizedData(node, "flowSummary");
+      node.setAttribute("aria-label", node.dataset.flowTitle || "STORY");
+    });
+    storySlots.forEach((slot) => {
+      const title = localizedData(slot, "storyTitle");
+      slot.dataset.storyTitle = title;
+      slot.querySelector(".tracks-xiii-story-copy strong")?.replaceChildren(title);
+      slot.setAttribute("aria-label", title);
+    });
+    diaryMonths.forEach((month) => {
+      const title = localizedData(month, "diaryTitle");
+      month.dataset.diaryTitle = title;
+      month.querySelector(".tracks-xiii-diary-copy h3")?.replaceChildren(title);
+    });
+    updateFlowCopy(selectedFlowNodeByTheme[flowTheme], { animate: false });
+    if (storyConfirm.getAttribute("aria-hidden") === "false" && storyTrigger) {
+      storyConfirmTitle.textContent = storyTriggerKind === "flow"
+        ? storyTrigger.dataset.flowTitle || ""
+        : storyTrigger.dataset.storyTitle || "";
+    }
+  }
+
   function clearTransition() {
     window.clearTimeout(transitionCleanupTimer);
     transitionCleanupTimer = 0;
     transitionAnimations.forEach((animation) => animation.cancel());
     transitionAnimations = [];
     all(".tracks-xiii-view-ghost, .tracks-xiii-index-ghost").forEach((ghost) => ghost.remove());
-    transitionGhost?.remove();
-    transitionGhost = null;
-    transitionIncomingGhost?.remove();
-    transitionIncomingGhost = null;
-    transitionIndexGhost?.remove();
-    transitionIndexGhost = null;
-    transitionIncomingIndexGhost?.remove();
-    transitionIncomingIndexGhost = null;
     view.style.removeProperty("visibility");
     indexStack.style.removeProperty("visibility");
     articleGrid.classList.remove("is-flipping");
@@ -215,100 +244,35 @@ export function initLoadTracksXiiiConcept({
     }
 
     clearTransition();
-    const ghost = view.cloneNode(true);
-    ghost.classList.add("tracks-xiii-view-ghost");
-    ghost.setAttribute("aria-hidden", "true");
-    ghost.inert = true;
-    all("[id]", ghost).forEach((node) => node.removeAttribute("id"));
-    stage.appendChild(ghost);
-    transitionGhost = ghost;
-    if (direction === 0) {
-      const indexGhost = indexStack.cloneNode(true);
-      indexGhost.classList.add("tracks-xiii-index-ghost");
-      indexGhost.setAttribute("aria-hidden", "true");
-      indexGhost.inert = true;
-      all("[id]", indexGhost).forEach((node) => node.removeAttribute("id"));
-      index.appendChild(indexGhost);
-      transitionIndexGhost = indexGhost;
-    }
-    commit();
-
-    const incomingGhost = view.cloneNode(true);
-    incomingGhost.classList.add("tracks-xiii-view-ghost", "is-incoming");
-    incomingGhost.setAttribute("aria-hidden", "true");
-    incomingGhost.inert = true;
-    all("[id]", incomingGhost).forEach((node) => node.removeAttribute("id"));
-    stage.appendChild(incomingGhost);
-    transitionIncomingGhost = incomingGhost;
-    view.style.visibility = "hidden";
-
-    if (transitionIndexGhost) {
-      const incomingIndexGhost = indexStack.cloneNode(true);
-      incomingIndexGhost.classList.add("tracks-xiii-index-ghost", "is-incoming");
-      incomingIndexGhost.setAttribute("aria-hidden", "true");
-      incomingIndexGhost.inert = true;
-      all("[id]", incomingIndexGhost).forEach((node) => node.removeAttribute("id"));
-      index.appendChild(incomingIndexGhost);
-      transitionIncomingIndexGhost = incomingIndexGhost;
-      indexStack.style.visibility = "hidden";
-    }
-
-    const duration = direction === 0 ? VIEW_DURATION : PAGE_DURATION;
-    const travel = direction === 0 ? 0 : direction * 12;
-    const easing = direction === 0
-      ? "cubic-bezier(0.22, 1, 0.36, 1)"
-      : "cubic-bezier(0.25, 1, 0.5, 1)";
-    transitionAnimations = [
-      ghost.animate(
+    const targets = direction === 0 ? [view, indexStack] : [view];
+    const travel = direction === 0 ? 4 : Math.sign(direction) * 8;
+    const outgoing = targets.map((target) => target.animate(
+      [
+        { opacity: 1, transform: "translate3d(0,0,0)" },
+        { opacity: .12, transform: `translate3d(${direction === 0 ? 0 : -travel}px,${direction === 0 ? travel : 0}px,0)` },
+      ],
+      { duration: 85, easing: "ease-out", fill: "both" },
+    ));
+    transitionAnimations = outgoing;
+    Promise.allSettled(outgoing.map((animation) => animation.finished)).then(() => {
+      if (serial !== transitionSerial) return;
+      outgoing.forEach((animation) => animation.cancel());
+      commit();
+      const incoming = targets.map((target) => target.animate(
         [
-          { opacity: 1, transform: "translate3d(0,0,0)" },
-          {
-            opacity: 0,
-            transform: direction === 0
-              ? "translate3d(0,.45vh,0)"
-              : `translate3d(${-travel}vw,0,0)`,
-          },
-        ],
-        { duration, easing, fill: "both" },
-      ),
-      incomingGhost.animate(
-        [
-          {
-            opacity: 0,
-            transform: direction === 0
-              ? "translate3d(0,-.35vh,0)"
-              : `translate3d(${travel}vw,0,0)`,
-          },
+          { opacity: .12, transform: `translate3d(${direction === 0 ? 0 : travel}px,${direction === 0 ? -travel : 0}px,0)` },
           { opacity: 1, transform: "translate3d(0,0,0)" },
         ],
-        { duration, easing, fill: "both" },
-      ),
-    ];
-    if (transitionIndexGhost && transitionIncomingIndexGhost) {
-      transitionAnimations.push(
-        transitionIndexGhost.animate(
-          [
-            { opacity: 1, transform: "translate3d(0,0,0)" },
-            { opacity: 0, transform: "translate3d(0,.3vh,0)" },
-          ],
-          { duration, easing, fill: "both" },
-        ),
-        transitionIncomingIndexGhost.animate(
-          [
-            { opacity: 0, transform: "translate3d(0,-.25vh,0)" },
-            { opacity: 1, transform: "translate3d(0,0,0)" },
-          ],
-          { duration, easing, fill: "both" },
-        ),
-      );
-    }
-    Promise.allSettled(transitionAnimations.map((animation) => animation.finished))
-      .then(() => {
-        if (serial === transitionSerial) clearTransition();
-      });
+        { duration: 135, easing: "cubic-bezier(.22,1,.36,1)", fill: "both" },
+      ));
+      transitionAnimations = incoming;
+      return Promise.allSettled(incoming.map((animation) => animation.finished));
+    }).then(() => {
+      if (serial === transitionSerial) clearTransition();
+    });
     transitionCleanupTimer = window.setTimeout(() => {
       if (serial === transitionSerial) clearTransition();
-    }, duration + 100);
+    }, 320);
   }
 
   function runArticleFilterTransition(commit, { animate = true, direction = 1 } = {}) {
@@ -320,51 +284,45 @@ export function initLoadTracksXiiiConcept({
     }
 
     clearTransition();
-    articleGrid.classList.add("is-flipping");
-    const visibleSlots = all(
-      ".tracks-xiii-record-slot:not(.is-page-hidden)",
-      articleGrid,
-    );
-    const travel = Math.max(96, (visibleSlots[0]?.getBoundingClientRect().height || 160) * .92);
-    const visibleSlotContent = () => all(
-      ".tracks-xiii-record-slot:not(.is-page-hidden) > *",
-      articleGrid,
-    );
-    const outgoing = visibleSlotContent().map((node) => node.animate(
+    const travel = Math.sign(direction || 1) * 8;
+    const outgoing = articleGrid.animate(
       [
         { opacity: 1, transform: "translate3d(0,0,0)" },
-        { opacity: .08, transform: `translate3d(0, ${-direction * travel}px, 0)` },
+        { opacity: .1, transform: `translate3d(0, ${-travel}px, 0)` },
       ],
       {
-        duration: 220,
-        easing: "cubic-bezier(0.25, 1, 0.5, 1)",
+        duration: 80,
+        easing: "ease-out",
         fill: "both",
       },
-    ));
-    transitionAnimations = outgoing;
+    );
+    transitionAnimations = [outgoing];
 
-    Promise.allSettled(outgoing.map((animation) => animation.finished))
+    outgoing.finished
       .then(() => {
         if (serial !== transitionSerial) return;
-        outgoing.forEach((animation) => animation.cancel());
+        outgoing.cancel();
         transitionAnimations = [];
         commit();
 
-        const incoming = visibleSlotContent().map((node) => node.animate(
+        const incoming = articleGrid.animate(
           [
-            { opacity: .08, transform: `translate3d(0, ${direction * travel}px, 0)` },
+            { opacity: .1, transform: `translate3d(0, ${travel}px, 0)` },
             { opacity: 1, transform: "translate3d(0,0,0)" },
           ],
           {
-            duration: 260,
-            easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+            duration: 130,
+            easing: "cubic-bezier(.22,1,.36,1)",
             fill: "both",
           },
-        ));
-        transitionAnimations = incoming;
-        return Promise.allSettled(incoming.map((animation) => animation.finished));
+        );
+        transitionAnimations = [incoming];
+        return incoming.finished;
       })
       .then(() => {
+        if (serial === transitionSerial) clearTransition();
+      })
+      .catch(() => {
         if (serial === transitionSerial) clearTransition();
       });
   }
@@ -853,6 +811,23 @@ export function initLoadTracksXiiiConcept({
     }));
   }
 
+  function openFlowConfirm(node, { animate = true } = {}) {
+    storyTrigger = node;
+    storyTriggerKind = "flow";
+    storyConfirmNumber.textContent = "SCENE " + (node.dataset.flowNumber || "--");
+    storyConfirmTitle.textContent = node.dataset.flowTitle || "";
+    storyConfirm.setAttribute("aria-hidden", "false");
+    setInterfaceInert(true);
+    dispatchCue("open", { target: "flow" });
+    if (animate && !reduceMotion.matches) {
+      storyConfirm.animate([{ opacity: 0 }, { opacity: 1 }], {
+        duration: 170,
+        easing: "cubic-bezier(.22,1,.36,1)",
+      }).finished.catch(() => {});
+    }
+    storyEnter.focus({ preventScroll: true });
+  }
+
   async function switchFlowTheme(nextTheme, { animate = true } = {}) {
     if (!["blue", "red"].includes(nextTheme) || nextTheme === flowTheme) return;
     const serial = ++flowThemeSerial;
@@ -1063,6 +1038,7 @@ export function initLoadTracksXiiiConcept({
 
   function openStoryConfirm(slot, { animate = true } = {}) {
     storyTrigger = slot;
+    storyTriggerKind = "story";
     storyConfirmNumber.textContent = "SCENE " + (slot.dataset.storyNumber || "--");
     storyConfirmTitle.textContent = slot.dataset.storyTitle || "";
     storyConfirm.setAttribute("aria-hidden", "false");
@@ -1089,6 +1065,7 @@ export function initLoadTracksXiiiConcept({
     storyRail.inert = false;
     storySlots.forEach((candidate) => candidate.removeAttribute("aria-pressed"));
     storyTrigger = null;
+    storyTriggerKind = "story";
     if (restoreFocus) trigger?.focus({ preventScroll: true });
     if (cue) dispatchCue("back", { target: "story" });
     return true;
@@ -1096,6 +1073,12 @@ export function initLoadTracksXiiiConcept({
 
   function enterStory() {
     if (!storyTrigger) return;
+    if (storyTriggerKind === "flow") {
+      const node = storyTrigger;
+      closeStoryConfirm({ restoreFocus: false, cue: false });
+      enterFlowNode(node);
+      return;
+    }
     dispatchCue("confirm", { target: "story-enter" });
     window.dispatchEvent(new CustomEvent("lonely-sea:story-enter", {
       detail: {
@@ -1538,7 +1521,7 @@ export function initLoadTracksXiiiConcept({
   flowNodes.forEach((node) => {
     node.addEventListener("click", (event) => {
       selectFlowNode(node, { animate: event.detail > 0 });
-      enterFlowNode(node);
+      if (!flowExpanded) openFlowConfirm(node, { animate: event.detail > 0 });
     });
   });
   flowThemeButtons.forEach((button) => {
@@ -1549,6 +1532,10 @@ export function initLoadTracksXiiiConcept({
 
   flowExpand.addEventListener("click", (event) => {
     setFlowExpanded(!flowExpanded, { animate: event.detail > 0 });
+  });
+  flowDetailEnter.addEventListener("click", () => {
+    const node = selectedFlowNodeByTheme[flowTheme];
+    if (node) enterFlowNode(node);
   });
   storyEnter.addEventListener("click", enterStory);
   storyCancel.addEventListener("click", () => closeStoryConfirm());
@@ -1590,6 +1577,7 @@ export function initLoadTracksXiiiConcept({
   });
   window.addEventListener(GAL_BLOG_SAVE_CHANGE_EVENT, syncSaveSlots);
   window.addEventListener(NVL_SAVE_CHANGE_EVENT, syncSaveSlots);
+  window.addEventListener("lonely-sea:preferences-change", applyLoadLanguage);
   window.addEventListener("storage", (event) => {
     if (event.key?.startsWith("lonely-sea:gal-blog-saves") || event.key?.startsWith("lonely-sea:nvl-saves")) {
       syncSaveSlots();
@@ -1629,6 +1617,7 @@ export function initLoadTracksXiiiConcept({
   }
 
   syncSaveSlots();
+  applyLoadLanguage();
   updateSelectionState();
 
   return {

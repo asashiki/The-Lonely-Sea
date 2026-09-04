@@ -308,7 +308,7 @@ export function initNvlEngine() {
     cutsceneMain.textContent = step.mainTitle || "";
     cutscene.setAttribute("aria-hidden", "false");
     cutscene.classList.add("is-active");
-    const duration = motionReduced() ? 260 : Math.min(Math.max(step.duration || 1200, 900), 1600);
+    const duration = motionReduced() ? 180 : Math.min(Math.max(step.duration || 800, 650), 1050);
     cutsceneTimer = window.setTimeout(finishCutscene, duration);
   }
 
@@ -324,7 +324,7 @@ export function initNvlEngine() {
       return;
     }
     page.classList.add("is-leaving");
-    transitionTimer = window.setTimeout(commit, 220);
+    transitionTimer = window.setTimeout(commit, 160);
   }
 
   function handleAdvance() {
@@ -527,7 +527,7 @@ export function initNvlEngine() {
         executeStep();
       }
     };
-    introTimer = window.setTimeout(reveal, motionReduced() ? 80 : 520);
+    introTimer = window.setTimeout(reveal, motionReduced() ? 60 : 320);
     return true;
   }
 

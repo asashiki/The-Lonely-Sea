@@ -342,3 +342,86 @@ section.blog-interaction-scene.is-bridge .blog-interaction-prompt p {
     transition: none;
   }
 }
+
+/* Game bridge input stays part of the stage: one prompt, two quiet text rows, then VN choices. */
+section.blog-interaction-scene.is-bridge .blog-dialogue-composer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(.55rem, 1.35svh, 1rem);
+  width: min(54rem, 82vw);
+}
+
+section.blog-interaction-scene.is-bridge .blog-dialogue-composer .blog-scene-question {
+  order: 0;
+  margin-bottom: .45rem;
+}
+
+section.blog-interaction-scene.is-bridge .blog-dialogue-composer .blog-dialogue-name,
+section.blog-interaction-scene.is-bridge .blog-dialogue-composer .blog-dialogue-url {
+  order: 1;
+  width: min(28rem, 72vw);
+}
+
+section.blog-interaction-scene.is-bridge .blog-dialogue-composer .blog-dialogue-line {
+  order: 2;
+  width: min(50rem, 82vw);
+}
+
+section.blog-interaction-scene.is-bridge .blog-dialogue-composer label > span {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+section.blog-interaction-scene.is-bridge .blog-dialogue-composer :is(input, textarea) {
+  border: 0;
+  border-radius: 0;
+  color: #fff;
+  background: radial-gradient(ellipse at center, rgb(8 29 38 / 88%), rgb(5 19 27 / 52%) 58%, transparent 76%);
+  box-shadow: none;
+  text-align: center;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+}
+
+section.blog-interaction-scene.is-bridge .blog-dialogue-composer input {
+  min-height: 3rem;
+  padding: .55rem 2.4rem;
+}
+
+section.blog-interaction-scene.is-bridge .blog-dialogue-composer textarea {
+  min-height: clamp(4.8rem, 10svh, 6.4rem);
+  padding: .8rem 3rem;
+}
+
+section.blog-interaction-scene.is-bridge .blog-dialogue-composer :is(input, textarea):focus {
+  outline: 0;
+  background: radial-gradient(ellipse at center, rgb(18 52 63 / 92%), rgb(6 23 31 / 58%) 60%, transparent 78%);
+}
+
+section.blog-interaction-scene.is-bridge .blog-dialogue-composer .blog-dialogue-feedback {
+  order: 3;
+}
+
+section.blog-interaction-scene.is-bridge .blog-dialogue-composer .blog-dialogue-actions {
+  order: 4;
+  gap: .15rem;
+  width: min(46rem, 80vw);
+}
+
+section.blog-interaction-scene.is-bridge .blog-dialogue-composer .blog-dialogue-actions button {
+  min-width: min(14rem, 25vw);
+  background: radial-gradient(ellipse at center, rgb(14 42 52 / 78%), transparent 76%);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+}
+
+section.blog-interaction-scene.is-bridge[data-active-view="comments"][data-interaction-intent="view"] .blog-dialogue-memory {
+  display: grid;
+  align-content: center;
+  width: min(52rem, 82vw);
+  margin-inline: auto;
+}

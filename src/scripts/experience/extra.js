@@ -1,5 +1,6 @@
 import {
   bangumiItems,
+  achievementText,
   cgItems,
   characterItems,
   externalActivity,
@@ -96,12 +97,33 @@ function projectText(value) {
   return value?.[language] || value?.["ZH-CN"] || "";
 }
 
+function bangumiTitle(item) {
+  return projectLanguage() === "ZH-CN"
+    ? item.title
+    : item.originalTitle || item.title;
+}
+
+function musicSourceCopy() {
+  const language = projectLanguage();
+  if (language === "JA-JP") return { source: "音源：NetEase Cloud Music", open: "プレイリストを開く" };
+  if (language === "EN-US") return { source: "Source: NetEase Cloud Music", open: "Open playlist" };
+  return { source: "音源来自网易云", open: "打开歌单" };
+}
+
 function projectTagText(tag) {
   return projectText(projectTagLabels[tag]) || tag;
 }
 
 function projectTitle(item) {
-  return projectText(item.title);
+  return typeof item.title === "string" ? item.title : (item.title?.["ZH-CN"] || "");
+}
+
+function extraDefaultFocus(mode) {
+  if (mode !== "character") return extraDefaults[mode];
+  const language = projectLanguage();
+  if (language === "JA-JP") return ["アリス", "灯台の案内役"];
+  if (language === "EN-US") return ["Alice", "Lighthouse Guide"];
+  return extraDefaults.character;
 }
 
 function projectRoomCopy() {
@@ -164,7 +186,6 @@ export function initExtraScreen() {
   const extraPageProgress = required("#extra-page-progress");
   const cgViewer = required("#cg-viewer");
   const cgViewerArt = required("#cg-viewer-art");
-  const cgViewerClose = required("#cg-viewer-close");
 
   let extraMode = "cg";
   let extraPage = 0;
@@ -692,6 +713,7 @@ export function initExtraScreen() {
 
   function renderMusic() {
     const current = musicItems[musicIndex];
+    const sourceCopy = musicSourceCopy();
     extraStage.innerHTML = `
       <div class="extra-room extra-music-room" data-music-tone="${escapeHtml(current.tone)}">
         ${roomHeading({
@@ -710,8 +732,8 @@ export function initExtraScreen() {
             <p class="extra-music-source">
               <button type="button" class="extra-music-source-mark" aria-expanded="false" aria-controls="extra-music-source-copy">SOURCE</button>
               <span class="extra-music-source-copy" id="extra-music-source-copy">
-                音源来自网易云。本 blog 无任何版权。
-                <a href="${escapeHtml(musicPlaylist.url)}" ${externalAttributes()}>打开歌单</a>
+                ${escapeHtml(sourceCopy.source)}
+                <a href="${escapeHtml(musicPlaylist.url)}" ${externalAttributes()}>${escapeHtml(sourceCopy.open)}</a>
               </span>
             </p>
           </div>
@@ -1083,13 +1105,13 @@ export function initExtraScreen() {
         class="extra-bangumi-card"
         type="button"
         data-bangumi-index="${index}"
-        data-focus-title="${escapeHtml(item.title)}"
+        data-focus-title="${escapeHtml(bangumiTitle(item))}"
         data-focus-action="SELECT RECORD"
         aria-pressed="${index === bangumiIndex}"
       >
         <span class="extra-bangumi-cover" aria-hidden="true"><img src="${escapeHtml(item.cover)}" alt="" loading="${itemPosition < 8 ? "eager" : "lazy"}" decoding="async" draggable="false"></span>
         <span class="extra-bangumi-copy">
-          <strong>${escapeHtml(item.title)}</strong>
+          <strong>${escapeHtml(bangumiTitle(item))}</strong>
         </span>
       </button>
     `).join("");
@@ -1102,7 +1124,7 @@ export function initExtraScreen() {
         <span class="extra-bangumi-focus-art is-visible" data-bangumi-focus-art style="${artStyle(selected.item.cover)}" aria-hidden="true"></span>
         <span class="extra-bangumi-focus-art" data-bangumi-focus-art aria-hidden="true"></span>
         <div class="extra-bangumi-focus-copy">
-          <h4 data-bangumi-focus-title>${escapeHtml(selected.item.title)}</h4>
+          <h4 data-bangumi-focus-title>${escapeHtml(bangumiTitle(selected.item))}</h4>
           <p class="extra-bangumi-focus-note" data-bangumi-focus-note${selected.item.total ? "" : " hidden"}>${escapeHtml(selected.item.total ? `PROGRESS ${selected.item.progress} / ${selected.item.total}` : "")}</p>
           <div class="extra-bangumi-nvl extra-scroll-shell" data-bangumi-nvl>
             <div class="extra-bangumi-nvl-body" data-extra-scroll tabindex="0">
@@ -1176,7 +1198,7 @@ export function initExtraScreen() {
         syncBangumiEdgeFade(viewport);
       }
       updatePageControls();
-      if (selected) setFocus(selected.item.title, "OPEN BANGUMI");
+      if (selected) setFocus(bangumiTitle(selected.item), "OPEN BANGUMI");
       else setFocus(...extraDefaults.bangumi);
     };
 
@@ -1350,7 +1372,16 @@ export function initExtraScreen() {
   }
 
   function renderAchievement() {
-    const resolvedItems = resolveAchievements();
+    const language = projectLanguage();
+    const stateCopy = language === "JA-JP"
+      ? { unlocked: "取得済み", locked: "未取得" }
+      : language === "EN-US"
+        ? { unlocked: "UNLOCKED", locked: "LOCKED" }
+        : { unlocked: "已取得", locked: "未取得" };
+    const resolvedItems = resolveAchievements().map((item) => ({
+      ...item,
+      ...achievementText(item, language),
+    }));
     const unlocked = resolvedItems.filter((item) => item.unlocked);
     extraStage.innerHTML = `
       <div class="extra-room extra-achievement-room">
@@ -1369,11 +1400,11 @@ export function initExtraScreen() {
                 data-achievement-id="${escapeHtml(item.id)}"
                 tabindex="0"
               >
-                <span class="extra-achievement-state" aria-label="${item.unlocked ? "已取得" : "未取得"}">${achievementIcon(item.id)}</span>
+                <span class="extra-achievement-state" aria-label="${item.unlocked ? stateCopy.unlocked : stateCopy.locked}">${achievementIcon(item.id)}</span>
                 <div>
                   <strong>${escapeHtml(item.name)}</strong>
                 </div>
-                <em>${escapeHtml(item.unlocked ? (item.date || "已取得") : "未取得")}</em>
+                <em>${escapeHtml(item.unlocked ? (item.date || stateCopy.unlocked) : stateCopy.locked)}</em>
               </article>
             `).join("")}
           </div>
@@ -1532,48 +1563,6 @@ export function initExtraScreen() {
     syncBangumiEdgeFade(viewport);
   }
 
-  async function refreshCurrentMode(mutator, { animate = true, direction = 1 } = {}) {
-    if (pageSliding) return;
-    if (!animate || preferencesReduceMotion()) {
-      mutator();
-      renderMode();
-      return;
-    }
-
-    pageSliding = true;
-    let committed = false;
-    const outgoingRoom = extraStage.firstElementChild;
-    const outgoing = outgoingRoom?.animate(
-      [
-        { opacity: 1, transform: "translate3d(0,0,0)" },
-        { opacity: 0, transform: `translate3d(${-direction * 10}px,0,0)` },
-      ],
-      { duration: 130, easing: "cubic-bezier(.25,1,.5,1)", fill: "both" },
-    );
-    try {
-      await outgoing?.finished;
-      mutator();
-      committed = true;
-      renderMode();
-      const incomingRoom = extraStage.firstElementChild;
-      const incoming = incomingRoom?.animate(
-        [
-          { opacity: 0, transform: `translate3d(${direction * 12}px,0,0)` },
-          { opacity: 1, transform: "translate3d(0,0,0)" },
-        ],
-        { duration: 240, easing: "cubic-bezier(.22,1,.36,1)", fill: "both" },
-      );
-      await incoming?.finished;
-      incoming?.cancel();
-    } catch {
-      if (!committed) mutator();
-      renderMode();
-    } finally {
-      outgoing?.cancel();
-      pageSliding = false;
-    }
-  }
-
   function showBangumiFocus(index, { animate = true, commit = false } = {}) {
     const item = bangumiItems[index];
     const focus = extraStage.querySelector("[data-bangumi-focus]");
@@ -1602,7 +1591,7 @@ export function initExtraScreen() {
         }
       }
 
-      required("[data-bangumi-focus-title]", focus).textContent = item.title;
+      required("[data-bangumi-focus-title]", focus).textContent = bangumiTitle(item);
       const note = required("[data-bangumi-focus-note]", focus);
       note.textContent = item.total ? `PROGRESS ${item.progress} / ${item.total}` : "";
       note.hidden = !note.textContent;
@@ -1620,7 +1609,7 @@ export function initExtraScreen() {
       all("[data-bangumi-index]", extraStage).forEach((button) => {
         button.setAttribute("aria-pressed", String(Number(button.dataset.bangumiIndex) === index));
       });
-      setFocus(item.title, "OPEN BANGUMI");
+      setFocus(bangumiTitle(item), "OPEN BANGUMI");
     }
   }
 
@@ -1802,7 +1791,7 @@ export function initExtraScreen() {
     });
     renderMode();
     if (mode === "achievement") setFocus("", "");
-    else setFocus(...extraDefaults[mode]);
+    else setFocus(...extraDefaultFocus(mode));
     syncListenDock();
   }
 
@@ -1869,6 +1858,7 @@ export function initExtraScreen() {
     cgViewerAnimation = null;
     cgViewer.classList.remove("is-closing");
     cgViewer.classList.toggle("is-opening", !wasOpen);
+    cgViewerArt.style.removeProperty("opacity");
     cgIndex = index;
     recordBlogActivity("cgItems", String(index));
     cgViewerArt.style.setProperty("--cg-art", `url("${item.art}")`);
@@ -1879,7 +1869,7 @@ export function initExtraScreen() {
       `CG ${String(unlockedIndex + 1).padStart(2, "0")} / ${String(unlocked.length).padStart(2, "0")}`;
     required("#cg-viewer-title").textContent = item.title;
     cgViewer.setAttribute("aria-hidden", "false");
-    cgViewerClose.focus({ preventScroll: true });
+    cgViewer.focus({ preventScroll: true });
 
     const originArt = origin?.querySelector(".extra-cg-art") ?? origin;
     cgOriginRect = originArt?.getBoundingClientRect?.() ?? null;
@@ -1969,11 +1959,15 @@ export function initExtraScreen() {
       .catch(() => {})
       .finally(() => {
         if (cgViewerAnimation !== animation || transitionId !== cgViewerTransitionToken) return;
+        cgViewerArt.style.opacity = "0";
         cgViewer.setAttribute("aria-hidden", "true");
-        cgViewer.classList.remove("is-closing", "is-opening");
-        animation.cancel();
-        cgViewerAnimation = null;
         cgOriginRect = null;
+        window.setTimeout(() => {
+          if (transitionId !== cgViewerTransitionToken) return;
+          cgViewer.classList.remove("is-closing", "is-opening");
+          animation.cancel();
+          if (cgViewerAnimation === animation) cgViewerAnimation = null;
+        }, 440);
       });
     return true;
   }
@@ -2072,7 +2066,6 @@ export function initExtraScreen() {
   all("[data-cg-direction]", cgViewer).forEach((button) => {
     button.addEventListener("click", () => moveCgViewer(Number(button.dataset.cgDirection)));
   });
-  cgViewerClose.addEventListener("click", closeCg);
   cgViewer.querySelector(".cg-viewer-backdrop")?.addEventListener("click", closeCg);
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
@@ -2088,7 +2081,13 @@ export function initExtraScreen() {
   });
   window.addEventListener("lonely-sea:preferences-change", () => {
     if (extraMode === "projects") renderProjects();
-    else if (extraMode === "character") renderCharacter();
+    else if (extraMode === "bangumi") renderBangumi();
+    else if (extraMode === "music") renderMusic();
+    else if (extraMode === "character") {
+      renderCharacter();
+      setFocus(...extraDefaultFocus("character"));
+    }
+    else if (extraMode === "achievement") renderAchievement();
     else return;
     bindStage();
     updatePageControls();
