@@ -1,0 +1,267 @@
+{
+  "gameId": "lonely-sea-chapter-one",
+  "version": "0.2.0-0cc652e9",
+  "language": "en-US",
+  "title": "The Lonely Sea · Chapter One (Lighthouse Visitor)",
+  "character": "Alice",
+  "scenes": {
+    "scene_root": {
+      "name": "START · Lighthouse Visitor",
+      "dialogues": {
+        "root-d1": {
+          "speaker": "Alice",
+          "text": "...Ah, you have arrived. Leave the sound of the ocean outside by the door.",
+          "vocal": "project-assets/voice/chapter-one/root_welcome.mp3"
+        },
+        "root-d2": {
+          "speaker": "Alice",
+          "text": "Master is still wrestling with this Blog, so I will be guiding you today.",
+          "vocal": "project-assets/voice/chapter-one/root_bridge.mp3"
+        },
+        "root-d3": {
+          "speaker": "Alice",
+          "text": "Which part would you like to see first?",
+          "vocal": "project-assets/voice/chapter-one/root_choose.mp3"
+        }
+      },
+      "choices": {
+        "root_site": "About This Site",
+        "root_master": "About the Webmaster",
+        "root_alice": "About Me"
+      }
+    },
+    "scene_site_menu": {
+      "name": "About This Site",
+      "dialogues": {
+        "site-d1": {
+          "speaker": "Alice",
+          "text": "The Lonely Sea is Master's personal archive for preserving essays and memories.",
+          "vocal": "project-assets/voice/chapter-one/site_intro.mp3"
+        },
+        "site-d2": {
+          "speaker": "Alice",
+          "text": "Technology and Web creation, anime, games, diaries—though their entrances differ, they all flow into the same sea.",
+          "vocal": "project-assets/voice/chapter-one/site_scope.mp3"
+        },
+        "site-load-d1": {
+          "speaker": "Alice",
+          "text": "This is the active LOAD interface. Reading positions for essays, game save files, and diary records are managed separately here.",
+          "vocal": "project-assets/voice/chapter-one/site_load.mp3"
+        },
+        "site-load-d2": {
+          "speaker": "Alice",
+          "text": "When saving a game, the save file captures the scene at that moment; loading brings you straight back to that exact fragment.",
+          "vocal": "project-assets/voice/chapter-one/site_load_return.mp3"
+        },
+        "site-extra-d1": {
+          "speaker": "Alice",
+          "text": "EXTRA is the archive room unlocked after viewing: CGs, music, project records, Bangumi, videos, and character profiles are all accessed from here.",
+          "vocal": "project-assets/voice/chapter-one/site_extra.mp3"
+        },
+        "site-option-d1": {
+          "speaker": "Alice",
+          "text": "OPTION is divided into System, Game, and Blog. Text speed, audio, animations, and cursor styles are saved instantly and synchronized with the game.",
+          "vocal": "project-assets/voice/chapter-one/site_option.mp3"
+        },
+        "site-vn-d1": {
+          "speaker": "Alice",
+          "text": "The guide you are viewing right now is itself Chapter 1 of the visual novel, sharing saves, settings, and return logic with the Blog.",
+          "vocal": "project-assets/voice/chapter-one/site_vn.mp3"
+        },
+        "site-vn-d2": {
+          "speaker": "Alice",
+          "text": "The game's title, save, and option menus do not branch off separately; they lead right back to their corresponding pages on the Blog."
+        }
+      },
+      "choices": {
+        "site_system": "System Features",
+        "site_load": "About LOAD",
+        "site_extra": "About EXTRA",
+        "site_option": "About OPTION",
+        "site_vn": "About Visual Novel",
+        "site_more": "More",
+        "site_back": "Back"
+      }
+    },
+    "scene_site_more_menu": {
+      "name": "More About This Site",
+      "dialogues": {
+        "more-history-d": {
+          "speaker": "Alice",
+          "text": "The Lonely Sea evolved from a simple personal blog into the current Galgame-style reader; older versions remain as history rather than pretending to be the present."
+        },
+        "more-progress-d": {
+          "speaker": "Alice",
+          "text": "Current priorities are stabilizing Chapter 1, save thumbnails, CONTINUE, settings synchronization, and reliable Studio exports."
+        },
+        "more-scraps-d": {
+          "speaker": "Alice",
+          "text": "Unused layouts and interactions are organized into design archives, preventing us from repeating the same missteps in future iterations."
+        },
+        "more-support-d": {
+          "speaker": "Alice",
+          "text": "The tipping portal is not ready yet. Once the official page is published, any payment methods will strictly follow the Blog's public notices."
+        }
+      },
+      "choices": {
+        "more_history": "Site History",
+        "more_progress": "Production Progress",
+        "more_scraps": "Discarded Designs",
+        "more_support": "Support",
+        "more_back": "Back"
+      }
+    },
+    "scene_site_system_menu": {
+      "name": "System Features",
+      "dialogues": {
+        "system-d1": {
+          "speaker": "Alice",
+          "text": "These are the features actively invoked between the Blog and the game."
+        },
+        "system-comment-d": {
+          "speaker": "Alice",
+          "text": "Leaving a message calls the Blog's native input interface; text is saved locally on this device and will not pretend to be sent to external services."
+        },
+        "system-links-d": {
+          "speaker": "Alice",
+          "text": "Friend links can be viewed here, and you can submit site names and URLs; before server integration, submissions remain local."
+        },
+        "system-rss-d": {
+          "speaker": "Alice",
+          "text": "RSS is connected to the Blog's live article feed at /rss.xml; new posts are added to the feed whenever the site is redeployed."
+        },
+        "system-lab-d": {
+          "speaker": "Alice",
+          "text": "The Game Testing Ground is the live validation area for this Studio and Blog Bridge. Every exported release has a unique build number and integrity check."
+        }
+      },
+      "choices": {
+        "system_comment": "Guestbook",
+        "system_links": "Friend Links",
+        "system_rss": "RSS",
+        "system_lab": "Game Testing Ground",
+        "system_back": "Back"
+      }
+    },
+    "scene_master_menu": {
+      "name": "About the Webmaster",
+      "dialogues": {
+        "master-d1": {
+          "speaker": "Alice",
+          "text": "The webmaster is Asashiki (浅仪式).",
+          "vocal": "project-assets/voice/chapter-one/master_intro.mp3"
+        },
+        "master-d2": {
+          "speaker": "Alice",
+          "text": "I will not make up answers about things Master has not publicly shared just to fill up menu slots.",
+          "vocal": "project-assets/voice/chapter-one/master_guard.mp3"
+        },
+        "master-work-d": {
+          "speaker": "Alice",
+          "text": "The clearest focus right now is connecting the Blog, the Studio, and this guided game into a unified system."
+        },
+        "master-contact-d": {
+          "speaker": "Alice",
+          "text": "Public contact details should be checked against the Blog's officially published pages. Unverified accounts will not be listed here."
+        }
+      },
+      "choices": {
+        "master_work": "What He's Working On",
+        "master_interest": "Main Interests",
+        "master_contact": "Contact Information",
+        "master_more": "More",
+        "master_back": "Back"
+      }
+    },
+    "scene_master_interest_menu": {
+      "name": "Main Interests",
+      "dialogues": {
+        "interest-anime-d": {
+          "speaker": "Alice",
+          "text": "Anime records are cataloged in articles and Bangumi archives; yearly summaries and watch history are answered by real data."
+        },
+        "interest-game-d": {
+          "speaker": "Alice",
+          "text": "Gaming records include playthrough impressions as well as technical experiments like integrating this visual novel into the Blog."
+        }
+      },
+      "choices": {
+        "interest_anime": "Anime",
+        "interest_game": "Games",
+        "interest_back": "Back"
+      }
+    },
+    "scene_master_more_menu": {
+      "name": "More About the Webmaster",
+      "dialogues": {
+        "master-more-d1": {
+          "speaker": "Alice",
+          "text": "The items beyond here are more personal. Without Master's original manuscripts, I only mark the doorways without recounting his life for him."
+        },
+        "mm-computer-d": {
+          "speaker": "Alice",
+          "text": "Computer science and web engineering will gradually be documented through technical essays, project logs, and actual source code."
+        },
+        "mm-devices-d": {
+          "speaker": "Alice",
+          "text": "The software and hardware inventory has not been verified by Master, so the current build avoids speculative placeholders."
+        },
+        "mm-name-d": {
+          "speaker": "Alice",
+          "text": "A dedicated doorway exists for the origin of 'Asashiki', but the full story awaits Master's own words."
+        },
+        "mm-private-d": {
+          "speaker": "Alice",
+          "text": "This page requires Master's personal writing. When the manuscript is ready, I will preserve its nuances faithfully."
+        },
+        "mm-feed-d": {
+          "speaker": "Alice",
+          "text": "Tipping portals also await the official page. No payment or account details will be fabricated by me."
+        }
+      },
+      "choices": {
+        "mm_computer": "Computer Science",
+        "mm_devices": "Software & Hardware",
+        "mm_name": "Origin of the Name",
+        "mm_philosophy": "Philosophy",
+        "mm_family": "Family of Origin",
+        "mm_life": "Life Experiences",
+        "mm_feed": "Support",
+        "mm_back": "Back"
+      }
+    },
+    "scene_alice_about": {
+      "name": "About Alice",
+      "dialogues": {
+        "alice-d1": {
+          "speaker": "Alice",
+          "text": "I am Alice. Living in this lighthouse, I connect visitors to the Blog and the stories within.",
+          "vocal": "project-assets/voice/chapter-one/alice_intro.mp3"
+        },
+        "alice-d2": {
+          "speaker": "Alice",
+          "text": "I call Asashiki 'Master'. As for our guests, I remain polite—and occasionally make gentle, quiet jokes.",
+          "vocal": "project-assets/voice/chapter-one/alice_name.mp3"
+        },
+        "alice-d3": {
+          "speaker": "Alice",
+          "text": "Please start wherever you feel drawn to. I will remain right here, waiting for your return.",
+          "vocal": "project-assets/voice/chapter-one/alice_close.mp3"
+        },
+        "alice-duty-d": {
+          "speaker": "Alice",
+          "text": "I guide visitors, explain features, and return requests to the Blog whenever the game calls for saves, settings, or exits."
+        },
+        "alice-home-d": {
+          "speaker": "Alice",
+          "text": "This is a room inside the lighthouse. Outside is the sea, and on the desk rest unfinished archives."
+        }
+      },
+      "choices": {
+        "alice_duty": "What are your duties?",
+        "alice_home": "Where is this place?",
+        "alice_back": "Back"
+      }
+    }
+  }
+}

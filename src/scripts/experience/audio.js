@@ -1,4 +1,5 @@
 import { publishPreferences, readPreferences } from "./preferences.js";
+import { BLOG_BGM_TRACKS } from "../../data/site-bgm.js";
 import {
   createSoundDesignPlayer,
   getSoundPreset,
@@ -9,9 +10,7 @@ import {
 const AUDIO_MUTE_STORAGE_KEY = "lonely-sea-audio-muted";
 const AUDIO_CONTROLLER_KEY = "__lonelySeaAudioController";
 const BGM_SESSION_KEY = "lonely-sea-bgm-session-v1";
-const BGM_TRACKS = Object.freeze([
-  "/assets/lonely-sea/quiet-tide.mp3",
-]);
+const BGM_TRACKS = BLOG_BGM_TRACKS;
 
 const POINTER_TARGETS = [
   "button",
@@ -243,6 +242,12 @@ function clickCue(target) {
 export function initExperienceAudio() {
   const existing = window[AUDIO_CONTROLLER_KEY];
   if (existing) return existing;
+  let bgmOwner = null;
+  try {
+    if (window.parent !== window && document.querySelector(".reading-system")) {
+      bgmOwner = window.parent[AUDIO_CONTROLLER_KEY] || null;
+    }
+  } catch {}
 
   let preferences = readPreferences();
   let soundSelection = readSoundSelection();
@@ -327,6 +332,7 @@ export function initExperienceAudio() {
   }
 
   function startBgm() {
+    if (bgmOwner) return;
     if (!titleActive || listenHold || document.hidden) return;
     const player = ensureBgm();
     setBgmVolume();
@@ -490,40 +496,43 @@ export function initExperienceAudio() {
     return CUE_ALIASES[cue] || "confirm";
   }
 
+  const uiSamples = new Map();
+  let activeUiSample = null;
+  let activeUiCue = "";
+  const sampleFiles = {
+    hover: "cursor1", select: "cursor1", tick: "cursor1",
+    start: "decision25", back: "cancel4", close: "cancel4",
+    page: "decision23", toggleOn: "decision23", toggleOff: "decision23",
+  };
+  function stopUiSample() {
+    activeUiSample?.pause();
+    activeUiSample = null;
+    activeUiCue = "";
+  }
   function playUiCue(requestedCue = "confirm", detail = {}) {
     if (muted || preferences.interfaceVolume <= 0) return false;
     const cue = normalizeCue(requestedCue);
-    const design = UI_CUES[cue] || UI_CUES.confirm;
+    // Pointer-down only unlocks audio; the completed action owns its sound.
+    if (cue === "press") return false;
+    const subtle = ["hover", "select", "tick"].includes(cue);
+    if (subtle && activeUiSample && !activeUiSample.paused
+      && !["hover", "select", "tick"].includes(activeUiCue)) return false;
     const now = performance.now();
-    const lastTime = cueTimes.get(cue) || -Infinity;
-    if (!detail.force && now - lastTime < design.cooldown) return false;
-    const selectedPreset = getSoundPreset(soundSelection[cue]);
-    if (selectedPreset) {
-      const result = ensureSoundDesigner().play(selectedPreset, {
-        unlock: detail.unlock === true,
-        volumeScale: Math.max(.5, Math.min(1.15, design.level + .28)),
-      });
-      if (!result) return false;
-      cueTimes.set(cue, now);
-      return true;
+    if (!detail.force && now - (cueTimes.get(cue) ?? -Infinity) < UI_CUES[cue].cooldown) return false;
+    const file = sampleFiles[cue] || "decision33";
+    let sample = uiSamples.get(file);
+    if (!sample) {
+      sample = new Audio(`/assets/audio/ui/${file}.mp3`);
+      sample.preload = "auto";
+      uiSamples.set(file, sample);
     }
-    if (!cueContext && !detail.unlock) return false;
-    const context = ensureCueContext();
-    if (!context || !cueInput || context.state === "closed") return false;
-    if (context.state !== "running") {
-      if (!detail.unlock) return false;
-      const requestedAt = performance.now();
-      context.resume().then(() => {
-        if (performance.now() - requestedAt > 180) return;
-        playUiCue(cue, { ...detail, force: true, unlock: false });
-      }).catch(() => {});
-      return false;
-    }
+    stopUiSample();
+    sample.currentTime = 0;
+    sample.volume = clampVolume(preferences.interfaceVolume) * (subtle ? 0.22 : 0.55);
+    activeUiSample = sample;
+    activeUiCue = cue;
     cueTimes.set(cue, now);
-    const direction = Number(detail.direction) || 0;
-    const pan = Number.isFinite(Number(detail.pan)) ? Number(detail.pan) : direction * 0.14;
-    design.tones.forEach((tone) => playTone(context, tone, design.level, pan));
-    if (design.noise) playNoise(context, design.noise, design.level, pan);
+    sample.play().catch(() => {});
     return true;
   }
 
@@ -621,10 +630,14 @@ export function initExperienceAudio() {
     const wasMuted = muted;
     const wasBgmEnabled = bgmEnabled;
     const nextPreferences = event.detail?.preferences || readPreferences();
+    bgmOwner?.syncPreferences?.(nextPreferences);
     const nextMuted = nextPreferences.masterMuted === true;
     if (!wasMuted && nextMuted) markAndPlay("toggleOff", { force: true });
     preferences = nextPreferences;
     muted = nextMuted;
+    if (muted || preferences.interfaceVolume <= 0) stopUiSample();
+    else if (activeUiSample) activeUiSample.volume = clampVolume(preferences.interfaceVolume)
+      * (["hover", "select", "tick"].includes(activeUiCue) ? 0.22 : 0.55);
     bgmEnabled = preferences.bgmEnabled !== false;
     document.documentElement.dataset.audioMuted = String(muted);
     updateCueVolume();
@@ -685,6 +698,7 @@ export function initExperienceAudio() {
   window.addEventListener("lonely-sea:achievement-unlock", () => markAndPlay("achievement"));
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
+      stopUiSample();
       persistBgm();
       stopBgm();
       return;
@@ -696,6 +710,9 @@ export function initExperienceAudio() {
     soundSelection = event.detail?.selection || readSoundSelection();
   });
   window.addEventListener("lonely-sea:listen-hold", (event) => {
+    if (bgmOwner) {
+      window.parent.dispatchEvent(new window.parent.CustomEvent("lonely-sea:listen-hold", { detail: event.detail }));
+    }
     listenHold = event.detail?.active === true;
     if (listenHold) stopBgm();
     else startBgm();
@@ -704,6 +721,7 @@ export function initExperienceAudio() {
     persistBgm();
     stopBgm();
     soundDesigner?.stopAll();
+    stopUiSample();
   });
 
   const controller = {
@@ -714,12 +732,17 @@ export function initExperienceAudio() {
       return bgmEnabled;
     },
     isBgmPlaying() {
+      if (bgmOwner) return bgmOwner.isBgmPlaying();
       return Boolean(bgm && !bgm.paused && !bgm.ended);
     },
     bgmCurrentTime() {
+      if (bgmOwner) return bgmOwner.bgmCurrentTime();
       return bgm ? bgm.currentTime : 0;
     },
     setMuted,
+    syncPreferences(preferences) {
+      handlePreferences({ detail: { preferences } });
+    },
     setBgmEnabled,
     playSoundPreset,
     selectSoundPreset,

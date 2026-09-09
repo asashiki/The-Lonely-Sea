@@ -75,12 +75,16 @@ const records = await getExperienceRecords();
     <div class="first-language__copy">
       <h2>LANGUAGE</h2>
       <div role="radiogroup" aria-label="Language">
-        <button type="button" data-first-language="ZH-CN"><b>简体中文</b></button>
-        <button type="button" data-first-language="EN-US"><b>English</b></button>
-        <button type="button" data-first-language="JA-JP"><b>日本語</b></button>
+        <button type="button" role="radio" data-first-language="ZH-CN" aria-checked="false"><b>简体中文</b></button>
+        <button type="button" role="radio" data-first-language="EN-US" aria-checked="false"><b>English</b></button>
+        <button type="button" role="radio" data-first-language="JA-JP" aria-checked="false"><b>日本語</b></button>
       </div>
       <button type="button" class="first-language__fullscreen" data-first-fullscreen aria-pressed="false">全屏显示</button>
     </div>
+  </section>
+
+  <section class="game-shell" data-game-shell aria-hidden="true" hidden>
+    <iframe data-game-shell-frame title="STORY" allow="autoplay; fullscreen" allowfullscreen></iframe>
   </section>
 
   <ListenDock />

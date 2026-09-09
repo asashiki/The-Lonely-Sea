@@ -210,6 +210,10 @@ html[data-weather-layer="overlay"] body[data-route="option"] .weather-veil {
   transition: opacity 200ms ease, transform 260ms cubic-bezier(.22, 1, .36, 1);
 }
 
+.option-canvas[data-option-language="EN-US"] .option-primary button small {
+  visibility: hidden;
+}
+
 .option-canvas .option-primary button[aria-selected="true"] {
   color: var(--opt-ink);
   border-color: color-mix(in srgb, var(--v4-accent) 72%, var(--v4-ink) 20%);
@@ -701,6 +705,14 @@ html[data-weather-layer="overlay"] body[data-route="option"] .weather-veil {
 
 .option-canvas .option-switch::after {
   content: "关";
+}
+
+.option-canvas:is([data-option-language="EN-US"], [data-option-language="JA-JP"]) .option-switch::before {
+  content: "ON";
+}
+
+.option-canvas:is([data-option-language="EN-US"], [data-option-language="JA-JP"]) .option-switch::after {
+  content: "OFF";
 }
 
 .option-canvas .option-switch[aria-pressed="true"]::before,

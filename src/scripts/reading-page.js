@@ -318,6 +318,9 @@ function initReadingSystemOverlay(readingSystem, { onBeforeOpen = () => {} } = {
 
   const launchGame = (url) => {
     layer.setAttribute("aria-busy", "true");
+    if (window.parent !== window) {
+      window.parent.postMessage({ type: "lonely-sea:shell-cover", label: "CONNECTING STORY" }, window.location.origin);
+    }
     window.requestAnimationFrame(() => window.location.assign(url));
   };
   const handleStoryEnter = (event) => {
@@ -698,6 +701,11 @@ function initReadingPage(readingSystem) {
   window.addEventListener("touchstart", stopAutoFromUser, { passive: true });
 
   function finishEntryTransition() {
+    if (window.parent !== window) {
+      readingSystem.classList.add("is-ready");
+      transitionLayer?.setAttribute("aria-hidden", "true");
+      return;
+    }
     if (reduceMotion) {
       readingSystem.classList.add("is-ready");
       transitionLayer?.setAttribute("aria-hidden", "true");
@@ -725,6 +733,16 @@ function initReadingPage(readingSystem) {
     if (!(anchor instanceof HTMLAnchorElement) || anchor.target === "_blank") return;
     const destination = new URL(anchor.href, window.location.href);
     if (destination.origin !== window.location.origin || destination.hash && destination.pathname === window.location.pathname) return;
+
+    if (window.parent !== window && destination.pathname === "/") {
+      event.preventDefault();
+      setReadingMenuOpen(false);
+      window.parent.postMessage({
+        type: "lonely-sea:game-navigate",
+        path: `${destination.pathname}${destination.search}${destination.hash}`,
+      }, window.location.origin);
+      return;
+    }
 
     if (isArticleUrl(destination)) {
       event.preventDefault();

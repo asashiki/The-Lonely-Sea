@@ -353,6 +353,38 @@ export const achievementItems = Object.freeze([
   { id: "heart-to-heart", title: "HEART TO HEART", name: "读到海的尽头", detail: "完整读完一篇文章，使好感度达到 100%。" },
 ]);
 
+const achievementTranslations = Object.freeze({
+  "EN-US": {
+    "first-landfall": ["First landing", "Read the first article."],
+    "first-checkpoint": ["Leave a marker", "Create the first manual game save."],
+    "returning-reader": ["Returning reader", "Read three different articles."],
+    "four-tides": ["Four tides", "See Mist, Day, Night, and Crimson."],
+    "monthly-archive": ["Monthly record", "Open a diary month."],
+    "memory-keeper": ["Memory keeper", "View five different CGs."],
+    "after-the-silence": ["After the silence", "Play a track in MUSIC."],
+    "bangumi-record": ["Collection witness", "Visit the synchronized BANGUMI record."],
+    "archive-walker": ["Archive walker", "Visit every room in EXTRA."],
+    "heart-to-heart": ["End of the sea", "Finish an article and reach 100% affinity."],
+  },
+  "JA-JP": {
+    "first-landfall": ["初めての上陸", "最初の記事を読む。"],
+    "first-checkpoint": ["航標を残す", "ゲームで最初の手動セーブを作る。"],
+    "returning-reader": ["再訪者", "異なる記事を三本読む。"],
+    "four-tides": ["四潮巡礼", "霧・晴昼・暗夜・赤夜を見る。"],
+    "monthly-archive": ["月の記録", "日記の月別記録を開く。"],
+    "memory-keeper": ["記憶拾い", "異なる CG を五枚見る。"],
+    "after-the-silence": ["静寂のあと", "MUSIC で一曲再生する。"],
+    "bangumi-record": ["蒐集の証", "同期済みの BANGUMI 記録を見る。"],
+    "archive-walker": ["資料室の旅人", "EXTRA の全室を訪れる。"],
+    "heart-to-heart": ["海の果てまで", "記事を最後まで読み、好感度を 100% にする。"],
+  },
+});
+
+export function achievementText(item, language = "ZH-CN") {
+  const translated = achievementTranslations[language]?.[item.id];
+  return translated ? { name: translated[0], detail: translated[1] } : { name: item.name, detail: item.detail };
+}
+
 export const extraDefaults = Object.freeze({
   cg: ["SCENE ARCHIVE", "OPEN CG"],
   music: ["星が瞬くこんな夜に", "SELECT MUSIC"],

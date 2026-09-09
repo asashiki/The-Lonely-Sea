@@ -1,4 +1,5 @@
-import { achievementItems, extraDefaults } from "../data/extra-content.js";
+import { achievementItems, achievementText, extraDefaults } from "../data/extra-content.js";
+import { readPreferences } from "../scripts/experience/preferences.js";
 import { readBlogActivity } from "./blog-activity";
 import { GAL_BLOG_SAVE_CHANGE_EVENT, listGalBlogSaves } from "./gal-blog/save-store";
 
@@ -131,7 +132,8 @@ export function initAchievementSystem(): { refresh: () => void; dispose: () => v
     const item = queue.shift();
     if (!item) return;
     active = true;
-    if (name) name.textContent = item.name;
+    const copy = achievementText(item, readPreferences().language);
+    if (name) name.textContent = copy.name;
     if (title) title.textContent = item.title;
     toast.hidden = false;
     requestAnimationFrame(() => toast.classList.add("is-visible"));

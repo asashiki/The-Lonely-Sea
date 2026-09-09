@@ -103,6 +103,11 @@ body[data-scene="crimson"] .ambient-dock button,
   opacity: .22;
 }
 
+.ambient-dock__fullscreen[aria-pressed="false"] .ambient-dock__fullscreen-exit,
+.ambient-dock__fullscreen[aria-pressed="true"] .ambient-dock__fullscreen-enter {
+  display: none;
+}
+
 .ambient-dock__choices {
   position: static;
   display: flex;

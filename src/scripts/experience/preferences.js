@@ -16,6 +16,8 @@ export const defaultPreferences = Object.freeze({
   masterMuted: false,
   bgmEnabled: true,
   bgmVolume: 60,
+  gameBgmEnabled: true,
+  gameBgmVolume: 62,
   ambientVolume: 45,
   interfaceVolume: 70,
   voiceVolume: 80,
@@ -46,6 +48,7 @@ const BOOLEAN_KEYS = Object.freeze([
   "specialCursor",
   "masterMuted",
   "bgmEnabled",
+  "gameBgmEnabled",
   "stopVoiceOnAdvance",
   "subLabels",
   "articleTransition",
@@ -76,6 +79,7 @@ export function normalizePreferences(value = {}) {
     particleDensity: clampNumber(source.particleDensity, 0, 100, defaultPreferences.particleDensity),
     interfaceScale: clampNumber(source.interfaceScale, 80, 120, defaultPreferences.interfaceScale),
     bgmVolume: clampNumber(source.bgmVolume, 0, 100, defaultPreferences.bgmVolume),
+    gameBgmVolume: clampNumber(source.gameBgmVolume, 0, 100, defaultPreferences.gameBgmVolume),
     ambientVolume: clampNumber(source.ambientVolume, 0, 100, defaultPreferences.ambientVolume),
     interfaceVolume: clampNumber(source.interfaceVolume, 0, 100, defaultPreferences.interfaceVolume),
     voiceVolume: clampNumber(source.voiceVolume, 0, 100, defaultPreferences.voiceVolume),
@@ -98,10 +102,24 @@ export function normalizePreferences(value = {}) {
 
 export function readPreferences() {
   try {
-    return normalizePreferences(JSON.parse(localStorage.getItem(PREFERENCES_STORAGE_KEY) || "{}"));
+    const stored = localStorage.getItem(PREFERENCES_STORAGE_KEY);
+    if (stored === null) return normalizePreferences({ language: detectInterfaceLanguage() });
+    return normalizePreferences(JSON.parse(stored || "{}"));
   } catch {
-    return { ...defaultPreferences };
+    return normalizePreferences({ language: detectInterfaceLanguage() });
   }
+}
+
+export function detectInterfaceLanguage(languages = globalThis.navigator?.languages || [globalThis.navigator?.language]) {
+  const normalized = Array.from(languages || [])
+    .filter(Boolean)
+    .map((value) => String(value).toLocaleLowerCase("en-US"));
+  for (const value of normalized) {
+    if (value.startsWith("ja")) return "JA-JP";
+    if (value.startsWith("en")) return "EN-US";
+    if (value.startsWith("zh")) return "ZH-CN";
+  }
+  return "ZH-CN";
 }
 
 export function writePreferences(preferences) {
@@ -145,7 +163,7 @@ export function runtimePreferenceValue(key, preferences = readPreferences()) {
   const normalized = normalizePreferences(preferences);
   const values = {
     "audio.muted": normalized.masterMuted,
-    "audio.bgm": normalized.masterMuted || !normalized.bgmEnabled ? 0 : normalized.bgmVolume,
+    "audio.bgm": normalized.masterMuted || !normalized.gameBgmEnabled ? 0 : normalized.gameBgmVolume,
     "audio.ambient": normalized.masterMuted ? 0 : normalized.ambientVolume,
     "audio.effects": normalized.masterMuted ? 0 : normalized.interfaceVolume,
     "audio.voice": normalized.masterMuted ? 0 : normalized.voiceVolume,

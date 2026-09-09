@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { chromium } from "playwright";
 
-const baseUrl = process.env.EXPERIENCE_BASE_URL || "http://127.0.0.1:4322";
+const baseUrl = process.env.EXPERIENCE_BASE_URL || "http://127.0.0.1:4321";
 const browser = await chromium.launch({ headless: true });
 
 try {

@@ -1,5 +1,6 @@
 import { saveNvlProgress } from "../../lib/nvl/save-store";
 import { readPreferences } from "./preferences.js";
+import { createAprilArt, aprilTextBeat } from "./nvl-april-art.js";
 
 /**
  * DIARY NVL reader.
@@ -74,8 +75,25 @@ export function initNvlEngine() {
   let autoTimer = 0;
   let transitionTimer = 0;
   let noticeTimer = 0;
+  let music = null;
+  let playing = false;
+  function syncMusic() {
+    if (!playing || document.hidden) { music?.pause(); return; }
+    const source = currentChapter?.monthId === "2026-04"
+      ? "/assets/audio/bgm/detectives-study.mp3"
+      : "/games/lonely-sea-chapter-one/0.3.0-4830749c/assets/bgm-cozy-lighthouse-dialogue-cozy-lighthouse-dialogue.mp3";
+    if (!music || music.getAttribute("src") !== source) {
+      music?.pause();
+      music = new Audio(source);
+    }
+    music.loop = true;
+    music.volume = playerPreferences.gameBgmVolume / 100;
+    music.muted = playerPreferences.masterMuted || !playerPreferences.gameBgmEnabled;
+    music.play().catch(() => {});
+  }
 
   const motionReduced = () => systemReducedMotion.matches || playerPreferences.reducedMotion;
+  const syncAprilArt = createAprilArt(modal, motionReduced);
   const typeSpeed = () => Math.round(42 - playerPreferences.autoSpeed * 3.2);
   const autoDelay = () => Math.round(2800 - playerPreferences.autoSpeed * 210);
 
@@ -95,8 +113,9 @@ export function initNvlEngine() {
   }
 
   function findChapter(chapterOrMonthId) {
-    return chapters[chapterOrMonthId]
-      || Object.values(chapters).find((chapter) => (
+    const localized = chapters[playerPreferences.language] || chapters["ZH-CN"] || {};
+    return localized[chapterOrMonthId]
+      || Object.values(localized).find((chapter) => (
         chapter.id === chapterOrMonthId || chapter.monthId === chapterOrMonthId
       ))
       || null;
@@ -156,13 +175,14 @@ export function initNvlEngine() {
   }
 
   function applyScene(step) {
+    syncAprilArt(null, null, 0, true);
     currentScene = {
       povName: step.povName || "POV",
       timestamp: step.timestamp || "",
       pov: step.pov || "self",
     };
-    povTitle.textContent = currentScene.povName;
-    povTime.textContent = currentScene.timestamp;
+    povTitle.textContent = currentScene.povName.replace(/^POV:\s*/i, "").trim() || "POV";
+    povTime.textContent = "";
     modal.dataset.nvlPov = currentScene.pov;
     if (step.bgStyle) backdropTone.style.background = step.bgStyle;
     if (step.bgImage) setBackdropImage(step.bgImage);
@@ -186,10 +206,30 @@ export function initNvlEngine() {
   }
 
   function appendLine(lineData, { complete = false, remember = true } = {}) {
+    if (!complete) syncAprilArt(currentChapter?.monthId, currentScenario[stepIndex]?.pageId, lineIndex);
+    if (currentChapter?.monthId === "2026-04" && aprilTextBeat(currentScenario[stepIndex]?.pageId, lineIndex)) {
+      textFlow.replaceChildren();
+    }
+    textFlow.querySelectorAll(".nvl-line.is-current").forEach((current) => {
+      current.classList.remove("is-current");
+      current.classList.add("is-previous");
+    });
     const line = document.createElement("div");
-    line.className = `nvl-line ${lineClass(lineData.type)}`;
+    line.className = `nvl-line ${lineClass(lineData.type)} is-current`;
     line.dataset.lineType = lineData.type;
     textFlow.appendChild(line);
+    if (currentChapter?.monthId === "2026-04") {
+      // Measure a complete sentence once, before typing. Continue on a fresh
+      // screen at sentence boundaries, preserving scenario/save line indices.
+      line.textContent = lineData.text;
+      const container = page.parentElement;
+      const style = getComputedStyle(container);
+      const available = container.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
+      if (textFlow.children.length > 1 && textFlow.scrollHeight > available) {
+        textFlow.replaceChildren(line);
+      }
+      line.textContent = "";
+    }
     requestAnimationFrame(() => line.classList.add("is-visible"));
 
     if (remember) {
@@ -197,6 +237,8 @@ export function initNvlEngine() {
         text: lineData.text,
         type: lineData.type,
         page: currentPageNumber(),
+        pageId: currentScenario[stepIndex]?.pageId,
+        lineNumber: lineIndex,
       });
     }
 
@@ -246,7 +288,8 @@ export function initNvlEngine() {
     appendLine(currentLines[lineIndex]);
   }
 
-  function preparePage(step, { restoredLineIndex = 0, animate = true } = {}) {
+  function preparePage(step, { restoredLineIndex = null, animate = true } = {}) {
+    modal.dataset.nvlTransition = "false";
     window.clearTimeout(transitionTimer);
     page.classList.remove("is-leaving", "is-entering", "is-end", "is-solo-page");
     textFlow.innerHTML = "";
@@ -265,11 +308,12 @@ export function initNvlEngine() {
     }
 
     syncProgress();
+    syncAprilArt(currentChapter?.monthId, step.pageId, Math.max(0, restoredCount - 1), !animate);
     if (animate && !motionReduced()) {
       page.classList.add("is-entering");
       requestAnimationFrame(() => requestAnimationFrame(() => page.classList.remove("is-entering")));
     }
-    if (lineIndex < currentLines.length) showNextLine();
+    if (restoredLineIndex === null && lineIndex < currentLines.length) showNextLine();
     else scheduleAuto();
   }
 
@@ -298,17 +342,21 @@ export function initNvlEngine() {
     window.clearTimeout(cutsceneTimer);
     cutscene.classList.remove("is-active");
     cutscene.setAttribute("aria-hidden", "true");
-    stepIndex += 1;
-    executeStep();
+    cutsceneTimer = window.setTimeout(() => {
+      stepIndex += 1;
+      executeStep();
+    }, motionReduced() ? 0 : 180);
     return true;
   }
 
   function runCutscene(step) {
+    textFlow.replaceChildren();
+    modal.dataset.nvlTransition = "true";
     cutsceneSub.textContent = step.subTitle || "ANOTHER VIEWPOINT";
     cutsceneMain.textContent = step.mainTitle || "";
     cutscene.setAttribute("aria-hidden", "false");
     cutscene.classList.add("is-active");
-    const duration = motionReduced() ? 260 : Math.min(Math.max(step.duration || 1200, 900), 1600);
+    const duration = motionReduced() ? 180 : Math.min(Math.max(step.duration || 800, 650), 1050);
     cutsceneTimer = window.setTimeout(finishCutscene, duration);
   }
 
@@ -324,11 +372,12 @@ export function initNvlEngine() {
       return;
     }
     page.classList.add("is-leaving");
-    transitionTimer = window.setTimeout(commit, 220);
+    transitionTimer = window.setTimeout(commit, 160);
   }
 
   function handleAdvance() {
     if (modal.getAttribute("aria-hidden") !== "false") return;
+    if (modal.dataset.nvlTransition === "true") return;
     if (backlogModal.classList.contains("is-open")) return;
     if (finishTyping()) return;
     if (isEnding) {
@@ -365,7 +414,7 @@ export function initNvlEngine() {
     textFlow.innerHTML = "";
     const end = document.createElement("div");
     end.className = "nvl-end-mark";
-    end.innerHTML = "<span>END OF RECORD</span><strong>―― 本章完 ――</strong><small>CLICK TO RETURN</small>";
+    end.innerHTML = "<span>THE END</span><strong>―― 本章完 ――</strong><small>CLICK TO RETURN</small>";
     textFlow.appendChild(end);
     nextCue.querySelector("span").textContent = "CLICK TO RETURN";
   }
@@ -408,7 +457,7 @@ export function initNvlEngine() {
   }
 
   function showSaveNotice(save) {
-    saveNoticeTitle.textContent = `${save.monthId.replace("-", ".")} / PAGE ${padPage(save.pageNumber)}`;
+    saveNoticeTitle.textContent = `PAGE ${padPage(save.pageNumber)}`;
     saveNotice.setAttribute("aria-hidden", "false");
     saveNotice.classList.add("is-visible");
     window.clearTimeout(noticeTimer);
@@ -418,12 +467,13 @@ export function initNvlEngine() {
     }, 1900);
   }
 
-  function saveProgress() {
+  function saveProgress(slot) {
     if (!currentChapter || isEnding || currentScenario[stepIndex]?.type !== "page") return;
     finishTyping();
     try {
       const step = currentScenario[stepIndex];
       const save = saveNvlProgress({
+        slot,
         chapterId: currentChapter.id,
         monthId: currentChapter.monthId,
         title: currentChapter.subtitle || currentChapter.title,
@@ -446,17 +496,27 @@ export function initNvlEngine() {
     }
   }
 
-  function openUnifiedLoad() {
+  let awaitingLoadReturn = false;
+
+  function resumeFromLoad() {
+    if (!awaitingLoadReturn || !["load", "option"].includes(document.body.dataset.route)) return false;
+    awaitingLoadReturn = false;
+    window.dispatchEvent(new CustomEvent("lonely-sea:nvl-system-return"));
+    modal.setAttribute("aria-hidden", "false");
+    document.documentElement.classList.add("nvl-open");
+    if (stage instanceof HTMLElement) stage.inert = true;
+    clickTarget.focus({ preventScroll: true });
+    if (currentScenario[stepIndex]?.type !== "page") executeStep();
+    else if (autoPlay) scheduleAuto();
+    return true;
+  }
+
+  function openUnifiedLoad(action = "load") {
+    finishTyping();
     closeTheater({ restoreFocus: false });
-    window.requestAnimationFrame(() => {
-      if (document.body.dataset.route !== "load") {
-        document.querySelector('[data-command="LOAD"]')?.click();
-      }
-      document.querySelector('[data-xiii-page-entry="game"]')?.click();
-      window.requestAnimationFrame(() => {
-        document.querySelector('[data-xiii-index-group="game"] [data-xiii-filter="save"]')?.click();
-      });
-    });
+    page.classList.remove("is-leaving");
+    awaitingLoadReturn = true;
+    window.dispatchEvent(new CustomEvent("lonely-sea:nvl-system", { detail: { action } }));
   }
 
   function toggleAuto() {
@@ -473,9 +533,28 @@ export function initNvlEngine() {
   function openChapter(chapterOrMonthId, resume = null) {
     const chapter = findChapter(chapterOrMonthId);
     if (!chapter) return false;
+    awaitingLoadReturn = false;
+    playing = true;
+    window.dispatchEvent(new CustomEvent("lonely-sea:nvl-playing", { detail: { active: true } }));
+    awaitingLoadReturn = false;
+
+    const sessionResume = !resume
+      && currentChapter?.id === chapter.id
+      && currentScenario[stepIndex]?.type === "page"
+      ? { chapterId: chapter.id, stepIndex, lineIndex }
+      : null;
+    const requestedResume = resume || sessionResume;
 
     clearTimers();
+    // Clear the rendered frame, not the checkpoint captured above.
+    textFlow.replaceChildren();
+    page.classList.remove("is-leaving", "is-entering", "is-end", "is-solo-page");
+    cutscene.classList.remove("is-active");
+    cutscene.setAttribute("aria-hidden", "true");
+    modal.dataset.nvlTransition = "true";
+    syncAprilArt(null, null, 0, true);
     currentChapter = chapter;
+    syncMusic();
     currentScenario = chapter.scenario || [];
     currentLines = [];
     currentScene = { povName: "POV", timestamp: "", pov: "self" };
@@ -487,10 +566,10 @@ export function initNvlEngine() {
     reachedPages = new Set();
     lastFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
 
-    const monthLabel = `${chapter.year}.${chapter.monthNumber}`;
-    chapterTitle.textContent = chapter.title;
-    chapterMonth.textContent = monthLabel;
-    entryMonth.textContent = monthLabel;
+    const displayTitle = chapter.subtitle || chapter.title || "MEMORY";
+    chapterTitle.textContent = displayTitle;
+    chapterMonth.textContent = "";
+    entryMonth.textContent = displayTitle;
     nextCue.querySelector("span").textContent = "CLICK / SPACE";
     btnAuto.classList.remove("is-active");
     btnAuto.setAttribute("aria-pressed", "false");
@@ -510,24 +589,26 @@ export function initNvlEngine() {
       detail: { cue: "open", target: "nvl-theater" },
     }));
 
-    const validResume = resume
-      && resume.chapterId === chapter.id
-      && Number.isInteger(resume.stepIndex)
-      && currentScenario[resume.stepIndex]?.type === "page";
+    const validResume = requestedResume
+      && requestedResume.chapterId === chapter.id
+      && Number.isInteger(requestedResume.stepIndex)
+      && currentScenario[requestedResume.stepIndex]?.type === "page";
     const reveal = () => {
       entryOverlay.classList.remove("is-active");
-      if (validResume) {
-        stepIndex = resume.stepIndex;
-        pageSteps().forEach(({ index }) => {
-          if (index <= stepIndex) reachedPages.add(index);
-        });
-        restoreSceneBefore(stepIndex);
-        executeStep({ restoredLineIndex: resume.lineIndex, animate: false });
-      } else {
-        executeStep();
-      }
+      introTimer = window.setTimeout(() => {
+        if (validResume) {
+          stepIndex = requestedResume.stepIndex;
+          pageSteps().forEach(({ index }) => {
+            if (index <= stepIndex) reachedPages.add(index);
+          });
+          restoreSceneBefore(stepIndex);
+          executeStep({ restoredLineIndex: requestedResume.lineIndex, animate: false });
+        } else {
+          executeStep();
+        }
+      }, motionReduced() ? 0 : 180);
     };
-    introTimer = window.setTimeout(reveal, motionReduced() ? 80 : 520);
+    introTimer = window.setTimeout(reveal, motionReduced() ? 60 : 320);
     return true;
   }
 
@@ -542,6 +623,11 @@ export function initNvlEngine() {
     modal.setAttribute("aria-hidden", "true");
     document.documentElement.classList.remove("nvl-open");
     if (stage instanceof HTMLElement) stage.inert = false;
+    if (restoreFocus) {
+      playing = false;
+      syncMusic();
+      window.dispatchEvent(new CustomEvent("lonely-sea:nvl-playing", { detail: { active: false } }));
+    }
     if (restoreFocus) lastFocused?.focus?.({ preventScroll: true });
     window.dispatchEvent(new CustomEvent("lonely-sea:ui-cue", {
       detail: { cue: "back", target: "nvl-theater" },
@@ -569,13 +655,24 @@ export function initNvlEngine() {
   clickTarget.addEventListener("click", handleAdvance);
   cutscene.addEventListener("click", finishCutscene);
   btnClose.addEventListener("click", () => closeTheater());
-  btnSave.addEventListener("click", saveProgress);
-  btnLoad.addEventListener("click", openUnifiedLoad);
+  btnSave.addEventListener("click", () => openUnifiedLoad("save"));
+  btnLoad.addEventListener("click", () => openUnifiedLoad());
+  required("nvl-btn-option").addEventListener("click", () => openUnifiedLoad("option"));
   btnLog.addEventListener("click", () => toggleBacklog(true));
   backlogClose.addEventListener("click", () => toggleBacklog(false));
   btnAuto.addEventListener("click", toggleAuto);
 
   window.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && awaitingLoadReturn && resumeFromLoad()) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      return;
+    }
+    if (event.key === "Escape" && resumeFromLoad()) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      return;
+    }
     if (modal.getAttribute("aria-hidden") !== "false") return;
     event.stopImmediatePropagation();
     if (event.key === "Tab") {
@@ -604,7 +701,7 @@ export function initNvlEngine() {
       toggleAuto();
     } else if (key === "s") {
       event.preventDefault();
-      saveProgress();
+      openUnifiedLoad("save");
     } else if (key === "q") {
       event.preventDefault();
       openUnifiedLoad();
@@ -618,8 +715,51 @@ export function initNvlEngine() {
   });
 
   window.addEventListener("lonely-sea:preferences-change", (event) => {
+    const previousLanguage = playerPreferences.language;
     playerPreferences = event.detail?.preferences || readPreferences();
+    if (currentChapter && previousLanguage !== playerPreferences.language) {
+      finishTyping();
+      const localized = findChapter(currentChapter.monthId);
+      if (localized) {
+        currentChapter = localized;
+        currentScenario = localized.scenario;
+        chapterTitle.textContent = entryMonth.textContent = localized.subtitle || localized.title;
+        restoreSceneBefore(stepIndex);
+        const history = backlogHistory.map((entry) => {
+          const translated = currentScenario.find((step) => step.pageId === entry.pageId)?.lines?.[entry.lineNumber];
+          return translated ? { ...entry, text: translated.text } : entry;
+        });
+        const step = currentScenario[stepIndex];
+        if (step?.type === "page") preparePage(step, { restoredLineIndex: lineIndex, animate: false });
+        else if (step?.type === "cutscene") {
+          cutsceneSub.textContent = step.subTitle;
+          cutsceneMain.textContent = step.mainTitle;
+        }
+        backlogHistory = history;
+      }
+    }
+    syncMusic();
   });
+  document.addEventListener("visibilitychange", syncMusic);
+  window.addEventListener("lonely-sea:nvl-leave", () => {
+    playing = false;
+    awaitingLoadReturn = false;
+    syncMusic();
+  });
+  window.addEventListener("pagehide", () => music?.pause());
+
+  window.addEventListener("lonely-sea:nvl-save-slot", (event) => {
+    if (!awaitingLoadReturn || !Number.isInteger(event.detail?.slot)) return;
+    saveProgress(event.detail.slot);
+    resumeFromLoad();
+  });
+
+  document.addEventListener("click", (event) => {
+    if (event.target.closest?.('[data-screen="load"] [data-back], [data-screen="option"] [data-back]') && resumeFromLoad()) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    }
+  }, true);
 
   document.addEventListener("click", (event) => {
     const trigger = event.target.closest?.("[data-open-nvl]");

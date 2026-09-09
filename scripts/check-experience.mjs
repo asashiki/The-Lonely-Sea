@@ -41,21 +41,24 @@ async function checkViewport(browser, viewport) {
   await assertInsideViewport(page, ".option-book");
   await assertInsideViewport(page, ".option-actions");
 
-  await page.getByRole("tab", { name: "游戏", exact: true }).click();
-  await page.getByRole("slider", { name: "文字推进速度" }).fill("9");
-  await page.getByRole("tab", { name: "声音", exact: true }).click();
-  await page.getByRole("button", { name: "背景音乐", exact: true }).click();
-  await page.getByRole("slider", { name: "背景音乐音量" }).fill("23");
+  await page.locator('[data-option-primary="game"]').click();
+  await page.locator('[data-setting-key="autoSpeed"] [data-setting-range]').fill("9");
+  await page.locator('[data-option-primary="system"]').click();
+  await page.locator('[data-option-secondary="sound"][data-option-category-owner="system"]').click();
+  await page.locator('[data-setting-key="bgmEnabled"] [data-setting-toggle]').click();
+  await page.locator('[data-setting-key="bgmVolume"] [data-setting-range]').fill("23");
 
   await page.reload({ waitUntil: "domcontentloaded" });
   assert.equal(await page.locator("#toggle-bgm").getAttribute("aria-pressed"), "false", "BGM 开关应刷新保留");
   await page.locator('[data-command="OPTION"]').click();
-  await page.getByRole("tab", { name: "游戏", exact: true }).click();
-  await page.getByRole("tab", { name: "声音", exact: true }).click();
-  assert.equal(await page.getByRole("slider", { name: "背景音乐音量" }).inputValue(), "23");
+  await page.locator('[data-option-primary="system"]').click();
+  await page.locator('[data-option-secondary="sound"][data-option-category-owner="system"]').click();
+  assert.equal(await page.locator('[data-setting-key="bgmVolume"] [data-setting-range]').inputValue(), "23");
 
-  await page.getByRole("button", { name: "返回标题" }).click();
-  for (const scene of ["day", "night", "crimson"]) {
+  await page.locator('.option-screen [data-back]').click();
+  // The automatic scene can start at any of the four time slots; visit all
+  // four explicitly so this check does not rely on the current clock.
+  for (const scene of ["mist", "day", "night", "crimson"]) {
     await page.locator('[data-ambient-trigger="scene"]').click();
     await page.locator(`[data-scene-option="${scene}"]`).click();
   }
@@ -63,7 +66,7 @@ async function checkViewport(browser, viewport) {
   assert.match(await page.locator(".achievement-toast").innerText(), /四潮巡礼/);
 
   await page.locator('[data-command="EXTRA"]').click();
-  await page.getByRole("button", { name: "ACHIEVE", exact: true }).click();
+  await page.locator('[data-extra-mode="achievement"]').click();
   await page.locator(".extra-achievement-row").first().waitFor({ state: "visible" });
   assert.equal(await page.locator(".extra-achievement-row").count(), 10);
   assert.match(await page.locator(".extra-achievement-row").nth(3).innerText(), /四潮巡礼/);
@@ -148,15 +151,15 @@ async function checkSystemAtmosphere(browser) {
   await assertInsideViewport(page, ".option-book");
   assert(await canvasChanged(page), "进入 OPTION 后天气应继续下落");
 
-  await page.getByRole("tab", { name: "博客", exact: true }).click();
-  await page.getByRole("tab", { name: "场景与天气", exact: true }).click();
-  await page.getByRole("button", { name: "系统页天气", exact: true }).click();
+  await page.locator('[data-option-primary="blog"]').click();
+  await page.locator('[data-option-secondary="atmosphere"][data-option-category-owner="blog"]').click();
+  await page.locator('[data-setting-key="systemWeather"] [data-setting-toggle]').click();
   await page.waitForFunction(() => document.documentElement.dataset.systemWeather === "false");
   await page.waitForFunction(() => Number(getComputedStyle(document.querySelector("#weather-canvas")).opacity) === 0);
   const hidden = await page.locator("#weather-canvas").evaluate((node) => Number(getComputedStyle(node).opacity));
   assert.equal(hidden, 0, "关闭系统页天气后粒子应隐藏且不重载");
 
-  await page.getByRole("button", { name: "系统页天气", exact: true }).click();
+  await page.locator('[data-setting-key="systemWeather"] [data-setting-toggle]').click();
   await page.waitForFunction(() => document.documentElement.dataset.systemWeather === "true");
   await page.waitForFunction(() => Number(getComputedStyle(document.querySelector("#weather-canvas")).opacity) > 0.9);
   const shown = await page.locator("#weather-canvas").evaluate((node) => Number(getComputedStyle(node).opacity));
@@ -171,7 +174,7 @@ async function checkSystemAtmosphere(browser) {
   const overlayLayer = await page.evaluate(() => Number(getComputedStyle(document.querySelector("#weather-canvas")).zIndex));
   assert(overlayLayer > 20, "盖过 UI 时应让粒子浮在系统页上面");
 
-  await page.getByRole("button", { name: "返回标题" }).click();
+  await page.locator('.option-screen [data-back]').click();
   await page.locator('[data-command="LOAD"]').click();
   await page.locator(".load-screen").waitFor({ state: "visible" });
   await page.waitForFunction(() => Number(getComputedStyle(document.querySelector(".stage-wash")).opacity) > 0.9);
@@ -187,11 +190,22 @@ async function checkSystemAtmosphere(browser) {
 
 async function checkClearAll(browser) {
   const context = await browser.newContext({ viewport: { width: 820, height: 900 } });
-  const page = await openTitle(context);
-  await page.getByRole("tab", { name: "本机数据", exact: true }).click();
+  // Do not seed preferences on every navigation here: the clear action must
+  // be verified against a genuinely clean reload, not against the test
+  // fixture re-adding its own preference key.
+  const page = await context.newPage();
+  await page.addInitScript(() => sessionStorage.setItem("lonely-sea-opening-seen", "true"));
+  await page.goto(baseUrl, { waitUntil: "domcontentloaded" });
+  await page.locator(".title-menu").waitFor({ state: "visible" });
+  await page.locator('[data-command="OPTION"]').click();
+  await page.locator(".option-screen").waitFor({ state: "visible" });
+  await page.locator('[data-option-secondary="data"][data-option-category-owner="system"]').click();
+  await page.evaluate(() => {
+    localStorage.setItem("clear-test-sentinel", "1");
+  });
   const clear = page.locator("#clear-browser-data");
   await clear.click();
-  assert.equal(await clear.textContent(), "再次选择以清除");
+  assert.equal(await clear.getAttribute("data-confirm"), "true", "清除操作应先进入二次确认");
   await Promise.all([
     page.waitForNavigation({ waitUntil: "domcontentloaded" }),
     clear.click(),
@@ -348,9 +362,9 @@ async function checkForcedLandscape(browser) {
   await page.goto(baseUrl, { waitUntil: "domcontentloaded" });
   await page.locator('[data-command="OPTION"]').click();
   await page.locator(".option-screen").waitFor({ state: "visible" });
-  await page.getByRole("tab", { name: "博客", exact: true }).click();
-  await page.getByRole("tab", { name: "页面行为", exact: true }).click();
-  await page.getByRole("button", { name: "手机自动横屏", exact: true }).click();
+  await page.locator('[data-option-primary="blog"]').click();
+  await page.locator('[data-option-secondary="behaviour"][data-option-category-owner="blog"]').click();
+  await page.locator('[data-setting-key="mobileLandscape"] [data-setting-toggle]').click();
   await page.waitForFunction(() => document.documentElement.dataset.forcedLandscape === "false");
   assert.equal(await page.evaluate(() => document.documentElement.dataset.mobileLandscape), "false");
   await context.close();

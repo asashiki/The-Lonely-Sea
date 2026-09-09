@@ -1,8 +1,8 @@
 ---
-import { NVL_CHAPTERS } from "../../data/nvl-chapters";
+import { NVL_CHAPTERS_BY_LANGUAGE } from "../../data/nvl-chapters";
 import "../../styles/nvl-player.css";
 
-const chaptersJson = JSON.stringify(NVL_CHAPTERS).replaceAll("<", "\\u003c");
+const chaptersJson = JSON.stringify(NVL_CHAPTERS_BY_LANGUAGE).replaceAll("<", "\\u003c");
 ---
 
 <div
@@ -20,10 +20,10 @@ const chaptersJson = JSON.stringify(NVL_CHAPTERS).replaceAll("<", "\\u003c");
   </div>
 
   <div class="nvl-entry-overlay" id="nvl-entry-overlay" aria-hidden="true">
-    <span>DIARY / NVL</span>
-    <strong id="nvl-entry-month">2026.04</strong>
+    <span aria-hidden="true">DIARY / NVL</span>
+    <strong id="nvl-entry-month">MEMORY</strong>
     <i></i>
-    <small>READING MEMORY</small>
+    <small aria-hidden="true">READING MEMORY</small>
   </div>
 
   <div class="nvl-cutscene-overlay" id="nvl-cutscene" aria-hidden="true">
@@ -38,13 +38,14 @@ const chaptersJson = JSON.stringify(NVL_CHAPTERS).replaceAll("<", "\\u003c");
       <span aria-hidden="true">←</span> BACK
     </button>
     <div class="nvl-scene-meta">
-      <span>DIARY / NVL</span>
+      <span aria-hidden="true">DIARY / NVL</span>
       <strong id="nvl-pov-title">POV: 浅仪式</strong>
-      <time id="nvl-pov-time">2026-04-04 03:17:00</time>
+      <time id="nvl-pov-time" aria-hidden="true"></time>
     </div>
     <nav class="nvl-top-actions" aria-label="NVL 操作">
       <button type="button" class="nvl-action-btn" id="nvl-btn-save" data-ui-sound="confirm">SAVE</button>
       <button type="button" class="nvl-action-btn" id="nvl-btn-load" data-ui-sound="open">LOAD</button>
+      <button type="button" class="nvl-action-btn" id="nvl-btn-option" data-ui-sound="open">OPTION</button>
       <button type="button" class="nvl-action-btn" id="nvl-btn-log" data-ui-sound="open">LOG</button>
       <button type="button" class="nvl-action-btn" id="nvl-btn-auto" aria-pressed="false">AUTO</button>
     </nav>
@@ -63,8 +64,8 @@ const chaptersJson = JSON.stringify(NVL_CHAPTERS).replaceAll("<", "\\u003c");
 
   <footer class="nvl-bottom-bar">
     <div class="nvl-chapter-meta">
-      <span id="nvl-chapter-month">2026.04</span>
-      <div class="nvl-chapter-title" id="nvl-chapter-title">2026年4月 · 安娜篇</div>
+      <span id="nvl-chapter-month" aria-hidden="true"></span>
+      <div class="nvl-chapter-title" id="nvl-chapter-title">记忆</div>
     </div>
     <nav class="nvl-progress" id="nvl-progress" aria-label="已读页面"></nav>
     <div class="nvl-next-cue" id="nvl-next-cue">
@@ -85,8 +86,8 @@ const chaptersJson = JSON.stringify(NVL_CHAPTERS).replaceAll("<", "\\u003c");
   </aside>
 
   <div class="nvl-save-notice" id="nvl-save-notice" role="status" aria-live="polite" aria-hidden="true">
-    <span>SAVE COMPLETE</span>
-    <strong id="nvl-save-notice-title">2026.04 / PAGE 01</strong>
+    <span>SAVED</span>
+    <strong id="nvl-save-notice-title">PAGE 01</strong>
   </div>
 
   <script id="nvl-chapters-data" type="application/json" set:html={chaptersJson} is:inline></script>

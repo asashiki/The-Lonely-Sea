@@ -577,6 +577,7 @@
   min-width: 0;
   padding: 1.3cqh .2cqw;
   border-top: 1px solid var(--extra-line);
+  border-bottom: 1px solid var(--extra-line);
 }
 
 .extra-canvas .extra-project-tide {
@@ -1658,7 +1659,7 @@
     opacity: 1;
   }
 
-  .extra-canvas .extra-cg-card:not(.is-locked):hover .extra-cg-art,
+.extra-canvas .extra-cg-card:not(.is-locked):hover .extra-cg-art,
   .extra-canvas .extra-cg-card:not(.is-locked):focus-visible .extra-cg-art {
     transform: scale(1.008);
   }
@@ -1771,6 +1772,13 @@
     color: var(--v4-ink);
     opacity: 1;
   }
+}
+
+.extra-canvas:has(.cg-viewer[aria-hidden="false"]) > .extra-safe-frame > .system-back,
+.extra-canvas:has(.cg-viewer.is-closing) > .extra-safe-frame > .system-back {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
 }
 
 /* Compact landscape windows keep the title column and room heading separate. */

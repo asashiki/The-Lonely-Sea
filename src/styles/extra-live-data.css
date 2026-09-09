@@ -961,7 +961,7 @@
   letter-spacing: .24em;
 }
 
-.extra-canvas .extra-movie-frame[aria-disabled="true"] .extra-movie-play {
+.extra-canvas .extra-movie-frame[aria-disabled="true"]:not(:hover, :focus-visible) .extra-movie-play {
   opacity: .38;
 }
 

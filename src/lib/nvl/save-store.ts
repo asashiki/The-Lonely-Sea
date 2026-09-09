@@ -22,6 +22,7 @@ export interface NvlSaveRecordV1 {
   povName: string;
   timestamp: string;
   savedAt: string;
+  slot?: number;
 }
 
 export type SaveNvlProgressInput = Omit<
@@ -71,17 +72,20 @@ export function getNvlSave(saveId: string): NvlSaveRecordV1 | null {
 }
 
 export function saveNvlProgress(input: SaveNvlProgressInput): NvlSaveRecordV1 {
+  if (input.slot !== undefined && (!Number.isInteger(input.slot) || input.slot < 1 || input.slot > MAX_NVL_SAVES)) {
+    throw new Error("NVL 存档槽位无效");
+  }
   const savedAt = new Date().toISOString();
   const save: NvlSaveRecordV1 = {
     ...input,
     schema: NVL_SAVE_SCHEMA,
-    id: `nvl-${input.chapterId}`,
+    id: input.slot ? `nvl-slot-${input.slot}` : `nvl-${input.chapterId}`,
     savedAt,
   };
 
   if (!isValidSave(save)) throw new Error("NVL 存档数据无效");
 
-  const next = readSaves().filter((item) => item.chapterId !== save.chapterId);
+  const next = readSaves().filter((item) => item.id !== save.id);
   next.unshift(save);
   localStorage.setItem(NVL_SAVE_STORAGE_KEY, JSON.stringify(next.slice(0, MAX_NVL_SAVES)));
   writeNvlContinue(save.id, save.savedAt);
