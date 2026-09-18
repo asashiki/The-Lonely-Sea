@@ -54,10 +54,11 @@
 .nvl-april-art[data-camera="close"] .nvl-april-illustration { transform: scale(1.12); }
 .nvl-april-art .nvl-art-chair {
   height: 110%;
-  top: 0;
+  top: 18%;
   right: 3%;
 }
 .nvl-april-art .nvl-art-encourage { height: 119%; top: -9%; right: 0; }
+.nvl-april-art .nvl-art-concern { height: 90%; top: 12%; right: -2%; }
 .nvl-april-art[data-mood="withdrawn"] .nvl-april-background { opacity: .32; }
 .nvl-april-art[data-mood="warm"] .nvl-art-goodnight { filter: sepia(.08); }
 .nvl-april-art[data-instant="true"] img { transition: none; }
@@ -74,8 +75,57 @@
     0 -1px 2px #030911, 0 2px 7px rgb(3 9 17 / 85%);
 }
 .nvl-theater-system[data-nvl-transition="true"] .nvl-content-container { visibility: hidden; }
+
+/* June: a quiet midnight field with a consistent portrait position. */
+.nvl-june-art {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  visibility: hidden;
+  pointer-events: none;
+  background: #0b1520;
+}
+.nvl-theater-system[data-june-art="true"] .nvl-june-art { visibility: visible; }
+.nvl-june-art::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgb(4 12 20 / 30%), transparent 68%),
+    linear-gradient(0deg, rgb(4 12 20 / 38%), transparent 18%);
+}
+.nvl-june-portrait {
+  position: absolute;
+  right: 0;
+  top: 2%;
+  width: 44%;
+  height: 103%;
+  object-fit: contain;
+  object-position: center top;
+  opacity: 0;
+  mask-image: linear-gradient(90deg, transparent, #000 12%, #000 90%, transparent);
+  transition: opacity 280ms ease-out;
+}
+.nvl-june-portrait.is-shown { opacity: 1; }
+.nvl-june-art[data-instant="true"] .nvl-june-portrait { transition: none; }
+.nvl-theater-system[data-june-portrait="true"] .nvl-content-container {
+  padding-left: 7cqw;
+  padding-right: 43cqw;
+}
+.nvl-theater-system[data-june-portrait="true"] .nvl-page {
+  max-height: 100%;
+  overflow-y: auto;
+}
+@media (max-width: 600px) and (orientation: portrait) {
+  html:not([data-forced-landscape="true"]) .nvl-theater-system[data-june-portrait="true"] .nvl-content-container {
+    padding-left: 7vw;
+    padding-right: 7vw;
+    background: rgb(4 12 20 / 66%);
+  }
+  html:not([data-forced-landscape="true"]) .nvl-june-portrait { width: 78%; }
+}
 @media (prefers-reduced-motion: reduce) {
-  .nvl-april-illustration, .nvl-april-background { transition: none; }
+  .nvl-april-illustration, .nvl-april-background, .nvl-june-portrait { transition: none; }
 }
 
 body[data-scene="mist"] .nvl-theater-system {
@@ -104,6 +154,7 @@ html.nvl-open body {
 }
 
 .nvl-theater-system {
+  container-type: size;
   position: fixed;
   z-index: 150;
   inset: 0;
@@ -777,12 +828,12 @@ html.nvl-open body {
   }
 
   .nvl-content-container {
-    grid-template-columns: 2.4rem minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
     padding: 5.4rem 5vw 5rem 4vw;
   }
 
   .nvl-page {
-    margin-left: .6rem;
+    margin-left: 0;
   }
 
   .nvl-bottom-bar {
@@ -842,6 +893,19 @@ html.nvl-open body {
   .nvl-backlog-entry {
     grid-template-columns: 2.8rem minmax(0, 1fr);
   }
+}
+
+html[data-forced-landscape="true"] .nvl-content-container {
+  padding: clamp(3.4rem, 13cqh, 6rem) 5cqw clamp(3rem, 12cqh, 5rem);
+}
+html[data-forced-landscape="true"] .nvl-line {
+  font-size: clamp(.85rem, calc(2.6cqh * var(--reading-text-scale, 1)), 1.3rem);
+}
+html[data-forced-landscape="true"] .nvl-top-bar {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+}
+html[data-forced-landscape="true"] .nvl-top-actions {
+  grid-column: auto;
 }
 
 @media (prefers-reduced-motion: reduce) {

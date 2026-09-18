@@ -10,6 +10,7 @@ import {
 } from "../../lib/gal-blog/contracts";
 import { saveGalBlogProgress, type SaveProgressInput } from "../../lib/gal-blog/save-store";
 import {
+  PREFERENCES_STORAGE_KEY,
   projectRuntimePreferences,
   readPreferences,
   runtimePreferenceValue,
@@ -129,10 +130,50 @@ export class GalBlogHost {
   private launchSent = false;
   private gameReady = false;
   private disposed = false;
+  private releaseRuntimeInput = () => {};
+  private runtimeInputListener = () => {
+    this.releaseRuntimeInput();
+    if (this.gameOrigin !== window.location.origin) return;
+    const doc = this.options.iframe.contentDocument;
+    const runtimeWindow = this.options.iframe.contentWindow;
+    const skipButton = doc?.querySelector<HTMLButtonElement>("#skipBtn");
+    if (!doc || !runtimeWindow || !skipButton) return;
+    let held = false;
+    const release = () => {
+      if (held && skipButton.getAttribute("aria-pressed") === "true") skipButton.click();
+      held = false;
+    };
+    const down = (event: KeyboardEvent) => {
+      if (event.key !== "Control" || event.repeat || (event.target as Element)?.closest?.("input,textarea,[contenteditable]")) return;
+      event.preventDefault();
+      if (skipButton.getAttribute("aria-pressed") !== "true") {
+        held = true;
+        skipButton.click();
+      }
+    };
+    const up = (event: KeyboardEvent) => { if (event.key === "Control") release(); };
+    const visibility = () => { if (doc.hidden) release(); };
+    runtimeWindow.addEventListener("keydown", down);
+    runtimeWindow.addEventListener("keyup", up);
+    runtimeWindow.addEventListener("blur", release);
+    doc.addEventListener("visibilitychange", visibility);
+    this.releaseRuntimeInput = () => {
+      release();
+      runtimeWindow.removeEventListener("keydown", down);
+      runtimeWindow.removeEventListener("keyup", up);
+      runtimeWindow.removeEventListener("blur", release);
+      doc.removeEventListener("visibilitychange", visibility);
+    };
+  };
   private listener = (event: MessageEvent) => void this.receive(event);
   private preferencesListener = (event: Event) => {
     const preferences = (event as CustomEvent).detail?.preferences ?? readPreferences();
     this.sendSettings(preferences);
+  };
+  private storedPreferencesListener = (event: StorageEvent) => {
+    if (event.storageArea === localStorage && (event.key === PREFERENCES_STORAGE_KEY || event.key === null)) {
+      this.sendSettings(readPreferences());
+    }
   };
 
   constructor(private readonly options: HostOptions) {
@@ -142,8 +183,10 @@ export class GalBlogHost {
   }
 
   start(): void {
+    this.options.iframe.addEventListener("load", this.runtimeInputListener);
     window.addEventListener("message", this.listener);
     window.addEventListener("lonely-sea:preferences-change", this.preferencesListener);
+    window.addEventListener("storage", this.storedPreferencesListener);
     this.options.onStateChange("loading", "LOADING GAME PACKAGE");
     this.handshakeTimer = window.setTimeout(() => {
       this.fail("故事暂时没有回应，请返回后重新进入。");
@@ -167,9 +210,12 @@ export class GalBlogHost {
   dispose(): void {
     if (this.disposed) return;
     this.disposed = true;
+    this.releaseRuntimeInput();
+    this.options.iframe.removeEventListener("load", this.runtimeInputListener);
     window.clearTimeout(this.handshakeTimer);
     window.removeEventListener("message", this.listener);
     window.removeEventListener("lonely-sea:preferences-change", this.preferencesListener);
+    window.removeEventListener("storage", this.storedPreferencesListener);
     this.resultCache.clear();
     this.options.iframe.src = "about:blank";
   }

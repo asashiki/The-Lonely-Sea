@@ -19,7 +19,7 @@ export function aprilArtCue(month, pageId, line) {
   if (pageId === "ch1_anna_p01") {
     if (line >= 2) cue.subject = "declare";
     if (line >= 3) { cue.subject = "chair"; cue.camera = "wide"; }
-    if (line >= 6) { cue.subject = "declare"; cue.camera = "close"; }
+    if (line >= 6) { cue.subject = "concern"; cue.camera = "close"; }
   }
   if (pageId === "ch1_anna_p02") cue.subject = "calm";
   if (pageId === "ch1_anna_p03") {
@@ -49,7 +49,9 @@ export function createAprilArt(modal, reducedMotion) {
     image.alt = "";
     image.draggable = false;
     image.className = background ? "nvl-april-background" : `nvl-april-illustration nvl-art-${name}`;
-    image.src = `/assets/nvl/2026-04/staging-v2/${name === "agency" ? "agency-original" : name}.png`;
+    image.src = name === "concern"
+      ? "/assets/nvl/2026-04/transparent/03-concern.png"
+      : `/assets/nvl/2026-04/staging-v2/${name === "agency" ? "agency-original" : name}.png`;
     const ready = image.decode().then(() => image.classList.add("is-ready")).catch(() => {});
     layer.append(image);
     const entry = { image, ready };
@@ -81,7 +83,7 @@ export function createAprilArt(modal, reducedMotion) {
     });
     // Preload adjacent beats, not the entire source collection.
     if (pageId === "ch1_self_p10") { asset("agency", true); asset("declare"); }
-    if (pageId === "ch1_anna_p01") { asset("declare"); asset("chair"); asset("calm"); }
+    if (pageId === "ch1_anna_p01") { asset("declare"); asset("chair"); asset("concern"); asset("calm"); }
     if (pageId === "ch1_anna_p02") asset("encourage");
     if (pageId === "ch1_anna_p03") asset("goodnight");
   };

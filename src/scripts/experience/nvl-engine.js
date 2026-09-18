@@ -1,6 +1,7 @@
 import { saveNvlProgress } from "../../lib/nvl/save-store";
-import { readPreferences } from "./preferences.js";
+import { effectiveAudioVolume, readPreferences } from "./preferences.js";
 import { createAprilArt, aprilTextBeat } from "./nvl-april-art.js";
+import { createJuneArt } from "./nvl-june-art.js";
 
 /**
  * DIARY NVL reader.
@@ -77,6 +78,15 @@ export function initNvlEngine() {
   let noticeTimer = 0;
   let music = null;
   let playing = false;
+  let skipTimer = 0;
+  function stopSkip() {
+    window.clearInterval(skipTimer);
+    skipTimer = 0;
+  }
+  function skipForward() {
+    if (modal.getAttribute("aria-hidden") !== "false" || backlogModal.classList.contains("is-open")) return;
+    if (!finishCutscene()) handleAdvance();
+  }
   function syncMusic() {
     if (!playing || document.hidden) { music?.pause(); return; }
     const source = currentChapter?.monthId === "2026-04"
@@ -87,17 +97,23 @@ export function initNvlEngine() {
       music = new Audio(source);
     }
     music.loop = true;
-    music.volume = playerPreferences.gameBgmVolume / 100;
+    music.volume = effectiveAudioVolume("gameBgmVolume", playerPreferences);
     music.muted = playerPreferences.masterMuted || !playerPreferences.gameBgmEnabled;
     music.play().catch(() => {});
   }
 
   const motionReduced = () => systemReducedMotion.matches || playerPreferences.reducedMotion;
   const syncAprilArt = createAprilArt(modal, motionReduced);
+  const syncJuneArt = createJuneArt(modal, motionReduced);
+  const syncArt = (month, pageId, line, instant = false) => {
+    syncAprilArt(month, pageId, line, instant);
+    syncJuneArt(month, pageId, line, instant);
+  };
   const typeSpeed = () => Math.round(42 - playerPreferences.autoSpeed * 3.2);
   const autoDelay = () => Math.round(2800 - playerPreferences.autoSpeed * 210);
 
   function clearTimers() {
+    stopSkip();
     window.clearTimeout(introTimer);
     window.clearTimeout(cutsceneTimer);
     window.clearTimeout(autoTimer);
@@ -175,7 +191,7 @@ export function initNvlEngine() {
   }
 
   function applyScene(step) {
-    syncAprilArt(null, null, 0, true);
+    syncArt(null, null, 0, true);
     currentScene = {
       povName: step.povName || "POV",
       timestamp: step.timestamp || "",
@@ -206,7 +222,7 @@ export function initNvlEngine() {
   }
 
   function appendLine(lineData, { complete = false, remember = true } = {}) {
-    if (!complete) syncAprilArt(currentChapter?.monthId, currentScenario[stepIndex]?.pageId, lineIndex);
+    if (!complete) syncArt(currentChapter?.monthId, currentScenario[stepIndex]?.pageId, lineIndex);
     if (currentChapter?.monthId === "2026-04" && aprilTextBeat(currentScenario[stepIndex]?.pageId, lineIndex)) {
       textFlow.replaceChildren();
     }
@@ -308,7 +324,7 @@ export function initNvlEngine() {
     }
 
     syncProgress();
-    syncAprilArt(currentChapter?.monthId, step.pageId, Math.max(0, restoredCount - 1), !animate);
+    syncArt(currentChapter?.monthId, step.pageId, Math.max(0, restoredCount - 1), !animate);
     if (animate && !motionReduced()) {
       page.classList.add("is-entering");
       requestAnimationFrame(() => requestAnimationFrame(() => page.classList.remove("is-entering")));
@@ -489,7 +505,7 @@ export function initNvlEngine() {
       });
       showSaveNotice(save);
       window.dispatchEvent(new CustomEvent("lonely-sea:ui-cue", {
-        detail: { cue: "confirm", target: "nvl-save" },
+        detail: { cue: "save", target: "nvl-save" },
       }));
     } catch (error) {
       console.error("Failed to save NVL progress", error);
@@ -538,12 +554,7 @@ export function initNvlEngine() {
     window.dispatchEvent(new CustomEvent("lonely-sea:nvl-playing", { detail: { active: true } }));
     awaitingLoadReturn = false;
 
-    const sessionResume = !resume
-      && currentChapter?.id === chapter.id
-      && currentScenario[stepIndex]?.type === "page"
-      ? { chapterId: chapter.id, stepIndex, lineIndex }
-      : null;
-    const requestedResume = resume || sessionResume;
+    const requestedResume = resume;
 
     clearTimers();
     // Clear the rendered frame, not the checkpoint captured above.
@@ -552,7 +563,7 @@ export function initNvlEngine() {
     cutscene.classList.remove("is-active");
     cutscene.setAttribute("aria-hidden", "true");
     modal.dataset.nvlTransition = "true";
-    syncAprilArt(null, null, 0, true);
+    syncArt(null, null, 0, true);
     currentChapter = chapter;
     syncMusic();
     currentScenario = chapter.scenario || [];
@@ -578,6 +589,7 @@ export function initNvlEngine() {
     setBackdropImage(chapter.coverArt);
     backdropTone.style.background = "linear-gradient(112deg, rgba(8, 19, 27, .72), rgba(14, 35, 48, .46))";
     buildProgress();
+    syncProgress();
 
     modal.setAttribute("aria-hidden", "false");
     document.documentElement.classList.add("nvl-open");
@@ -680,6 +692,14 @@ export function initNvlEngine() {
       return;
     }
     const key = event.key.toLowerCase();
+    if (key === "control") {
+      event.preventDefault();
+      if (!skipTimer && !backlogModal.classList.contains("is-open")) {
+        skipForward();
+        skipTimer = window.setInterval(skipForward, 60);
+      }
+      return;
+    }
     if (key === "escape") {
       event.preventDefault();
       if (backlogModal.classList.contains("is-open")) toggleBacklog(false);
@@ -760,6 +780,20 @@ export function initNvlEngine() {
       event.stopImmediatePropagation();
     }
   }, true);
+
+  window.addEventListener("keyup", (event) => {
+    if (event.key === "Control") stopSkip();
+  });
+  window.addEventListener("blur", stopSkip);
+  document.addEventListener("visibilitychange", () => { if (document.hidden) stopSkip(); });
+  modal.addEventListener("wheel", (event) => {
+    if (modal.getAttribute("aria-hidden") !== "false" || backlogModal.classList.contains("is-open")) return;
+    if (event.ctrlKey || event.target.closest?.("button, input, textarea")) return;
+    if (event.deltaY > 0) {
+      event.preventDefault();
+      skipForward();
+    }
+  }, { passive: false });
 
   document.addEventListener("click", (event) => {
     const trigger = event.target.closest?.("[data-open-nvl]");

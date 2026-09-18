@@ -190,6 +190,10 @@ const categories = [
               <h3>声音</h3>
             </header>
             <div class="option-settings option-settings-dense">
+              <div class="option-setting option-setting-master" data-setting-key="masterVolume" data-setting-scope="game blog" data-hint="统一调整站点音乐、界面音效、游戏音乐与角色语音，保留各项音量比例">
+                <div class="option-setting-copy"><strong>总音量</strong><span>控制网站与游戏的所有声音</span></div>
+                <div class="option-setting-control"><label class="option-range"><span>小</span><input type="range" name="master-volume" min="0" max="100" step="1" data-setting-range aria-label="总音量"><span>大</span></label><output class="setting-value">80%</output></div>
+              </div>
               <div class="option-setting" data-setting-key="masterMuted" data-setting-scope="game blog" data-hint="关闭 Blog 与游戏的所有音轨">
                 <div class="option-setting-copy"><strong>全部静音</strong></div>
                 <div class="option-setting-control"><button class="option-switch" type="button" data-setting-toggle aria-pressed="false" aria-label="全部静音"><i aria-hidden="true"></i><output class="setting-value">关</output></button></div>

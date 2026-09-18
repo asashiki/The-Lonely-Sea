@@ -110,7 +110,7 @@ const nvlDiaryMonths = [
     title: "2026年4月归档",
     localizedTitle: archiveCopy("2026年4月归档"),
     summary: "那段时间，我第一次把 OpenClaw 和 Gemini 接进日常……",
-    art: "/assets/lonely-sea/mist.png",
+    art: "/assets/lonely-sea/mist.webp",
     playable: true,
     records: [],
   },
@@ -123,7 +123,7 @@ const nvlDiaryMonths = [
     title: "2026年6月归档",
     localizedTitle: archiveCopy("2026年6月归档"),
     summary: "那段时间，我在十小时的车程、答辩和新的 AI 对话之间来回切换……",
-    art: "/assets/lonely-sea/crimson.png",
+    art: "/assets/lonely-sea/crimson.webp",
     playable: true,
     records: [],
   },
@@ -136,7 +136,7 @@ const nvlDiaryMonths = [
     title: "2026年8月归档",
     localizedTitle: archiveCopy("2026年8月归档"),
     summary: "那段时间，我开始整理 Reset 之后的生活，也重新看了看这座灯塔……",
-    art: "/assets/lonely-sea/night.png",
+    art: "/assets/lonely-sea/night.webp",
     playable: false,
     records: [],
   },
@@ -335,7 +335,6 @@ const lockedStorySlots = Array.from({ length: Math.max(0, 10 - storyScenes.lengt
                   <strong>{record.title}</strong>
                   <time datetime={record.date.replaceAll(".", "-")}>{record.date}</time>
                 </span>
-                <span class="tracks-xiii-slot-command" aria-hidden="true">READ</span>
               </button>
             ))}
             {articleEmptySlots.map((index) => (

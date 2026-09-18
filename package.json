@@ -12,7 +12,7 @@
     "dev": "astro dev",
     "start": "astro dev",
     "check": "astro check",
-    "build": "astro check && astro build",
+    "build": "astro check && astro build && node scripts/prepare-pages.mjs",
     "game:origins": "node scripts/set-game-host-origins.mjs",
     "post:new": "node scripts/new-post.mjs",
     "sync:external": "node scripts/sync-external-data.mjs",

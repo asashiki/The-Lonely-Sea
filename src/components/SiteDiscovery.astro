@@ -1,0 +1,27 @@
+---
+import { siteConfig } from "../../site.config.mjs";
+
+interface Props {
+  title?: string;
+  description?: string;
+  pathname?: string;
+}
+const { title = siteConfig.name, description = siteConfig.description, pathname = Astro.url.pathname } = Astro.props;
+const url = new URL(pathname, siteConfig.url).href;
+const schema = {
+  "@context": "https://schema.org",
+  "@type": pathname === "/" ? "WebSite" : "WebPage",
+  name: title,
+  description,
+  url,
+  inLanguage: siteConfig.locale,
+};
+---
+<link rel="describedby" type="text/plain" href="/llms.txt" />
+<link rel="sitemap" type="application/xml" href="/sitemap.xml" />
+<meta property="og:site_name" content={siteConfig.name} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:type" content="website" />
+<meta property="og:url" content={url} />
+<script is:inline type="application/ld+json" data-site-schema set:html={JSON.stringify(schema).replaceAll("<", "\\u003c")} />

@@ -131,6 +131,11 @@ async function switchArticle(destination, { historyMode = "push", root = activeR
     const canonical = document.querySelector('link[rel="canonical"]');
     const nextCanonical = documentPage.querySelector('link[rel="canonical"]');
     if (canonical && nextCanonical) canonical.href = nextCanonical.href;
+    for (const selector of ['meta[name="description"]', 'meta[property="og:title"]', 'meta[property="og:description"]', 'meta[property="og:url"]', 'script[data-site-schema]']) {
+      const current = document.head.querySelector(selector);
+      const next = documentPage.querySelector(selector);
+      if (current && next) current.replaceWith(next.cloneNode(true));
+    }
 
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
     activeReadingSystem = root;

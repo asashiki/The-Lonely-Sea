@@ -2,6 +2,9 @@
 
 以 Galgame 系统界面呈现个人文章与长期记录的 Astro 项目。
 
+正式域名：https://asashiki.com 。当前上线候选分支：`codex/latest-nvl-20260910`。
+Cloudflare 配置、域名替换与回退步骤见 [部署指南](./docs/deployment.md)。
+
 ## 当前公开版本
 
 - TITLE：场景、天气、开场与主菜单
@@ -20,10 +23,10 @@
 
 ```powershell
 pnpm install
-pnpm dev
+pnpm dev --host 127.0.0.1 --port 4323
 ```
 
-默认地址：`http://localhost:4321`
+以上命令预览地址：`http://127.0.0.1:4323`。
 
 ## 检查与构建
 

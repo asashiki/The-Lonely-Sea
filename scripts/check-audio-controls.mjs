@@ -1,0 +1,57 @@
+import assert from 'node:assert/strict';
+import { chromium } from 'playwright';
+const browser = await chromium.launch();
+try {
+  const page = await browser.newPage({ viewport: { width: 1600, height: 900 } });
+  const errors = [];
+  page.on('pageerror', e => errors.push(e.message));
+  await page.addInitScript(() => {
+    sessionStorage.setItem('lonely-sea-opening-seen', '1');
+    if (!localStorage.getItem('lonely-sea-preferences-v2')) localStorage.setItem('lonely-sea-preferences-v2', JSON.stringify({ language: 'ZH-CN', automaticTheme: false }));
+    window.__media = [];
+    const NativeAudio = window.Audio;
+    window.Audio = function(...args) { const audio = new NativeAudio(...args); window.__media.push(audio); return audio; };
+    window.__oscillators = 0;
+    const original = AudioContext.prototype.createOscillator;
+    AudioContext.prototype.createOscillator = function() { window.__oscillators++; return original.call(this); };
+  });
+  await page.goto('http://127.0.0.1:4323/');
+  await page.locator('[data-command="OPTION"]').click();
+  await page.locator('[data-option-secondary="sound"][data-option-category-owner="system"]').click();
+  const master = page.locator('[name="master-volume"]');
+  assert.equal(await master.inputValue(), '80');
+  assert.equal(await page.locator('#option-panel-sound input[type=range]').count(), 3);
+  assert.equal(await page.locator('#option-panel-sound [data-setting-scope="game"]').count(), 0, 'SYSTEM 不得混入 GAME 声音设置');
+  const selected = await page.locator('[data-option-secondary=sound][aria-selected=true]').evaluate(e => {
+    const s = getComputedStyle(e); return [s.borderLeftWidth, s.borderRightWidth, s.borderTopWidth, s.borderBottomWidth];
+  });
+  assert.deepEqual(selected, ['0px','0px','0px','0px'], '选中项不得用任意边的色线');
+  const adjust = async value => master.evaluate((e, value) => { e.value = String(value); e.dispatchEvent(new Event('input', { bubbles: true })); }, value);
+  await adjust(25);
+  assert.equal(await page.evaluate(() => JSON.parse(localStorage.getItem('lonely-sea-preferences-v2')).masterVolume), 25);
+  await page.evaluate(() => window.__lonelySeaAudioController.playUiCue('confirm', { force: true }));
+  let volumes = await page.evaluate(() => window.__media.filter(a => /decision33/.test(a.src)).map(a => a.volume));
+  assert.ok(volumes.length > 0);
+  assert.ok(Math.abs(volumes.at(-1) - .25 * .70 * .55) < .0001);
+  const oldToneCount = await page.evaluate(() => window.__oscillators);
+  await page.locator('[data-option-primary="blog"]').click();
+  await page.waitForTimeout(220);
+  assert.ok(await page.evaluate(() => window.__oscillators) > oldToneCount, '切页必须使用新短音');
+  assert.equal(await page.evaluate(() => window.__media.some(a => /decision23/.test(a.src))), false, '旧切页采样不再使用');
+  await page.locator('[data-option-primary="system"]').click();
+  await page.locator('[data-option-secondary="sound"][data-option-category-owner="system"]').click();
+  await adjust(0);
+  assert.equal(await page.evaluate(() => window.__lonelySeaAudioController.playUiCue('confirm', { force: true })), false);
+  assert.equal(await page.evaluate(() => window.__media.some(a => !a.paused && !a.muted && a.volume > 0)), false, '总音量零时所有现有播放器静音');
+  await adjust(40);
+  await page.screenshot({ path: 'tmp/option-sound-new.png' });
+  await page.setViewportSize({ width: 765, height: 947 });
+  await page.waitForTimeout(200);
+  await page.screenshot({ path: 'tmp/option-sound-phone.png' });
+  const overflow = await page.locator('.option-main').evaluate(e => e.scrollWidth - e.clientWidth);
+  assert.ok(overflow < 2, '手机横屏设置不可横向溢出');
+  await page.reload();
+  assert.equal(await page.evaluate(() => JSON.parse(localStorage.getItem('lonely-sea-preferences-v2')).masterVolume), 40);
+  assert.deepEqual(errors, []);
+  console.log('Audio controls: master live output, zero silence, persistence, original categories, no selection borders and phone layout passed.');
+} finally { await browser.close(); }

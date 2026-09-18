@@ -1,6 +1,7 @@
 import { all, required } from "./dom.js";
 import {
   defaultPreferences,
+  effectiveAudioVolume,
   normalizePreferences,
   publishPreferences,
   readPreferences,
@@ -32,7 +33,7 @@ const OPTION_COPY = Object.freeze({
     退出全屏: "Exit fullscreen", 海潮指针: "Tide cursor", 减少动态效果: "Reduce motion",
     恢复默认设置: "Reset preferences", 恢复默认: "Reset", 清除本浏览器数据: "Clear browser data",
     清除全部: "Clear all", 对话文字大小: "Dialogue text size", 文字推进速度: "Text speed",
-    全部静音: "Mute all", 站点背景音乐: "Site BGM", 站点音乐音量: "Site BGM volume",
+    总音量: "Master volume", 环境音量: "Ambience", 控制网站与游戏的所有声音: "All website and game audio", 全部静音: "Mute all", 站点背景音乐: "Site BGM", 站点音乐音量: "Site BGM volume",
     界面音效: "Interface sounds", 游戏背景音乐: "Game BGM", 游戏音乐音量: "Game BGM volume",
     爱丽丝: "Alice", 推进时停止语音: "Stop voice on advance", 段落间距: "Paragraph spacing",
     正文行距: "Line spacing", 自动阅读速度: "Auto-read speed", 记录阅读位置: "Remember position",
@@ -96,7 +97,7 @@ const OPTION_COPY = Object.freeze({
     退出全屏: "フルスクリーンを終了", 海潮指针: "潮のカーソル", 减少动态效果: "動きを減らす",
     恢复默认设置: "設定を初期化", 恢复默认: "初期化", 清除本浏览器数据: "ブラウザデータを消去",
     清除全部: "すべて消去", 对话文字大小: "会話文字サイズ", 文字推进速度: "テキスト速度",
-    全部静音: "すべてミュート", 站点背景音乐: "サイト BGM", 站点音乐音量: "サイト BGM 音量",
+    总音量: "マスター音量", 环境音量: "環境音", 控制网站与游戏的所有声音: "サイトとゲームのすべての音声", 全部静音: "すべてミュート", 站点背景音乐: "サイト BGM", 站点音乐音量: "サイト BGM 音量",
     界面音效: "UI 効果音", 游戏背景音乐: "ゲーム BGM", 游戏音乐音量: "ゲーム BGM 音量",
     爱丽丝: "アリス", 推进时停止语音: "次へ進む時に音声停止", 段落间距: "段落間隔",
     正文行距: "本文行間", 自动阅读速度: "自動読書速度", 记录阅读位置: "読書位置を保存",
@@ -240,6 +241,10 @@ export function initOptions({ onReplayOpening = () => {}, onResetExperience = ()
   let soundLaboratory = null;
   let voiceTest = null;
   const voiceTestButton = optionScreen.querySelector("[data-alice-voice-test]");
+  window.addEventListener("lonely-sea:preferences-change", (event) => {
+    preferences = event.detail?.preferences || readPreferences();
+    if (voiceTest) voiceTest.volume = effectiveAudioVolume("voiceVolume", preferences);
+  });
   function stopVoiceTest() {
     voiceTest?.pause();
     if (voiceTest) voiceTest.currentTime = 0;
@@ -248,7 +253,7 @@ export function initOptions({ onReplayOpening = () => {}, onResetExperience = ()
   voiceTestButton?.addEventListener("click", async () => {
     if (voiceTest && !voiceTest.paused) return stopVoiceTest();
     voiceTest ||= new Audio("/games/lonely-sea-chapter-one/0.3.0-4830749c/assets/voice-a001-a001.mp3");
-    voiceTest.volume = preferences.masterMuted ? 0 : preferences.voiceVolume / 100;
+    voiceTest.volume = effectiveAudioVolume("voiceVolume", preferences);
     voiceTest.onended = stopVoiceTest;
     voiceTest.onerror = stopVoiceTest;
     try {
@@ -262,6 +267,7 @@ export function initOptions({ onReplayOpening = () => {}, onResetExperience = ()
     ".option-secondary button",
     ".option-panel-intro h3",
     ".option-setting-copy strong",
+    ".option-setting-master .option-setting-copy span",
     ".option-choice-group button",
     ".option-range > span",
     ".option-command",
