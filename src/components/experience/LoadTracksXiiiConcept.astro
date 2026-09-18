@@ -144,14 +144,17 @@ const nvlDiaryMonths = [
 
 const nvlDiaryMonthIds = new Set(nvlDiaryMonths.map((entry) => entry.id));
 const removedDiaryMonthIds = new Set(["2026-01", "2026-03"]);
+const hiddenNvlDiaryMonthIds = new Set(["2026-08"]);
 const diaryMonths = [
   ...dynamicDiaryMonths.filter((entry) => (
     !nvlDiaryMonthIds.has(entry.id) && !removedDiaryMonthIds.has(entry.id)
   )),
-  ...nvlDiaryMonths.map((entry) => ({
-    ...entry,
-    playable: NVL_CHAPTERS[entry.id]?.scenario.some((block) => block.type === "page") ?? false,
-  })),
+  ...nvlDiaryMonths
+    .filter((entry) => !hiddenNvlDiaryMonthIds.has(entry.id))
+    .map((entry) => ({
+      ...entry,
+      playable: NVL_CHAPTERS[entry.id]?.scenario.some((block) => block.type === "page") ?? false,
+    })),
 ].sort((left, right) => (
   right.year.localeCompare(left.year) || Number(left.monthNumber) - Number(right.monthNumber)
 ));
