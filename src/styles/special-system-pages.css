@@ -2411,6 +2411,10 @@ html[data-motion="reduced"] .extra-music-disc {
     linear-gradient(270deg, color-mix(in srgb, var(--v4-accent) 18%, transparent), transparent);
 }
 
+.extra-canvas[data-extra-mode="projects"] .extra-edge-turners button {
+  top: 51.5%;
+}
+
 .extra-canvas:not([data-extra-mode="cg"]):not([data-extra-mode="projects"]) .extra-edge-turners {
   display: none;
 }
