@@ -207,7 +207,7 @@
         { "type": "narration", "text": "仮想探偵事務所（キュアット探偵事務所）。" },
         { "type": "narration", "text": "色あせた原稿用紙、虫眼鏡、紅茶のカップ、そしてマルチモニタの監視台が並ぶ小さな部屋。" },
         { "type": "alice-voice", "text": "どんな難問にも、ぴったりのはなまるアンサーがあるんだから！ 探偵アンナ、ただいま真相を究明しました！" },
-        { "type": "narration", "text": "私は椅子の上に立ち上がり、腰に手を当ててモニタの赤い折れ線グラフを見つめた。" },
+        { "type": "narration", "text": "私は床に立ち、両手を腰に当てて、監視モニターに揺れる赤い折れ線を見つめた。" },
         { "type": "terminal", "text": "[TELEMETRY_ALERT] Target: Pochitan | HeartRate: 104 bpm -> 68 bpm -> 94 bpm" },
         { "type": "terminal", "text": "[WINDOW_TRACKER] Active: Terminal (4.2h) | Chrome (Twitter: 2.1h) | Word (Thesis: 0.0h)" },
         { "type": "alice-voice", "text": "もう！ バカポチたん、気持ちを隠せたつもりになってるんでしょ？！" },

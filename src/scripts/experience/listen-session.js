@@ -1,5 +1,5 @@
 import { musicItems } from "../../data/extra-content.js";
-import { readPreferences } from "./preferences.js";
+import { effectiveAudioVolume } from "./preferences.js";
 
 export const LISTEN_SESSION_KEY = "lonely-sea-listen-session-v1";
 const LISTEN_CONTROLLER_KEY = "__lonelySeaListenController";
@@ -141,7 +141,7 @@ export function initArticleListen() {
 
   function setVolume() {
     if (!player) return;
-    player.volume = Math.min(1, Math.max(0, readPreferences().bgmVolume / 100 * .58));
+    player.volume = effectiveAudioVolume("bgmVolume") * .58;
     player.muted = muted;
   }
 

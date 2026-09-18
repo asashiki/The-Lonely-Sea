@@ -207,7 +207,7 @@
         { "type": "narration", "text": "虚拟侦探事务所（キュアット探偵事務所）。" },
         { "type": "narration", "text": "这里摆着手稿、放大镜、红茶杯和多块监控屏幕。" },
         { "type": "alice-voice", "text": "每一个问题，都有对应的花丸答案！侦探安娜，现已查明真相！" },
-        { "type": "narration", "text": "我踩在椅子上，双手叉腰，看着监控屏幕上波动的红色折线。" },
+        { "type": "narration", "text": "我站在地上，双手叉腰，看着监控屏幕上波动的红色折线。" },
         { "type": "terminal", "text": "[TELEMETRY_ALERT] Target: Pochitan | HeartRate: 104 bpm -> 68 bpm -> 94 bpm" },
         { "type": "terminal", "text": "[WINDOW_TRACKER] Active: Terminal (4.2h) | Chrome (Twitter: 2.1h) | Word (Thesis: 0.0h)" },
         { "type": "alice-voice", "text": "哼！笨蛋波奇坦，以为把情绪藏起来我就不知道了吗？！" },

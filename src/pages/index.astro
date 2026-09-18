@@ -1,5 +1,6 @@
 ---
 import ExitDialog from "../components/experience/ExitDialog.astro";
+import SiteDiscovery from "../components/SiteDiscovery.astro";
 import ExtraScreen from "../components/experience/ExtraScreen.astro";
 import LoadScreen from "../components/experience/LoadScreen.astro";
 import OpeningSequence from "../components/experience/OpeningSequence.astro";
@@ -38,7 +39,8 @@ const records = await getExperienceRecords();
   <link rel="canonical" href={canonicalUrl}>
   <link rel="alternate" type="application/rss+xml" title={`${siteConfig.name} RSS`} href="/rss.xml">
   <title>{siteConfig.name}</title>
-  <link rel="preload" as="image" href="/assets/lonely-sea/mist.png">
+  <SiteDiscovery />
+  <link rel="preload" as="image" href="/assets/lonely-sea/mist.webp">
   <script is:inline>
     try {
       const value = JSON.parse(localStorage.getItem("lonely-sea-preferences-v2") || "{}");

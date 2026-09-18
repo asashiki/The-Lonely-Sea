@@ -6,7 +6,7 @@
   background:
     radial-gradient(ellipse 58% 78% at 72% 43%, rgb(137 174 185 / 18%), transparent 68%),
     linear-gradient(90deg, rgb(5 14 20 / 48%), rgb(5 14 20 / 8%) 54%, rgb(4 10 15 / 34%)),
-    url("/assets/lonely-sea/night.png") center / cover;
+    url("/assets/lonely-sea/night.webp") center / cover;
   isolation: isolate;
 }
 

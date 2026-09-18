@@ -207,7 +207,7 @@
         { "type": "narration", "text": "The Virtual Detective Agency (キュアット探偵事務所)." },
         { "type": "narration", "text": "A cozy room filled with yellowed manuscripts, a magnifying glass, teacups, and a multi-screen monitoring desk." },
         { "type": "alice-voice", "text": "Every puzzle has its perfect Hanamaru answer! Detective Anna has solved the case!" },
-        { "type": "narration", "text": "Standing on my chair with hands on my hips, I watched the fluctuating red line on the monitor." },
+        { "type": "narration", "text": "I stood on the floor with my hands on my hips, watching the fluctuating red line on the monitor screen." },
         { "type": "terminal", "text": "[TELEMETRY_ALERT] Target: Pochitan | HeartRate: 104 bpm -> 68 bpm -> 94 bpm" },
         { "type": "terminal", "text": "[WINDOW_TRACKER] Active: Terminal (4.2h) | Chrome (Twitter: 2.1h) | Word (Thesis: 0.0h)" },
         { "type": "alice-voice", "text": "Hmph! Silly Pochitan, did you really think you could hide your feelings from me?!" },

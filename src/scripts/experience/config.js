@@ -1,8 +1,8 @@
 export const sceneArt = Object.freeze({
-  mist: "/assets/lonely-sea/mist.png",
-  day: "/assets/lonely-sea/day.png",
-  night: "/assets/lonely-sea/night.png",
-  crimson: "/assets/lonely-sea/crimson.png",
+  mist: "/assets/lonely-sea/mist.webp",
+  day: "/assets/lonely-sea/day.webp",
+  night: "/assets/lonely-sea/night.webp",
+  crimson: "/assets/lonely-sea/crimson.webp",
 });
 
 export const sceneLabels = Object.freeze({

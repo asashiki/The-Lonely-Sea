@@ -1,4 +1,4 @@
-import { publishPreferences, readPreferences } from "./preferences.js";
+import { effectiveAudioVolume, publishPreferences, readPreferences } from "./preferences.js";
 import { BLOG_BGM_TRACKS } from "../../data/site-bgm.js";
 import {
   createSoundDesignPlayer,
@@ -186,10 +186,6 @@ const UI_CUES = Object.freeze({
   },
 });
 
-function clampVolume(value) {
-  return Math.min(1, Math.max(0, Number(value) / 100));
-}
-
 function readMuted(preferences) {
   try {
     const stored = localStorage.getItem(AUDIO_MUTE_STORAGE_KEY);
@@ -327,7 +323,7 @@ export function initExperienceAudio() {
 
   function setBgmVolume() {
     if (!bgm) return;
-    bgm.volume = Math.pow(clampVolume(preferences.bgmVolume), 1.18);
+    bgm.volume = effectiveAudioVolume("bgmVolume", preferences);
     bgm.muted = muted || !bgmEnabled;
   }
 
@@ -347,7 +343,7 @@ export function initExperienceAudio() {
   }
 
   function updateCueVolume() {
-    const volume = muted ? 0 : Math.pow(clampVolume(preferences.interfaceVolume), 1.18) * 0.48;
+    const volume = effectiveAudioVolume("interfaceVolume", preferences) * 0.48;
     soundDesigner?.setVolume(volume);
     if (!cueContext || !cueMaster) return;
     cueMaster.gain.cancelScheduledValues(cueContext.currentTime);
@@ -357,7 +353,7 @@ export function initExperienceAudio() {
   function ensureSoundDesigner() {
     if (soundDesigner) return soundDesigner;
     soundDesigner = createSoundDesignPlayer({
-      volume: muted ? 0 : Math.pow(clampVolume(preferences.interfaceVolume), 1.18) * 0.48,
+      volume: effectiveAudioVolume("interfaceVolume", preferences) * 0.48,
     });
     return soundDesigner;
   }
@@ -502,7 +498,6 @@ export function initExperienceAudio() {
   const sampleFiles = {
     hover: "cursor1", select: "cursor1", tick: "cursor1",
     start: "decision25", back: "cancel4", close: "cancel4",
-    page: "decision23", toggleOn: "decision23", toggleOff: "decision23",
   };
   function stopUiSample() {
     activeUiSample?.pause();
@@ -510,7 +505,7 @@ export function initExperienceAudio() {
     activeUiCue = "";
   }
   function playUiCue(requestedCue = "confirm", detail = {}) {
-    if (muted || preferences.interfaceVolume <= 0) return false;
+    if (effectiveAudioVolume("interfaceVolume", preferences) <= 0) return false;
     const cue = normalizeCue(requestedCue);
     // Pointer-down only unlocks audio; the completed action owns its sound.
     if (cue === "press") return false;
@@ -519,6 +514,16 @@ export function initExperienceAudio() {
       && !["hover", "select", "tick"].includes(activeUiCue)) return false;
     const now = performance.now();
     if (!detail.force && now - (cueTimes.get(cue) ?? -Infinity) < UI_CUES[cue].cooldown) return false;
+    if (["page", "toggleOn", "toggleOff"].includes(cue)) {
+      stopUiSample();
+      cueTimes.set(cue, now);
+      const player = ensureSoundDesigner();
+      player.stopAll();
+      return Boolean(player.play({
+        id: "quiet-menu-key", duration: .16,
+        recipe: { family: "wood", midi: cue === "toggleOff" ? 57 : 64, pattern: [0], weight: .16, wet: 0 },
+      }, { unlock: true, volumeScale: .8 }));
+    }
     const file = sampleFiles[cue] || "decision33";
     let sample = uiSamples.get(file);
     if (!sample) {
@@ -528,7 +533,7 @@ export function initExperienceAudio() {
     }
     stopUiSample();
     sample.currentTime = 0;
-    sample.volume = clampVolume(preferences.interfaceVolume) * (subtle ? 0.22 : 0.55);
+    sample.volume = effectiveAudioVolume("interfaceVolume", preferences) * (subtle ? 0.22 : 0.55);
     activeUiSample = sample;
     activeUiCue = cue;
     cueTimes.set(cue, now);
@@ -567,7 +572,7 @@ export function initExperienceAudio() {
   function handleFocusIn(event) {
     const target = interactiveTarget(event.target, FOCUS_TARGETS);
     if (!target || performance.now() - lastPointerDownAt < 140) return;
-    markAndPlay("select");
+    markAndPlay(target.matches("[data-option-primary], [data-option-secondary]") ? "page" : "select");
   }
 
   function handleClick(event) {
@@ -635,8 +640,8 @@ export function initExperienceAudio() {
     if (!wasMuted && nextMuted) markAndPlay("toggleOff", { force: true });
     preferences = nextPreferences;
     muted = nextMuted;
-    if (muted || preferences.interfaceVolume <= 0) stopUiSample();
-    else if (activeUiSample) activeUiSample.volume = clampVolume(preferences.interfaceVolume)
+    if (effectiveAudioVolume("interfaceVolume", preferences) <= 0) stopUiSample();
+    else if (activeUiSample) activeUiSample.volume = effectiveAudioVolume("interfaceVolume", preferences)
       * (["hover", "select", "tick"].includes(activeUiCue) ? 0.22 : 0.55);
     bgmEnabled = preferences.bgmEnabled !== false;
     document.documentElement.dataset.audioMuted = String(muted);
@@ -667,7 +672,7 @@ export function initExperienceAudio() {
   }
 
   function playSoundPreset(id) {
-    if (muted || preferences.interfaceVolume <= 0) return false;
+    if (effectiveAudioVolume("interfaceVolume", preferences) <= 0) return false;
     return ensureSoundDesigner().play(id, {
       preview: true,
       unlock: true,

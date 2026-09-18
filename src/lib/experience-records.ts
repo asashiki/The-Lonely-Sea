@@ -54,7 +54,7 @@ export async function getExperienceRecords(): Promise<ExperienceRecord[]> {
 
     return {
       archiveCategory: archiveCategory(tags),
-      coverUrl: cover?.src ?? "/assets/lonely-sea/" + scene + ".png",
+      coverUrl: cover?.src ?? "/assets/lonely-sea/" + scene + ".webp",
       date: dottedDate,
       dateLabel: formatPostDate(post.data.published, post.data.lang),
       excerpt: post.data.description,

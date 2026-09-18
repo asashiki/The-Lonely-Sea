@@ -287,6 +287,8 @@
   min-width: 0;
   min-height: 0;
   overflow: clip;
+  /* Keep the clipping surface's transform stable when WAAPI effects are cancelled. */
+  transform: translate3d(0, 0, 0);
 }
 
 .tracks-xiii-panel,
@@ -404,20 +406,6 @@
   text-shadow: 0 1px .5cqw rgba(0, 0, 0, .68);
 }
 
-.tracks-xiii-slot-command {
-  position: absolute;
-  z-index: 4;
-  right: .9cqw;
-  bottom: .85cqh;
-  color: rgba(242, 247, 248, .86);
-  font: 600 clamp(9px, .54cqw, 11px) / 1 "Yu Gothic", sans-serif;
-  letter-spacing: .18em;
-  opacity: 0;
-  transform: translate3d(.4cqw, 0, 0);
-  transition:
-    opacity 180ms ease,
-    transform 220ms cubic-bezier(.22, 1, .36, 1);
-}
 
 .tracks-xiii-record-slot:hover::before,
 .tracks-xiii-record-slot:focus-visible::before,
@@ -432,12 +420,6 @@
   transform: scale(1.025);
 }
 
-.tracks-xiii-record-slot:hover .tracks-xiii-slot-command,
-.tracks-xiii-record-slot:focus-visible .tracks-xiii-slot-command,
-.tracks-xiii-record-slot.is-kb-cursor .tracks-xiii-slot-command {
-  opacity: 1;
-  transform: translate3d(0, 0, 0);
-}
 
 .tracks-xiii-record-slot:focus-visible {
   outline: 2px solid color-mix(in srgb, var(--v4-accent) 70%, white 10%);
@@ -1909,7 +1891,6 @@ html.tracks-xiii-flow-open body {
   .tracks-xiii-primary button,
   .tracks-xiii-index-group button,
   .tracks-xiii-slot-art,
-  .tracks-xiii-slot-command,
   .tracks-xiii-save-art,
   .tracks-xiii-save-command,
   .tracks-xiii-story-art,
@@ -2322,19 +2303,6 @@ html.tracks-xiii-flow-open body {
   text-shadow: none;
 }
 
-.tracks-xiii-slot-command {
-  position: absolute;
-  z-index: 5;
-  right: .8cqw;
-  bottom: 1.25cqh;
-  display: block;
-  color: var(--xiii-soft);
-  font: 500 clamp(9px, .55cqw, 11px) / 1 Baskerville, "Iowan Old Style", serif;
-  letter-spacing: .14em;
-  opacity: 0;
-  transform: translateX(.35cqw);
-  transition: opacity 170ms ease, transform 220ms cubic-bezier(.22, 1, .36, 1);
-}
 
 .tracks-xiii-record-slot:hover,
 .tracks-xiii-record-slot:focus-visible,
@@ -2371,12 +2339,6 @@ html.tracks-xiii-flow-open body {
   transform: scale(1.022);
 }
 
-.tracks-xiii-record-slot:hover .tracks-xiii-slot-command,
-.tracks-xiii-record-slot:focus-visible .tracks-xiii-slot-command,
-.tracks-xiii-record-slot.is-kb-cursor .tracks-xiii-slot-command {
-  opacity: .86;
-  transform: translateX(0);
-}
 
 .tracks-xiii-record-slot:active {
   filter: none;

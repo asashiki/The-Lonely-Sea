@@ -13,5 +13,7 @@ export const socialLinks: readonly SocialLink[] = Object.freeze([
   { id: "bangumi", label: "Bangumi", account: "user / asashiki", mark: "BG", href: "https://bangumi.tv/user/asashiki" },
   { id: "bilibili", label: "Bilibili", account: "UID 35128108", mark: "哔", href: "https://space.bilibili.com/35128108?spm_id_from=333.1007.0.0" },
   { id: "steam", label: "Steam", account: "id / Asashiki", mark: "ST", href: "https://steamcommunity.com/id/Asashiki/" },
+  { id: "pixiv", label: "Pixiv", account: "UID 73362060", mark: "P", href: "https://www.pixiv.net/users/73362060" },
+  { id: "xiaohongshu", label: "Rednote", account: "个人主页", mark: "红", href: "https://www.xiaohongshu.com/user/profile/669b51c3000000001b016973" },
   { id: "telegram", label: "Telegram", account: "@asashiki_timeline", mark: "TG", href: "https://web.telegram.org/k/#@asashiki_timeline" },
 ]);

@@ -14,8 +14,9 @@ export const defaultPreferences = Object.freeze({
   interfaceScale: 100,
   backgroundQuality: "HIGH",
   masterMuted: false,
+  masterVolume: 80,
   bgmEnabled: true,
-  bgmVolume: 60,
+  bgmVolume: 50,
   gameBgmEnabled: true,
   gameBgmVolume: 62,
   ambientVolume: 45,
@@ -78,6 +79,7 @@ export function normalizePreferences(value = {}) {
     ...defaultPreferences,
     particleDensity: clampNumber(source.particleDensity, 0, 100, defaultPreferences.particleDensity),
     interfaceScale: clampNumber(source.interfaceScale, 80, 120, defaultPreferences.interfaceScale),
+    masterVolume: clampNumber(source.masterVolume, 0, 100, defaultPreferences.masterVolume),
     bgmVolume: clampNumber(source.bgmVolume, 0, 100, defaultPreferences.bgmVolume),
     gameBgmVolume: clampNumber(source.gameBgmVolume, 0, 100, defaultPreferences.gameBgmVolume),
     ambientVolume: clampNumber(source.ambientVolume, 0, 100, defaultPreferences.ambientVolume),
@@ -159,14 +161,23 @@ export function publishPreferences(preferences, root = document.documentElement)
   return normalized;
 }
 
+// Every playback surface uses the same master × channel rule, including previews.
+export function effectiveAudioVolume(channel, preferences = readPreferences()) {
+  const normalized = normalizePreferences(preferences);
+  if (normalized.masterMuted) return 0;
+  if (channel === "bgmVolume" && !normalized.bgmEnabled) return 0;
+  if (channel === "gameBgmVolume" && !normalized.gameBgmEnabled) return 0;
+  return normalized.masterVolume / 100 * clampNumber(normalized[channel], 0, 100, 0) / 100;
+}
+
 export function runtimePreferenceValue(key, preferences = readPreferences()) {
   const normalized = normalizePreferences(preferences);
   const values = {
     "audio.muted": normalized.masterMuted,
-    "audio.bgm": normalized.masterMuted || !normalized.gameBgmEnabled ? 0 : normalized.gameBgmVolume,
-    "audio.ambient": normalized.masterMuted ? 0 : normalized.ambientVolume,
-    "audio.effects": normalized.masterMuted ? 0 : normalized.interfaceVolume,
-    "audio.voice": normalized.masterMuted ? 0 : normalized.voiceVolume,
+    "audio.bgm": effectiveAudioVolume("gameBgmVolume", normalized) * 100,
+    "audio.ambient": effectiveAudioVolume("ambientVolume", normalized) * 100,
+    "audio.effects": effectiveAudioVolume("interfaceVolume", normalized) * 100,
+    "audio.voice": effectiveAudioVolume("voiceVolume", normalized) * 100,
     "audio.stopVoiceOnAdvance": normalized.stopVoiceOnAdvance,
     "interface.scale": normalized.interfaceScale,
     "interface.cursor": normalized.specialCursor,

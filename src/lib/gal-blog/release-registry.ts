@@ -68,8 +68,10 @@ const GAME_DEFINITIONS: GameDefinition[] = [
   {
     slug: "lonely-sea-chapter-one",
     title: "灯塔导览 · 序章",
-    currentReleaseId: "0.3.0-4830749c",
+    currentReleaseId: "0.3.0-7be69beb",
     releases: [
+      { releaseId: "0.3.0-7be69beb", directory: "0.3.0-7be69beb" },
+      { releaseId: "0.3.0-19dbb930", directory: "0.3.0-19dbb930" },
       {
         releaseId: "0.3.0-4830749c",
         directory: "0.3.0-4830749c",
