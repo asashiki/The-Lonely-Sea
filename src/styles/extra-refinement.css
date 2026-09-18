@@ -87,6 +87,13 @@
   text-shadow: 0 0 .75cqw color-mix(in srgb, var(--v4-accent) 28%, transparent);
 }
 
+/* Center PROJECT paging on the two rows, above the filter toolbar. */
+@media (min-width: 901px), (orientation: landscape) {
+  .extra-canvas[data-extra-mode="projects"] .extra-edge-turners button {
+    top: 46.425%;
+  }
+}
+
 .extra-canvas .extra-edge-turners button:first-child {
   left: calc(23.2cqw - 2.55cqw - .45cqw);
   background: transparent;
