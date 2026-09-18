@@ -15,7 +15,7 @@ import {
 } from "../../data/extra-content.js";
 import { all, required } from "./dom.js";
 import { clearListenSession, readListenSession, writeListenSession } from "./listen-session.js";
-import { effectiveAudioVolume, preferencesReduceMotion, readPreferences } from "./preferences.js";
+import { effectivePlaylistVolume, preferencesReduceMotion, readPreferences } from "./preferences.js";
 import { recordBlogActivity } from "../../lib/blog-activity";
 import { resolveAchievements } from "../../lib/experience-achievements";
 import { writeArticleContinue } from "../../lib/experience-continue";
@@ -392,7 +392,7 @@ export function initExtraScreen() {
       const player = new Audio(current.src);
       player.preload = "auto";
       player.loop = musicLoop;
-      player.volume = effectiveAudioVolume("bgmVolume") * .58;
+      player.volume = effectivePlaylistVolume() * .58;
       player.muted = musicMuted;
       if (startAt > 0) {
         try { player.currentTime = startAt; } catch {}
@@ -435,7 +435,7 @@ export function initExtraScreen() {
     const now = audioContext.currentTime;
     const master = audioContext.createGain();
     const filter = audioContext.createBiquadFilter();
-    const volume = effectiveAudioVolume("bgmVolume") * .045;
+    const volume = effectivePlaylistVolume() * .045;
     musicOutputVolume = volume;
     master.gain.setValueAtTime(0, now);
     master.gain.linearRampToValueAtTime(musicMuted ? 0 : volume, now + .48);
@@ -482,9 +482,9 @@ export function initExtraScreen() {
   function applyMusicMute() {
     if (musicPlayer) {
       musicPlayer.muted = musicMuted;
-      musicPlayer.volume = effectiveAudioVolume("bgmVolume") * .58;
+      musicPlayer.volume = effectivePlaylistVolume() * .58;
     }
-    musicOutputVolume = effectiveAudioVolume("bgmVolume") * .045;
+    musicOutputVolume = effectivePlaylistVolume() * .045;
     if (!audioContext || !musicOutput) return;
     const now = audioContext.currentTime;
     const target = musicMuted ? 0 : musicOutputVolume;
