@@ -150,7 +150,7 @@ const diaryMonths = [
   )),
   ...nvlDiaryMonths.map((entry) => ({
     ...entry,
-    playable: NVL_CHAPTERS[entry.id]?.scenario.some((block) => block.type === "page") ?? false,
+    playable: entry.playable && (NVL_CHAPTERS[entry.id]?.scenario.some((block) => block.type === "page") ?? false),
   })),
 ].sort((left, right) => (
   right.year.localeCompare(left.year) || Number(left.monthNumber) - Number(right.monthNumber)

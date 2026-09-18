@@ -170,6 +170,12 @@ export function effectiveAudioVolume(channel, preferences = readPreferences()) {
   return normalized.masterVolume / 100 * clampNumber(normalized[channel], 0, 100, 0) / 100;
 }
 
+// Explicit playlist playback is independent of automatic background music.
+// Keep the existing website volume slider and master mute in control.
+export function effectivePlaylistVolume(preferences = readPreferences()) {
+  return effectiveAudioVolume("bgmVolume", { ...preferences, bgmEnabled: true });
+}
+
 export function runtimePreferenceValue(key, preferences = readPreferences()) {
   const normalized = normalizePreferences(preferences);
   const values = {

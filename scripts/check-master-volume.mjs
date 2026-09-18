@@ -1,7 +1,13 @@
 import assert from 'node:assert/strict';
-import { normalizePreferences, runtimePreferenceValue } from '../src/scripts/experience/preferences.js';
+import { effectiveAudioVolume, effectivePlaylistVolume, normalizePreferences, runtimePreferenceValue } from '../src/scripts/experience/preferences.js';
 
 const prefs = normalizePreferences({ masterVolume: 25, gameBgmVolume: 80, ambientVolume: 60, interfaceVolume: 40, voiceVolume: 100 });
+const playlistPrefs = normalizePreferences({ masterVolume: 80, bgmVolume: 50, bgmEnabled: false });
+assert.equal(effectiveAudioVolume('bgmVolume', playlistPrefs), 0, '关闭背景音乐仍须停止自动BGM');
+assert.equal(effectivePlaylistVolume(playlistPrefs), .4, '主动播放歌单不能被背景音乐开关静音');
+assert.equal(effectivePlaylistVolume({ ...playlistPrefs, masterMuted: true }), 0);
+assert.equal(effectivePlaylistVolume({ ...playlistPrefs, masterVolume: 0 }), 0);
+assert.equal(effectivePlaylistVolume({ ...playlistPrefs, bgmVolume: 0 }), 0);
 assert.equal(prefs.masterVolume, 25, '总音量必须被保存');
 for (const [key, expected] of Object.entries({ 'audio.bgm': 20, 'audio.ambient': 15, 'audio.effects': 10, 'audio.voice': 25 })) {
   assert.equal(runtimePreferenceValue(key, prefs), expected, `${key} 必须经过总音量`);
