@@ -1,0 +1,62 @@
+/* OPTION: settings sit on the sea; primary navigation stays unchanged. */
+.option-canvas { --sheet: #e3e8e8; }
+body[data-scene="day"] .option-canvas { --sheet: #deeff3; }
+body[data-scene="night"] .option-canvas { --sheet: #152630; }
+body[data-scene="crimson"] .option-canvas { --sheet: #352123; }
+.option-canvas::before { background: color-mix(in srgb, var(--sheet) 79%, transparent); }
+/* A continuous setting page on the sea. All changes stay below the primary navigation. */
+.option-canvas .option-book {top:20cqh;bottom:13cqh;left:6.4cqw;right:7.2cqw;grid-template-columns:18cqw minmax(0,1fr);overflow:visible}
+.option-canvas .option-secondary-shell{padding:9.4cqh 3cqw 0 0;overflow:auto}
+.option-canvas .option-secondary{gap:1.2cqh}
+.option-canvas .option-secondary button{min-height:44px;padding:1.3cqh 0;font-size:clamp(13px,1.03cqw,18px);color:var(--opt-soft);letter-spacing:.13em}
+.option-canvas .option-secondary button[aria-selected=true]{color:var(--opt-ink);font-weight:700;transform:none;padding-left:0}
+.option-canvas .option-book .option-main{padding:0 0 3cqh 2.8cqw;border:0;background:none;box-shadow:none;overflow-y:auto;scrollbar-gutter:stable}
+.option-canvas .option-panel-intro{display:block;border:0;padding:0 0 4cqh}
+.option-canvas .option-panel-intro h3{font-size:clamp(24px,2.5cqw,40px);font-weight:400;line-height:1.4;letter-spacing:.22em;text-shadow:none}
+.option-canvas .option-setting{min-height:10cqh;padding:2.2cqh 0;gap:2.4cqw;border-bottom:1px solid color-mix(in srgb,var(--v4-ink) 14%,transparent);grid-template-columns:minmax(0,1fr) minmax(0,1.2fr)}
+.option-canvas .option-setting:last-child{border-bottom:0}
+.option-canvas .option-setting:hover,.option-canvas .option-setting:focus-within{background:none}
+.option-canvas .option-setting-master{margin:0}
+.option-canvas .option-setting-master strong{color:var(--opt-ink)}
+.option-canvas .option-setting-copy strong{font-size:clamp(14px,1.14cqw,18px);font-weight:500;letter-spacing:.09em;text-shadow:none}
+.option-canvas .option-setting-copy span{font-size:clamp(11px,.82cqw,13px);margin-top:1cqh;line-height:1.7;letter-spacing:.035em}
+.option-canvas .option-setting-control{min-width:0;gap:1.2cqw}
+.option-canvas .option-range{grid-template-columns:auto minmax(0,1fr) auto;width:100%;gap:1.1cqw}
+.option-canvas .option-range input{height:36px;cursor:ew-resize}
+.option-canvas .option-range input::-webkit-slider-runnable-track{height:1px;background:linear-gradient(90deg,var(--opt-ink) var(--option-range-progress,50%),var(--opt-line-strong) 0)}
+.option-canvas .option-range input::-webkit-slider-thumb{width:5px;height:17px;margin-top:-8px;border:0;background:var(--opt-ink);box-shadow:none}
+.option-canvas .option-range input::-moz-range-track{height:1px;background:var(--opt-line-strong)}
+.option-canvas .option-range input::-moz-range-progress{height:1px;background:var(--opt-ink)}
+.option-canvas .option-range input::-moz-range-thumb{width:5px;height:17px;border:0;border-radius:0;background:var(--opt-ink)}
+.option-canvas .setting-value{min-width:3.7em;color:var(--opt-ink);font:italic 22px/1.2 Baskerville,Georgia,serif;text-align:right}
+.option-canvas .option-choice-group{gap:.45cqw;justify-content:flex-end}
+.option-canvas .option-choice-group button{min-height:36px;border:0;padding:1cqh 1.1cqw;background:none;box-shadow:none;color:var(--opt-soft)}
+.option-canvas .option-choice-group button[aria-checked=true]{background:var(--opt-ink);color:var(--sheet);font-weight:600;box-shadow:none}
+.option-canvas .option-switch{height:36px;width:88px;border:0;box-shadow:none;background:none;gap:4px;overflow:visible}
+.option-canvas .option-switch i{display:none}
+.option-canvas .option-switch::before,.option-canvas .option-switch::after{height:30px;color:var(--opt-soft);font-size:12px}
+.option-canvas .option-switch[aria-pressed=true]::before,.option-canvas .option-switch[aria-pressed=false]::after{background:var(--opt-ink);color:var(--sheet)}
+.option-canvas .option-command{border:0;background:color-mix(in srgb,var(--opt-ink) 9%,transparent);min-height:36px;box-shadow:none;padding:1.3cqh 1.6cqw}
+.option-canvas .option-command:hover{background:color-mix(in srgb,var(--opt-ink) 16%,transparent)}
+.option-canvas .option-command-danger{color:var(--opt-danger)}
+.option-canvas :is(button,input):focus-visible{outline:2px dotted var(--opt-ink);outline-offset:4px;text-decoration:none}
+.option-canvas .option-panel{overflow:visible}
+.option-canvas .option-panel-note{color:var(--opt-soft)}
+@media(max-width:900px) and (orientation:portrait){
+html:not([data-forced-landscape="true"]):not([data-reading-system-fixed="true"]) {
+.option-canvas .option-book{top:21vh;bottom:12vh;left:6vw;right:6vw;grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)}
+.option-canvas .option-secondary-shell{padding:0 0 2vh;border:0;overflow:auto}
+.option-canvas .option-secondary{gap:5vw}
+.option-canvas .option-secondary button{padding:0;min-height:44px;font-size:13px}
+.option-canvas .option-book .option-main{padding:2vh 0}
+.option-canvas .option-panel-intro{padding-bottom:2vh}
+.option-canvas .option-panel-intro h3{font-size:27px}
+.option-canvas .option-setting{grid-template-columns:minmax(0,1fr);gap:1vh;padding:2vh 0;min-height:0}
+.option-canvas .option-setting-control{justify-content:flex-start;gap:3vw}
+.option-canvas .option-choice-group{justify-content:flex-start;gap:2vw}
+.option-canvas .option-choice-group button{padding:10px 14px}
+.option-canvas .option-setting-copy strong{font-size:15px}
+.option-canvas .option-setting-copy span{font-size:12px}
+}
+
+}
