@@ -99,4 +99,18 @@ const records = t => JSON.parse(t.w.localStorage.getItem('lonely-sea:blog-intera
   assert.equal(t.q('[data-blog-comment-message] img'), null, 'comment text cannot inject HTML');
   t.controller.destroy(); t.w.close();
 }
+{
+  const t = setup(); let copied = '';
+  Object.defineProperty(t.w.navigator, 'clipboard', { configurable: true, value: { writeText: async value => { copied = value; } } });
+  t.q('[data-site-profile-copy]').click(); await tick();
+  assert.match(copied, /https:\/\/asashiki.com/);
+  assert.match(t.q('[data-site-profile-feedback]').textContent, /已复制/);
+  t.w.navigator.clipboard.writeText = async () => { throw new Error('Denied'); };
+  t.q('[data-site-profile-copy]').click(); await tick();
+  const profile = t.q('[data-site-profile]');
+  assert.equal(profile.selectionStart, 0);
+  assert.equal(profile.selectionEnd, profile.value.length);
+  assert.match(t.q('[data-site-profile-feedback]').textContent, /手动复制/);
+  t.controller.destroy(); t.w.close();
+}
 console.log('Communication checks passed: draft/context restore, local-only save, duplicate guard, retry, in-flight edits, safe URLs and blocked storage.');

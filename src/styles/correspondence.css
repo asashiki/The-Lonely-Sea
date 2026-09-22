@@ -67,3 +67,74 @@ section.blog-interaction-scene.is-bridge .blog-dialogue-meta { font-size: .8rem;
 }
 
 .blog-interaction-scene .blog-dialogue-actions a { background: none; color: var(--interaction-soft); }
+
+/* Refined type rhythm, native sizing, and deliberately small movements. */
+.blog-interaction-scene .blog-dialogue-composer { container-type: inline-size; }
+.blog-interaction-scene :is(.blog-scene-question, .blog-interaction-heading h2) { text-wrap: balance; }
+.blog-interaction-scene :is(.blog-delivery-note, .blog-published-friends small) { text-wrap: pretty; }
+.blog-interaction-scene .blog-dialogue-composer textarea { overflow-wrap: anywhere; }
+.blog-interaction-scene :is(button, a, summary) { -webkit-tap-highlight-color: transparent; }
+.blog-interaction-scene .blog-dialogue-actions :is(button,a) {
+  transition: background-color 150ms ease, color 150ms ease, translate 150ms ease;
+}
+.blog-interaction-scene .blog-dialogue-actions button:active:not(:disabled) { translate: 0 1px; }
+/* Native growth is capped so a long message cannot swallow the game dialog. */
+@supports (field-sizing: content) {
+  section.blog-interaction-scene .blog-dialogue-composer textarea,
+  .reading-system section.blog-interaction-scene.is-page .blog-dialogue-composer textarea {
+    field-sizing: content; height: auto; min-height: 7rem; max-height: 20rem;
+    max-block-size: min(20rem, 45svh); overflow-y: auto;
+  }
+}
+.blog-interaction-scene .blog-site-details {
+  margin-top: 2rem; color: var(--interaction-ink); font: 400 .95rem/1.7 var(--font-display);
+}
+.blog-interaction-scene .blog-site-details summary {
+  cursor: pointer; min-height: 44px; padding: .6rem 0; color: var(--interaction-soft);
+  list-style-position: inside;
+}
+.blog-interaction-scene .blog-site-details[open] summary { color: var(--interaction-ink); }
+.blog-interaction-scene .blog-site-sheet { padding: .8rem 0 0; opacity: 1; }
+.blog-interaction-scene .blog-site-sheet label { display: grid; gap: .7rem; }
+.blog-interaction-scene .blog-site-sheet label > span { font-size: .85rem; color: var(--interaction-soft); }
+.blog-interaction-scene .blog-site-sheet textarea {
+  width: 100%; min-width: 0; height: 9rem; resize: vertical;
+  border: 0; border-radius: 0; padding: .8rem 1rem;
+  background: var(--interaction-field); color: var(--interaction-ink);
+  font: 400 .95rem/1.8 var(--font-display);
+}
+.blog-interaction-scene .blog-site-sheet button {
+  min-height: 44px; margin-top: .8rem; padding: .5rem 0; border: 0;
+  color: var(--interaction-ink); background: none; cursor: pointer;
+  font: 500 .95rem/1.5 var(--font-display);
+}
+.blog-interaction-scene .blog-site-sheet [role=status] { min-height: 1.6em; font-size: .85rem; color: var(--interaction-soft); }
+.blog-interaction-scene .blog-site-details summary:focus-visible { outline: 2px dotted currentColor; outline-offset: 4px; }
+.is-connect .blog-published-friends a { position: relative; padding-right: 2rem; }
+.is-connect .blog-published-friends a::after { content: "↗"; position: absolute; right: .2rem; top: 1.8rem; font: 400 1.4rem/1 var(--font-latin); }
+@media (hover:hover) {
+  .is-connect .blog-published-friends a::after { transition: translate 180ms ease; }
+  .is-connect .blog-published-friends a:hover::after { translate: 2px -2px; }
+  .is-connect .blog-published-friends a:hover strong { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .2em; }
+}
+/* Enter only: outgoing panels remain instantly hidden and never intercept input. */
+@supports (transition-behavior: allow-discrete) {
+  .blog-interaction-scene .blog-interaction-panel:not([hidden]),
+  .blog-interaction-scene .blog-site-details[open] .blog-site-sheet {
+    animation: none; opacity: 1; translate: 0 0;
+    transition: opacity 160ms ease, translate 160ms ease;
+  }
+  @starting-style {
+    .blog-interaction-scene .blog-interaction-panel:not([hidden]),
+    .blog-interaction-scene .blog-site-details[open] .blog-site-sheet { opacity: 0; translate: 0 4px; }
+  }
+}
+@container (max-width: 24rem) {
+  .blog-dialogue-composer .blog-dialogue-actions { flex-direction: column; align-items: stretch; gap: .5rem; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .blog-interaction-scene :is(.blog-interaction-panel, .blog-site-sheet, button, a),
+  .blog-interaction-scene a::after { animation: none!important; transition: none!important; translate: none!important; }
+}
+.blog-interaction-scene[data-interaction-motion="reduced"] :is(.blog-interaction-panel, .blog-site-sheet, button, a),
+.blog-interaction-scene[data-interaction-motion="reduced"] a::after { animation: none!important; transition: none!important; translate: none!important; }

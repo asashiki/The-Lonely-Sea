@@ -211,7 +211,7 @@ const instanceId = `${variant}-${contextKey}`.replace(/[^a-zA-Z0-9_-]/g, "-");
                   <span>
                     <strong>{friend.name}</strong>
                     <small>{friend.description}</small>
-                    <span class="blog-friend-domain">{new URL(friend.url).hostname}</span>
+                    {friend.name !== new URL(friend.url).hostname && <span class="blog-friend-domain">{new URL(friend.url).hostname}</span>}
                   </span>
                 </a>
               </li>
@@ -220,6 +220,16 @@ const instanceId = `${variant}-${contextKey}`.replace(/[^a-zA-Z0-9_-]/g, "-");
         ) : (
           <p class="blog-scene-empty">暂无公开友链。</p>
         )}
+        <details class="blog-site-details">
+          <summary><span data-site-copy-label>本站友链资料</span></summary>
+          <div class="blog-site-sheet">
+            <label><span data-site-copy-label>可直接复制到你的友链页</span>
+              <textarea rows="4" readonly data-site-profile>{`${communicationConfig.site.name}\n${communicationConfig.site.url}\n${communicationConfig.site.description}`}</textarea>
+            </label>
+            <button type="button" data-site-profile-copy>复制本站资料</button>
+            <p data-site-profile-feedback role="status"></p>
+          </div>
+        </details>
         {variant === "bridge" && (
           <div class="blog-dialogue-actions blog-view-actions">
             <button type="button" data-friend-intent="compose">交换友链</button>

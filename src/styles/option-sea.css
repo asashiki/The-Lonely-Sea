@@ -60,3 +60,28 @@ html:not([data-forced-landscape="true"]):not([data-reading-system-fixed="true"])
 }
 
 }
+
+/* A working specimen makes the typography controls tangible. */
+.option-canvas .option-type-specimen {
+  margin: 3cqh 0 0; padding: 2cqh 0; color: var(--opt-ink);
+}
+.option-canvas .option-type-specimen figcaption {
+  color: var(--opt-soft); font: 400 14px/1.6 "Yu Mincho", "Noto Serif SC", serif;
+  letter-spacing: .1em;
+}
+.option-canvas .option-type-specimen p {
+  margin: 1.3cqh 0 0; font-size: calc(clamp(18px, 1.6cqw, 25px) * var(--sample-scale, 1));
+  line-height: var(--sample-leading, 1.8); letter-spacing: .08em;
+}
+.option-canvas .option-type-specimen [lang="en"] { font-family: Baskerville, Georgia, serif; letter-spacing: .04em; }
+.option-canvas .option-panel-intro h3 { text-wrap: balance; }
+.option-canvas .option-setting-copy span { text-wrap: pretty; }
+.option-canvas .option-setting-control { flex-wrap: wrap; }
+.option-canvas .option-setting-control .option-range { flex: 1 1 9rem; }
+/* Controls still have a comfortable target on touch screens. */
+@media (pointer: coarse) {
+  .option-canvas .option-range input,
+  .option-canvas .option-choice-group button,
+  .option-canvas .option-switch,
+  .option-canvas .option-command { min-height: 44px; }
+}

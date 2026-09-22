@@ -77,6 +77,9 @@ Object.assign(INTERACTION_COPY["JA-JP"], {
   "申请仅保存在此浏览器；也可在 GitHub 确认后公开提交。": "申請はこのブラウザにのみ保存します。GitHub で内容を確認して公開送信することもできます。",
 });
 
+Object.assign(INTERACTION_COPY["EN-US"], { "本站友链资料": "Link to this site", "可直接复制到你的友链页": "Details for your links page", "复制本站资料": "Copy site details", "本站资料已复制。": "Site details copied.", "资料已选中，可手动复制。": "Details selected. You can copy them manually." });
+Object.assign(INTERACTION_COPY["JA-JP"], { "本站友链资料": "当サイトのリンク情報", "可直接复制到你的友链页": "リンク集にそのまま使えます", "复制本站资料": "サイト情報をコピー", "本站资料已复制。": "サイト情報をコピーしました。", "资料已选中，可手动复制。": "情報を選択しました。手動でコピーできます。" });
+
 function interactionCopy(source: string): string {
   return INTERACTION_COPY[String(readPreferences().language)]?.[source] || source;
 }
@@ -135,7 +138,7 @@ async function deliver(root: HTMLElement, payload: Record<string, unknown>): Pro
   }
 }
 
-async function copyText(value: string, input?: HTMLInputElement): Promise<boolean> {
+async function copyText(value: string, input?: HTMLInputElement | HTMLTextAreaElement): Promise<boolean> {
   try {
     await navigator.clipboard.writeText(value);
     return true;
@@ -187,6 +190,8 @@ export function initBlogInteractionScene(root: HTMLElement): InteractionControll
     ".blog-published-friends h3",
     ".blog-scene-empty",
     ".blog-delivery-note",
+    "[data-site-copy-label]",
+    "[data-site-profile-copy]",
     ".blog-dialogue-actions a",
   ].join(","))];
   copyNodes.forEach((node) => {
@@ -205,6 +210,7 @@ export function initBlogInteractionScene(root: HTMLElement): InteractionControll
   }
 
   function applyInterfaceLanguage(): void {
+    root.dataset.interactionMotion = readPreferences().reducedMotion ? "reduced" : "full";
     copyNodes.forEach((node) => {
       node.textContent = translatedControl(node.dataset.blogCopySource || "");
     });
@@ -484,6 +490,16 @@ export function initBlogInteractionScene(root: HTMLElement): InteractionControll
     }
   }
 
+  const siteProfile = root.querySelector<HTMLTextAreaElement>("[data-site-profile]");
+  const siteCopy = root.querySelector<HTMLButtonElement>("[data-site-profile-copy]");
+  const siteFeedback = root.querySelector<HTMLElement>("[data-site-profile-feedback]");
+  async function copySiteProfile(): Promise<void> {
+    if (!siteProfile || !siteFeedback) return;
+    const copied = await copyText(siteProfile.value, siteProfile);
+    siteFeedback.textContent = interactionCopy(copied ? "本站资料已复制。" : "资料已选中，可手动复制。");
+  }
+  siteCopy?.addEventListener("click", copySiteProfile);
+
   const onKeydown = (event: KeyboardEvent) => {
     const target = event.target;
     if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) return;
@@ -569,6 +585,7 @@ export function initBlogInteractionScene(root: HTMLElement): InteractionControll
   return {
     destroy() {
       destroyed = true;
+      siteCopy?.removeEventListener("click", copySiteProfile);
       commentForm.removeEventListener("input", onCommentInput);
       friendForm?.removeEventListener("input", onFriendInput);
       publicHandlers.forEach(({link, handler}) => link.removeEventListener("click", handler));

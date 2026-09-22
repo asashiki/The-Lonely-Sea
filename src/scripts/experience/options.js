@@ -243,6 +243,7 @@ export function initOptions({ onReplayOpening = () => {}, onResetExperience = ()
   const voiceTestButton = optionScreen.querySelector("[data-alice-voice-test]");
   window.addEventListener("lonely-sea:preferences-change", (event) => {
     preferences = event.detail?.preferences || readPreferences();
+    syncTypeSamples();
     if (voiceTest) voiceTest.volume = effectiveAudioVolume("voiceVolume", preferences);
   });
   function stopVoiceTest() {
@@ -280,7 +281,17 @@ export function initOptions({ onReplayOpening = () => {}, onResetExperience = ()
     return translatedOptionCopy(source, preferences.language);
   }
 
+  function syncTypeSamples() {
+    all("[data-option-type-sample]", optionScreen).forEach((sample) => {
+      sample.style.setProperty("--sample-scale", String(preferences.textSize / 100));
+      sample.style.setProperty("--sample-leading", String(sample.dataset.optionTypeSample === "reading" ? preferences.readingLineHeight / 100 : 1.8));
+      const label = sample.querySelector("[data-option-sample-label]");
+      if (label) label.textContent = preferences.language === "EN-US" ? "Text preview" : preferences.language === "JA-JP" ? "文字プレビュー" : "文字预览";
+    });
+  }
+
   function applyOptionLanguage() {
+    syncTypeSamples();
     optionCanvas.dataset.optionLanguage = preferences.language;
     translatableNodes.forEach((node) => {
       node.textContent = optionCopy(node.dataset.optionCopySource || "");
@@ -397,6 +408,7 @@ export function initOptions({ onReplayOpening = () => {}, onResetExperience = ()
 
   function publishPreference(key, value, message = "已即时保存") {
     preferences = publishPreferences(normalizePreferences({ ...preferences, [key]: value }));
+    syncTypeSamples();
     if (key === "language") applyOptionLanguage();
     settingRows.filter((row) => row.dataset.settingKey === key).forEach(hydratePreferenceRow);
     if (key === "keyboardCursor") {
