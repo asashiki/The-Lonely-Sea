@@ -1,0 +1,1512 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>OPTION · 海面设定页设计预览</title><style>:root {
+  color-scheme: dark;
+  --safe-top: max(22px, env(safe-area-inset-top));
+  --safe-right: max(24px, env(safe-area-inset-right));
+  --safe-bottom: max(22px, env(safe-area-inset-bottom));
+  --safe-left: max(24px, env(safe-area-inset-left));
+  --ink: rgba(24, 31, 42, .92);
+  --ink-soft: rgba(36, 46, 60, .58);
+  --line: rgba(34, 44, 59, .28);
+  --accent: #566b86;
+  --halo: rgba(247, 250, 255, .76);
+  --shadow: rgba(255, 255, 255, .72);
+  --scene-fade: 800ms;
+}
+
+body[data-scene="mist"] {
+  --v4-bg: url("../public/assets/lonely-sea/mist.webp");
+  --v4-wash: linear-gradient(112deg, rgba(194,203,210,.78), rgba(150,166,179,.55));
+  --v4-outer: #7f8b96;
+  --v4-ink: #26343f;
+  --v4-soft: rgba(35,51,63,.58);
+  --v4-faint: rgba(35,51,63,.3);
+  --v4-line: rgba(34,53,66,.24);
+  --v4-paper: rgba(228,232,232,.77);
+  --v4-card: rgba(242,243,239,.82);
+  --v4-accent: #607b8d;
+  --v4-accent-rgb: 96, 123, 141;
+  --v4-shadow: rgba(31,45,54,.24);
+  --v4-cover-filter: saturate(.72) contrast(.96);
+  --v4-cover-hover-filter: saturate(.92) contrast(.99);
+  --v4-cover-tint: linear-gradient(transparent, transparent);
+}
+
+body[data-scene="day"] {
+  --ink: rgba(21, 47, 70, .92);
+  --ink-soft: rgba(30, 69, 98, .58);
+  --line: rgba(27, 65, 93, .3);
+  --accent: #327eaa;
+  --halo: rgba(247, 253, 255, .84);
+  --v4-bg: url("../public/assets/lonely-sea/day.webp");
+  --v4-wash: linear-gradient(112deg, rgba(171,205,220,.66), rgba(95,158,188,.4));
+  --v4-outer: #4f8fae;
+  --v4-ink: #16364a;
+  --v4-soft: rgba(18,56,79,.61);
+  --v4-faint: rgba(18,56,79,.31);
+  --v4-line: rgba(21,67,92,.25);
+  --v4-paper: rgba(222,239,243,.76);
+  --v4-card: rgba(239,247,246,.84);
+  --v4-accent: #287b9f;
+  --v4-accent-rgb: 40, 123, 159;
+  --v4-shadow: rgba(21,67,89,.22);
+  --v4-cover-filter: saturate(.74) contrast(.96);
+  --v4-cover-hover-filter: saturate(.94) contrast(.99);
+  --v4-cover-tint: linear-gradient(transparent, transparent);
+}
+
+body[data-scene="night"] {
+  --ink: rgba(221, 230, 245, .93);
+  --ink-soft: rgba(199, 215, 237, .58);
+  --line: rgba(206, 222, 243, .27);
+  --accent: #afc9ee;
+  --halo: rgba(7, 17, 35, .72);
+  --shadow: rgba(0, 4, 12, .58);
+  --v4-bg: url("../public/assets/lonely-sea/night.webp");
+  --v4-wash: linear-gradient(112deg, rgba(14,23,36,.75), rgba(27,45,60,.48));
+  --v4-outer: #111c28;
+  --v4-ink: #e4ebef;
+  --v4-soft: rgba(205,218,226,.62);
+  --v4-faint: rgba(195,211,220,.3);
+  --v4-line: rgba(187,209,221,.2);
+  --v4-paper: rgba(18,31,43,.74);
+  --v4-card: rgba(22,36,48,.82);
+  --v4-accent: #91b7ca;
+  --v4-accent-rgb: 145, 183, 202;
+  --v4-shadow: rgba(3,8,14,.45);
+  --v4-cover-filter: saturate(.68) brightness(.86) contrast(.95);
+  --v4-cover-hover-filter: saturate(.78) brightness(.9) contrast(.97);
+  --v4-cover-tint: linear-gradient(rgba(24,43,57,.16), rgba(15,29,42,.2));
+}
+
+body[data-scene="crimson"] {
+  --ink: rgba(239, 221, 217, .93);
+  --ink-soft: rgba(225, 183, 177, .57);
+  --line: rgba(222, 176, 169, .26);
+  --accent: #d76058;
+  --halo: rgba(13, 4, 6, .74);
+  --shadow: rgba(0, 0, 0, .62);
+  --v4-bg: url("../public/assets/lonely-sea/crimson.webp");
+  --v4-wash: linear-gradient(112deg, rgba(38,20,22,.76), rgba(72,35,34,.49));
+  --v4-outer: #2c1a1c;
+  --v4-ink: #eee5e1;
+  --v4-soft: rgba(226,207,201,.62);
+  --v4-faint: rgba(220,197,190,.3);
+  --v4-line: rgba(225,199,191,.2);
+  --v4-paper: rgba(50,27,29,.75);
+  --v4-card: rgba(60,32,33,.82);
+  --v4-accent: #c39083;
+  --v4-accent-rgb: 195, 144, 131;
+  --v4-shadow: rgba(15,5,6,.47);
+  --v4-cover-filter: saturate(.64) brightness(.86) contrast(.95) sepia(.04);
+  --v4-cover-hover-filter: saturate(.75) brightness(.9) contrast(.97) sepia(.03);
+  --v4-cover-tint: linear-gradient(rgba(79,42,41,.15), rgba(49,25,27,.2));
+}
+
+/* OPTION — 環境設定 · a game configuration folio, in LOAD XIV/XII materials.
+   Same family as LOAD: OPTION in Baskerville on the live sea, three independent
+   ghost entrances (never a segmented control), left index on a dependent spine
+   (no markers), one translucent folio sheet, ghost controls, × BACK.
+   Everything derives from --v4-* so all four scenes re-tint. */
+
+.option-screen.system-screen {
+  background: transparent;
+}
+
+.option-screen.system-screen::before {
+  display: none;
+  content: none;
+}
+
+.option-canvas.system-canvas,
+.option-canvas.special-system-canvas,
+.option-canvas {
+  --opt-ink: var(--v4-ink);
+  --opt-soft: color-mix(in srgb, var(--v4-ink) 62%, transparent);
+  --opt-faint: color-mix(in srgb, var(--v4-ink) 40%, transparent);
+  --opt-line: color-mix(in srgb, var(--v4-ink) 15%, transparent);
+  --opt-line-strong: color-mix(in srgb, var(--v4-ink) 34%, transparent);
+  --opt-edge: color-mix(in srgb, var(--v4-ink) 42%, transparent);
+  --opt-accent: var(--v4-accent);
+  --opt-on-accent: #f3f7f8;
+  --opt-danger: color-mix(in srgb, #b0564a 72%, var(--v4-ink) 28%);
+  display: grid;
+  place-items: center;
+  position: absolute;
+  inset: 0;
+  width: auto;
+  height: auto;
+  overflow: clip;
+  isolation: isolate;
+  container-type: normal;
+  background: transparent;
+  box-shadow: none;
+  font-family: "Yu Mincho", "Hiragino Mincho ProN", "Noto Serif SC", serif;
+}
+
+body[data-scene="night"] .option-canvas,
+body[data-scene="crimson"] .option-canvas {
+  --opt-on-accent: #141c22;
+}
+
+/* EXTRA's seating wash: keeps the photograph, seats the folio. */
+.option-canvas::before {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  display: block;
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--v4-paper) 14%, transparent), transparent 26%),
+    radial-gradient(ellipse at 62% 44%, transparent 42%, color-mix(in srgb, var(--v4-outer) 14%, transparent) 112%);
+  content: "";
+  pointer-events: none;
+}
+
+.option-canvas::after {
+  display: none;
+  content: none;
+}
+
+html[data-weather-layer="overlay"] body[data-route="option"] #weather-canvas,
+html[data-weather-layer="overlay"] body[data-route="option"] .weather-veil {
+  z-index: 27;
+}
+
+.option-canvas .option-safe-frame {
+  position: relative;
+  z-index: 2;
+  width: min(100vw, 177.7778vh);
+  height: min(100vh, 56.25vw);
+  overflow: clip;
+  isolation: isolate;
+  container-type: size;
+  pointer-events: none;
+}
+
+.option-canvas .option-safe-frame::before {
+  content: none;
+}
+
+.option-canvas .option-heading,
+.option-canvas .option-primary,
+.option-canvas .option-actions {
+  pointer-events: auto;
+}
+
+/* ---------- 标题:与 LOAD 同一站位 ---------- */
+
+.option-canvas .option-heading {
+  top: 4.35cqh;
+  left: 4.8cqw;
+  z-index: 8;
+}
+
+.option-canvas .option-heading h2 {
+  margin: 0;
+  color: var(--opt-ink);
+  font: 400 clamp(36px, 3.2cqw, 60px) / .88 Baskerville, "Iowan Old Style", "Yu Mincho", serif;
+  letter-spacing: .08em;
+  text-shadow: 0 .3cqh 1.2cqw var(--v4-shadow);
+}
+
+.option-canvas .option-heading p {
+  display: block;
+  margin: 1.1cqh 0 0;
+  color: var(--opt-soft);
+  font: 400 clamp(10px, .82cqw, 13px) / 1.4 "Yu Mincho", "Noto Serif SC", serif;
+  letter-spacing: .42em;
+  text-shadow: 0 1px .8cqw var(--v4-shadow);
+}
+
+/* ---------- 一级分类:三枚独立按钮(XIV) ---------- */
+
+.option-canvas .option-primary {
+  position: absolute;
+  z-index: 9;
+  top: 4.6cqh;
+  right: 4.8cqw;
+  left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1.05cqw;
+  width: auto;
+  height: 6.6cqh;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  filter: none;
+}
+
+.option-canvas .option-primary button {
+  position: relative;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: .35cqh;
+  width: clamp(96px, 8.8cqw, 136px);
+  height: 100%;
+  min-height: 38px;
+  padding: 0 .85cqw;
+  overflow: hidden;
+  border: 1px solid var(--opt-edge);
+  border-radius: 0;
+  color: color-mix(in srgb, var(--v4-ink) 76%, transparent);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--v4-card) 22%, transparent),
+    color-mix(in srgb, var(--v4-outer) 10%, transparent)
+  );
+  box-shadow:
+    inset 0 1px color-mix(in srgb, white 10%, transparent),
+    0 .3cqh .8cqw color-mix(in srgb, var(--v4-shadow) 26%, transparent);
+  font: 500 clamp(14px, 1.05cqw, 17px) / 1 "Yu Mincho", "Noto Serif SC", serif;
+  letter-spacing: .22em;
+  text-indent: .22em;
+  text-shadow: none;
+  isolation: isolate;
+  transform: translate3d(0, 0, 0);
+  transition: color 180ms ease, border-color 180ms ease, box-shadow 200ms ease, text-shadow 180ms ease;
+}
+
+.option-canvas .option-primary button small {
+  display: block;
+  font: 400 clamp(7px, .56cqw, 9px) / 1 Baskerville, serif;
+  letter-spacing: .34em;
+  text-indent: .34em;
+  color: var(--opt-faint);
+  transition: color 180ms ease;
+}
+
+.option-canvas .option-primary button::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 28%,
+    color-mix(in srgb, var(--v4-accent) 22%, transparent) 50%,
+    transparent 72%
+  );
+  content: "";
+  opacity: 0;
+  transform: none;
+  transition: opacity 200ms ease;
+}
+
+.option-canvas .option-primary button::after {
+  position: absolute;
+  z-index: 1;
+  top: 14%;
+  bottom: 14%;
+  left: 0;
+  display: block;
+  width: 2px;
+  height: auto;
+  background: linear-gradient(180deg, transparent, var(--v4-accent), transparent);
+  box-shadow: none;
+  content: "";
+  opacity: 0;
+  transform: scaleY(.35);
+  transition: opacity 200ms ease, transform 260ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.option-canvas[data-option-language="EN-US"] .option-primary button small {
+  visibility: hidden;
+}
+
+.option-canvas .option-primary button[aria-selected="true"] {
+  color: var(--opt-ink);
+  border-color: color-mix(in srgb, var(--v4-accent) 72%, var(--v4-ink) 20%);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--v4-accent) 18%, transparent),
+    color-mix(in srgb, var(--v4-accent) 12%, var(--v4-card) 40%)
+  );
+  box-shadow:
+    inset 0 1px color-mix(in srgb, white 14%, transparent),
+    0 0 1.1cqw color-mix(in srgb, var(--v4-accent) 22%, transparent);
+  text-shadow: 0 0 1cqw color-mix(in srgb, var(--v4-accent) 30%, transparent);
+}
+
+.option-canvas .option-primary button[aria-selected="true"] small {
+  color: color-mix(in srgb, var(--v4-accent) 82%, var(--v4-ink) 18%);
+}
+
+.option-canvas .option-primary button[aria-selected="true"]::before {
+  opacity: 1;
+}
+
+.option-canvas .option-primary button[aria-selected="true"]::after {
+  opacity: .9;
+  transform: scaleY(1);
+}
+
+/* Settings: detached game index and a quiet, sharply framed control area. */
+
+.option-canvas .option-book {
+  position: absolute;
+  z-index: 5;
+  top: 15.6cqh;
+  right: 4.8cqw;
+  bottom: 11.4cqh;
+  left: 4.8cqw;
+  display: grid;
+  grid-template-columns: minmax(11rem, 15.5cqw) minmax(0, 1fr);
+  width: auto;
+  height: auto;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  pointer-events: none;
+}
+
+.option-canvas .option-book::before,
+.option-canvas .option-book::after {
+  content: none;
+}
+
+.option-canvas .option-secondary-shell,
+.option-canvas .option-main {
+  position: relative;
+  z-index: 2;
+  pointer-events: auto;
+}
+
+/* ---------- 二级索引:从属脊线,无标记(XII) ---------- */
+
+.option-canvas .option-secondary-shell {
+  grid-column: 1;
+  min-width: 0;
+  min-height: 0;
+  padding: 3.6cqh 1.8cqw 3.6cqh 0;
+  overflow: hidden;
+  border-right: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.option-canvas .option-secondary {
+  position: relative;
+  display: grid;
+  align-content: start;
+  height: 100%;
+  gap: .75cqh;
+  background: transparent;
+}
+
+/* 脊线 */
+.option-canvas .option-secondary::before {
+  display: none;
+  content: none;
+}
+
+.option-canvas .option-secondary[hidden] {
+  display: none;
+}
+
+.option-canvas .option-secondary::after {
+  content: none;
+}
+
+.option-canvas .option-secondary button {
+  position: relative;
+  display: block;
+  min-height: 34px;
+  overflow: hidden;
+  padding: 1.15cqh .65cqw 1.15cqh 1.45cqw;
+  border: 0;
+  border-radius: 0;
+  color: color-mix(in srgb, var(--v4-ink) 72%, transparent);
+  background: transparent;
+  box-shadow: none;
+  font: 400 clamp(13px, 1cqw, 16px) / 1.25 "Yu Mincho", "Noto Serif SC", serif;
+  letter-spacing: .16em;
+  text-align: left;
+  text-shadow: 0 1px 0 color-mix(in srgb, white 9%, transparent);
+  transform: none;
+  transition: color 170ms ease, background-color 170ms ease, padding-left 220ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.option-canvas .option-secondary button::before,
+.option-canvas .option-secondary button::after {
+  content: none;
+}
+
+.option-canvas .option-secondary button span,
+.option-canvas .option-secondary button {
+  transform-origin: left center;
+}
+
+.option-canvas .option-secondary button[aria-selected="true"] {
+  padding-left: 1.45cqw;
+  color: var(--opt-ink);
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  font-weight: 700;
+  text-shadow: none;
+}
+
+/* ---------- 设置面板 ---------- */
+
+.option-canvas .option-book .option-main,
+.option-canvas .option-main {
+  grid-column: 2;
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 3.4cqh 3.6cqw 3cqh;
+  border: 1px solid var(--opt-line-strong);
+  background: color-mix(in srgb, var(--v4-paper) 94%, transparent);
+  box-shadow: none;
+  backdrop-filter: none;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--v4-accent) 34%, transparent) transparent;
+}
+
+.option-canvas .option-main::-webkit-scrollbar {
+  width: 4px;
+}
+
+.option-canvas .option-main::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--v4-accent) 34%, transparent);
+}
+
+.option-canvas .option-panel,
+.option-canvas .option-panel.is-active {
+  position: relative;
+  inset: auto;
+  display: block;
+  padding: 0;
+  overflow: hidden;
+  background: transparent;
+  opacity: 1;
+  transform: none;
+}
+
+.option-canvas .option-panel[hidden] {
+  display: none;
+}
+
+.option-canvas .option-panel-intro {
+  display: flex;
+  align-items: baseline;
+  gap: 1.4cqw;
+  margin: 0;
+  padding-bottom: 1.9cqh;
+  border-bottom: 1px solid var(--opt-line-strong);
+}
+
+.option-canvas .option-panel-intro h3 {
+  margin: 0;
+  color: var(--opt-ink);
+  font: 600 clamp(16px, 1.5cqw, 22px) / 1.1 "Yu Mincho", "Noto Serif SC", serif;
+  letter-spacing: .24em;
+  text-shadow: 0 1px .8cqw var(--v4-shadow);
+}
+
+.option-canvas .option-panel-intro p {
+  margin: 0;
+  color: var(--opt-faint);
+  font: 400 clamp(10px, .8cqw, 12.5px) / 1.4 "Yu Mincho", "Noto Serif SC", serif;
+  letter-spacing: .14em;
+}
+
+.option-canvas .option-panel-note {
+  display: block;
+  margin: 2.1cqh 0 0;
+  color: var(--opt-faint);
+  font: 400 clamp(10px, .82cqw, 12.5px) / 1.9 "Yu Mincho", "Noto Serif SC", serif;
+  letter-spacing: .08em;
+  overflow-wrap: anywhere;
+}
+
+.option-canvas .option-settings {
+  display: grid;
+  align-content: start;
+  height: auto;
+  max-height: none;
+  min-height: 0;
+  overflow: visible;
+}
+
+.option-canvas .option-settings::before {
+  content: none;
+}
+
+.option-canvas .option-setting {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 2cqw;
+  min-height: 7cqh;
+  padding: 2cqh .4cqw 2cqh 1cqw;
+  border-bottom: 1px solid var(--opt-line);
+  isolation: isolate;
+  pointer-events: auto;
+  transition: background-color 170ms ease;
+}
+
+.option-canvas .option-setting::before,
+.option-canvas .option-setting::after {
+  content: none;
+}
+
+.option-canvas .option-setting:focus-within,
+.option-canvas .option-setting:hover {
+  background: color-mix(in srgb, var(--v4-accent) 7%, transparent);
+}
+
+.option-canvas .option-settings-dense .option-setting {
+  min-height: 5.5cqh;
+  padding-block: 1.05cqh;
+}
+
+.option-canvas .option-setting-master {
+  margin-bottom: 1cqh;
+  border-bottom: 1px solid var(--opt-line-strong);
+}
+
+.option-canvas .option-setting-master .option-setting-copy strong {
+  color: var(--opt-accent);
+}
+
+.option-canvas .option-setting-copy {
+  display: block;
+  min-width: 0;
+  padding: 0;
+}
+
+.option-canvas .option-setting-copy strong {
+  display: block;
+  color: var(--opt-ink);
+  font: 600 clamp(14px, 1.08cqw, 17px) / 1.3 "Yu Mincho", "Noto Serif SC", serif;
+  letter-spacing: .12em;
+  text-shadow: 0 1px .7cqw var(--v4-shadow);
+}
+
+.option-canvas .option-setting-copy span {
+  display: block;
+  margin-top: .5cqh;
+  color: var(--opt-soft);
+  font: 400 clamp(10px, .8cqw, 12px) / 1.45 "Yu Mincho", "Noto Serif SC", serif;
+  letter-spacing: .08em;
+}
+
+.option-canvas .option-setting-control {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1.1cqw;
+}
+
+/* ---------- 分段选择:独立小按钮,从不连体 ---------- */
+
+.option-canvas .option-choice-group {
+  display: inline-flex;
+  flex-wrap: wrap;
+  overflow: visible;
+  border: 0;
+  background: transparent;
+  gap: .55cqw;
+}
+
+.option-canvas .option-choice-group button {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  padding: .95cqh 1.15cqw;
+  border: 1px solid color-mix(in srgb, var(--v4-ink) 30%, transparent);
+  border-radius: 0;
+  color: var(--opt-soft);
+  background: color-mix(in srgb, var(--v4-card) 24%, transparent);
+  box-shadow: inset 0 1px color-mix(in srgb, white 8%, transparent);
+  font: 500 clamp(12px, .9cqw, 14px) / 1 "Yu Mincho", "Noto Serif SC", serif;
+  letter-spacing: .1em;
+  text-shadow: none;
+  white-space: nowrap;
+  isolation: isolate;
+  transform: none;
+  transition: color 160ms ease, border-color 160ms ease, background-color 160ms ease;
+}
+
+.option-canvas .option-choice-group button::before,
+.option-canvas .option-choice-group button::after {
+  content: none;
+}
+
+.option-canvas .option-choice-group button[aria-checked="true"] {
+  color: var(--opt-ink);
+  border-color: color-mix(in srgb, var(--v4-accent) 58%, var(--v4-ink) 16%);
+  background: var(--option-control-active);
+  box-shadow: inset 0 1px color-mix(in srgb, white 12%, transparent);
+}
+
+/* ---------- 滑杆:发丝轨 + 方钉 ---------- */
+
+.option-canvas .option-range {
+  display: grid;
+  grid-template-columns: auto minmax(12cqw, 19cqw) auto;
+  align-items: center;
+  gap: .8cqw;
+}
+
+.option-canvas .option-range > span {
+  color: var(--opt-faint);
+  font: 600 clamp(8px, .54cqw, 10px) / 1 "Yu Gothic", "Noto Sans SC", sans-serif;
+  letter-spacing: .12em;
+}
+
+.option-canvas .option-range input {
+  width: 100%;
+  height: 3.2cqh;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  appearance: none;
+  background: transparent;
+  touch-action: pan-y;
+}
+
+.option-canvas .option-range input::-webkit-slider-runnable-track {
+  height: 2px;
+  border: 0;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--v4-accent) 72%, var(--v4-ink) 12%) var(--option-range-progress, 50%),
+    color-mix(in srgb, var(--v4-ink) 22%, transparent) 0
+  );
+  box-shadow: none;
+}
+
+.option-canvas .option-range input::-webkit-slider-thumb {
+  width: 10px;
+  height: 10px;
+  margin-top: -4px;
+  border: 1px solid color-mix(in srgb, var(--v4-accent) 72%, var(--v4-ink) 16%);
+  border-radius: 0;
+  appearance: none;
+  background: var(--v4-card);
+  box-shadow: 0 .2cqh .5cqw var(--v4-shadow);
+  transform: none;
+  transition: background-color 160ms ease;
+}
+
+.option-canvas .option-range input::-moz-range-track {
+  height: 2px;
+  border: 0;
+  background: color-mix(in srgb, var(--v4-ink) 22%, transparent);
+}
+
+.option-canvas .option-range input::-moz-range-progress {
+  height: 2px;
+  background: color-mix(in srgb, var(--v4-accent) 72%, var(--v4-ink) 12%);
+}
+
+.option-canvas .option-range input::-moz-range-thumb {
+  width: 9px;
+  height: 9px;
+  border: 1px solid color-mix(in srgb, var(--v4-accent) 72%, var(--v4-ink) 16%);
+  border-radius: 0;
+  background: var(--v4-card);
+  box-shadow: 0 .2cqh .5cqw var(--v4-shadow);
+  transform: none;
+}
+
+.option-canvas .option-setting-control > .setting-value,
+.option-canvas .setting-value {
+  flex: 0 0 auto;
+  min-width: 3.2em;
+  color: color-mix(in srgb, var(--v4-accent) 68%, var(--v4-ink) 32%);
+  font: italic 400 clamp(13px, .9cqw, 16px) / 1 Baskerville, serif;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  text-shadow: none;
+}
+
+/* ---------- 开关:双格幽灵盒 ---------- */
+
+.option-canvas .option-switch {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  width: clamp(3.2rem, 5cqw, 4.2rem);
+  min-width: 0;
+  min-height: 0;
+  height: clamp(1.35rem, 3.4cqh, 1.75rem);
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--opt-edge);
+  border-radius: 0;
+  color: var(--opt-faint);
+  background: color-mix(in srgb, var(--v4-card) 24%, transparent);
+  box-shadow: inset 0 1px color-mix(in srgb, white 8%, transparent);
+  isolation: isolate;
+  transition: border-color 180ms ease;
+}
+
+.option-canvas .option-switch i {
+  position: absolute;
+  z-index: 0;
+  top: 2px;
+  bottom: 2px;
+  left: 2px;
+  width: calc(50% - 2px);
+  min-width: 0;
+  border: 0;
+  border-radius: 0;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, white 16%, var(--v4-accent)),
+    var(--v4-accent)
+  );
+  clip-path: none;
+  box-shadow: none;
+  transform: translateX(0);
+  transition: transform 200ms cubic-bezier(.22, 1, .36, 1), background-color 180ms ease;
+}
+
+.option-canvas .option-switch[aria-pressed="false"] i {
+  background: color-mix(in srgb, var(--v4-ink) 24%, transparent);
+  transform: translateX(100%);
+}
+
+.option-canvas .option-switch[aria-pressed="true"] {
+  border-color: color-mix(in srgb, var(--v4-accent) 58%, var(--v4-ink) 16%);
+  background: color-mix(in srgb, var(--v4-card) 24%, transparent);
+}
+
+.option-canvas .option-switch i::before {
+  content: none;
+}
+
+.option-canvas .option-switch .setting-value {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+.option-canvas .option-switch::before,
+.option-canvas .option-switch::after {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  font: 500 clamp(10px, .72cqw, 12px) / 1 "Yu Mincho", "Noto Serif SC", serif;
+  letter-spacing: .1em;
+  text-shadow: none;
+  transition: color 180ms ease;
+  content: "开";
+}
+
+.option-canvas .option-switch::after {
+  content: "关";
+}
+
+.option-canvas:is([data-option-language="EN-US"], [data-option-language="JA-JP"]) .option-switch::before {
+  content: "ON";
+}
+
+.option-canvas:is([data-option-language="EN-US"], [data-option-language="JA-JP"]) .option-switch::after {
+  content: "OFF";
+}
+
+.option-canvas .option-switch[aria-pressed="true"]::before,
+.option-canvas .option-switch[aria-pressed="false"]::after {
+  color: var(--opt-on-accent);
+}
+
+.option-canvas .option-switch[aria-pressed="true"]::after,
+.option-canvas .option-switch[aria-pressed="false"]::before {
+  color: var(--opt-faint);
+}
+
+/* ---------- 指令按钮:幽灵盒 ---------- */
+
+.option-canvas .option-command {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  padding: 1cqh 1.9cqw;
+  border: 1px solid var(--opt-edge);
+  border-radius: 0;
+  color: var(--opt-ink);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--v4-card) 22%, transparent),
+    color-mix(in srgb, var(--v4-outer) 10%, transparent)
+  );
+  box-shadow: inset 0 1px color-mix(in srgb, white 10%, transparent);
+  font: 500 clamp(12px, .9cqw, 14.5px) / 1 "Yu Mincho", "Noto Serif SC", serif;
+  letter-spacing: .2em;
+  text-indent: .2em;
+  text-shadow: none;
+  white-space: nowrap;
+  isolation: isolate;
+  transition: color 160ms ease, border-color 160ms ease, background-color 160ms ease;
+}
+
+.option-canvas .option-command::before {
+  content: none;
+}
+
+.option-canvas .option-command.option-command-danger {
+  color: var(--opt-danger);
+  border-color: color-mix(in srgb, var(--opt-danger) 45%, transparent);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--v4-card) 22%, transparent),
+    color-mix(in srgb, var(--v4-outer) 10%, transparent)
+  );
+}
+
+.option-canvas .option-command[data-confirm="true"] {
+  color: var(--opt-on-accent);
+  border-color: var(--opt-danger);
+  background: var(--opt-danger);
+}
+
+/* ---------- 底部操作层 ---------- */
+
+.option-canvas .option-actions {
+  position: absolute;
+  z-index: 30;
+  right: 4.8cqw;
+  bottom: 3cqh;
+  left: 4.8cqw;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 5cqh;
+  pointer-events: auto;
+}
+
+.option-canvas .option-state {
+  display: flex;
+  align-items: center;
+  gap: .8cqw;
+  margin: 0;
+  color: var(--opt-soft);
+  font: 500 clamp(10px, .68cqw, 12.5px) / 1.35 "Yu Gothic", "Noto Sans SC", sans-serif;
+  letter-spacing: .14em;
+  text-shadow: 0 1px .8cqw var(--v4-shadow);
+}
+
+.option-canvas .option-state i {
+  display: none;
+}
+
+.option-canvas .option-state b {
+  font: italic 400 1em Baskerville, serif;
+  color: color-mix(in srgb, var(--v4-accent) 68%, var(--v4-ink) 32%);
+}
+
+.option-canvas[data-option-sync="active"] .option-state {
+  color: var(--opt-ink);
+}
+
+/* BACK 使用公共路线箭头,只定位置与颜色 */
+.option-canvas .option-actions .system-back {
+  position: relative;
+  top: auto;
+  right: auto;
+  bottom: auto;
+  left: auto;
+  min-width: 0;
+  min-height: 4cqh;
+  padding: 0 0 .8cqh;
+  border: 0;
+  border-radius: 0;
+  color: var(--v4-soft);
+  background: transparent;
+  box-shadow: none;
+  font: 500 clamp(10px, .68cqw, 13px) / 1 "Yu Gothic", "Noto Sans SC", sans-serif;
+  letter-spacing: .24em;
+  text-indent: 0;
+  opacity: .88;
+  text-shadow: none;
+  isolation: isolate;
+  transition: color 200ms ease, opacity 200ms ease, text-shadow 200ms ease;
+}
+
+.option-canvas .option-actions .system-back::before,
+.option-canvas .option-actions .system-back::after {
+  content: none;
+}
+
+/* ---------- 焦点与悬停 ---------- */
+
+.option-canvas .option-primary button:focus-visible,
+.option-canvas .option-secondary button:focus-visible,
+.option-canvas .option-choice-group button:focus-visible,
+.option-canvas .option-switch:focus-visible,
+.option-canvas .option-command:focus-visible,
+.option-canvas .option-range input:focus-visible,
+.option-canvas .option-actions .system-back:focus-visible {
+  outline: 0;
+  text-decoration: underline;
+  text-decoration-color: currentColor;
+  text-decoration-thickness: 1px;
+  text-underline-offset: .45em;
+  text-shadow: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .option-canvas .option-primary button:hover {
+    color: var(--opt-ink);
+    border-color: color-mix(in srgb, var(--v4-accent) 55%, var(--v4-ink) 22%);
+    background-color: transparent;
+    transform: none;
+  }
+
+  .option-canvas .option-secondary button:hover {
+    color: var(--opt-ink);
+    background: transparent;
+    transform: none;
+  }
+
+  .option-canvas .option-choice-group button:hover {
+    color: var(--opt-ink);
+    border-color: color-mix(in srgb, var(--v4-accent) 45%, var(--v4-ink) 20%);
+    background-color: color-mix(in srgb, var(--v4-card) 38%, transparent);
+    transform: none;
+  }
+
+  .option-canvas .option-command:hover {
+    color: var(--opt-ink);
+    border-color: color-mix(in srgb, var(--v4-accent) 58%, var(--v4-ink) 16%);
+    background: var(--option-control-active);
+    transform: none;
+  }
+
+  .option-canvas .option-command.option-command-danger:hover {
+    color: var(--opt-on-accent);
+    border-color: var(--opt-danger);
+    background: var(--opt-danger);
+  }
+
+  .option-canvas .option-switch:hover {
+    border-color: color-mix(in srgb, var(--v4-accent) 55%, var(--v4-ink) 22%);
+  }
+
+  .option-canvas .option-range input:hover::-webkit-slider-thumb {
+    background: color-mix(in srgb, var(--v4-accent) 30%, var(--v4-card) 70%);
+    transform: none;
+  }
+
+  .option-canvas .option-actions .system-back:hover {
+    color: var(--opt-ink);
+    border-color: transparent;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------- 窄横屏 ---------- */
+
+@media (max-width: 1050px) and (orientation: landscape) {
+  .option-canvas .option-book {
+    top: 15cqh;
+    bottom: 12cqh;
+    grid-template-columns: minmax(9.5rem, 17cqw) minmax(0, 1fr);
+  }
+
+  .option-canvas .option-actions {
+    bottom: 2.4cqh;
+  }
+}
+
+/* ---------- 竖屏 ---------- */
+
+@media (max-width: 900px) and (orientation: portrait) {
+  html:not([data-forced-landscape="true"]):not([data-reading-system-fixed="true"]) {
+  .option-canvas .option-safe-frame {
+    width: 100vw;
+    height: 100vh;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .option-canvas .option-heading {
+    top: max(2.2vh, env(safe-area-inset-top));
+    left: 5vw;
+  }
+
+  .option-canvas .option-heading h2 {
+    font-size: clamp(34px, 10.8vw, 48px);
+  }
+
+  .option-canvas .option-heading p {
+    font-size: clamp(10px, 2.8vw, 13px);
+    letter-spacing: .3em;
+  }
+
+  .option-canvas .option-primary {
+    top: max(10.8vh, calc(env(safe-area-inset-top) + 8.6vh));
+    right: 5vw;
+    left: 5vw;
+    justify-content: stretch;
+    gap: 2.4vw;
+    height: 6vh;
+  }
+
+  .option-canvas .option-primary button {
+    flex: 1 1 0;
+    width: auto;
+    font-size: clamp(13px, 3.8vw, 16px);
+    letter-spacing: .14em;
+    text-indent: .14em;
+  }
+
+  .option-canvas .option-book {
+    top: max(18.6vh, calc(env(safe-area-inset-top) + 16.4vh));
+    right: 4vw;
+    bottom: max(8.6vh, calc(env(safe-area-inset-bottom) + 7vh));
+    left: 4vw;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .option-canvas .option-secondary-shell {
+    grid-column: 1;
+    grid-row: 1;
+    padding: 0 2vw;
+    overflow: hidden;
+    border-right: 0;
+    border-bottom: 1px solid var(--opt-line);
+  }
+
+  .option-canvas .option-secondary {
+    display: flex;
+    align-items: stretch;
+    height: auto;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .option-canvas .option-secondary::-webkit-scrollbar {
+    display: none;
+  }
+
+  .option-canvas .option-secondary::before {
+    top: auto;
+    right: 4vw;
+    bottom: 0;
+    left: 4vw;
+    width: auto;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--opt-line-strong) 8%, var(--opt-line-strong) 90%, transparent);
+  }
+
+  .option-canvas .option-secondary button {
+    flex: 0 0 auto;
+    min-height: 0;
+    padding: 1.9vh 3.6vw;
+    font-size: clamp(12px, 3.4vw, 15px);
+    letter-spacing: .1em;
+    white-space: nowrap;
+  }
+
+  .option-canvas .option-secondary button[aria-selected="true"] {
+    padding-left: 3.6vw;
+    background: transparent;
+  }
+
+  .option-canvas .option-book .option-main,
+  .option-canvas .option-main {
+    grid-column: 1;
+    grid-row: 2;
+    padding: 2.4vh 4.5vw 2.8vh;
+    scrollbar-width: none;
+  }
+
+  .option-canvas .option-main::-webkit-scrollbar {
+    display: none;
+  }
+
+  .option-canvas .option-panel-intro h3 {
+    font-size: clamp(17px, 5vw, 22px);
+  }
+
+  .option-canvas .option-panel-intro p {
+    font-size: clamp(10px, 2.8vw, 12px);
+  }
+
+  .option-canvas .option-setting {
+    grid-template-columns: minmax(0, 42%) minmax(0, 58%);
+    gap: 3vw;
+    min-height: 0;
+    padding: 2.3vh 1vw 2.3vh 2.4vw;
+  }
+
+  .option-canvas .option-setting-copy strong {
+    font-size: clamp(13px, 3.7vw, 16px);
+  }
+
+  .option-canvas .option-setting-copy span {
+    font-size: clamp(10px, 2.8vw, 12px);
+  }
+
+  .option-canvas .option-setting-control {
+    flex-wrap: wrap;
+    gap: 1.6vw;
+  }
+
+  .option-canvas .option-choice-group button {
+    padding: 1.3vh 2.4vw;
+    font-size: clamp(11px, 3vw, 13px);
+    letter-spacing: .05em;
+  }
+
+  .option-canvas .option-range {
+    grid-template-columns: auto minmax(16vw, 1fr) auto;
+    width: 100%;
+  }
+
+  .option-canvas .option-switch {
+    width: clamp(3.4rem, 16vw, 4.4rem);
+    height: clamp(1.4rem, 3.4vh, 1.9rem);
+  }
+
+  .option-canvas .option-command {
+    padding: 1.3vh 4.6vw;
+    font-size: clamp(11px, 3vw, 13px);
+  }
+
+  .option-canvas .option-actions {
+    right: 4vw;
+    bottom: max(1.8vh, env(safe-area-inset-bottom));
+    left: 4vw;
+  }
+
+  .option-canvas .option-actions .system-back {
+    min-height: 4.8vh;
+    padding-left: 3.4cqw;
+  }
+  }
+}
+
+/* ---------- 减少动态 ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .option-canvas *,
+  .option-canvas *::before,
+  .option-canvas *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+html[data-motion="reduced"] .option-canvas *,
+html[data-motion="reduced"] .option-canvas *::before,
+html[data-motion="reduced"] .option-canvas *::after {
+  animation: none !important;
+  transition: none !important;
+}
+
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden}button,a,input{font:inherit}button{cursor:pointer}button,a{color:inherit}a{text-decoration:none}button{border-radius:0}body{--sheet:#e3e8e8;background:var(--v4-bg) center/cover fixed;color:var(--v4-ink)}body[data-scene=night]{--sheet:#152630}body[data-scene=crimson]{--sheet:#352123}
+body::before{content:"";position:fixed;inset:0;background:color-mix(in srgb,var(--sheet) 79%,transparent);pointer-events:none}
+.option-heading{position:absolute}.option-safe-frame{margin:auto}.option-canvas{top:40px!important;bottom:0!important}.option-canvas .option-safe-frame{width:min(100vw,calc((100vh - 40px)*16/9));height:min(calc(100vh - 40px),56.25vw)}.option-canvas::before{display:none}
+.review-bar{position:fixed;z-index:100;inset:0 0 auto;height:40px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;gap:14px;background:#e9e7e0;color:#374247;font:12px/1.2 system-ui,sans-serif;border-bottom:1px solid #c4c7c3}.review-bar label{display:flex;align-items:center;gap:5px;white-space:nowrap}.review-bar select{font:inherit;color:inherit;border:0;background:transparent;padding:4px}.review-tools{display:flex;gap:20px;align-items:center}.review-bar button{border:0;background:none;color:inherit;font:inherit}.review-bar strong{font-weight:500}.option-state span{letter-spacing:.06em}
+@media(max-width:900px) and (orientation:portrait){.option-canvas .option-safe-frame{width:100%;height:100%}.review-bar{padding:0 10px;font-size:11px}.review-bar strong{display:none}.review-tools{width:100%;justify-content:space-between;gap:5px}.option-canvas .option-primary button{min-width:0;width:auto;font-size:12px;letter-spacing:.1em}.option-canvas .option-actions{bottom:3vh}.option-canvas .option-heading h2{font-size:36px}}
+
+/* A continuous setting page on the sea. All changes stay below the primary navigation. */
+body:not(.original) .option-canvas .option-book {top:20cqh;bottom:13cqh;left:6.4cqw;right:7.2cqw;grid-template-columns:18cqw minmax(0,1fr);overflow:visible}
+body:not(.original) .option-canvas .option-secondary-shell{padding:9.4cqh 3cqw 0 0;overflow:auto}
+body:not(.original) .option-canvas .option-secondary{gap:1.2cqh}
+body:not(.original) .option-canvas .option-secondary button{min-height:44px;padding:1.3cqh 0;font-size:clamp(13px,1.03cqw,18px);color:var(--opt-soft);letter-spacing:.13em}
+body:not(.original) .option-canvas .option-secondary button[aria-selected=true]{color:var(--opt-ink);font-weight:700;transform:none;padding-left:0}
+body:not(.original) .option-canvas .option-book .option-main{padding:0 0 3cqh 2.8cqw;border:0;background:none;box-shadow:none;overflow-y:auto;scrollbar-gutter:stable}
+body:not(.original) .option-canvas .option-panel-intro{display:block;border:0;padding:0 0 4cqh}
+body:not(.original) .option-canvas .option-panel-intro h3{font-size:clamp(24px,2.5cqw,40px);font-weight:400;line-height:1.4;letter-spacing:.22em;text-shadow:none}
+body:not(.original) .option-canvas .option-setting{min-height:10cqh;padding:2.2cqh 0;gap:2.4cqw;border-bottom:1px solid color-mix(in srgb,var(--v4-ink) 14%,transparent);grid-template-columns:minmax(0,1fr) minmax(0,1.2fr)}
+body:not(.original) .option-canvas .option-setting:last-child{border-bottom:0}
+body:not(.original) .option-canvas .option-setting:hover,body:not(.original) .option-canvas .option-setting:focus-within{background:none}
+body:not(.original) .option-canvas .option-setting-master{margin:0}
+body:not(.original) .option-canvas .option-setting-master strong{color:var(--opt-ink)}
+body:not(.original) .option-canvas .option-setting-copy strong{font-size:clamp(14px,1.14cqw,18px);font-weight:500;letter-spacing:.09em;text-shadow:none}
+body:not(.original) .option-canvas .option-setting-copy span{font-size:clamp(11px,.82cqw,13px);margin-top:1cqh;line-height:1.7;letter-spacing:.035em}
+body:not(.original) .option-canvas .option-setting-control{min-width:0;gap:1.2cqw}
+body:not(.original) .option-canvas .option-range{grid-template-columns:auto minmax(0,1fr) auto;width:100%;gap:1.1cqw}
+body:not(.original) .option-canvas .option-range input{height:36px;cursor:ew-resize}
+body:not(.original) .option-canvas .option-range input::-webkit-slider-runnable-track{height:1px;background:linear-gradient(90deg,var(--opt-ink) var(--option-range-progress,50%),var(--opt-line-strong) 0)}
+body:not(.original) .option-canvas .option-range input::-webkit-slider-thumb{width:5px;height:17px;margin-top:-8px;border:0;background:var(--opt-ink);box-shadow:none}
+body:not(.original) .option-canvas .option-range input::-moz-range-track{height:1px;background:var(--opt-line-strong)}
+body:not(.original) .option-canvas .option-range input::-moz-range-progress{height:1px;background:var(--opt-ink)}
+body:not(.original) .option-canvas .option-range input::-moz-range-thumb{width:5px;height:17px;border:0;border-radius:0;background:var(--opt-ink)}
+body:not(.original) .option-canvas .setting-value{min-width:3.7em;color:var(--opt-ink);font:italic 22px/1.2 Baskerville,Georgia,serif;text-align:right}
+body:not(.original) .option-canvas .option-choice-group{gap:.45cqw;justify-content:flex-end}
+body:not(.original) .option-canvas .option-choice-group button{min-height:36px;border:0;padding:1cqh 1.1cqw;background:none;box-shadow:none;color:var(--opt-soft)}
+body:not(.original) .option-canvas .option-choice-group button[aria-checked=true]{background:var(--opt-ink);color:var(--sheet);font-weight:600;box-shadow:none}
+body:not(.original) .option-canvas .option-switch{height:36px;width:88px;border:0;box-shadow:none;background:none;gap:4px;overflow:visible}
+body:not(.original) .option-canvas .option-switch i{display:none}
+body:not(.original) .option-canvas .option-switch::before,body:not(.original) .option-canvas .option-switch::after{height:30px;color:var(--opt-soft);font-size:12px}
+body:not(.original) .option-canvas .option-switch[aria-pressed=true]::before,body:not(.original) .option-canvas .option-switch[aria-pressed=false]::after{background:var(--opt-ink);color:var(--sheet)}
+body:not(.original) .option-canvas .option-command{border:0;background:color-mix(in srgb,var(--opt-ink) 9%,transparent);min-height:36px;box-shadow:none;padding:1.3cqh 1.6cqw}
+body:not(.original) .option-canvas .option-command:hover{background:color-mix(in srgb,var(--opt-ink) 16%,transparent)}
+body:not(.original) .option-canvas .option-command-danger{color:var(--opt-danger)}
+body:not(.original) .option-canvas :is(button,input):focus-visible{outline:2px dotted var(--opt-ink);outline-offset:4px;text-decoration:none}
+body:not(.original) .option-canvas .option-panel{overflow:visible}
+body:not(.original) .option-canvas .option-panel-note{color:var(--opt-soft)}
+.specimen{margin:5cqh 0 0;padding:2.4cqh 0 0;max-width:38em;color:var(--opt-ink)}
+.specimen small{font-size:11px;letter-spacing:.16em;color:var(--opt-soft)}
+.specimen p{font-size:var(--sample-size,20px);line-height:var(--sample-leading,1.9);margin:1.5cqh 0}
+body.original .specimen{display:none}
+@media(max-width:900px) and (orientation:portrait){
+body:not(.original) .option-canvas .option-book{top:21vh;bottom:12vh;left:6vw;right:6vw;grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)}
+body:not(.original) .option-canvas .option-secondary-shell{padding:0 0 2vh;border:0;overflow:auto}
+body:not(.original) .option-canvas .option-secondary{gap:5vw}
+body:not(.original) .option-canvas .option-secondary button{padding:0;min-height:44px;font-size:13px}
+body:not(.original) .option-canvas .option-book .option-main{padding:2vh 0}
+body:not(.original) .option-canvas .option-panel-intro{padding-bottom:2vh}
+body:not(.original) .option-canvas .option-panel-intro h3{font-size:27px}
+body:not(.original) .option-canvas .option-setting{grid-template-columns:minmax(0,1fr);gap:1vh;padding:2vh 0;min-height:0}
+body:not(.original) .option-canvas .option-setting-control{justify-content:flex-start;gap:3vw}
+body:not(.original) .option-canvas .option-choice-group{justify-content:flex-start;gap:2vw}
+body:not(.original) .option-canvas .option-choice-group button{padding:10px 14px}
+body:not(.original) .option-canvas .option-setting-copy strong{font-size:15px}
+body:not(.original) .option-canvas .option-setting-copy span{font-size:12px}
+}
+</style></head><body data-scene="mist"><div class="review-bar"><strong>OPTION · 设计预览</strong><div class="review-tools"><label>海面<select id="scene"><option value="mist">薄雾</option><option value="day">白昼</option><option value="night">夜海</option><option value="crimson">绯红</option></select></label><label><input type="checkbox" id="compare">对比原有设置框</label><span>仅预览，不保存设置</span></div></div><section class="option-screen system-screen"><div class="option-canvas special-system-canvas"><div class="option-safe-frame"><header class="option-heading"><h2>OPTION</h2></header><nav class="option-primary" role="tablist" aria-label="设置分类"><button role="tab" aria-selected="true" aria-controls="sub-system" data-category="system">SYSTEM</button><button role="tab" aria-selected="false" aria-controls="sub-blog" data-category="blog">BLOG</button><button role="tab" aria-selected="false" aria-controls="sub-game" data-category="game">GAME</button><button role="tab" aria-selected="false" aria-controls="sub-debug" data-category="debug">DEBUG</button></nav><div class="option-book"><div class="option-secondary-shell"><nav id="sub-system" class="option-secondary" role="tablist" aria-label="SYSTEM 子分类" data-group="system" ><button role="tab" aria-controls="option-panel-language" aria-selected="false" data-panel="language">语言与显示</button><button role="tab" aria-controls="option-panel-accessibility" aria-selected="false" data-panel="accessibility">操作与无障碍</button><button role="tab" aria-controls="option-panel-sound" aria-selected="false" data-panel="sound">声音</button><button role="tab" aria-controls="option-panel-data" aria-selected="false" data-panel="data">本机数据</button></nav><nav id="sub-blog" class="option-secondary" role="tablist" aria-label="BLOG 子分类" data-group="blog" hidden><button role="tab" aria-controls="option-panel-reading" aria-selected="false" data-panel="reading">阅读</button><button role="tab" aria-controls="option-panel-atmosphere" aria-selected="false" data-panel="atmosphere">场景与天气</button><button role="tab" aria-controls="option-panel-behaviour" aria-selected="false" data-panel="behaviour">页面行为</button></nav><nav id="sub-game" class="option-secondary" role="tablist" aria-label="GAME 子分类" data-group="game" hidden><button role="tab" aria-controls="option-panel-text" aria-selected="false" data-panel="text">文字</button><button role="tab" aria-controls="option-panel-game-sound" aria-selected="false" data-panel="game-sound">声音</button><button role="tab" aria-controls="option-panel-voice" aria-selected="false" data-panel="voice">角色语音</button></nav><nav id="sub-debug" class="option-secondary" role="tablist" aria-label="DEBUG 子分类" data-group="debug" hidden><button role="tab" aria-controls="option-panel-alice-test" aria-selected="false" data-panel="alice-test">Alice</button><button role="tab" aria-controls="option-panel-sound-lab" aria-selected="false" data-panel="sound-lab">音效试听</button></nav></div><main class="option-main"><section id="option-panel-language" class="option-panel" data-option-panel="language" data-option-panel-owner="system" role="tabpanel">
+            <header class="option-panel-intro">
+              <h3>语言与显示</h3>
+            </header>
+            <div class="option-settings">
+              <div class="option-setting" data-setting-key="language" data-setting-scope="blog" data-hint="同步用于 Blog 与游戏">
+                <div class="option-setting-copy"><strong>显示语言</strong></div>
+                <div class="option-setting-control">
+                  <div class="option-choice-group" data-setting-choice role="radiogroup" aria-label="语言">
+                    <button type="button" role="radio" data-setting-value="ZH-CN" aria-checked="true">简体中文</button>
+                    <button type="button" role="radio" data-setting-value="EN-US" aria-checked="false">English</button>
+                    <button type="button" role="radio" data-setting-value="JA-JP" aria-checked="false">日本語</button>
+                  </div>
+                </div>
+              </div>
+              <div class="option-setting option-command-setting" data-hint="切换整个 Blog 与游戏宿主的全屏状态">
+                <div class="option-setting-copy"><strong>全屏显示</strong></div>
+                <div class="option-setting-control"><button class="option-command" type="button" id="option-toggle-fullscreen" aria-pressed="false">进入全屏</button></div>
+              </div>
+            </div>
+          </section><section id="option-panel-accessibility" class="option-panel" data-option-panel="accessibility" data-option-panel-owner="system" role="tabpanel" hidden>
+            <header class="option-panel-intro">
+              <h3>操作与无障碍</h3>
+            </header>
+            <div class="option-settings">
+              <div class="option-setting" data-setting-key="specialCursor" data-setting-scope="blog" data-hint="用于标题与系统页面">
+                <div class="option-setting-copy"><strong>海潮指针</strong></div>
+                <div class="option-setting-control"><button class="option-switch" type="button" data-setting-toggle aria-pressed="true" aria-label="特殊指针"><i aria-hidden="true"></i><output class="setting-value">开</output></button></div>
+              </div>
+              <div class="option-setting" data-setting-key="reducedMotion" data-setting-scope="blog game" data-hint="减少页面转场与游戏演出">
+                <div class="option-setting-copy"><strong>减少动态效果</strong></div>
+                <div class="option-setting-control"><button class="option-switch" type="button" data-setting-toggle aria-pressed="false" aria-label="减少动态效果"><i aria-hidden="true"></i><output class="setting-value">关</output></button></div>
+              </div>
+            </div>
+          </section><section id="option-panel-data" class="option-panel" data-option-panel="data" data-option-panel-owner="system" role="tabpanel" hidden>
+            <header class="option-panel-intro">
+              <h3>本机数据</h3>
+            </header>
+            <div class="option-settings">
+              <div class="option-setting option-command-setting" data-hint="保留文章进度与游戏存档">
+                <div class="option-setting-copy"><strong>恢复默认设置</strong></div>
+                <div class="option-setting-control"><button class="option-command" type="button" id="reset-options">恢复默认</button></div>
+              </div>
+              <div class="option-setting option-command-setting" data-hint="删除设置、阅读进度、存档与离线缓存">
+                <div class="option-setting-copy"><strong>清除本浏览器数据</strong></div>
+                <div class="option-setting-control"><button class="option-command option-command-danger" type="button" id="clear-browser-data">清除全部</button></div>
+              </div>
+            </div>
+          </section><section id="option-panel-text" class="option-panel" data-option-panel="text" data-option-panel-owner="game" role="tabpanel" hidden>
+            <header class="option-panel-intro">
+              <h3>文字</h3>
+            </header>
+            <div class="option-settings">
+              <div class="option-setting" data-setting-key="textSize" data-setting-scope="game blog" data-hint="同时用于游戏对话与文章正文">
+                <div class="option-setting-copy"><strong>对话文字大小</strong></div>
+                <div class="option-setting-control"><label class="option-range"><span>小</span><input type="range" name="text-size" min="80" max="120" step="1" data-setting-range aria-label="对话文字大小"><span>大</span></label><output class="setting-value">100%</output></div>
+              </div>
+              <div class="option-setting" data-setting-key="autoSpeed" data-setting-scope="game" data-hint="调整游戏文字显示与自动推进速度">
+                <div class="option-setting-copy"><strong>文字推进速度</strong></div>
+                <div class="option-setting-control"><label class="option-range"><span>慢</span><input type="range" name="text-speed" min="1" max="10" step="1" data-setting-range data-suffix="" aria-label="文字推进速度"><span>快</span></label><output class="setting-value">60%</output></div>
+              </div>
+            </div>
+          <div class="specimen" id="text-specimen"><small>文字预览</small><p>孤独之海<br>The Lonely Sea</p></div></section><section id="option-panel-sound" class="option-panel" data-option-panel="sound" data-option-panel-owner="system" role="tabpanel" hidden>
+            <header class="option-panel-intro">
+              <h3>声音</h3>
+            </header>
+            <div class="option-settings option-settings-dense">
+              <div class="option-setting option-setting-master" data-setting-key="masterVolume" data-setting-scope="game blog" data-hint="统一调整站点音乐、界面音效、游戏音乐与角色语音，保留各项音量比例">
+                <div class="option-setting-copy"><strong>总音量</strong><span>控制网站与游戏的所有声音</span></div>
+                <div class="option-setting-control"><label class="option-range"><span>小</span><input type="range" name="master-volume" min="0" max="100" step="1" data-setting-range aria-label="总音量"><span>大</span></label><output class="setting-value">80%</output></div>
+              </div>
+              <div class="option-setting" data-setting-key="masterMuted" data-setting-scope="game blog" data-hint="关闭 Blog 与游戏的所有音轨">
+                <div class="option-setting-copy"><strong>全部静音</strong></div>
+                <div class="option-setting-control"><button class="option-switch" type="button" data-setting-toggle aria-pressed="false" aria-label="全部静音"><i aria-hidden="true"></i><output class="setting-value">关</output></button></div>
+              </div>
+              <div class="option-setting" data-setting-key="bgmEnabled" data-setting-scope="blog" data-hint="控制自动背景音乐，不影响手动播放的鉴赏室歌单">
+                <div class="option-setting-copy"><strong>站点背景音乐</strong></div>
+                <div class="option-setting-control"><button class="option-switch" type="button" data-setting-toggle aria-pressed="true" aria-label="背景音乐"><i aria-hidden="true"></i><output class="setting-value">开</output></button></div>
+              </div>
+              <div class="option-setting" data-setting-key="bgmVolume" data-setting-scope="blog" data-hint="调整标题、文章与鉴赏室的音乐音量">
+                <div class="option-setting-copy"><strong>站点音乐音量</strong></div>
+                <div class="option-setting-control"><label class="option-range"><span>小</span><input type="range" name="bgm-volume" min="0" max="100" step="1" data-setting-range aria-label="背景音乐音量"><span>大</span></label><output class="setting-value">60%</output></div>
+              </div>
+              <div class="option-setting" data-setting-key="interfaceVolume" data-setting-scope="game blog" data-hint="调整确认、返回与推进音效">
+                <div class="option-setting-copy"><strong>界面音效</strong></div>
+                <div class="option-setting-control"><label class="option-range"><span>小</span><input type="range" name="interface-volume" min="0" max="100" step="1" data-setting-range aria-label="界面音效音量"><span>大</span></label><output class="setting-value">70%</output></div>
+              </div>
+            </div>
+          </section><section id="option-panel-alice-test" class="option-panel" data-option-panel="alice-test" data-option-panel-owner="debug" role="tabpanel" hidden>
+            <header class="option-panel-intro"><h3>Alice</h3></header>
+            <div class="option-settings">
+              <div class="option-setting">
+                <div class="option-setting-copy"><strong>Minimax</strong></div>
+                <div class="option-setting-control"><button class="option-command" type="button" data-alice-voice-test data-ui-sound="none">试听</button></div>
+              </div>
+              <div class="option-setting">
+                <div class="option-setting-copy"><strong>当前立绘</strong></div>
+                <div class="option-setting-control"><a class="option-command" href="/games/lonely-sea-chapter-one/0.3.0-4830749c/assets/fig-alice-welcome-maid_princess_normal_welcome.png" target="_blank" rel="noopener">查看</a></div>
+              </div>
+            </div>
+          </section><section id="option-panel-game-sound" class="option-panel" data-option-panel="game-sound" data-option-panel-owner="game" role="tabpanel" hidden>
+            <header class="option-panel-intro">
+              <h3>声音</h3>
+            </header>
+            <div class="option-settings">
+              <div class="option-setting" data-setting-key="gameBgmEnabled" data-setting-scope="game" data-hint="只控制游戏自己的背景音乐">
+                <div class="option-setting-copy"><strong>游戏背景音乐</strong></div>
+                <div class="option-setting-control"><button class="option-switch" type="button" data-setting-toggle aria-pressed="true" aria-label="游戏背景音乐"><i aria-hidden="true"></i><output class="setting-value">开</output></button></div>
+              </div>
+              <div class="option-setting" data-setting-key="gameBgmVolume" data-setting-scope="game" data-hint="调整游戏内 BGM 音量，不影响站点音乐">
+                <div class="option-setting-copy"><strong>游戏音乐音量</strong></div>
+                <div class="option-setting-control"><label class="option-range"><span>小</span><input type="range" name="game-bgm-volume" min="0" max="100" step="1" data-setting-range aria-label="游戏背景音乐音量"><span>大</span></label><output class="setting-value">62%</output></div>
+              </div>
+            </div>
+          </section><section id="option-panel-voice" class="option-panel" data-option-panel="voice" data-option-panel-owner="game" role="tabpanel" hidden>
+            <header class="option-panel-intro">
+              <h3>角色语音</h3>
+            </header>
+            <div class="option-settings">
+              <div class="option-setting" data-setting-key="voiceVolume" data-setting-scope="game" data-hint="调整爱丽丝的游戏语音音量">
+                <div class="option-setting-copy"><strong>爱丽丝</strong></div>
+                <div class="option-setting-control"><label class="option-range"><span>小</span><input type="range" name="voice-volume" min="0" max="100" step="1" data-setting-range aria-label="爱丽丝语音音量"><span>大</span></label><output class="setting-value">80%</output></div>
+              </div>
+              <div class="option-setting" data-setting-key="stopVoiceOnAdvance" data-setting-scope="game" data-hint="关闭时，语音会播放到结束或下一句语音开始">
+                <div class="option-setting-copy"><strong>推进时停止语音</strong></div>
+                <div class="option-setting-control"><button class="option-switch" type="button" data-setting-toggle aria-pressed="false" aria-label="推进时停止语音"><i aria-hidden="true"></i><output class="setting-value">关</output></button></div>
+              </div>
+            </div>
+          </section><section id="option-panel-reading" class="option-panel" data-option-panel="reading" data-option-panel-owner="blog" role="tabpanel" hidden>
+            <header class="option-panel-intro">
+              <h3>阅读</h3>
+            </header>
+            <div class="option-settings">
+              <div class="option-setting" data-setting-key="typeset" data-setting-scope="blog" data-hint="调整 Markdown 正文的段落留白">
+                <div class="option-setting-copy"><strong>段落间距</strong></div>
+                <div class="option-setting-control"><div class="option-choice-group" data-setting-choice role="radiogroup" aria-label="段落间距"><button type="button" role="radio" data-setting-value="BLOG" aria-checked="true">舒展</button><button type="button" role="radio" data-setting-value="NOVEL" aria-checked="false">紧凑</button></div></div>
+              </div>
+              <div class="option-setting" data-setting-key="readingLineHeight" data-setting-scope="blog" data-hint="只影响文章正文行距">
+                <div class="option-setting-copy"><strong>正文行距</strong></div>
+                <div class="option-setting-control"><label class="option-range"><span>紧</span><input type="range" name="reading-line-height" min="150" max="210" step="5" data-setting-range aria-label="正文行距"><span>松</span></label><output class="setting-value">180%</output></div>
+              </div>
+              <div class="option-setting" data-setting-key="readingAutoSpeed" data-setting-scope="blog" data-hint="调整文章 AUTO 的自动滚动速度">
+                <div class="option-setting-copy"><strong>自动阅读速度</strong></div>
+                <div class="option-setting-control"><label class="option-range"><span>慢</span><input type="range" name="reading-auto-speed" min="1" max="10" step="1" data-setting-range aria-label="自动阅读速度"><span>快</span></label><output class="setting-value">50%</output></div>
+              </div>
+              <div class="option-setting" data-setting-key="autoSavePosition" data-setting-scope="blog" data-hint="供 CONTINUE 恢复文章阅读位置">
+                <div class="option-setting-copy"><strong>记录阅读位置</strong></div>
+                <div class="option-setting-control"><button class="option-switch" type="button" data-setting-toggle aria-pressed="true" aria-label="记录阅读位置"><i aria-hidden="true"></i><output class="setting-value">开</output></button></div>
+              </div>
+            </div>
+          <div class="specimen" id="reading-specimen"><small>文字预览</small><p>孤独之海<br>The Lonely Sea</p></div></section><section id="option-panel-atmosphere" class="option-panel" data-option-panel="atmosphere" data-option-panel-owner="blog" role="tabpanel" hidden>
+            <header class="option-panel-intro">
+              <h3>场景与天气</h3>
+            </header>
+            <div class="option-settings option-settings-dense">
+              <div class="option-setting" data-setting-key="automaticTheme" data-setting-scope="blog" data-hint="开启时，每次新会话按现实时间每 8 小时轮换主题；手动选择只影响当前会话">
+                <div class="option-setting-copy"><strong>主题随现实时间</strong></div>
+                <div class="option-setting-control"><button class="option-switch" type="button" data-setting-toggle aria-pressed="true" aria-label="主题随现实时间"><i aria-hidden="true"></i><output class="setting-value">开</output></button></div>
+              </div>
+              <div class="option-setting" data-experience-key="scene" data-hint="切换标题与系统页面的背景时段">
+                <div class="option-setting-copy"><strong>背景时段</strong></div>
+                <div class="option-setting-control"><div class="option-choice-group option-choice-group-wide" data-experience-choice role="radiogroup" aria-label="背景时段"><button type="button" role="radio" data-setting-value="mist">灰霭</button><button type="button" role="radio" data-setting-value="day">晴昼</button><button type="button" role="radio" data-setting-value="night">暗夜</button><button type="button" role="radio" data-setting-value="crimson">赤夜</button></div></div>
+              </div>
+              <div class="option-setting" data-experience-key="weather" data-hint="切换标题与系统页面天气">
+                <div class="option-setting-copy"><strong>天气</strong></div>
+                <div class="option-setting-control"><div class="option-choice-group" data-experience-choice role="radiogroup" aria-label="天气"><button type="button" role="radio" data-setting-value="clear">无</button><button type="button" role="radio" data-setting-value="snow">雪</button><button type="button" role="radio" data-setting-value="rain">雨</button></div></div>
+              </div>
+              <div class="option-setting" data-setting-key="systemWeather" data-setting-scope="blog" data-hint="LOAD、EXTRA 与 OPTION 使用当前雨雪效果">
+                <div class="option-setting-copy"><strong>系统页天气</strong></div>
+                <div class="option-setting-control"><button class="option-switch" type="button" data-setting-toggle aria-pressed="true" aria-label="系统页天气"><i aria-hidden="true"></i><output class="setting-value">开</output></button></div>
+              </div>
+              <div class="option-setting" data-setting-key="weatherLayer" data-setting-scope="blog" data-hint="选择雨雪位于系统文字下方或上方">
+                <div class="option-setting-copy"><strong>天气位置</strong></div>
+                <div class="option-setting-control"><div class="option-choice-group" data-setting-choice role="radiogroup" aria-label="天气位置"><button type="button" role="radio" data-setting-value="INSIDE" aria-checked="true">界面后</button><button type="button" role="radio" data-setting-value="OVERLAY" aria-checked="false">界面前</button></div></div>
+              </div>
+              <div class="option-setting" data-setting-key="particleDensity" data-setting-scope="blog" data-hint="调整雨雪粒子的数量">
+                <div class="option-setting-copy"><strong>天气密度</strong></div>
+                <div class="option-setting-control"><label class="option-range"><span>少</span><input type="range" name="particle-density" min="0" max="100" step="1" data-setting-range aria-label="天气密度"><span>多</span></label><output class="setting-value">72%</output></div>
+              </div>
+              <div class="option-setting" data-setting-key="vignette" data-setting-scope="blog" data-hint="只影响标题画面的暗角">
+                <div class="option-setting-copy"><strong>标题画面暗角</strong></div>
+                <div class="option-setting-control"><button class="option-switch" type="button" data-setting-toggle aria-pressed="true" aria-label="画面暗角"><i aria-hidden="true"></i><output class="setting-value">开</output></button></div>
+              </div>
+            </div>
+          </section><section id="option-panel-behaviour" class="option-panel" data-option-panel="behaviour" data-option-panel-owner="blog" role="tabpanel" hidden>
+            <header class="option-panel-intro">
+              <h3>页面行为</h3>
+            </header>
+            <div class="option-settings option-settings-dense">
+              <div class="option-setting" data-setting-key="mobileLandscape" data-setting-scope="blog" data-hint="手机打开标题与系统页时自动横屏。文章页保持竖屏阅读">
+                <div class="option-setting-copy"><strong>手机自动横屏</strong></div>
+                <div class="option-setting-control"><button class="option-switch" type="button" data-setting-toggle aria-pressed="true" aria-label="手机自动横屏"><i aria-hidden="true"></i><output class="setting-value">开</output></button></div>
+              </div>
+              <div class="option-setting" data-setting-key="sceneCrossfade" data-setting-scope="blog" data-hint="用于标题、LOAD、EXTRA 与 OPTION">
+                <div class="option-setting-copy"><strong>系统页面转场</strong></div>
+                <div class="option-setting-control"><button class="option-switch" type="button" data-setting-toggle aria-pressed="true" aria-label="系统页面转场"><i aria-hidden="true"></i><output class="setting-value">开</output></button></div>
+              </div>
+              <div class="option-setting" data-setting-key="articleTransition" data-setting-scope="blog" data-hint="用于 LOAD 与文章页面之间">
+                <div class="option-setting-copy"><strong>文章转场</strong></div>
+                <div class="option-setting-control"><button class="option-switch" type="button" data-setting-toggle aria-pressed="true" aria-label="文章转场"><i aria-hidden="true"></i><output class="setting-value">开</output></button></div>
+              </div>
+              <div class="option-setting" data-setting-key="openingBehaviour" data-setting-scope="blog" data-hint="设置标题开场演出的播放时机">
+                <div class="option-setting-copy"><strong>开场演出</strong></div>
+                <div class="option-setting-control"><div class="option-choice-group" data-setting-choice role="radiogroup" aria-label="开场演出"><button type="button" role="radio" data-setting-value="ONCE">每次会话</button><button type="button" role="radio" data-setting-value="ALWAYS">每次进入</button></div></div>
+              </div>
+              <div class="option-setting" data-setting-key="externalLinks" data-setting-scope="blog" data-hint="选择站外链接的打开方式">
+                <div class="option-setting-copy"><strong>站外链接</strong></div>
+                <div class="option-setting-control"><div class="option-choice-group" data-setting-choice role="radiogroup" aria-label="站外链接"><button type="button" role="radio" data-setting-value="NEW">新标签页</button><button type="button" role="radio" data-setting-value="CURRENT">当前页面</button></div></div>
+              </div>
+              <div class="option-setting option-command-setting" data-hint="返回标题并立即重播开场">
+                <div class="option-setting-copy"><strong>开场演出预览</strong></div>
+                <div class="option-setting-control"><button class="option-command" type="button" id="option-replay-opening">重播开场</button></div>
+              </div>
+            </div>
+          </section><section id="option-panel-sound-lab" class="option-panel" data-option-panel="sound-lab" data-option-panel-owner="debug" role="tabpanel" hidden><header class="option-panel-intro"><h3>音效试听</h3></header><p class="option-panel-note">独立音效试听台沿用现有设计。本预览只展示设置区域，未接入实时合成与播放。</p></section></main></div><footer class="option-actions"><p class="option-state"><span data-option-state>设计预览 · 设置可试用</span></p><button class="system-back" data-back>← BACK</button></footer></div></div></section><script>
+const q=s=>document.querySelector(s),qa=s=>[...document.querySelectorAll(s)];let category='system';const selected={system:'sound',blog:'reading',game:'text',debug:'alice-test'};
+function panel(id){qa('[data-panel]').forEach(b=>{b.setAttribute('aria-selected',String(b.dataset.panel===id));b.tabIndex=b.dataset.panel===id?0:-1});qa('[data-option-panel]').forEach(p=>p.hidden=p.dataset.optionPanel!==id);selected[category]=id;q('.option-main').scrollTop=0}
+function cat(id){category=id;qa('[data-category]').forEach(b=>{b.setAttribute('aria-selected',String(b.dataset.category===id));b.tabIndex=b.dataset.category===id?0:-1});qa('[data-group]').forEach(n=>n.hidden=n.dataset.group!==id);panel(selected[id])}
+qa('[data-category]').forEach(b=>b.onclick=()=>cat(b.dataset.category));qa('[data-panel]').forEach(b=>b.onclick=()=>panel(b.dataset.panel));
+qa('[role=tablist]').forEach(n=>n.addEventListener('keydown',e=>{if(!['ArrowRight','ArrowLeft','ArrowDown','ArrowUp','Home','End'].includes(e.key))return;const a=[...n.querySelectorAll('button')];let i=a.indexOf(document.activeElement);if(i<0)return;e.preventDefault();i=e.key==='Home'?0:e.key==='End'?a.length-1:(i+(['ArrowRight','ArrowDown'].includes(e.key)?1:-1)+a.length)%a.length;a[i].click();a[i].focus()}));
+function message(s){q('[data-option-state]').textContent=s}
+qa('[data-setting-toggle]').forEach(b=>b.onclick=()=>{b.setAttribute('aria-pressed',String(b.getAttribute('aria-pressed')!=='true'));message('预览中的修改 · 不影响网站设置')});
+qa('[role=radiogroup]').forEach(g=>{const buttons=[...g.querySelectorAll('button')];buttons.forEach(b=>{b.tabIndex=b.getAttribute('aria-checked')==='true'?0:-1;b.onclick=()=>{buttons.forEach(x=>{x.setAttribute('aria-checked',String(x===b));x.tabIndex=x===b?0:-1});const scene=b.dataset.settingValue;if(['mist','day','night','crimson'].includes(scene)){document.body.dataset.scene=scene;q('#scene').value=scene}message('预览中的修改 · 不影响网站设置')}});g.addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight'].includes(e.key))return;e.preventDefault();const i=buttons.indexOf(document.activeElement),next=buttons[(i+(e.key==='ArrowRight'?1:-1)+buttons.length)%buttons.length];next.click();next.focus()})});
+qa('input[type=range]').forEach(r=>{const output=r.closest('.option-setting-control').querySelector('output');const num=parseFloat(output?.textContent);r.value=Number.isFinite(num)&&num>=+r.min&&num<=+r.max?num:(+r.min+ +r.max)/2;function update(){r.style.setProperty('--option-range-progress',100*(r.value-r.min)/(r.max-r.min)+'%');if(output)output.textContent=r.value+(r.dataset.suffix??'%');const key=r.closest('[data-setting-key]')?.dataset.settingKey;if(key==='textSize')q('#text-specimen').style.setProperty('--sample-size',(+r.value/100*20)+'px');if(key==='readingLineHeight')q('#reading-specimen').style.setProperty('--sample-leading',(+r.value/100).toString())}update();r.oninput=()=>{update();message('预览中的修改 · 不影响网站设置')}});
+qa('.option-command').forEach(b=>{b.onclick=e=>{e.preventDefault();message('这是视觉预览，未执行播放、全屏或数据操作')}});
+q('#scene').onchange=e=>document.body.dataset.scene=e.target.value;q('#compare').onchange=e=>document.body.classList.toggle('original',e.target.checked);q('[data-back]').onclick=()=>{cat('system');message('已回到预览首页')};cat('system');
+</script></body></html>
