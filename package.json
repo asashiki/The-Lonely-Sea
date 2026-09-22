@@ -20,7 +20,8 @@
     "test:game-audio": "node scripts/check-game-audio-boundary.mjs",
     "test:option-rapid": "node scripts/check-option-rapid-switch.mjs",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "test:communication": "node scripts/check-communication.mjs"
   },
   "dependencies": {
     "@astrojs/markdown-satteri": "0.3.4",
@@ -30,6 +31,7 @@
   "devDependencies": {
     "@astrojs/check": "0.9.9",
     "@types/node": "^26.1.2",
+    "jsdom": "^26.1.0",
     "playwright": "^1.61.1",
     "typescript": "6.0.3",
     "wrangler": "4.121.0"

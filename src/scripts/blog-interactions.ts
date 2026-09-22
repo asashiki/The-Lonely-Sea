@@ -1,3 +1,4 @@
+import { readComposerDraft, writeComposerDraft } from "../lib/composer-drafts";
 import {
   addLocalComment,
   addLocalFriendDraft,
@@ -62,6 +63,20 @@ const INTERACTION_COPY: Record<string, Record<string, string>> = {
   },
 };
 
+Object.assign(INTERACTION_COPY["EN-US"], {"保存到本机": "Save on this device", "保存申请草稿": "Save request draft", "留言会发送给站长，并在此浏览器保留一份记录。": "Your message is sent to the site owner; a copy stays in this browser.", "留言仅保存在此浏览器，尚未发送给站长。": "Messages stay in this browser and are not sent to the site owner.", "申请会发送给站长，审核后才会加入友链。": "Requests are sent to the site owner. Links appear after review.", "申请仅保存在此浏览器，尚未发送给站长。": "Requests stay in this browser and are not sent to the site owner.", "站点介绍（选填）": "About your site (optional)", "简单介绍一下你的站点": "A short introduction to your site", "草稿已保存在此浏览器": "Draft saved in this browser", "浏览器无法保存草稿，请暂勿关闭页面": "Draft could not be saved. Keep this page open.", "正在保存…": "Saving…", "已送达，并保留了本机记录。": "Delivered. A copy remains on this device.", "已保存在此浏览器，未发送给站长。": "Saved in this browser; not sent to the site owner.", "已保留本机记录，但未确认送达。内容仍在，可稍后重试。": "Saved locally, but delivery was not confirmed. Your text is kept for retry.", "请输入留言内容": "Please enter a message.", "请输入站点名称": "Please enter a site name.", "请输入完整的 http 或 https 地址": "Enter a complete http or https address.", "当前浏览器无法保存本机记录": "This browser cannot save local records."});
+Object.assign(INTERACTION_COPY["JA-JP"], {"保存到本机": "この端末に保存", "保存申请草稿": "申請の下書きを保存", "留言会发送给站长，并在此浏览器保留一份记录。": "メッセージを管理人に送り、このブラウザにも記録を残します。", "留言仅保存在此浏览器，尚未发送给站长。": "このブラウザにのみ保存され、管理人には送信されません。", "申请会发送给站长，审核后才会加入友链。": "申請を管理人に送り、確認後にリンクが掲載されます。", "申请仅保存在此浏览器，尚未发送给站长。": "申請はこのブラウザにのみ保存され、管理人には送信されません。", "站点介绍（选填）": "サイト紹介（任意）", "简单介绍一下你的站点": "サイトの簡単な紹介", "草稿已保存在此浏览器": "このブラウザに下書きを保存しました", "浏览器无法保存草稿，请暂勿关闭页面": "下書きを保存できません。このページを閉じないでください。", "正在保存…": "保存中…", "已送达，并保留了本机记录。": "送信済み。この端末にも記録を保存しました。", "已保存在此浏览器，未发送给站长。": "このブラウザに保存しました。管理人には送信していません。", "已保留本机记录，但未确认送达。内容仍在，可稍后重试。": "端末に保存しましたが、送信は確認できませんでした。内容は残っているので後で再試行できます。", "请输入留言内容": "メッセージを入力してください。", "请输入站点名称": "サイト名を入力してください。", "请输入完整的 http 或 https 地址": "http または https から始まる URL を入力してください。", "当前浏览器无法保存本机记录": "このブラウザでは記録を保存できません。"});
+
+Object.assign(INTERACTION_COPY["EN-US"], {
+  "通过 GitHub 公开提交": "Submit publicly on GitHub",
+  "留言仅保存在此浏览器；也可在 GitHub 确认后公开提交。": "Messages stay in this browser. You can also review and submit them publicly on GitHub.",
+  "申请仅保存在此浏览器；也可在 GitHub 确认后公开提交。": "Requests stay in this browser. You can also review and submit them publicly on GitHub.",
+});
+Object.assign(INTERACTION_COPY["JA-JP"], {
+  "通过 GitHub 公开提交": "GitHub で公開送信",
+  "留言仅保存在此浏览器；也可在 GitHub 确认后公开提交。": "このブラウザにのみ保存します。GitHub で内容を確認して公開送信することもできます。",
+  "申请仅保存在此浏览器；也可在 GitHub 确认后公开提交。": "申請はこのブラウザにのみ保存します。GitHub で内容を確認して公開送信することもできます。",
+});
+
 function interactionCopy(source: string): string {
   return INTERACTION_COPY[String(readPreferences().language)]?.[source] || source;
 }
@@ -104,9 +119,9 @@ function formField(form: HTMLFormElement, name: string): HTMLInputElement | HTML
   return field;
 }
 
-async function deliver(root: HTMLElement, payload: Record<string, unknown>): Promise<boolean> {
+async function deliver(root: HTMLElement, payload: Record<string, unknown>): Promise<"local" | "sent" | "failed"> {
   const endpoint = root.dataset.messageEndpoint?.trim();
-  if (!endpoint) return false;
+  if (!endpoint) return "local";
   try {
     const response = await fetch(endpoint, {
       method: "POST",
@@ -114,9 +129,9 @@ async function deliver(root: HTMLElement, payload: Record<string, unknown>): Pro
       body: JSON.stringify(payload),
       signal: AbortSignal.timeout(8_000),
     });
-    return response.ok;
+    return response.ok ? "sent" : "failed";
   } catch {
-    return false;
+    return "failed";
   }
 }
 
@@ -133,7 +148,6 @@ async function copyText(value: string, input?: HTMLInputElement): Promise<boolea
 
 export function initBlogInteractionScene(root: HTMLElement): InteractionController {
   const commentForm = required<HTMLFormElement>(root, "[data-blog-comment-form]");
-  const commentAuthor = formField(commentForm, "author") as HTMLInputElement;
   const commentMessage = formField(commentForm, "message") as HTMLTextAreaElement;
   const commentFeedback = required<HTMLElement>(root, "[data-blog-comment-feedback]");
   const commentSpeaker = required<HTMLElement>(root, "[data-blog-comment-author]");
@@ -172,6 +186,8 @@ export function initBlogInteractionScene(root: HTMLElement): InteractionControll
     ".blog-dialogue-actions button",
     ".blog-published-friends h3",
     ".blog-scene-empty",
+    ".blog-delivery-note",
+    ".blog-dialogue-actions a",
   ].join(","))];
   copyNodes.forEach((node) => {
     node.dataset.blogCopySource = node.textContent?.trim() || "";
@@ -200,6 +216,8 @@ export function initBlogInteractionScene(root: HTMLElement): InteractionControll
       scenePrompt.textContent = interactionCopy(storyPromptSource).slice(0, 240) || interactionCopy("这里可以留下想说的话。");
       commentMessage.placeholder = interactionCopy(storyPlaceholderSource || "写下想留在这片海里的话").slice(0, 120);
     }
+    if (!promptWasSetByStory) selectView((root.dataset.activeView || "comments") as BlogInteractionView);
+    updateComposerStatus();
     render();
   }
 
@@ -236,7 +254,7 @@ export function initBlogInteractionScene(root: HTMLElement): InteractionControll
           : "来访者写下的话会留在这里。第一句话，就等您来写了。";
       commentTime.textContent = "";
       commentTime.removeAttribute("datetime");
-      commentPosition.textContent = "1 / 1";
+      commentPosition.textContent = "0 / 0";
       previousComment.disabled = true;
       nextComment.disabled = true;
       renderCommentList();
@@ -267,9 +285,54 @@ export function initBlogInteractionScene(root: HTMLElement): InteractionControll
   const rssCopy = root.querySelector<HTMLButtonElement>("[data-rss-copy]");
   const rssFeedback = root.querySelector<HTMLElement>("[data-rss-feedback]");
 
+  let commentPending = false;
+  let friendPending = false;
+  let pendingComment: { signature: string; record: LocalBlogComment } | null = null;
+  let pendingFriend: { signature: string; record: LocalFriendDraft } | null = null;
+  let destroyed = false;
+  const commentDraftKey = () => `comment:${source}:${contextKey}`;
+  const friendDraftKey = "friend:site";
+  const draftFields = (form: HTMLFormElement): Record<string, string> => Object.fromEntries(
+    [...form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>("input[name], textarea[name]")]
+      .map((field) => [field.name, field.value]),
+  );
+  function restoreForm(form: HTMLFormElement, key: string): void {
+    const draft = readComposerDraft(key);
+    form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>("input[name], textarea[name]").forEach((field) => {
+      field.value = (draft[field.name] || "").slice(0, field.maxLength > 0 ? field.maxLength : 1000);
+    });
+  }
+  function updateComposerStatus(): void {
+    const count = root.querySelector<HTMLElement>("[data-comment-count]");
+    if (count) count.textContent = `${commentMessage.value.length} / 1000`;
+    const note = friendForm?.querySelector<HTMLTextAreaElement>("textarea[name='note']");
+    const friendCount = root.querySelector<HTMLElement>("[data-friend-count]");
+    if (friendCount) friendCount.textContent = `${note?.value.length || 0} / 280`;
+  }
+  function saveDraft(form: HTMLFormElement, key: string, selector: string): void {
+    const ok = writeComposerDraft(key, draftFields(form));
+    const status = root.querySelector<HTMLElement>(selector);
+    if (status) status.textContent = interactionCopy(ok ? "草稿已保存在此浏览器" : "浏览器无法保存草稿，请暂勿关闭页面");
+    updateComposerStatus();
+  }
+  const onCommentInput = () => saveDraft(commentForm, commentDraftKey(), "[data-comment-draft-status]");
+  const onFriendInput = () => friendForm && saveDraft(friendForm, friendDraftKey, "[data-friend-draft-status]");
+  function busy(form: HTMLFormElement, value: boolean): void {
+    form.setAttribute("aria-busy", String(value));
+    form.querySelectorAll<HTMLButtonElement>("button[type='submit']").forEach((button) => { button.disabled = value; });
+  }
+  function deliveryMessage(result: "local" | "sent" | "failed"): string {
+    return interactionCopy(result === "sent" ? "已送达，并保留了本机记录。" : result === "local"
+      ? "已保存在此浏览器，未发送给站长。" : "已保留本机记录，但未确认送达。内容仍在，可稍后重试。");
+  }
+  restoreForm(commentForm, commentDraftKey());
+  if (friendForm) restoreForm(friendForm, friendDraftKey);
+  updateComposerStatus();
+
   function renderFriend(): void {
     if (!friendTitle || !friendNote || !friendUrl || !friendPosition || !previousFriend || !nextFriend) return;
     friendDrafts = listLocalFriendDrafts();
+    root.dataset.friendCount = String(friendDrafts.length);
     if (friendDrafts.length === 0) {
       friendIndex = -1;
       friendTitle.textContent = interactionCopy("友链申请草稿");
@@ -341,64 +404,68 @@ export function initBlogInteractionScene(root: HTMLElement): InteractionControll
 
   async function onCommentSubmit(event: SubmitEvent): Promise<void> {
     event.preventDefault();
-    commentFeedback.textContent = "";
+    if (commentPending || !commentForm.reportValidity()) return;
+    commentPending = true;
+    busy(commentForm, true);
+    const submittedContext = contextKey;
+    const submittedSource = source;
+    const submittedKey = commentDraftKey();
+    const fields = draftFields(commentForm);
+    const signature = JSON.stringify([submittedContext, submittedSource, fields]);
+    commentFeedback.textContent = interactionCopy("正在保存…");
     try {
-      const comment = addLocalComment({
-        contextKey,
-        author: commentAuthor.value,
-        message: commentMessage.value,
-        source,
+      const comment = pendingComment?.signature === signature ? pendingComment.record : addLocalComment({
+        contextKey: submittedContext, author: fields.author, message: fields.message, source: submittedSource,
       });
-      const delivered = await deliver(root, {
-        kind: "comment",
-        contextKey,
-        author: comment.author,
-        message: comment.message,
-        source,
-        createdAt: comment.createdAt,
+      pendingComment = { signature, record: comment };
+      const result = await deliver(root, {
+        kind: "comment", contextKey: submittedContext, author: comment.author,
+        message: comment.message, source: submittedSource, createdAt: comment.createdAt,
       });
-      commentMessage.value = "";
+      if (destroyed) return;
+      // An in-flight request must never erase newer text or a different article's draft.
+      const unchanged = contextKey === submittedContext && JSON.stringify(draftFields(commentForm)) === JSON.stringify(fields);
+      if (result !== "failed") {
+        if (unchanged) { commentMessage.value = ""; writeComposerDraft(submittedKey, draftFields(commentForm)); }
+        pendingComment = null;
+      }
+      if (destroyed) return;
       commentIndex = Number.MAX_SAFE_INTEGER;
       renderComment();
-      commentFeedback.textContent = interactionCopy(delivered ? "已经送进灯塔的访客簿。" : "已经收进这台浏览器的访客簿。");
-      root.dispatchEvent(new CustomEvent("lonely-sea:comment-saved", {
-        bubbles: true,
-        detail: { comment },
-      }));
+      updateComposerStatus();
+      if (contextKey === submittedContext) commentFeedback.textContent = deliveryMessage(result);
+      if (result !== "failed") root.dispatchEvent(new CustomEvent("lonely-sea:comment-saved", { bubbles: true, detail: { comment } }));
     } catch (error) {
-      commentFeedback.textContent = error instanceof Error ? error.message : "无法保存这句话";
-      commentMessage.focus();
-    }
+      if (!destroyed) { commentFeedback.textContent = interactionCopy(error instanceof Error ? error.message : "无法保存这句话"); commentMessage.focus(); }
+    } finally { commentPending = false; busy(commentForm, false); }
   }
 
   async function onFriendSubmit(event: SubmitEvent): Promise<void> {
     event.preventDefault();
-    if (!friendForm || !friendFeedback) return;
-    friendFeedback.textContent = "";
+    if (!friendForm || !friendFeedback || friendPending || !friendForm.reportValidity()) return;
+    friendPending = true;
+    busy(friendForm, true);
+    const fields = draftFields(friendForm);
+    const signature = JSON.stringify(fields);
+    friendFeedback.textContent = interactionCopy("正在保存…");
     try {
-      const title = formField(friendForm, "title").value;
-      const url = formField(friendForm, "url").value;
-      const noteField = friendForm.elements.namedItem("note");
-      const note = noteField instanceof HTMLTextAreaElement ? noteField.value : "";
-      const draft = addLocalFriendDraft({ title, url, note });
-      const delivered = await deliver(root, {
-        kind: "friend",
-        title: draft.title,
-        url: draft.url,
-        note: draft.note,
-        createdAt: draft.createdAt,
-      });
-      friendForm.reset();
+      const draft = pendingFriend?.signature === signature ? pendingFriend.record : addLocalFriendDraft({ title: fields.title, url: fields.url, note: fields.note });
+      pendingFriend = { signature, record: draft };
+      const result = await deliver(root, { kind: "friend", title: draft.title, url: draft.url, note: draft.note, createdAt: draft.createdAt });
+      if (destroyed) return;
+      if (result !== "failed") {
+        if (JSON.stringify(draftFields(friendForm)) === signature) { friendForm.reset(); writeComposerDraft(friendDraftKey, {}); }
+        pendingFriend = null;
+      }
+      if (destroyed) return;
       friendIndex = Number.MAX_SAFE_INTEGER;
       renderFriend();
-      friendFeedback.textContent = interactionCopy(delivered ? "航标来信已经送达。" : "航标来信已经保存在这台浏览器。");
-      root.dispatchEvent(new CustomEvent("lonely-sea:friend-saved", {
-        bubbles: true,
-        detail: { draft },
-      }));
+      updateComposerStatus();
+      friendFeedback.textContent = deliveryMessage(result);
+      if (result !== "failed") root.dispatchEvent(new CustomEvent("lonely-sea:friend-saved", { bubbles: true, detail: { draft } }));
     } catch (error) {
-      friendFeedback.textContent = error instanceof Error ? error.message : "无法保存友链草稿";
-    }
+      if (!destroyed) friendFeedback.textContent = interactionCopy(error instanceof Error ? error.message : "无法保存友链草稿");
+    } finally { friendPending = false; busy(friendForm, false); }
   }
 
   async function onRssCopy(): Promise<void> {
@@ -443,6 +510,25 @@ export function initBlogInteractionScene(root: HTMLElement): InteractionControll
     }
   };
 
+  // Opening the issue editor is explicit; this never posts an issue automatically.
+  const publicLinks = [...root.querySelectorAll<HTMLAnchorElement>("[data-public-comment], [data-public-friend]")];
+  const publicHandlers = publicLinks.map((link) => {
+    const handler = (event: MouseEvent) => {
+      const isFriend = link.hasAttribute("data-public-friend");
+      const form = isFriend ? friendForm : commentForm;
+      if (!form || !form.reportValidity()) { event.preventDefault(); return; }
+      const values = draftFields(form);
+      const url = new URL(root.dataset.publicIssueUrl || "");
+      url.searchParams.set("title", isFriend ? `友链申请：${values.title}` : "访客留言");
+      url.searchParams.set("body", isFriend
+        ? `${values.title}\n${values.url}\n\n${values.note || ""}`
+        : `来源：${contextKey}\n称呼：${values.author || "匿名访客"}\n\n${values.message}`);
+      link.href = url.href;
+    };
+    link.addEventListener("click", handler);
+    return { link, handler };
+  });
+
   const previousCommentClick = () => moveComment(-1);
   const nextCommentClick = () => moveComment(1);
   const previousFriendClick = () => moveFriend(-1);
@@ -467,6 +553,8 @@ export function initBlogInteractionScene(root: HTMLElement): InteractionControll
   nextComment.addEventListener("click", nextCommentClick);
   previousFriend?.addEventListener("click", previousFriendClick);
   nextFriend?.addEventListener("click", nextFriendClick);
+  commentForm.addEventListener("input", onCommentInput);
+  friendForm?.addEventListener("input", onFriendInput);
   commentForm.addEventListener("submit", onCommentSubmit);
   friendForm?.addEventListener("submit", onFriendSubmit);
   rssCopy?.addEventListener("click", onRssCopy);
@@ -480,6 +568,10 @@ export function initBlogInteractionScene(root: HTMLElement): InteractionControll
 
   return {
     destroy() {
+      destroyed = true;
+      commentForm.removeEventListener("input", onCommentInput);
+      friendForm?.removeEventListener("input", onFriendInput);
+      publicHandlers.forEach(({link, handler}) => link.removeEventListener("click", handler));
       unsubscribe();
       previousComment.removeEventListener("click", previousCommentClick);
       nextComment.removeEventListener("click", nextCommentClick);
@@ -509,22 +601,27 @@ export function initBlogInteractionScene(root: HTMLElement): InteractionControll
       }
     },
     resetComposer() {
-      commentAuthor.value = "";
-      commentMessage.value = "";
+      restoreForm(commentForm, commentDraftKey());
       commentFeedback.textContent = "";
-      friendForm?.reset();
+      if (friendForm) restoreForm(friendForm, friendDraftKey);
+      updateComposerStatus();
       if (friendFeedback) friendFeedback.textContent = "";
       if (rssFeedback) rssFeedback.textContent = "";
     },
     selectView,
     setIntent,
     setContext(nextContext, nextSource = source) {
+      if (nextContext !== contextKey || nextSource !== source) {
+        writeComposerDraft(commentDraftKey(), draftFields(commentForm));
+      }
       contextKey = nextContext;
       source = nextSource;
       promptWasSetByStory = false;
       root.dataset.contextKey = nextContext;
       root.dataset.source = nextSource;
       commentIndex = -1;
+      restoreForm(commentForm, commentDraftKey());
+      updateComposerStatus();
       renderComment();
     },
     setPrompt(title, nextPrompt, placeholder = "") {

@@ -36,9 +36,12 @@ const rssUrl = new URL("/rss.xml", siteConfig.url).href;
   <script>
     import { initBlogInteractionScene, type BlogInteractionView } from "../../scripts/blog-interactions";
 
+    import { readExperienceState } from "../../scripts/experience/state.js";
+
     const page = document.querySelector<HTMLElement>("[data-communication-scene]");
     const scene = page?.querySelector<HTMLElement>("[data-blog-interaction]");
     if (page && scene) {
+      page.dataset.communicationScene = readExperienceState().scene;
       const controller = initBlogInteractionScene(scene);
       const requested = new URLSearchParams(window.location.search).get("view");
       if (requested === "rss" || requested === "comments" || requested === "friends") {
@@ -53,10 +56,12 @@ const rssUrl = new URL("/rss.xml", siteConfig.url).href;
         history.replaceState(null, "", url);
       });
       window.addEventListener("keydown", (event) => {
-        if (event.key !== "Escape") return;
+        if (event.key !== "Escape" || event.defaultPrevented || event.isComposing) return;
+        if (event.target instanceof Element && event.target.closest("input, textarea, select, [contenteditable=true]")) return;
         window.location.assign("/?screen=start");
       });
-      window.addEventListener("pagehide", () => controller.destroy(), { once: true });
+      // A restored back/forward-cache page keeps its existing controller alive.
+      window.addEventListener("pagehide", (event) => { if (!event.persisted) controller.destroy(); });
     }
   </script>
 </BaseLayout>

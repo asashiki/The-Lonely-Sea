@@ -1,0 +1,67 @@
+/* Correspondence shares typography and controls across article, sea and game. */
+.blog-interaction-scene .blog-composer-status {
+  display: flex; justify-content: space-between; gap: 1rem; grid-column: 1 / -1;
+  margin: 0; color: var(--interaction-soft); font: 400 .8rem/1.65 var(--font-sans);
+  font-variant-numeric: tabular-nums;
+}
+.blog-interaction-scene .blog-delivery-note {
+  grid-column: 1 / -1; margin: 0; color: var(--interaction-soft);
+  font: 400 .85rem/1.75 var(--font-sans); text-wrap: pretty;
+}
+.blog-interaction-scene .blog-friend-domain {
+  display: block; margin-top: .7rem; font: 400 .85rem/1.5 var(--font-latin);
+  letter-spacing: .04em; color: var(--interaction-soft); overflow-wrap: anywhere;
+}
+.blog-interaction-scene .blog-dialogue-feedback { font-size: .9rem; line-height: 1.7; grid-column: 1 / -1; }
+.blog-interaction-scene .blog-dialogue-feedback:empty { display: none; }
+.blog-interaction-scene :is(.blog-dialogue-composer, .blog-rss-subscribe) :is(input, textarea) {
+  border-radius: 0; font-size: 1rem; line-height: 1.7; box-shadow: none;
+}
+.blog-interaction-scene .blog-dialogue-composer :is(input, textarea)::placeholder { color: var(--interaction-soft); opacity: .8; }
+.blog-interaction-scene .blog-dialogue-composer label > span { color: var(--interaction-soft); font-size: .85rem; line-height: 1.5; }
+.blog-interaction-scene :is(.blog-dialogue-actions, .blog-dialogue-stepper) :is(button, a) {
+  min-height: 44px; border-radius: 0; font-size: .9rem; line-height: 1.4; box-shadow: none;
+}
+.blog-interaction-scene button:disabled { cursor: default; opacity: .45; }
+.blog-interaction-scene :is(input, textarea, button, a):focus-visible {
+  outline: 2px dotted var(--interaction-ink); outline-offset: 4px; text-shadow: none;
+}
+/* The reading page needs room to write, rather than a single compressed strip. */
+.reading-system section.blog-interaction-scene.is-page .blog-dialogue-composer {
+  display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: none;
+  gap: 1rem; padding: 1.5rem 0; background: none;
+}
+.reading-system section.blog-interaction-scene.is-page .blog-dialogue-composer > * { grid-column: 1; grid-row: auto; }
+.reading-system section.blog-interaction-scene.is-page .blog-dialogue-composer label { display: grid; gap: .5rem; }
+.reading-system section.blog-interaction-scene.is-page .blog-dialogue-composer label > span {
+  position: static; width: auto; height: auto; overflow: visible; clip-path: none; white-space: normal;
+}
+.reading-system section.blog-interaction-scene.is-page .blog-dialogue-name { max-width: 20rem; }
+.reading-system section.blog-interaction-scene.is-page .blog-dialogue-composer textarea { height: 9rem; min-height: 9rem; }
+.reading-system section.blog-interaction-scene.is-page .blog-dialogue-actions { justify-content: flex-end; }
+.reading-system section.blog-interaction-scene.is-page .blog-dialogue-actions button[type=submit] { min-height: 44px; height: auto; padding: .8rem 1.5rem; font-size: .95rem; }
+.reading-system section.blog-interaction-scene.is-page .blog-comment-log li {
+  grid-template-columns: minmax(0, 1fr) auto; padding: 1.25rem 0;
+  gap: .6rem 1rem; background: none; border-bottom: 1px solid color-mix(in srgb,var(--reading-ink) 15%,transparent);
+}
+.reading-system section.blog-interaction-scene.is-page .blog-comment-log p { grid-column: 1 / -1; grid-row: 2; }
+.reading-system section.blog-interaction-scene.is-page .blog-comment-log strong { white-space: normal; overflow-wrap: anywhere; font-size: .95rem; }
+.reading-system section.blog-interaction-scene.is-page .blog-comment-log time { grid-column: 2; grid-row: 1; font-size: .8rem; }
+/* Game modal stays beside the guide; a warm letter, not a control panel. */
+section.blog-interaction-scene.is-bridge {
+  border: 0; background: #102630; padding-inline: clamp(1.3rem, 2.3vw, 2.4rem);
+  box-shadow: 0 1rem 3rem rgb(0 0 0 / 18%);
+}
+section.blog-interaction-scene.is-bridge .blog-dialogue-composer label { grid-template-columns: minmax(0, 1fr); gap: .45rem; }
+section.blog-interaction-scene.is-bridge .blog-dialogue-composer :is(input,textarea) { border: 0; background: #1c3540; padding: .65rem .8rem; }
+section.blog-interaction-scene.is-bridge .blog-dialogue-actions :is(button,a) { border: 0; background: transparent; }
+section.blog-interaction-scene.is-bridge .blog-dialogue-actions .is-primary { background: #d5bd89; color: #142b35; }
+section.blog-interaction-scene.is-bridge .blog-choice-cursor { display: none; }
+section.blog-interaction-scene.is-bridge :is(.blog-published-friends,.blog-rss-feed) a { grid-template-columns: minmax(0, 1fr); padding: 1.3rem 0; }
+section.blog-interaction-scene.is-bridge .blog-rss-feed time { grid-column: 1; }
+section.blog-interaction-scene.is-bridge .blog-dialogue-meta { font-size: .8rem; }
+@media(max-width:480px) {
+  .reading-system section.blog-interaction-scene.is-page .blog-comment-log li { grid-template-columns: minmax(0,1fr); }
+  .reading-system section.blog-interaction-scene.is-page .blog-comment-log time { grid-column: 1; grid-row: 3; }
+  .blog-interaction-scene .blog-composer-status { flex-wrap: wrap; }
+}
