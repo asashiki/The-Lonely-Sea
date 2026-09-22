@@ -65,3 +65,5 @@ section.blog-interaction-scene.is-bridge .blog-dialogue-meta { font-size: .8rem;
   .reading-system section.blog-interaction-scene.is-page .blog-comment-log time { grid-column: 1; grid-row: 3; }
   .blog-interaction-scene .blog-composer-status { flex-wrap: wrap; }
 }
+
+.blog-interaction-scene .blog-dialogue-actions a { background: none; color: var(--interaction-soft); }

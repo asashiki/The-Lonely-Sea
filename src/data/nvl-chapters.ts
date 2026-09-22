@@ -1,12 +1,9 @@
 import chapter04zh from "../../content-drafts/nvl/2026-04.zh-CN.json";
 import chapter06zh from "../../content-drafts/nvl/2026-06.zh-CN.json";
-import chapter08zh from "../../content-drafts/nvl/2026-08.zh-CN.json";
 import chapter04ja from "../../content-drafts/nvl/2026-04.ja-JP.json";
 import chapter06ja from "../../content-drafts/nvl/2026-06.ja-JP.json";
-import chapter08ja from "../../content-drafts/nvl/2026-08.ja-JP.json";
 import chapter04en from "../../content-drafts/nvl/2026-04.en-US.json";
 import chapter06en from "../../content-drafts/nvl/2026-06.en-US.json";
-import chapter08en from "../../content-drafts/nvl/2026-08.en-US.json";
 
 export interface NvlLine {
   type: "narration" | "quote" | "alice-voice" | "terminal" | "inner";
@@ -58,10 +55,12 @@ export interface NvlChapter {
   scenario: NvlScriptStep[];
 }
 
+// Only published chapters belong here: this map is serialized into public HTML.
+// Keep unpublished originals in content-drafts, outside the runtime import graph.
 export const NVL_CHAPTERS_BY_LANGUAGE = {
-  "ZH-CN": { "2026-04": chapter04zh, "2026-06": chapter06zh, "2026-08": chapter08zh },
-  "JA-JP": { "2026-04": chapter04ja, "2026-06": chapter06ja, "2026-08": chapter08ja },
-  "EN-US": { "2026-04": chapter04en, "2026-06": chapter06en, "2026-08": chapter08en }
+  "ZH-CN": { "2026-04": chapter04zh, "2026-06": chapter06zh },
+  "JA-JP": { "2026-04": chapter04ja, "2026-06": chapter06ja },
+  "EN-US": { "2026-04": chapter04en, "2026-06": chapter06en }
 } as unknown as Record<string, Record<string, NvlChapter>>;
 
 export const NVL_CHAPTERS = NVL_CHAPTERS_BY_LANGUAGE["ZH-CN"];
