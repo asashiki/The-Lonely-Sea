@@ -248,10 +248,6 @@ if (!flowAtlases.length) {
 }
 
 const initialFlowNode = flowAtlases[0]?.nodes.find((node) => node.unlocked);
-const articleEmptySlots = Array.from(
-  { length: LOAD_SLOT_CAPACITY },
-  (_, index) => index,
-);
 const saveSlots = Array.from({ length: LOAD_SLOT_CAPACITY }, (_, index) => index);
 const lockedStorySlots = Array.from({ length: Math.max(0, 10 - storyScenes.length) }, (_, index) => index);
 ---
@@ -317,6 +313,19 @@ const lockedStorySlots = Array.from({ length: Math.max(0, 10 - storyScenes.lengt
 
       <div class="tracks-xiii-view" data-xiii-view-transition>
         <section class="tracks-xiii-panel tracks-xiii-articles" id="tracks-xiii-panel-articles" data-xiii-panel="articles" role="region" aria-label="文章记录" aria-hidden="false">
+          <section class="load-article-preview" data-article-preview aria-label="文章预览">
+            <figure class="load-article-picture">
+              <img data-article-preview-image src={records[0]?.coverUrl} alt={records[0]?.title ?? ""} decoding="async" />
+              <span>RECORD <b data-article-preview-number>01</b></span>
+            </figure>
+            <div class="load-article-copy">
+              <div class="load-article-kicker"><b data-article-preview-label></b><span data-article-preview-date></span></div>
+              <h3 data-article-preview-title>{records[0]?.title}</h3>
+              <p data-article-preview-excerpt>{records[0]?.excerpt}</p>
+              <footer><button type="button" data-article-preview-open><span data-article-preview-open-copy>读取这篇文章</span><i aria-hidden="true">→</i></button><small><span data-article-preview-time></span><br /><span data-article-preview-state></span></small></footer>
+            </div>
+          </section>
+          <p class="load-article-empty" data-article-empty hidden>这个分类还没有文章。</p>
           <div class="tracks-xiii-record-grid" data-xiii-article-grid>
             {records.map((record) => (
               <button
@@ -324,6 +333,11 @@ const lockedStorySlots = Array.from({ length: Math.max(0, 10 - storyScenes.lengt
                 type="button"
                 data-xiii-article-slot
                 data-category={record.archiveCategory}
+                data-title={record.title}
+                data-excerpt={record.excerpt}
+                data-label={record.label}
+                data-date={record.date}
+                data-minutes={record.readingMinutes}
                 data-href={record.url}
                 data-cover={record.coverUrl}
                 aria-label={"读取文章：" + record.title}
@@ -337,13 +351,7 @@ const lockedStorySlots = Array.from({ length: Math.max(0, 10 - storyScenes.lengt
                 </span>
               </button>
             ))}
-            {articleEmptySlots.map((index) => (
-              <div class="tracks-xiii-record-slot is-empty" data-xiii-article-empty aria-hidden="true">
-                <span class="tracks-xiii-slot-number">{String(index + 1).padStart(2, "0")}</span>
-                <span class="tracks-xiii-slot-art" aria-hidden="true"></span>
-                <span class="tracks-xiii-slot-copy"><strong>NO RECORD</strong></span>
-              </div>
-            ))}
+
           </div>
         </section>
 

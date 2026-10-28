@@ -1,0 +1,20 @@
+---
+import type { ExperienceRecord } from "../../lib/experience-records";
+interface Props { records: ExperienceRecord[] }
+const { records } = Astro.props;
+const latest = records[0];
+---
+{latest && <aside class="title-discovery" data-title-discovery aria-label="最新文章">
+  <div class="title-discovery__heading">
+    <span data-title-latest>最新文章</span>
+    <a href="/?screen=load&loadPage=articles" data-title-archive><span data-title-all>全部文章</span> <i aria-hidden="true">↗</i></a>
+  </div>
+  <a class="title-discovery__article" href={latest.url} data-title-article data-ui-sound="open">
+    <img src={latest.coverUrl} alt="" width="160" height="90" decoding="async" />
+    <span>
+      <strong>{latest.title}</strong>
+      <small><time datetime={latest.date.replaceAll(".", "-")}>{latest.date}</time><span data-title-minute data-minutes={latest.readingMinutes}>约 {latest.readingMinutes} 分钟</span></small>
+    </span>
+    <i aria-hidden="true">→</i>
+  </a>
+</aside>}

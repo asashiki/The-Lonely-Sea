@@ -1,3 +1,5 @@
+import { initReadingChapter } from "./reading-chapter.js";
+import { transitionReadingChapter } from "./reading-transition.js";
 import { applyPreferences, publishPreferences, readPreferences } from "./experience/preferences.js";
 import { initExperienceAudio } from "./experience/audio.js";
 import { initAmbientDock } from "./experience/ambient-dock.js";
@@ -73,24 +75,9 @@ function replaceReadingRegion(root, nextRoot, selector) {
   return Boolean(current && next);
 }
 
-function syncReadingToc(root, nextRoot) {
-  const current = root.querySelector(".reading-toc");
-  const next = nextRoot.querySelector(".reading-toc");
-  if (current && next) {
-    current.replaceChildren(...next.children);
-    return;
-  }
-  if (current && !next) {
-    current.remove();
-    return;
-  }
-  if (!current && next) root.querySelector(".reading-ledger")?.prepend(next);
-}
-
 function syncArticleShell(root, nextRoot) {
   const replacedArticle = replaceReadingRegion(root, nextRoot, ".reading-main article");
   if (!replacedArticle) throw new Error("Article content missing");
-  syncReadingToc(root, nextRoot);
   replaceReadingRegion(root, nextRoot, ".reading-menu nav");
   replaceReadingRegion(root, nextRoot, ".reading-article-dialog > section");
 }
@@ -105,6 +92,7 @@ async function switchArticle(destination, { historyMode = "push", root = activeR
     && historyMode === "push"
   ) {
     root.querySelector("[data-reading-article-dialog]")?.close?.();
+    readingOverlayControllers.get(root)?.close();
     return true;
   }
 
@@ -118,29 +106,33 @@ async function switchArticle(destination, { historyMode = "push", root = activeR
     if (token !== articleSwitchToken) return true;
     const nextRoot = documentPage.querySelector(".reading-system");
 
-    disposeReadingPage();
-    syncArticleShell(root, nextRoot);
-    root.dataset.readingRecord = nextRoot.dataset.readingRecord || "01";
-    root.classList.remove("is-ready", "is-menu-open");
-    root.querySelector("[data-reading-transition-layer]")?.setAttribute("aria-hidden", "true");
+    await transitionReadingChapter(root, () => {
+      if (token !== articleSwitchToken || articleRequest.signal.aborted) return;
+      disposeReadingPage();
+      syncArticleShell(root, nextRoot);
+      root.dataset.readingRecord = nextRoot.dataset.readingRecord || "01";
+      root.classList.remove("is-ready", "is-menu-open");
+      root.querySelector("[data-reading-transition-layer]")?.setAttribute("aria-hidden", "true");
 
-    if (historyMode === "push") window.history.pushState({ readingArticle: true }, "", destination.href);
-    else if (historyMode === "replace") window.history.replaceState({ readingArticle: true }, "", destination.href);
+      if (historyMode === "push") window.history.pushState({ readingArticle: true }, "", destination.href);
+      else if (historyMode === "replace") window.history.replaceState({ readingArticle: true }, "", destination.href);
 
-    document.title = documentPage.title;
-    const canonical = document.querySelector('link[rel="canonical"]');
-    const nextCanonical = documentPage.querySelector('link[rel="canonical"]');
-    if (canonical && nextCanonical) canonical.href = nextCanonical.href;
-    for (const selector of ['meta[name="description"]', 'meta[property="og:title"]', 'meta[property="og:description"]', 'meta[property="og:url"]', 'script[data-site-schema]']) {
-      const current = document.head.querySelector(selector);
-      const next = documentPage.querySelector(selector);
-      if (current && next) current.replaceWith(next.cloneNode(true));
-    }
+      document.title = documentPage.title;
+      const canonical = document.querySelector('link[rel="canonical"]');
+      const nextCanonical = documentPage.querySelector('link[rel="canonical"]');
+      if (canonical && nextCanonical) canonical.href = nextCanonical.href;
+      for (const selector of ['meta[name="description"]', 'meta[property="og:title"]', 'meta[property="og:description"]', 'meta[property="og:url"]', 'script[data-site-schema]']) {
+        const current = document.head.querySelector(selector);
+        const next = documentPage.querySelector(selector);
+        if (current && next) current.replaceWith(next.cloneNode(true));
+      }
 
-    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-    activeReadingSystem = root;
-    disposeReadingPage = initReadingPage(root);
-    root.classList.remove("is-article-switching");
+      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+      activeReadingSystem = root;
+      disposeReadingPage = initReadingPage(root);
+      root.classList.remove("is-article-switching");
+      root.querySelector(".reading-frontispiece h1")?.focus({ preventScroll: true });
+    }, { reducedMotion: window.matchMedia("(prefers-reduced-motion: reduce)").matches || readPreferences().reducedMotion });
     return true;
   } catch (error) {
     if (error?.name === "AbortError") return true;
@@ -148,6 +140,8 @@ async function switchArticle(destination, { historyMode = "push", root = activeR
     console.error("[reading-page] article switch failed", error);
     window.location.assign(destination.href);
     return false;
+  } finally {
+    if (token === articleSwitchToken) root.classList.remove("is-article-switching");
   }
 }
 
@@ -465,6 +459,7 @@ function initReadingPage(readingSystem) {
     },
   });
   const disposeAmbientDock = initAmbientDock(ambientDock);
+  const disposeChapter = initReadingChapter(readingSystem, { reducedMotion: () => weatherMotion.matches });
   const positionKey = `lonely-sea-reading-position:${window.location.pathname}`;
   let saveTimer = 0;
   let scrollFrame = 0;
@@ -519,7 +514,7 @@ function initReadingPage(readingSystem) {
     const progress = Math.min(1, Math.max(0, (window.scrollY - progressStart) / (progressEnd - progressStart)));
     const percent = Math.round(progress * 100);
     readingSystem.style.setProperty("--reading-progress-value", String(progress));
-    readingSystem.classList.toggle("is-reading-body", window.scrollY > Math.min(window.innerHeight * .58, 560));
+    readingSystem.classList.toggle("is-reading-body", Boolean(contentRect && contentRect.top < 190));
     if (progressLabel) progressLabel.textContent = String(percent);
     if (heartFill instanceof SVGRectElement) {
       const fillHeight = 21.8 * progress;
@@ -571,6 +566,8 @@ function initReadingPage(readingSystem) {
     const heading = document.getElementById(link.dataset.readingToc || "");
     if (!(heading instanceof HTMLElement)) return;
     event.preventDefault();
+    const outline = link.closest("[data-reading-outline]");
+    if (outline) outline.open = false;
     const top = heading.getBoundingClientRect().top + window.scrollY - Math.min(96, window.innerHeight * .14);
     window.history.replaceState(window.history.state, "", `#${encodeURIComponent(heading.id)}`);
     window.scrollTo({ top, left: 0, behavior: "auto" });
@@ -1043,6 +1040,7 @@ function initReadingPage(readingSystem) {
     systemOverlay.close({ restoreFocus: false });
     weather.stop();
     disposeAmbientDock();
+    disposeChapter();
     if (saveTimer) window.clearTimeout(saveTimer);
     if (affectionCompleteTimer) window.clearTimeout(affectionCompleteTimer);
     if (scrollFrame) window.cancelAnimationFrame(scrollFrame);

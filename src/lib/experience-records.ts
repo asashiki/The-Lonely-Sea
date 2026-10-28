@@ -1,3 +1,4 @@
+import { readingMinutes } from "./reading-time";
 import { getImage } from "astro:assets";
 import { formatPostDate, getPublishedPosts, postHref } from "./posts";
 
@@ -12,6 +13,7 @@ export interface ExperienceRecord {
   savedAt: string;
   scene: string;
   title: string;
+  readingMinutes: number;
   url: string;
 }
 
@@ -63,6 +65,7 @@ export async function getExperienceRecords(): Promise<ExperienceRecord[]> {
       savedAt: dottedDate + " " + WEEKDAY_LABELS[post.data.published.getUTCDay()],
       scene,
       title: post.data.title,
+      readingMinutes: readingMinutes(post.body),
       url: postHref(post),
     };
   }));

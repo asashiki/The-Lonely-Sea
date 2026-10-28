@@ -1,14 +1,12 @@
 ---
-import { getCollection, type CollectionEntry, render } from "astro:content";
+import { getCollection, type CollectionEntry } from "astro:content";
 import { siteConfig } from "../../../site.config.mjs";
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import BlogInteractionScene from "../../components/experience/BlogInteractionScene.astro";
+import ReadingArticle from "../../components/ReadingArticle.astro";
 import AmbientDock from "../../components/experience/AmbientDock.astro";
 import ListenDock from "../../components/experience/ListenDock.astro";
 import {
-  formatPostDate,
   getPublishedPosts,
-  normalizePostLocale,
   postHref,
   postSlug,
 } from "../../lib/posts";
@@ -17,6 +15,7 @@ import "../../styles/blog-interaction-scene.css";
 import "../../styles/listen-dock.css";
 import "../../styles/ambient-dock.css";
 import "../../styles/reading-page.css";
+import "../../styles/reading-chapter.css";
 
 export async function getStaticPaths() {
   const posts = import.meta.env.DEV
@@ -35,23 +34,13 @@ interface Props {
 
 const { post } = Astro.props;
 const { data } = post;
-const { Content, headings } = await render(post);
 const posts = await getPublishedPosts();
 const postIndex = posts.findIndex((entry) => entry.id === post.id);
 const olderPost = posts[postIndex + 1];
-const newerPost = posts[postIndex - 1];
-const tableOfContents = headings.filter((heading) => heading.depth === 2);
-const hasTableOfContents = tableOfContents.length >= 3;
 // PAGE follows the Blog's current scene at runtime. Do not assign a separate
 // visual theme to every article; `mist` is only the no-JS first paint.
 const readingScene = "mist";
 const sceneArt = `/assets/lonely-sea/${readingScene}.webp`;
-const heroArt = data.cover?.src ?? sceneArt;
-const categoryLabel = data.category ?? "文章";
-const compactHeading = (text: string) => {
-  const characters = Array.from(text.trim());
-  return characters.length > 4 ? `${characters.slice(0, 3).join("")}…` : text;
-};
 ---
 
 <BaseLayout title={data.title} description={data.description} htmlClass="is-reading-page">
@@ -97,72 +86,7 @@ const compactHeading = (text: string) => {
     </div>
 
     <div class="reading-ledger">
-      {hasTableOfContents && (
-        <nav class="reading-toc" aria-label="页内索引">
-          {tableOfContents.map((heading) => (
-            <a href={`#${heading.slug}`} data-reading-toc={heading.slug} aria-label={heading.text} title={heading.text}>
-              <span>{compactHeading(heading.text)}</span>
-            </a>
-          ))}
-        </nav>
-      )}
-
-      <main class="reading-main">
-        <article lang={normalizePostLocale(data.lang)}>
-          <p class="record-kicker">
-            <span class="record-route">
-              <a class="record-back" href="/" data-reading-transition><i aria-hidden="true">←</i>返回</a>
-              <b class="record-category">{categoryLabel}</b>
-            </span>
-            <time datetime={data.published.toISOString()}>{formatPostDate(data.published, data.lang)}</time>
-          </p>
-          <h1>{data.title}</h1>
-          <p class="record-description">{data.description}</p>
-          <p class="record-meta">
-            {data.updated && (
-              <span>UPDATE <time datetime={data.updated.toISOString()}>{formatPostDate(data.updated, data.lang)}</time></span>
-            )}
-            {data.tags.map((tag) => <span>#{tag}</span>)}
-          </p>
-
-          <section class="reading-paper" id="reading-content" data-reading-content>
-            <figure class="record-print" data-cg={heroArt}>
-              <img src={heroArt} alt={`${data.title} 封面`} loading="eager" />
-            </figure>
-            <div class="prose">
-              <Content />
-            </div>
-          </section>
-
-          <footer class="record-ending">
-            <p class="record-end-mark">—— 终 ——</p>
-            <nav class="record-neighbours" aria-label="相邻文章">
-              {olderPost ? (
-                <a href={postHref(olderPost)} data-reading-transition>
-                  <small>上一篇</small>
-                  <strong>{olderPost.data.title}</strong>
-                  <span>{formatPostDate(olderPost.data.published, olderPost.data.lang)}</span>
-                </a>
-              ) : (
-                <span class="is-empty"><small>上一篇</small><strong>没有更早的文章</strong></span>
-              )}
-              {newerPost ? (
-                <a href={postHref(newerPost)} data-reading-transition>
-                  <small>下一篇</small>
-                  <strong>{newerPost.data.title}</strong>
-                  <span>{formatPostDate(newerPost.data.published, newerPost.data.lang)}</span>
-                </a>
-              ) : (
-                <span class="is-empty"><small>下一篇</small><strong>已经是最新文章</strong></span>
-              )}
-            </nav>
-          </footer>
-
-          <section class="reading-comment-anchor" id="reading-comments">
-            <BlogInteractionScene contextKey={`article:${postHref(post)}`} title="留言" />
-          </section>
-        </article>
-      </main>
+      <ReadingArticle post={post} posts={posts} />
     </div>
 
     <AmbientDock reading />
@@ -200,7 +124,7 @@ const compactHeading = (text: string) => {
 
     <ListenDock />
 
-    <div class="reading-transition" data-reading-transition-layer aria-hidden="false">
+    <div class="reading-transition" data-reading-transition-layer aria-hidden="true">
       <span aria-hidden="true"></span>
       <p><small>{siteConfig.latinName}</small><strong>NOW LOADING</strong></p>
     </div>

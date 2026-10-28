@@ -1,0 +1,91 @@
+---
+import { render, type CollectionEntry } from "astro:content";
+import BlogInteractionScene from "./experience/BlogInteractionScene.astro";
+import { formatPostDate, normalizePostLocale, postHref } from "../lib/posts";
+import { readingMinutes } from "../lib/reading-time";
+
+interface Props { post: CollectionEntry<"posts">; posts: CollectionEntry<"posts">[] }
+const { post, posts } = Astro.props;
+const { data } = post;
+const { Content, headings } = await render(post);
+const postIndex = posts.findIndex((entry) => entry.id === post.id);
+const olderPost = posts[postIndex + 1];
+const newerPost = posts[postIndex - 1];
+const contents = headings.filter((heading) => heading.depth === 2);
+const number = String(Math.max(1, postIndex + 1)).padStart(2, "0");
+const cover = data.cover?.src ?? "/assets/lonely-sea/mist.webp";
+const minutes = readingMinutes(post.body);
+const locale = normalizePostLocale(data.lang);
+const copy = locale.toLowerCase().startsWith("en")
+  ? { back: "Archive", begin: "Begin reading", contents: "Contents", time: `About ${minutes} min`, focus: "Focus", old: "Previous", next: "Next", end: "END OF RECORD", noOld: "First record", noNext: "Latest record", comments: "Leave a message", cover: "View the cover", neighbours: "Adjacent articles" }
+  : locale.toLowerCase().startsWith("ja")
+    ? { back: "記事一覧", begin: "読む", contents: "目次", time: `約 ${minutes} 分`, focus: "集中して読む", old: "前の記事", next: "次の記事", end: "END OF RECORD", noOld: "最初の記事", noNext: "最新の記事", comments: "コメント", cover: "表紙を表示", neighbours: "前後の記事" }
+    : { back: "文章存档", begin: "开始阅读", contents: "章节目录", time: `约 ${minutes} 分钟`, focus: "专注阅读", old: "上一篇", next: "下一篇", end: "END OF RECORD", noOld: "没有更早的文章", noNext: "已经是最新文章", comments: "留言", cover: "查看完整封面", neighbours: "相邻文章" };
+---
+<main class="reading-main">
+  <article lang={locale} data-article-path={postHref(post)}>
+    <header class="reading-frontispiece">
+      <p class="record-kicker">
+        <a class="record-back" href="/?screen=load&loadPage=articles" data-reading-transition>← {copy.back}</a>
+        <span>THE LONELY SEA <i>/</i> READING</span>
+        <span class="record-edition">NO. {number}</span>
+      </p>
+      <div class="reading-frontispiece-copy">
+        <p class="reading-chapter-label"><span>{data.category ?? "ARTICLE"}</span><time datetime={data.published.toISOString()}>{formatPostDate(data.published, data.lang)}</time></p>
+        <h1 tabindex="-1">{data.title}</h1>
+        <p class="record-description">{data.description}</p>
+        <p class="record-meta">
+          <span>{copy.time}</span>
+          {data.tags.map((tag) => <span>#{tag}</span>)}
+          {data.updated && <span>UPDATE {formatPostDate(data.updated, data.lang)}</span>}
+        </p>
+        <a class="reading-begin" href="#reading-content" data-reading-begin><span>{copy.begin}</span><i aria-hidden="true">↓</i></a>
+      </div>
+      <figure class="record-print reading-frontispiece-art">
+        <button class="reading-cover-open" type="button" data-cg={cover} aria-label={`${copy.cover}：${data.title}`}>
+          <img src={cover} alt={data.title} loading="eager" fetchpriority="high" width={data.cover?.width ?? 1400} height={data.cover?.height ?? 788} />
+        </button>
+        <figcaption><span>RECORD {number}</span><span>{new Date(data.published).getUTCFullYear()}</span></figcaption>
+      </figure>
+    </header>
+
+    {contents.length > 1 && <nav class="reading-toc" aria-label={copy.contents}>
+      <p>{copy.contents}</p>
+      {contents.map((heading, index) => <a href={`#${heading.slug}`} data-reading-toc={heading.slug}>
+        <small>{String(index + 1).padStart(2, "0")}</small><span>{heading.text}</span>
+      </a>)}
+    </nav>}
+
+    <section class="reading-paper" id="reading-content" data-reading-content tabindex="-1">
+      <div class="reading-body-heading">
+        <span>RECORD {number} <i>/</i> TEXT</span>
+        <button type="button" data-reading-focus aria-pressed="false">{copy.focus}</button>
+      </div>
+      {contents.length > 1 && <details class="reading-outline" data-reading-outline>
+        <summary>{copy.contents}<small>{String(contents.length).padStart(2, "0")}</small></summary>
+        <nav aria-label={copy.contents}>{contents.map((heading, index) => <a href={`#${heading.slug}`} data-reading-toc={heading.slug}>
+          <small>{String(index + 1).padStart(2, "0")}</small><span>{heading.text}</span>
+        </a>)}</nav>
+      </details>}
+      <div class="prose"><Content /></div>
+    </section>
+
+    <footer class="record-ending">
+      <p class="record-end-mark"><small>{copy.end}</small><span>—  {number}  —</span></p>
+      <nav class="record-neighbours" aria-label={copy.neighbours}>
+        {olderPost ? <a href={postHref(olderPost)} data-reading-transition>
+          <img class="record-neighbour-art" src={olderPost.data.cover?.src ?? "/assets/lonely-sea/mist.webp"} alt="" width="480" height="270" loading="lazy" decoding="async" />
+          <small>{copy.old}</small><strong>{olderPost.data.title}</strong><span>{formatPostDate(olderPost.data.published, olderPost.data.lang)}</span>
+        </a> : <span class="is-empty"><small>{copy.old}</small><strong>{copy.noOld}</strong></span>}
+        {newerPost ? <a href={postHref(newerPost)} data-reading-transition>
+          <img class="record-neighbour-art" src={newerPost.data.cover?.src ?? "/assets/lonely-sea/mist.webp"} alt="" width="480" height="270" loading="lazy" decoding="async" />
+          <small>{copy.next}</small><strong>{newerPost.data.title}</strong><span>{formatPostDate(newerPost.data.published, newerPost.data.lang)}</span>
+        </a> : <span class="is-empty"><small>{copy.next}</small><strong>{copy.noNext}</strong></span>}
+      </nav>
+    </footer>
+    <section class="reading-comment-anchor" id="reading-comments">
+      <BlogInteractionScene contextKey={`article:${postHref(post)}`} title={copy.comments} />
+    </section>
+    <button class="reading-focus-return" type="button" data-reading-focus-return hidden>退出专注阅读</button>
+  </article>
+</main>

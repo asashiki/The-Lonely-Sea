@@ -1,3 +1,4 @@
+import { initArticleSelection } from "./article-selection.js";
 import {
   GAL_BLOG_SAVE_CHANGE_EVENT,
   listGalBlogManualSaves,
@@ -12,7 +13,6 @@ import { readPreferences } from "./preferences.js";
 const LAST_LOAD_STORAGE_KEY = "lonely-sea-last-load";
 const KEYBOARD_CURSOR_STORAGE_KEY = "lonely-sea-load-keyboard-cursor";
 const PAGE_CAPACITY = 6;
-const ARTICLE_SLOT_CAPACITY = 24;
 const FLOW_DURATION = 460;
 
 /**
@@ -66,7 +66,6 @@ export function initLoadTracksXiiiConcept({
   const panels = all("[data-xiii-panel]");
   const gameViews = all("[data-xiii-game-view]");
   const articleSlots = all("[data-xiii-article-slot]");
-  const articleEmptySlots = all("[data-xiii-article-empty]");
   const saveSlots = all("[data-xiii-save-slot]");
   const articleGrid = required("[data-xiii-article-grid]");
   const saveGrid = required(".tracks-xiii-save-grid");
@@ -119,6 +118,12 @@ export function initLoadTracksXiiiConcept({
   ];
 
   if (!routeCurtain) throw new Error("Missing route curtain");
+  const articleSelection = initArticleSelection(loadCanvas, {
+    language: () => readPreferences().language,
+    reducedMotion: () => reduceMotion.matches,
+    onOpen: (slot) => openArticle(slot),
+  });
+
 
   const activeFilter = {
     articles: "all",
@@ -187,6 +192,7 @@ export function initLoadTracksXiiiConcept({
   }
 
   function applyLoadLanguage() {
+    articleSelection.refresh();
     flowThemeButtons.forEach((button) => {
       button.textContent = localizedData(button, "flowLabel");
     });
@@ -366,10 +372,7 @@ export function initLoadTracksXiiiConcept({
     const matched = filter === "all"
       ? articleSlots
       : articleSlots.filter((slot) => slot.dataset.category === filter);
-    return [
-      ...matched,
-      ...articleEmptySlots.slice(0, Math.max(0, ARTICLE_SLOT_CAPACITY - matched.length)),
-    ];
+    return matched;
   }
 
   function articleTotalPages() {
@@ -393,7 +396,7 @@ export function initLoadTracksXiiiConcept({
       if (number) number.textContent = String(index + 1).padStart(2, "0");
     });
     articleSlots.forEach((slot) => setPagedSlotVisible(slot, shown.has(slot)));
-    articleEmptySlots.forEach((slot) => setPagedSlotVisible(slot, shown.has(slot)));
+    articleSelection.refresh();
   }
 
   function saveItems() {
@@ -752,6 +755,7 @@ export function initLoadTracksXiiiConcept({
   }
 
   function openArticle(slot) {
+    articleSelection.select(slot, false);
     const href = slot.dataset.href;
     if (!href) return;
     clearArticleNavigation();
@@ -1276,7 +1280,7 @@ export function initLoadTracksXiiiConcept({
     target.classList.add("is-kb-cursor");
     loadCanvas.classList.add("has-keyboard-cursor");
     target.focus({ preventScroll: true });
-    if (scroll && (target.matches("[data-xiii-story-slot]") || target.matches("[data-xiii-flow-node]"))) {
+    if (scroll && target.matches("[data-xiii-story-slot], [data-xiii-flow-node], [data-xiii-article-slot]")) {
       target.scrollIntoView({ block: "nearest", inline: "nearest", behavior: "instant" });
     }
     if (cue) dispatchCue("select", { target: "keyboard-cursor" });
@@ -1348,7 +1352,7 @@ export function initLoadTracksXiiiConcept({
     if (event.target instanceof Element && event.target.closest(
       ".tracks-xiii-primary-shell, .tracks-xiii-index, .tracks-xiii-edge-turners, "
       + ".tracks-xiii-page-nav, .tracks-xiii-reference-switcher, .system-back, "
-      + ".tracks-xiii-flow-tools, .tracks-xiii-story-rail",
+      + ".tracks-xiii-flow-tools, .tracks-xiii-story-rail, .load-article-preview",
     )) return;
 
     const targets = keyboardCursorTargets();
@@ -1387,6 +1391,10 @@ export function initLoadTracksXiiiConcept({
     }
 
     let next = null;
+    if (activePage === "articles" && ["ArrowLeft", "ArrowRight"].includes(event.key)) {
+      pageFromKeyboard(event.key === "ArrowRight" ? 1 : -1);
+      return;
+    }
     if (activePage === "articles" || (activePage === "game" && activeFilter.game === "save")) {
       const columns = activePage === "articles"
         ? archiveColumnCount(articleGrid)
@@ -1653,6 +1661,7 @@ export function initLoadTracksXiiiConcept({
 
   function activate() {
     updateSelectionState();
+    articleSelection.refresh();
     syncSaveSlots();
     syncKeyboardCursor();
     window.requestAnimationFrame(() => {

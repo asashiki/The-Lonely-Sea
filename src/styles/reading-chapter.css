@@ -1,0 +1,117 @@
+/* An article opens like a chapter: title and illustration have separate space.
+   The body then returns to a calm, fixed reading measure. */
+.reading-system .reading-horizon { position: absolute; inset: 0 0 auto; height: min(78vh, 800px); opacity: .18; mask-image: none; background: var(--reading-scene-art) center / cover; }
+.reading-horizon::after { display: none; }
+.reading-ledger { padding-top: 0; }
+.reading-main article { width: 100%; }
+.reading-frontispiece {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  grid-template-rows: auto 1fr;
+  align-items: center;
+  column-gap: clamp(28px, 5vw, 90px);
+  width: min(1320px, calc(100% - 10vw));
+  min-height: min(820px, 92svh);
+  margin: 0 auto;
+  padding: 36px 0 72px;
+}
+.reading-frontispiece .record-kicker { grid-column: 1 / -1; align-items: center; margin: 0 0 clamp(40px, 7vh, 90px); min-height: 44px; color: var(--reading-soft); }
+.reading-frontispiece .record-kicker a { display: inline-flex; align-items: center; min-height: 44px; color: var(--reading-ink); text-decoration: none; letter-spacing: .08em; font-size: 12px; }
+.reading-frontispiece .record-kicker i { margin-inline: 12px; font-style: normal; }
+.reading-frontispiece .record-edition { font-variant-numeric: tabular-nums; }
+.reading-chapter-label { display: flex; align-items: center; flex-wrap: wrap; gap: 12px 24px; margin: 0 0 24px; color: var(--reading-soft); font: 500 11px/1.8 var(--font-ui); letter-spacing: .12em; }
+.reading-chapter-label > span { color: var(--reading-accent); }
+.reading-frontispiece h1 { font: 400 clamp(32px, 3.5vw, 60px)/1.35 var(--font-copy); letter-spacing: -.02em; text-wrap: balance; }
+.reading-frontispiece .record-description { margin-top: 24px; max-width: 28em; color: var(--reading-soft); font-size: clamp(14px, 1.1vw, 17px); line-height: 1.95; text-wrap: pretty; }
+.reading-frontispiece .record-meta { margin-top: 24px; font-size: 11px; letter-spacing: .04em; color: var(--reading-soft); }
+.reading-begin { display: inline-flex; align-items: center; gap: 32px; min-height: 48px; margin-top: 30px; color: var(--reading-ink); text-decoration: none; font: 500 13px/1.4 var(--font-ui); }
+.reading-begin i { display: grid; place-items: center; width: 44px; height: 44px; background: var(--reading-ink); color: var(--reading-paper); border-radius: 50%; font: 400 20px/1 var(--font-ui); transition: transform 180ms; }
+.reading-begin:hover i { transform: translateY(3px); }
+.reading-system .reading-frontispiece .record-print {
+  float: none; width: 100%; margin: 0; padding: 0; align-self: stretch; display: flex; flex-direction: column; justify-content: center;
+  background: none; box-shadow: none; transform: none; opacity: 1; animation: none;
+}
+.reading-frontispiece .record-print::before { display: none; }
+.reading-frontispiece .record-print img { aspect-ratio: 4 / 3; width: 100%; height: auto; max-height: 60svh; object-fit: cover; }
+.reading-cover-open { display: block; width: 100%; padding: 0; border: 0; background: none; cursor: zoom-in; }
+.reading-cover-open:focus-visible { outline: 2px solid var(--reading-ink); outline-offset: 6px; }
+.reading-frontispiece-art figcaption { display: flex; justify-content: space-between; gap: 20px; padding-top: 12px; color: var(--reading-soft); font: 500 10px/1.5 var(--font-ui); letter-spacing: .16em; }
+.reading-system .reading-frontispiece .record-print:hover { transform: none; box-shadow: none; }
+.reading-system :is(.record-kicker, .reading-frontispiece h1, .record-description, .record-meta) { opacity: 1; transform: none; transition: none; }
+.reading-system.is-ready .reading-frontispiece-copy { animation: chapter-arrive 380ms cubic-bezier(.22,1,.36,1) both; }
+.reading-frontispiece h1:focus { outline: none; }
+.reading-system.is-article-switching .reading-main article { opacity: 1; transform: none; }
+::view-transition-group(reading-cover) { animation-duration: 360ms; animation-timing-function: cubic-bezier(.22,1,.36,1); }
+::view-transition-old(reading-cover), ::view-transition-new(reading-cover) { height: 100%; object-fit: cover; }
+::view-transition-group(root) { animation-duration: 180ms; }
+@keyframes chapter-arrive { from { opacity: 0; transform: translateY(12px); } }
+
+.reading-system :is(.reading-paper, .record-ending, .reading-comment-anchor) { width: min(46rem, calc(100% - 48px)); margin-inline: auto; }
+.reading-system .reading-paper { margin-top: 32px; padding-top: 32px; scroll-margin-top: 32px; outline: none; }
+.reading-body-heading { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 34px; font: 500 11px/1.5 var(--font-ui); letter-spacing: .1em; color: var(--reading-soft); }
+.reading-body-heading i { margin-inline: 14px; font-style: normal; }
+.reading-body-heading button { min-height: 44px; padding: 8px 0 8px 16px; border: 0; color: var(--reading-ink); background: none; font: inherit; cursor: pointer; }
+.reading-system .prose { font-size: calc(17px * var(--reading-text-scale, 1)); line-height: var(--reading-line-height, 1.95); }
+.reading-system .prose > p { margin-block: 1.5em; }
+.reading-system .prose > h2 { margin-top: 3.4em; margin-bottom: 1.3em; font-weight: 500; scroll-margin-top: 96px; }
+.reading-system .prose :is(h2,h3) { text-wrap: balance; }
+.reading-system .prose img { border-radius: 0; }
+.reading-system .record-ending { padding-top: 64px; }
+.reading-system .record-end-mark { display: grid; gap: 20px; margin: 20px 0 64px; text-align: center; color: var(--reading-soft); }
+.record-end-mark small { font: 500 10px/1.4 var(--font-ui); letter-spacing: .3em; }
+.record-end-mark > span { font: 400 22px/1.4 var(--font-copy); }
+.reading-system .record-neighbours { gap: 32px; }
+.reading-system .record-neighbours > a { padding: 28px 0; }
+.record-neighbour-art { display: block; width: 100%; height: auto; aspect-ratio: 16/9; object-fit: cover; margin-bottom: 18px; }
+
+.reading-system .reading-toc {
+  top: 22vh; left: max(24px, calc(50% - 40rem)); width: 11rem; max-height: 64vh; overflow: auto;
+  padding: 8px 12px 12px 0; display: flex; flex-direction: column; gap: 4px; scrollbar-width: thin;
+  opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 180ms, visibility 180ms;
+}
+.reading-system.is-reading-body .reading-toc { opacity: 1; visibility: visible; pointer-events: auto; }
+.reading-system .reading-toc::after { display: none; }
+.reading-toc > p { margin: 0 0 14px; color: var(--reading-soft); font: 500 11px/1.5 var(--font-ui); letter-spacing: .12em; }
+.reading-system .reading-toc a { display: grid; grid-template-columns: 22px minmax(0,1fr); gap: 8px; align-items: baseline; justify-items: start; width: 100%; min-height: 44px; padding: 8px 0; writing-mode: horizontal-tb; background: none; box-shadow: none; text-align: left; color: var(--reading-soft); transform: none; }
+.reading-system .reading-toc a::before, .reading-system .reading-toc a::after { display: none; }
+.reading-system .reading-toc a > span { white-space: normal; line-height: 1.7; font: 400 12px/1.7 var(--font-copy); text-align: left; letter-spacing: 0; }
+.reading-toc a small { font: 500 10px/1.7 var(--font-ui); font-variant-numeric: tabular-nums; }
+.reading-system .reading-toc a:is(:hover, :focus-visible, [aria-current="location"]) { color: var(--reading-ink); background: none; transform: none; font-weight: 700; }
+.reading-system .reading-toc a[aria-current="location"] > span { font-weight: 700; }
+.reading-outline { display: none; margin: 0 0 32px; }
+.reading-outline summary { display: flex; align-items: center; justify-content: space-between; min-height: 48px; cursor: pointer; font: 500 13px/1.5 var(--font-ui); }
+.reading-outline summary::after { content: "+"; margin-left: 16px; }
+.reading-outline[open] summary::after { content: "−"; }
+.reading-outline summary small { margin-left: auto; color: var(--reading-soft); }
+.reading-outline summary::-webkit-details-marker { display: none; }
+.reading-outline nav { display: grid; gap: 4px; padding: 12px 0 20px; }
+.reading-outline nav a { display: grid; grid-template-columns: 28px minmax(0,1fr); align-items: baseline; gap: 8px; min-height: 44px; color: var(--reading-soft); text-decoration: none; font: 400 14px/1.7 var(--font-copy); }
+.reading-outline nav a[aria-current] { color: var(--reading-ink); font-weight: 700; }
+.reading-outline nav small { font: 500 11px/1.5 var(--font-ui); }
+
+.reading-focus-return { position: fixed; z-index: 75; right: max(20px, env(safe-area-inset-right)); bottom: max(20px, env(safe-area-inset-bottom)); min-height: 44px; padding: 10px 18px; border: 0; color: var(--reading-ink); background: var(--reading-margin); font: 500 12px/1.6 var(--font-ui); cursor: pointer; }
+.reading-focus-return[hidden] { display: none; }
+.reading-system.is-focus-reading :is(.reading-horizon, .reading-weather, .reading-toc, .reading-scroll-rail, .ambient-dock, .listen-dock) { opacity: 0; visibility: hidden; pointer-events: none; }
+.reading-system.is-focus-reading .reading-paper { background: var(--reading-paper); }
+.reading-system.is-focus-reading .reading-outline { display: block; }
+@media (max-width: 1240px) { .reading-system .reading-toc { display: none; } .reading-outline { display: block; } }
+@media (max-width: 760px) {
+  .reading-frontispiece { grid-template-columns: 1fr; width: calc(100% - 40px); min-height: 0; padding: 20px 0 44px; }
+  .reading-frontispiece .record-kicker { margin-bottom: 24px; font-size: 9px; }
+  .reading-frontispiece .record-edition { display: none; }
+  .reading-frontispiece-art { grid-row: 2; }
+  .reading-frontispiece .record-print img { aspect-ratio: 16/10; max-height: 46svh; }
+  .reading-frontispiece-copy { margin-top: 28px; }
+  .reading-frontispiece h1 { font-size: clamp(30px, 7vw, 44px); }
+  .reading-chapter-label { margin-bottom: 16px; }
+  .reading-frontispiece .record-description { margin-top: 18px; }
+  .reading-begin { margin-top: 18px; }
+  .reading-system :is(.reading-paper, .record-ending, .reading-comment-anchor) { width: calc(100% - 40px); }
+  .reading-system .reading-paper { padding-top: 12px; margin-top: 0; }
+  .reading-system .prose { font-size: calc(16px * var(--reading-text-scale, 1)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .reading-system.is-ready .reading-frontispiece-copy { animation: none; }
+  ::view-transition-group(*) { animation-duration: 0ms; }
+}
+html[data-motion="reduced"] .reading-system.is-ready .reading-frontispiece-copy { animation: none; }

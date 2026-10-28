@@ -2,6 +2,7 @@
 import { siteConfig } from "../../../site.config.mjs";
 import AmbientDock from "./AmbientDock.astro";
 import ContinuePreview from "./ContinuePreview.astro";
+import TitleDiscovery from "./TitleDiscovery.astro";
 import type { ExperienceRecord } from "../../lib/experience-records";
 interface Props { records: ExperienceRecord[] }
 const { records } = Astro.props;
@@ -22,7 +23,7 @@ const { records } = Astro.props;
 <div class="vignette" aria-hidden="true"></div>
 
 <header class="identity">
-  <p class="identity-kicker">ASASHIKI / SCENE STUDY 01</p>
+  <p class="identity-kicker">ASASHIKI / VISUAL NOVEL BLOG</p>
   <h1>{siteConfig.name}</h1>
   <p>{siteConfig.latinName} — A PLACE BETWEEN MEMORY AND TIDE</p>
 </header>
@@ -36,8 +37,10 @@ const { records } = Astro.props;
     <li><button class="menu-button" type="button" data-command="OPTION" data-ui-sound="open"><span class="menu-name" data-text="OPTION">OPTION</span></button></li>
     <li><button class="menu-button" type="button" data-command="EXIT" data-ui-sound="open"><span class="menu-name" data-text="EXIT">EXIT</span></button></li>
   </ol>
+  <p class="title-menu-guide" data-title-guide>文章、日记与游戏存档</p>
   <p class="menu-status" id="menu-status" aria-live="polite" hidden></p>
 </nav>
 
 <AmbientDock home />
 <ContinuePreview records={records} />
+<TitleDiscovery records={records} />

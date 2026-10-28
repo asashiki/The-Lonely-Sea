@@ -1,4 +1,5 @@
 import { initContinuePreview } from "./experience/continue-preview.js";
+import { initTitleDiscovery } from "./experience/title-discovery.js";
 import { sceneArt, sceneLabels, sceneNames, weatherLabels } from "./experience/config.js";
 import { all, required, updatePressed } from "./experience/dom.js";
 import { initExitDialog } from "./experience/exit.js";
@@ -71,6 +72,10 @@ initAchievementSystem();
 const bgmButton = required("#toggle-bgm");
 const continueButton = required('[data-command="CONTINUE"]');
 const continuePreview = initContinuePreview(document.querySelector("[data-continue-preview]"), continueButton);
+const titleDiscovery = initTitleDiscovery({
+  onArticle: href => beginExternalNavigation(href, "OPENING RECORD"),
+  onArchive: () => { loadScreen.showPage("articles"); navigateTo("load"); },
+});
 const languageGate = required("[data-first-language-gate]");
 const languageButtons = all("[data-first-language]", languageGate);
 const firstFullscreenButton = required("[data-first-fullscreen]", languageGate);
@@ -535,6 +540,7 @@ function syncContinueButton() {
   const previewSave = continueTarget?.kind === "nvl" ? getNvlSave(continueTarget.saveId)
     : continueTarget?.kind === "game" ? getGalBlogSave(continueTarget.saveId) : null;
   continuePreview.sync(continueTarget, previewSave, preferences.language);
+  titleDiscovery.sync(Boolean(continueTarget), preferences.language);
   continueButton.setAttribute("aria-label", continueTarget?.kind === "game"
     ? "继续最近游戏存档"
     : continueTarget?.kind === "nvl"
