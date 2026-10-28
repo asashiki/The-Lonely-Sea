@@ -21,6 +21,10 @@ export const LOAD_SLOT_CAPACITY = 24;
 
 const fallbackScenes = ["mist", "day", "night", "crimson"];
 
+export function fallbackRecordArt(index: number): string {
+  return `/assets/lonely-sea/${fallbackScenes[Math.max(0, index) % fallbackScenes.length]}.webp`;
+}
+
 const WEEKDAY_LABELS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 
 function archiveCategory(tags: string[]): string {
@@ -56,7 +60,7 @@ export async function getExperienceRecords(): Promise<ExperienceRecord[]> {
 
     return {
       archiveCategory: archiveCategory(tags),
-      coverUrl: cover?.src ?? "/assets/lonely-sea/" + scene + ".webp",
+      coverUrl: cover?.src ?? fallbackRecordArt(index),
       date: dottedDate,
       dateLabel: formatPostDate(post.data.published, post.data.lang),
       excerpt: post.data.description,

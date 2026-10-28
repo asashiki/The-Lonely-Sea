@@ -3,6 +3,7 @@ import { render, type CollectionEntry } from "astro:content";
 import BlogInteractionScene from "./experience/BlogInteractionScene.astro";
 import { formatPostDate, normalizePostLocale, postHref } from "../lib/posts";
 import { readingMinutes } from "../lib/reading-time";
+import { fallbackRecordArt } from "../lib/experience-records";
 
 interface Props { post: CollectionEntry<"posts">; posts: CollectionEntry<"posts">[] }
 const { post, posts } = Astro.props;
@@ -13,7 +14,9 @@ const olderPost = posts[postIndex + 1];
 const newerPost = posts[postIndex - 1];
 const contents = headings.filter((heading) => heading.depth === 2);
 const number = String(Math.max(1, postIndex + 1)).padStart(2, "0");
-const cover = data.cover?.src ?? "/assets/lonely-sea/mist.webp";
+const coverFor = (entry: CollectionEntry<"posts">) => entry.data.cover?.src
+  ?? fallbackRecordArt(posts.findIndex((candidate) => candidate.id === entry.id));
+const cover = coverFor(post);
 const minutes = readingMinutes(post.body);
 const locale = normalizePostLocale(data.lang);
 const copy = locale.toLowerCase().startsWith("en")
@@ -74,11 +77,11 @@ const copy = locale.toLowerCase().startsWith("en")
       <p class="record-end-mark"><small>{copy.end}</small><span>—  {number}  —</span></p>
       <nav class="record-neighbours" aria-label={copy.neighbours}>
         {olderPost ? <a href={postHref(olderPost)} data-reading-transition>
-          <img class="record-neighbour-art" src={olderPost.data.cover?.src ?? "/assets/lonely-sea/mist.webp"} alt="" width="480" height="270" loading="lazy" decoding="async" />
+          <img class="record-neighbour-art" src={coverFor(olderPost)} alt="" width="480" height="270" loading="lazy" decoding="async" />
           <small>{copy.old}</small><strong>{olderPost.data.title}</strong><span>{formatPostDate(olderPost.data.published, olderPost.data.lang)}</span>
         </a> : <span class="is-empty"><small>{copy.old}</small><strong>{copy.noOld}</strong></span>}
         {newerPost ? <a href={postHref(newerPost)} data-reading-transition>
-          <img class="record-neighbour-art" src={newerPost.data.cover?.src ?? "/assets/lonely-sea/mist.webp"} alt="" width="480" height="270" loading="lazy" decoding="async" />
+          <img class="record-neighbour-art" src={coverFor(newerPost)} alt="" width="480" height="270" loading="lazy" decoding="async" />
           <small>{copy.next}</small><strong>{newerPost.data.title}</strong><span>{formatPostDate(newerPost.data.published, newerPost.data.lang)}</span>
         </a> : <span class="is-empty"><small>{copy.next}</small><strong>{copy.noNext}</strong></span>}
       </nav>
