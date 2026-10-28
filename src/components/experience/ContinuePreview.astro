@@ -1,0 +1,17 @@
+---
+import type { ExperienceRecord } from "../../lib/experience-records";
+interface Props { records: ExperienceRecord[] }
+const { records } = Astro.props;
+const catalogue = records.map(({ url, title, coverUrl }) => ({ url, title, coverUrl }));
+---
+<aside class="title-memory" data-continue-preview hidden aria-label="继续读取预览">
+  <p class="title-memory__label"><span data-continue-kind>CONTINUE</span><time data-continue-date></time></p>
+  <div class="title-memory__record">
+    <img data-continue-art alt="" width="160" height="90" decoding="async" />
+    <div id="continue-description">
+      <h2 data-continue-title></h2>
+      <p data-continue-detail></p>
+    </div>
+  </div>
+</aside>
+<script is:inline type="application/json" id="continue-catalogue" set:html={JSON.stringify(catalogue).replaceAll("<", "\\u003c")} />

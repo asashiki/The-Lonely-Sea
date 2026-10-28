@@ -49,16 +49,37 @@ const modes = [
         </nav>
       </footer>
 
-      <section class="cg-viewer" id="cg-viewer" aria-hidden="true" aria-label="CG fullscreen viewer" tabindex="-1">
-        <div class="cg-viewer-backdrop" aria-hidden="true"></div>
-        <div class="cg-viewer-art" id="cg-viewer-art"></div>
-        <p class="cg-viewer-caption">
-          <small id="cg-viewer-index">CG 01 / 08</small>
-          <strong id="cg-viewer-title">SCENE MEMORY</strong>
-        </p>
-        <button class="cg-viewer-prev" type="button" data-cg-direction="-1" aria-label="Previous CG">‹</button>
-        <button class="cg-viewer-next" type="button" data-cg-direction="1" aria-label="Next CG">›</button>
-      </section>
+
     </div>
+    <section class="cg-viewer" id="cg-viewer" role="dialog" aria-modal="true" aria-hidden="true" aria-label="CG GALLERY" tabindex="-1" inert>
+      <div class="cg-viewer-art" id="cg-viewer-art">
+        <img data-cg-image alt="" decoding="async" hidden />
+      </div>
+      <div class="cg-theater-controls" data-cg-controls>
+        <header class="cg-theater-header">
+          <button type="button" data-cg-close>返回</button>
+          <p>EXTRA <span>/</span> CG GALLERY</p>
+          <div>
+            <button type="button" data-cg-index-toggle aria-expanded="false" aria-controls="cg-index">画面索引</button>
+            <button type="button" data-cg-clean>纯画面</button>
+          </div>
+        </header>
+        <button class="cg-theater-prev" type="button" data-cg-direction="-1" aria-label="上一张 CG">‹</button>
+        <button class="cg-theater-next" type="button" data-cg-direction="1" aria-label="下一张 CG">›</button>
+        <footer class="cg-theater-footer">
+          <p class="cg-viewer-caption" aria-live="polite" aria-atomic="true">
+            <small id="cg-viewer-index"></small>
+            <strong id="cg-viewer-title"></strong>
+          </p>
+          <small data-cg-hint>← → 切换 / H 纯画面 / I 索引 / Esc 返回</small>
+        </footer>
+      </div>
+      <nav class="cg-theater-index" id="cg-index" data-cg-tray aria-label="画面索引" hidden></nav>
+      <div class="cg-theater-status">
+        <p data-cg-status role="status"></p>
+        <button type="button" data-cg-retry hidden>重试</button>
+      </div>
+      <button class="cg-theater-return" type="button" data-cg-return hidden>显示操作</button>
+    </section>
   </div>
 </section>

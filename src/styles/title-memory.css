@@ -1,0 +1,39 @@
+/* A still from the last session, set directly into the title composition. */
+.title-memory {
+  position: absolute;
+  z-index: 7;
+  left: calc(var(--safe-left) + clamp(8px, 3.8vw, 60px));
+  bottom: calc(var(--safe-bottom) + 22px);
+  width: min(420px, 40vw);
+  color: var(--ink);
+  text-shadow: 0 1px 12px var(--halo);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(8px);
+  transition: opacity 280ms, transform 360ms cubic-bezier(.22,1,.36,1), visibility 280ms;
+}
+.title-memory[hidden] { display: none; }
+body.is-ready[data-route="title"] .title-memory { opacity: 1; visibility: visible; transform: none; }
+.title-memory__label { display: flex; justify-content: space-between; gap: 16px; margin: 0 0 12px; font: 500 10px/1.5 "Yu Gothic", sans-serif; letter-spacing: .15em; }
+.title-memory__label time { font-variant-numeric: tabular-nums; }
+.title-memory__record { display: flex; align-items: center; gap: 18px; }
+.title-memory__record img { width: clamp(90px, 11vw, 150px); height: auto; aspect-ratio: 16 / 9; object-fit: cover; flex: 0 0 auto; }
+.title-memory__record img[hidden] { display: none; }
+.title-memory__record h2 { margin: 0; font: 400 clamp(14px, 1.25vw, 20px)/1.6 "Yu Mincho", "Songti SC", serif; text-wrap: balance; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.title-memory__record p { margin: 6px 0 0; font: 400 11px/1.6 "Yu Gothic", sans-serif; }
+@media (max-width: 700px) and (orientation: portrait) {
+  html:not([data-forced-landscape="true"]) .title-memory { left: var(--safe-left); bottom: calc(var(--safe-bottom) + 50px); width: calc(100% - var(--safe-left) - var(--safe-right)); }
+  html:not([data-forced-landscape="true"]) .title-memory__record img { display: none; }
+  html:not([data-forced-landscape="true"]) .title-memory__label { margin-bottom: 4px; }
+  html:not([data-forced-landscape="true"]) .title-memory { bottom: calc(var(--safe-bottom) + 32px); }
+  html:not([data-forced-landscape="true"]) .title-memory__record h2 { font-size: 14px; -webkit-line-clamp: 1; }
+  html:not([data-forced-landscape="true"]) .title-memory__record p { display: none; }
+}
+@media (max-height: 570px), (max-width: 900px) and (orientation: portrait) {
+  .title-memory__record img { display: none; }
+  .title-memory { bottom: var(--safe-bottom); width: min(360px, 38%); }
+  .title-memory__label { margin-bottom: 4px; }
+}
+@media (prefers-reduced-motion: reduce) { .title-memory { transition: none; transform: none; } }
+html[data-motion="reduced"] .title-memory { transition: none; transform: none; }

@@ -1,3 +1,4 @@
+import { initContinuePreview } from "./experience/continue-preview.js";
 import { sceneArt, sceneLabels, sceneNames, weatherLabels } from "./experience/config.js";
 import { all, required, updatePressed } from "./experience/dom.js";
 import { initExitDialog } from "./experience/exit.js";
@@ -69,6 +70,7 @@ const experienceAudio = initExperienceAudio();
 initAchievementSystem();
 const bgmButton = required("#toggle-bgm");
 const continueButton = required('[data-command="CONTINUE"]');
+const continuePreview = initContinuePreview(document.querySelector("[data-continue-preview]"), continueButton);
 const languageGate = required("[data-first-language-gate]");
 const languageButtons = all("[data-first-language]", languageGate);
 const firstFullscreenButton = required("[data-first-fullscreen]", languageGate);
@@ -530,6 +532,9 @@ initAmbientDock(fxPanel);
 function syncContinueButton() {
   continueTarget = resolveContinueTarget(listGalBlogSaves(), listNvlSaves());
   continueButton.disabled = !continueTarget;
+  const previewSave = continueTarget?.kind === "nvl" ? getNvlSave(continueTarget.saveId)
+    : continueTarget?.kind === "game" ? getGalBlogSave(continueTarget.saveId) : null;
+  continuePreview.sync(continueTarget, previewSave, preferences.language);
   continueButton.setAttribute("aria-label", continueTarget?.kind === "game"
     ? "继续最近游戏存档"
     : continueTarget?.kind === "nvl"
@@ -544,6 +549,8 @@ bgmButton.addEventListener("click", () => experienceAudio.setBgmEnabled(!experie
 window.addEventListener("lonely-sea:bgm-state-change", syncBgmButton);
 window.addEventListener("lonely-sea:gal-blog-save-change", syncContinueButton);
 window.addEventListener(NVL_SAVE_CHANGE_EVENT, syncContinueButton);
+window.addEventListener("pageshow", syncContinueButton);
+window.addEventListener("storage", syncContinueButton);
 
 window.addEventListener("lonely-sea:preferences-change", (event) => {
   const previousPreferences = preferences;
@@ -554,6 +561,7 @@ window.addEventListener("lonely-sea:preferences-change", (event) => {
   if (densityChanged) weather.setDensity(preferences.particleDensity / 100);
   else if (motionChanged) weather.handlePreferenceChange();
   if (landscapeChanged) weather.resize();
+  if (preferences.language !== previousPreferences.language) syncContinueButton();
   if (preferences.automaticTheme && !previousPreferences.automaticTheme) setScene(sceneForCurrentTime());
 });
 

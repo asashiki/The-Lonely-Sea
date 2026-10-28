@@ -3,10 +3,37 @@ import activitySnapshot from "./generated/activity.json";
 import bangumiSnapshot from "./generated/bangumi.json";
 import musicSnapshot from "./generated/music.json";
 
-const generatedCgItems = Array.from({ length: 20 }, (_, index) => ({
-  title: "SCENE MEMORY",
+// Descriptive gallery labels, not story titles or new character dialogue.
+const cgNames = [
+  ["雪中神社", "Shrine in Snow", "雪の社"],
+  ["雨夜小巷", "Rainlit Alley", "雨夜の路地"],
+  ["月下石阶", "Moonlit Steps", "月下の石段"],
+  ["赤色海岸", "Crimson Shore", "紅の海岸"],
+  ["海上鸟居", "Torii at Sea", "海の鳥居"],
+  ["雪夜小径", "Winter Path", "雪夜の小径"],
+  ["彼岸花", "Spider Lilies", "彼岸花"],
+  ["临雪和室", "Room Facing Snow", "雪見の座敷"],
+  ["雪中的琴盒", "Case in the Snow", "雪の中の楽器ケース"],
+  ["雾中参道", "Approach in Mist", "霧の参道"],
+  ["空舞台", "Empty Stage", "無人の舞台"],
+  ["雪中车站", "Snowbound Station", "雪の駅"],
+  ["雨廊", "Rain Corridor", "雨の廊下"],
+  ["赤月山谷", "Valley of the Red Moon", "赤い月の谷"],
+  ["月下倒影", "Moonlit Reflections", "月下の水鏡"],
+  ["朱色门廊", "Vermilion Passage", "朱の回廊"],
+  ["古树", "Old Tree", "古木"],
+  ["雪桥", "Snow Bridge", "雪の橋"],
+  ["月光海面", "Moonlit Sea", "月光の海"],
+  ["林间两色", "Two Colours of the Forest", "森の二色"],
+];
+
+const generatedCgItems = cgNames.map(([zh, en, ja], index) => ({
+  title: zh,
+  titles: Object.freeze({ "ZH-CN": zh, "EN-US": en, "JA-JP": ja }),
   art: `/assets/cg/generated/scene-${String(index + 1).padStart(2, "0")}.webp`,
   unlocked: true,
+  thumb: "/assets/cg/index.webp",
+  thumbPosition: `${index % 5 * 25}% ${Math.floor(index / 5) * 100 / 3}%`,
 }));
 
 const lockedCgItems = Array.from({ length: 7 }, () => ({

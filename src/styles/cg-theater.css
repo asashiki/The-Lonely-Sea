@@ -1,0 +1,152 @@
+/* A dark projection room. The artwork supplies the colour; controls occupy
+   the letterbox, never a floating panel on top of the picture. */
+.extra-canvas .cg-viewer {
+  --cg-gutter: clamp(16px, 3.5cqw, 64px);
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+  background: #090d12;
+  color: #e8edf0;
+  container-type: size;
+  transition: opacity 240ms ease, visibility 240ms;
+}
+body:has(.cg-viewer[aria-hidden="false"]) .listen-dock { visibility: hidden; pointer-events: none; }
+.stage:has(.cg-viewer[aria-hidden="false"]) > :is(#weather-canvas, .weather-veil) { opacity: 0; }
+
+.extra-canvas .cg-viewer-art {
+  position: absolute;
+  inset: clamp(56px, 9cqh, 90px) var(--cg-gutter) clamp(62px, 11cqh, 108px);
+  background: none;
+  filter: none;
+  transition: inset 260ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.cg-viewer-art img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  cursor: zoom-in;
+}
+
+.cg-viewer img[hidden], .cg-viewer [hidden] { display: none !important; }
+
+.cg-theater-header, .cg-theater-footer {
+  position: absolute;
+  inset-inline: var(--cg-gutter);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.cg-theater-header { top: max(8px, env(safe-area-inset-top)); height: clamp(44px, 8cqh, 80px); }
+.cg-theater-header > div { display: flex; gap: clamp(8px, 1.5cqw, 28px); }
+.cg-theater-header p { margin: 0; color: #a5b3c2; font: 500 10px/1.5 "Yu Gothic", sans-serif; letter-spacing: .24em; }
+.cg-theater-header p span { margin-inline: 12px; color: #627182; }
+.cg-viewer button { touch-action: manipulation; }
+.cg-theater-header button, .cg-theater-return, .cg-theater-status button {
+  min-height: 44px;
+  padding: 8px 4px;
+  border: 0;
+  color: #c3ccd5;
+  background: transparent;
+  font: 400 clamp(12px, 1cqw, 16px)/1.4 "Yu Mincho", "Songti SC", serif;
+  letter-spacing: .12em;
+  cursor: pointer;
+}
+.cg-theater-header button:hover, .cg-theater-header button[aria-expanded="true"] { color: #fff; }
+.cg-viewer button:focus-visible { outline: 2px solid #d4e2ed; outline-offset: 3px; }
+.cg-theater-footer { bottom: max(12px, env(safe-area-inset-bottom)); min-height: clamp(42px, 8cqh, 76px); }
+.extra-canvas .cg-theater-footer .cg-viewer-caption { position: static; gap: 14px; flex-wrap: wrap; }
+.extra-canvas .cg-theater-footer .cg-viewer-caption small { color: #a5b3c2; font-size: 11px; font-variant-numeric: tabular-nums; }
+.extra-canvas .cg-theater-footer .cg-viewer-caption strong { color: #e8edf0; font-size: clamp(13px, 1.25cqw, 21px); }
+.cg-theater-footer > small { color: #a5b3c2; font: 400 11px/1.6 "Yu Gothic", sans-serif; }
+.cg-theater-prev, .cg-theater-next {
+  position: absolute;
+  top: 50%;
+  width: max(44px, var(--cg-gutter));
+  height: max(60px, 12cqh);
+  padding: 0;
+  border: 0;
+  color: #d4dee7;
+  background: transparent;
+  font: 300 clamp(30px, 3cqw, 50px)/1 serif;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+.cg-theater-prev { left: 0; }
+.cg-theater-next { right: 0; }
+.cg-theater-prev:hover, .cg-theater-next:hover { color: #fff; background: #ffffff08; }
+
+.cg-theater-index {
+  position: absolute;
+  inset-inline: var(--cg-gutter);
+  bottom: clamp(64px, 11cqh, 108px);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: clamp(64px, 11cqh, 110px);
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #778899 #111922;
+  padding: 6px 2px;
+  scroll-snap-type: x proximity;
+}
+.cg-theater-index button {
+  position: relative;
+  flex: 0 0 auto;
+  height: calc(100% - 8px);
+  aspect-ratio: 16 / 9;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: #1c2733;
+  color: #fff;
+  opacity: .5;
+  transform: scale(.94);
+  transition: opacity 140ms, transform 180ms;
+  scroll-snap-align: center;
+  cursor: pointer;
+}
+.cg-theater-index button:is(:hover, :focus-visible, [aria-pressed="true"]) { opacity: 1; transform: scale(1); }
+.cg-theater-thumb { display: block; width: 100%; height: 100%; background-position: center; background-size: cover; }
+.cg-theater-number { position: absolute; left: 4px; bottom: 4px; padding: 2px 5px; background: #090d12d9; font: 500 10px/1.3 "Yu Gothic", sans-serif; }
+.extra-canvas .cg-viewer.has-index .cg-viewer-art { bottom: clamp(140px, 24cqh, 230px); }
+.cg-theater-controls, .cg-theater-index { transition: opacity 180ms, visibility 180ms; }
+.cg-viewer.is-clean :is(.cg-theater-controls, .cg-theater-index) { opacity: 0; visibility: hidden; pointer-events: none; }
+.extra-canvas .cg-viewer.is-clean .cg-viewer-art { inset: 0; }
+.cg-viewer.is-clean img { cursor: zoom-out; }
+.extra-canvas .cg-viewer > button.cg-theater-return {
+  position: absolute;
+  inset: auto max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) auto;
+  width: auto;
+  height: auto;
+  min-height: 44px;
+  padding: 10px 16px;
+  background: #090d12dd;
+  color: #e8edf0;
+  font: 400 12px/1.5 "Yu Gothic", sans-serif;
+  transform: none;
+  opacity: .72;
+}
+.extra-canvas .cg-viewer > button.cg-theater-return:is(:hover, :focus-visible) { opacity: 1; }
+.cg-theater-status { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(28rem, 75%); text-align: center; pointer-events: none; }
+.cg-theater-status p:not(:empty) { margin: 0; padding: 14px 20px; color: #e8edf0; background: #090d12ed; font: 400 14px/1.7 "Yu Gothic", sans-serif; }
+.cg-theater-status button { pointer-events: auto; background: #090d12ed; padding: 12px 24px; }
+@media (max-width: 650px) {
+  .cg-theater-header p, .cg-theater-footer > small { display: none; }
+  .cg-theater-header, .cg-theater-footer { gap: 8px; }
+}
+@container (max-height: 460px) {
+  .cg-theater-footer > small { display: none; }
+  .extra-canvas .cg-viewer-art { inset: 48px 44px 48px; }
+  .extra-canvas .cg-viewer.has-index .cg-viewer-art { bottom: 116px; }
+  .cg-theater-index { bottom: 48px; height: 64px; }
+  .cg-theater-header { top: 0; height: 44px; }
+  .cg-theater-footer { bottom: 0; min-height: 44px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .extra-canvas .cg-viewer, .cg-viewer *, .cg-viewer *::before { transition: none !important; }
+}
+html[data-motion="reduced"] .cg-viewer, html[data-motion="reduced"] .cg-viewer * { transition: none !important; }

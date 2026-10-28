@@ -1,3 +1,4 @@
+import { createCgGallery } from "./cg-gallery.js";
 import {
   bangumiItems,
   achievementText,
@@ -185,11 +186,9 @@ export function initExtraScreen() {
   const extraPageTotal = required("#extra-page-total");
   const extraPageProgress = required("#extra-page-progress");
   const cgViewer = required("#cg-viewer");
-  const cgViewerArt = required("#cg-viewer-art");
 
   let extraMode = "cg";
   let extraPage = 0;
-  let cgIndex = 0;
   let musicIndex = 0;
   let musicShuffle = false;
   let musicLoop = false;
@@ -215,9 +214,6 @@ export function initExtraScreen() {
   let musicWavePhase = 0;
   let musicWaveAmplitude = .18;
   let pageSliding = false;
-  let cgOriginRect = null;
-  let cgViewerAnimation = null;
-  let cgViewerTransitionToken = 0;
   let bangumiFocusLayer = 0;
   let bangumiFocusToken = 0;
   let bangumiShelfToken = 0;
@@ -701,7 +697,7 @@ export function initExtraScreen() {
                 type="button"
                 ${locked ? "disabled" : `data-cg-index="${index}"`}
                 aria-label="${escapeHtml(locked ? "Locked CG" : `Open CG ${index + 1}`)}"
-                data-focus-title="${escapeHtml(locked ? "LOCKED" : item.title)}"
+                data-focus-title="${escapeHtml(locked ? "LOCKED" : projectText("titles" in item ? item.titles : item.title))}"
                 data-focus-action="${locked ? "NOT YET REGISTERED" : "OPEN CG"}"
                 ${item.art ? `style="${artStyle(item.art)}"` : ""}
               >
@@ -1842,139 +1838,15 @@ export function initExtraScreen() {
     }
   }
 
-  async function preloadCgArt(url) {
-    const image = new Image();
-    image.src = url;
-    if (image.complete) return Promise.resolve();
-    if (typeof image.decode === "function") return image.decode().catch(() => {});
-    return new Promise((resolve) => {
-      image.addEventListener("load", resolve, { once: true });
-      image.addEventListener("error", resolve, { once: true });
-    });
-  }
-
-  function openCg(index, origin = null, { direction = 0 } = {}) {
-    const item = cgItems[index];
-    if (!item?.unlocked) return;
-    const wasOpen = cgViewer.getAttribute("aria-hidden") === "false";
-    const transitionId = ++cgViewerTransitionToken;
-    cgViewerAnimation?.cancel();
-    cgViewerAnimation = null;
-    cgViewer.classList.remove("is-closing");
-    cgViewer.classList.toggle("is-opening", !wasOpen);
-    cgViewerArt.style.removeProperty("opacity");
-    cgIndex = index;
-    recordBlogActivity("cgItems", String(index));
-    cgViewerArt.style.setProperty("--cg-art", `url("${item.art}")`);
-    cgViewerArt.classList.toggle("is-portrait", Boolean(item.portrait));
-    const unlocked = cgItems.filter((entry) => entry.unlocked);
-    const unlockedIndex = unlocked.indexOf(item);
-    required("#cg-viewer-index").textContent =
-      `CG ${String(unlockedIndex + 1).padStart(2, "0")} / ${String(unlocked.length).padStart(2, "0")}`;
-    required("#cg-viewer-title").textContent = item.title;
-    cgViewer.setAttribute("aria-hidden", "false");
-    cgViewer.focus({ preventScroll: true });
-
-    const originArt = origin?.querySelector(".extra-cg-art") ?? origin;
-    cgOriginRect = originArt?.getBoundingClientRect?.() ?? null;
-    if (preferencesReduceMotion()) {
-      cgViewer.classList.remove("is-opening");
-      return;
-    }
-
-    const animateOpen = () => {
-      if (transitionId !== cgViewerTransitionToken || cgViewer.getAttribute("aria-hidden") === "true") return;
-      cgViewer.classList.remove("is-opening");
-      const targetRect = cgViewerArt.getBoundingClientRect();
-      let firstFrame = {
-        opacity: 1,
-        transform: `translate3d(${direction * 2.8}cqw,0,0) scale(.985)`,
-      };
-      if (cgOriginRect && targetRect.width && targetRect.height) {
-        const originCenterX = cgOriginRect.left + cgOriginRect.width / 2;
-        const originCenterY = cgOriginRect.top + cgOriginRect.height / 2;
-        const targetCenterX = targetRect.left + targetRect.width / 2;
-        const targetCenterY = targetRect.top + targetRect.height / 2;
-        firstFrame = {
-          opacity: 1,
-          transform: `translate3d(${originCenterX - targetCenterX}px,${originCenterY - targetCenterY}px,0) scale(${cgOriginRect.width / targetRect.width},${cgOriginRect.height / targetRect.height})`,
-        };
-      }
-
-      cgViewerArt.style.transformOrigin = "center";
-      const animation = cgViewerArt.animate(
-        [
-          firstFrame,
-          { opacity: 1, transform: "translate3d(0,0,0) scale(1)" },
-        ],
-        { duration: cgOriginRect ? 430 : 260, easing: "cubic-bezier(.22,1,.36,1)" },
-      );
-      cgViewerAnimation = animation;
-      animation.finished
-        .catch(() => {})
-        .finally(() => {
-          if (cgViewerAnimation === animation) cgViewerAnimation = null;
-        });
-    };
-
-    preloadCgArt(item.art).then(() => window.requestAnimationFrame(animateOpen));
-  }
-
-  function moveCgViewer(direction) {
-    let next = cgIndex;
-    do {
-      next = (next + direction + cgItems.length) % cgItems.length;
-    } while (!cgItems[next].unlocked && next !== cgIndex);
-    cgOriginRect = null;
-    openCg(next, null, { direction });
-  }
-
-  function closeCg() {
-    if (cgViewer.getAttribute("aria-hidden") === "true") return false;
-    const transitionId = ++cgViewerTransitionToken;
-    cgViewerAnimation?.cancel();
-    cgViewerAnimation = null;
-    cgViewer.classList.remove("is-opening");
-    cgViewer.classList.add("is-closing");
-    if (preferencesReduceMotion() || !cgOriginRect) {
-      cgViewer.setAttribute("aria-hidden", "true");
-      cgViewer.classList.remove("is-closing");
-      cgOriginRect = null;
-      return true;
-    }
-
-    const targetRect = cgViewerArt.getBoundingClientRect();
-    const originCenterX = cgOriginRect.left + cgOriginRect.width / 2;
-    const originCenterY = cgOriginRect.top + cgOriginRect.height / 2;
-    const targetCenterX = targetRect.left + targetRect.width / 2;
-    const targetCenterY = targetRect.top + targetRect.height / 2;
-    const animation = cgViewerArt.animate(
-      [
-        { opacity: 1, transform: "translate3d(0,0,0) scale(1)" },
-        {
-          opacity: .1,
-          transform: `translate3d(${originCenterX - targetCenterX}px,${originCenterY - targetCenterY}px,0) scale(${cgOriginRect.width / targetRect.width},${cgOriginRect.height / targetRect.height})`,
-        },
-      ],
-      { duration: 280, easing: "cubic-bezier(.25,1,.5,1)", fill: "forwards" },
-    );
-    cgViewerAnimation = animation;
-    animation.finished
-      .catch(() => {})
-      .finally(() => {
-        if (cgViewerAnimation !== animation || transitionId !== cgViewerTransitionToken) return;
-        cgViewerArt.style.opacity = "0";
-        cgViewer.setAttribute("aria-hidden", "true");
-        cgOriginRect = null;
-        window.setTimeout(() => {
-          if (transitionId !== cgViewerTransitionToken) return;
-          cgViewer.classList.remove("is-closing", "is-opening");
-          animation.cancel();
-          if (cgViewerAnimation === animation) cgViewerAnimation = null;
-        }, 440);
-      });
-    return true;
-  }
+  const gallery = createCgGallery({
+    root: cgViewer,
+    items: cgItems,
+    reduceMotion: preferencesReduceMotion,
+    language: projectLanguage,
+    onView: (index) => recordBlogActivity("cgItems", String(index)),
+  });
+  const openCg = (index, origin) => gallery.open(index, origin);
+  const closeCg = () => gallery.close();
 
   function scrollBangumiToPage(page) {
     const viewport = extraStage.querySelector(".extra-bangumi-viewport");
@@ -1987,7 +1859,7 @@ export function initExtraScreen() {
 
   async function changePage(direction, { animate = true } = {}) {
     if (cgViewer.getAttribute("aria-hidden") === "false") {
-      moveCgViewer(direction);
+      gallery.move(direction);
       return;
     }
     if (pageSliding) return;
@@ -2067,10 +1939,6 @@ export function initExtraScreen() {
       toggleMusic();
     }
   });
-  all("[data-cg-direction]", cgViewer).forEach((button) => {
-    button.addEventListener("click", () => moveCgViewer(Number(button.dataset.cgDirection)));
-  });
-  cgViewer.querySelector(".cg-viewer-backdrop")?.addEventListener("click", closeCg);
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
       if (musicPlaying) musicPlayer?.pause();
@@ -2156,16 +2024,11 @@ export function initExtraScreen() {
     closeCg,
     deactivate() {
       transitionToken += 1;
-      cgViewerTransitionToken += 1;
       stageTransition?.cancel();
       stageTransition = null;
       window.cancelAnimationFrame(musicWaveFrame);
       musicWaveFrame = 0;
-      cgViewerAnimation?.cancel();
-      cgViewerAnimation = null;
-      cgViewer.setAttribute("aria-hidden", "true");
-      cgViewer.classList.remove("is-opening", "is-closing");
-      cgOriginRect = null;
+      gallery.close({ restoreFocus: false });
       syncListenDock({ extraOpen: false });
     },
   };

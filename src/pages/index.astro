@@ -55,7 +55,7 @@ const records = await getExperienceRecords();
   </div>
 
   <main class="stage" aria-label={`${siteConfig.name}现代 Galgame 交互界面`}>
-    <TitleStage />
+    <TitleStage records={records} />
     <StartScreen records={records} />
     <LoadScreen records={records} />
     <ExtraScreen />

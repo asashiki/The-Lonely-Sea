@@ -1,6 +1,10 @@
 ---
 import { siteConfig } from "../../../site.config.mjs";
 import AmbientDock from "./AmbientDock.astro";
+import ContinuePreview from "./ContinuePreview.astro";
+import type { ExperienceRecord } from "../../lib/experience-records";
+interface Props { records: ExperienceRecord[] }
+const { records } = Astro.props;
 ---
 
 <div class="scene-stack" aria-hidden="true">
@@ -36,3 +40,4 @@ import AmbientDock from "./AmbientDock.astro";
 </nav>
 
 <AmbientDock home />
+<ContinuePreview records={records} />
