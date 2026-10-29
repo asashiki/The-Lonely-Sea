@@ -1,5 +1,5 @@
 import { initReadingChapter } from "./reading-chapter.js";
-import { writeReadingTrail } from "../lib/reading-trail";
+import { writeReadingTrail, readReadingBookmark } from "../lib/reading-trail";
 import { initLetterPreview } from "./letter-preview";
 import { transitionReadingChapter } from "./reading-transition.js";
 import { applyPreferences, publishPreferences, readPreferences } from "./experience/preferences.js";
@@ -472,17 +472,39 @@ function initReadingPage(readingSystem) {
   let affectionCompleteCelebrated = false;
   let affectionCompleteTimer = 0;
 
+  const bookmarkBlocks = [...(readingContent?.querySelectorAll("h2, h3, p, li, pre, blockquote, figure, table") || [])];
   function saveReadingPosition() {
     writeArticleContinue(`${window.location.pathname}${window.location.search}`, document.title);
     if (!preferences.autoSavePosition) return;
-    writeReadingTrail(window.location.pathname, Number(progressLabel?.textContent || 0));
+    // Capture a paragraph and its relative offset, not a viewport-dependent pixel.
+    updateProgress();
+    const line = Math.min(window.innerHeight * .2, 160);
+    let block = -1;
+    let chapter = "";
+    bookmarkBlocks.forEach((node, index) => {
+      if (node.getBoundingClientRect().height > 0 && node.getBoundingClientRect().top <= line) {
+        block = index;
+        if (/^H[23]$/.test(node.tagName)) chapter = node.textContent.trim().slice(0, 160);
+      }
+    });
+    const rect = bookmarkBlocks[block]?.getBoundingClientRect();
+    const percent = Number(progressLabel?.textContent || 0);
+    const bookmark = rect ? { block, fraction: Math.min(1, Math.max(0, (line - rect.top) / Math.max(1, rect.height))), chapter, percent } : undefined;
+    writeReadingTrail(window.location.pathname, percent, bookmark);
     try {
       localStorage.setItem(positionKey, String(Math.max(0, Math.round(window.scrollY))));
     } catch {}
   }
 
   function restoreReadingPosition() {
-    if (!preferences.autoSavePosition || window.location.hash) return;
+    if (!preferences.autoSavePosition || window.location.hash || new URLSearchParams(location.search).get("read") === "start") return;
+    const bookmark = readReadingBookmark(location.pathname);
+    const node = bookmark && bookmarkBlocks[bookmark.block];
+    if (node) {
+      const rect = node.getBoundingClientRect();
+      window.scrollTo({ top: Math.max(0, window.scrollY + rect.top + rect.height * bookmark.fraction - Math.min(window.innerHeight * .2, 160)), left: 0, behavior: "instant" });
+      return;
+    }
     let savedPosition = 0;
     try {
       savedPosition = Number(localStorage.getItem(positionKey) || 0);
@@ -997,6 +1019,11 @@ function initReadingPage(readingSystem) {
 
   restoreReadingPosition();
   updateProgress();
+  if (new URLSearchParams(location.search).get("read") === "start") {
+    const url = new URL(location.href);
+    url.searchParams.delete("read");
+    history.replaceState(history.state, "", url);
+  }
   writeArticleContinue(`${window.location.pathname}${window.location.search}`, document.title);
   recordBlogActivity("articles", window.location.pathname);
   finishEntryTransition();

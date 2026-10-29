@@ -31,7 +31,8 @@ const readingUrl = (url: string) => `${url}?from=observatory`;
         <h2 data-record-title>{first.title}</h2>
         <p class="observatory-description" data-record-description>{first.excerpt}</p>
         <p class="observatory-meta"><span data-record-time>约 {first.readingMinutes} 分钟</span><span data-record-progress>尚未阅读</span></p>
-        <a href={readingUrl(first.url)} class="observatory-read" data-open-record data-ui-sound="open"><span data-copy="read">打开这一页</span><span aria-hidden="true">↗</span></a>
+        <p class="observatory-bookmark" data-bookmark hidden></p>
+        <div class="observatory-read-actions"><a href={readingUrl(first.url)} class="observatory-read" data-open-record data-ui-sound="open"><span data-copy="read">打开这一页</span><span aria-hidden="true">↗</span></a><a class="observatory-restart" data-restart hidden href={`${readingUrl(first.url)}&read=start`}>从头读</a></div>
       </div>
 
       <div class="observatory-instrument">

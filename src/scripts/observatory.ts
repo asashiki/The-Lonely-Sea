@@ -1,5 +1,5 @@
 import type { ExperienceRecord } from "../lib/experience-records";
-import { readReadingTrail, readingPath } from "../lib/reading-trail";
+import { readReadingTrail, readReadingBookmark, readingPath } from "../lib/reading-trail";
 import { readPreferences } from "./experience/preferences.js";
 import { initExperienceAudio } from "./experience/audio.js";
 
@@ -73,8 +73,20 @@ function initObservatory(root: HTMLElement) {
     text("[data-record-description]", record.excerpt);
     text("[data-record-time]", copy.time(record.readingMinutes));
     text("[data-record-progress]", trailLabel(record.url));
+    const bookmark = preferences.autoSavePosition ? readReadingBookmark(record.url) : null;
+    const resume = bookmark !== null;
+    const resumeCopy = language === "EN-US" ? "Continue reading" : language === "JA-JP" ? "続きから読む" : "继续阅读";
+    const restartCopy = language === "EN-US" ? "Read from the start" : language === "JA-JP" ? "最初から読む" : "从头读";
+    const mark = root.querySelector<HTMLElement>("[data-bookmark]")!;
+    mark.hidden = !resume;
+    mark.textContent = bookmark ? `${language === "EN-US" ? "Bookmark" : language === "JA-JP" ? "しおり" : "书签停在"} · ${bookmark.chapter || record.title} · ${bookmark.percent}%` : "";
+    text('[data-copy="read"]', resume ? resumeCopy : copy.read);
+    const restart = root.querySelector<HTMLAnchorElement>("[data-restart]")!;
+    restart.hidden = !resume;
+    restart.textContent = restartCopy;
+    restart.href = `${record.url}?from=observatory&read=start`;
     const url = `${record.url}?from=observatory`;
-    root.querySelectorAll<HTMLAnchorElement>("[data-open-record]").forEach(link => { link.href = url; link.setAttribute("aria-label", `${copy.read}: ${record.title}`); });
+    root.querySelectorAll<HTMLAnchorElement>("[data-open-record]").forEach(link => { link.href = url; link.setAttribute("aria-label", `${resume ? resumeCopy : copy.read}: ${record.title}`); });
     if (input) { input.value = String(current); input.setAttribute("aria-valuetext", record.title); }
     turners.forEach(button => {
       const direction = Number(button.dataset.turn);
