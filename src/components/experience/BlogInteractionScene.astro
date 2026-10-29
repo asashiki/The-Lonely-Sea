@@ -75,6 +75,7 @@ const instanceId = `${variant}-${contextKey}`.replace(/[^a-zA-Z0-9_-]/g, "-");
   data-public-issue-url={publicIssueUrl}
   aria-labelledby={`blog-interaction-title-${instanceId}`}
 >
+  {variant === "connect" && <p class="letter-sheet-masthead">THE LONELY SEA <span>CORRESPONDENCE</span></p>}
   <header class="blog-interaction-heading">
     <h2 id={`blog-interaction-title-${instanceId}`} data-blog-scene-title>{title}</h2>
     {views.length > 1 && (
@@ -185,6 +186,7 @@ const instanceId = `${variant}-${contextKey}`.replace(/[^a-zA-Z0-9_-]/g, "-");
       <p class="blog-dialogue-feedback" data-blog-comment-feedback role="status"></p>
       <div class="blog-dialogue-actions">
         <button type="submit" class="is-primary">{messageEndpoint ? "留下留言" : "保存到本机"}</button>
+        {variant !== "bridge" && <button type="button" data-letter-preview="comment">预览信纸</button>}
         {!messageEndpoint && <a href={publicIssueUrl} target="_blank" rel="noopener noreferrer" data-public-comment>通过 GitHub 公开提交</a>}
         {variant === "bridge" && <button type="button" data-comment-intent="view">查看留言</button>}
         {variant === "bridge" && <button type="button" data-host-dialog-cancel>返回剧情</button>}
@@ -267,6 +269,7 @@ const instanceId = `${variant}-${contextKey}`.replace(/[^a-zA-Z0-9_-]/g, "-");
         <p class="blog-dialogue-feedback" data-blog-friend-feedback role="status"></p>
         <div class="blog-dialogue-actions">
           <button type="submit" class="is-primary">{messageEndpoint ? "发送申请" : "保存申请草稿"}</button>
+          {variant === "connect" && <button type="button" data-letter-preview="friend">预览信纸</button>}
           {!messageEndpoint && <a href={publicIssueUrl} target="_blank" rel="noopener noreferrer" data-public-friend>通过 GitHub 公开提交</a>}
           {variant === "bridge" && <button type="button" data-friend-intent="view">查看友链</button>}
           {variant === "bridge" && <button type="button" data-host-dialog-cancel>返回剧情</button>}
@@ -279,4 +282,12 @@ const instanceId = `${variant}-${contextKey}`.replace(/[^a-zA-Z0-9_-]/g, "-");
     <span data-blog-prompt-speaker>ALICE</span>
     <p data-blog-prompt>{initialCopy?.prompt ?? prompt}</p>
   </div>
+  {variant !== "bridge" && <dialog class="letter-preview" data-letter-dialog aria-labelledby={`letter-preview-title-${instanceId}`}>
+    <header><p>LOCAL DRAFT <span>本机预览</span></p><button type="button" data-letter-close>继续写</button></header>
+    <p class="letter-addressee">TO <span>Asashiki</span></p>
+    <h3 id={`letter-preview-title-${instanceId}`} data-letter-title>留言</h3>
+    <p class="letter-preview-body" data-letter-body></p>
+    <p class="letter-signature" data-letter-signature></p>
+    <footer><p>预览不会发送内容。</p><button type="button" data-letter-download>保存成文本</button></footer>
+  </dialog>}
 </section>

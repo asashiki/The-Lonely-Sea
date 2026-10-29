@@ -1,5 +1,6 @@
 import { initReadingChapter } from "./reading-chapter.js";
 import { writeReadingTrail } from "../lib/reading-trail";
+import { initLetterPreview } from "./letter-preview";
 import { transitionReadingChapter } from "./reading-transition.js";
 import { applyPreferences, publishPreferences, readPreferences } from "./experience/preferences.js";
 import { initExperienceAudio } from "./experience/audio.js";
@@ -413,7 +414,7 @@ function initReadingPage(readingSystem) {
   experienceAudio.setTitleActive(true);
   initAchievementSystem();
   const interactionControllers = [...readingSystem.querySelectorAll("[data-blog-interaction]")]
-    .map((element) => initBlogInteractionScene(element));
+    .map((element) => { initLetterPreview(element); return initBlogInteractionScene(element); });
   const transitionLayer = readingSystem.querySelector("[data-reading-transition-layer]");
   const readingContent = readingSystem.querySelector("[data-reading-content]");
   const progressLabel = readingSystem.querySelector("[data-reading-percent]");

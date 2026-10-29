@@ -1,6 +1,8 @@
 export const READING_TRAIL_KEY = "lonely-sea:reading-trail:v1";
 export type ReadingTrail = Record<string, { percent: number; updatedAt: number }>;
-export function readingPath(path: string): string { return new URL(path, "https://lonely-sea.invalid").pathname; }
+export function readingPath(path: string): string {
+  try { return new URL(path, "https://lonely-sea.invalid").pathname; } catch { return ""; }
+}
 
 export function readReadingTrail(): ReadingTrail {
   try {

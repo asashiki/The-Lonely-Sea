@@ -474,105 +474,17 @@ section.blog-interaction-scene.is-bridge .blog-interaction-heading h2 {
   font-size: clamp(1.45rem, 2.6vw, 2.3rem);
 }
 
-section.blog-interaction-scene.is-connect {
-  --interaction-ink: #edf5f6;
-  --interaction-soft: rgb(231 241 243 / 78%);
-  --interaction-faint: rgb(225 238 241 / 50%);
-  --interaction-accent: #b3d1d7;
-  --interaction-accent-rgb: 179 209 215;
-  --interaction-field: rgb(225 240 243 / 8%);
-  z-index: 2;
-  grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: auto minmax(0, 1fr) auto;
-  gap: clamp(1rem, 2.8vh, 2.3rem);
-  width: 100vw;
-  max-width: none;
-  height: 100vh;
-  height: 100svh;
-  margin: 0;
-  padding: clamp(1.5rem, 4.5vw, 4.5rem) clamp(1.2rem, 6vw, 7rem) 0;
-  overflow: hidden;
-  background: transparent;
-}
 
-section.blog-interaction-scene.is-connect::before {
-  display: none;
-}
 
-section.blog-interaction-scene.is-connect .blog-interaction-heading {
-  position: relative;
-  z-index: 3;
-  grid-column: 1;
-  grid-row: 1;
-  display: flex;
-  padding: 0;
-}
 
-section.blog-interaction-scene.is-connect .blog-interaction-heading h2 {
-  font-size: clamp(1.7rem, 3.2vw, 3.35rem);
-  text-shadow: 0 .3rem 1.4rem rgb(0 0 0 / 26%);
-}
 
-section.blog-interaction-scene.is-connect .blog-interaction-heading nav {
-  display: flex;
-  justify-content: flex-end;
-  margin: 0;
-}
 
-section.blog-interaction-scene.is-connect .blog-interaction-heading button {
-  min-width: auto;
-  padding: .65rem 1rem .65rem 1.8rem;
-  text-align: left;
-}
 
-section.blog-interaction-scene.is-connect .blog-interaction-heading button::before {
-  display: block;
-}
 
-section.blog-interaction-scene.is-connect .blog-interaction-panel {
-  z-index: 2;
-  grid-column: 1;
-  grid-row: 2;
-  align-self: stretch;
-  min-height: 0;
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden;
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: rgb(172 205 212 / 34%) transparent;
-}
 
-section.blog-interaction-scene.is-connect .blog-interaction-prompt {
-  position: relative;
-  z-index: 3;
-  grid-column: 1;
-  grid-row: 3;
-  width: calc(100% + clamp(2.4rem, 12vw, 14rem));
-  min-height: clamp(7.5rem, 18svh, 10.5rem);
-  margin-left: calc(clamp(1.2rem, 6vw, 7rem) * -1);
-  padding: clamp(1.25rem, 2.8vh, 2rem) max(clamp(3rem, 10vw, 11rem), env(safe-area-inset-right)) max(1.25rem, env(safe-area-inset-bottom)) max(clamp(3rem, 10vw, 11rem), env(safe-area-inset-left));
-  background:
-    radial-gradient(ellipse at 60% 0%, rgb(164 199 207 / 13%), transparent 44%),
-    linear-gradient(90deg, rgb(5 16 23 / 97%), rgb(7 20 28 / 94%) 62%, rgb(4 12 18 / 98%));
-  box-shadow: 0 -1.3rem 4rem rgb(0 0 0 / 22%);
-}
 
-section.blog-interaction-scene.is-connect .blog-rss-panel {
-  grid-template-columns: minmax(0, 1.35fr) minmax(15rem, .65fr);
-}
 
-section.blog-interaction-scene.is-connect .blog-dialogue-composer {
-  padding: .35rem 0;
-  background: transparent;
-  box-shadow: none;
-}
 
-section.blog-interaction-scene.is-connect .blog-dialogue-composer input,
-section.blog-interaction-scene.is-connect .blog-dialogue-composer textarea,
-section.blog-interaction-scene.is-connect .blog-rss-subscribe input {
-  background: rgb(224 239 242 / 8%);
-}
 
 @media (hover: hover) and (pointer: fine) {
   .blog-interaction-heading button:hover,
@@ -666,36 +578,10 @@ section.blog-interaction-scene.is-connect .blog-rss-subscribe input {
     min-height: 6.5rem;
   }
 
-  section.blog-interaction-scene.is-connect {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto minmax(0, 1fr) auto;
-    min-height: 100svh;
-    height: 100svh;
-    padding: max(1rem, env(safe-area-inset-top)) 1.1rem 0;
-    overflow: hidden;
-  }
 
-  section.blog-interaction-scene.is-connect .blog-interaction-heading {
-    display: grid;
-    gap: .8rem;
-    padding: 0 3.2rem 0 0;
-  }
 
-  section.blog-interaction-scene.is-connect .blog-interaction-heading nav {
-    justify-content: flex-start;
-  }
 
-  section.blog-interaction-scene.is-connect .blog-interaction-panel {
-    margin: 0;
-    padding: 0 0 1rem;
-    overflow-y: auto;
-  }
 
-  section.blog-interaction-scene.is-connect .blog-interaction-prompt {
-    width: calc(100% + 2.2rem);
-    margin-left: -1.1rem;
-    padding: 1.05rem max(1.2rem, env(safe-area-inset-right)) max(1.15rem, env(safe-area-inset-bottom)) max(1.2rem, env(safe-area-inset-left));
-  }
 }
 
 @media (max-width: 35rem) {

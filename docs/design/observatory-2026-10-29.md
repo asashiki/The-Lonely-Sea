@@ -36,8 +36,18 @@ Nomadic Tribe 在当前浏览器只显示纸面、没有完整绘制场景。官
 
 ## 验证与接续
 
-生产构建通过；实际浏览器检查了 1363 × 936 构图与前后切篇，继续定向检查阅读返回、目录与窄屏。背景与 UI 没有新增剧情台词。
+生产构建通过；实际浏览器检查了 1363 × 936 构图、前后切篇、目录搜索及只看海。中文 URL 文章读到 12% 后，返回准确恢复到原篇并显示 12%。另用同源 390 × 844 iframe 检查窄屏 CSS 排版；这不是实体手机触摸测试。背景与 UI 没有新增剧情台词。第一批提交 `be36f8955ac9f2588c6d358540b2e1fc5eec2476`。
 
-下一项是 `/connect/` 的完整海边通信场景，使用一张新画的窗边信桌与真正可填写的纸面。真实友链只有 `714.fyi`，不能虚构来信或在线访客。没有接收 endpoint 时仍明确表示本机保存，公开提交保留 GitHub 确认步骤。
+`/connect/` 的完整海边通信场景也已实现：原创窗边信桌，竖排题署，单张信纸上的 RSS、留言和友链。移除了共享样式中旧的 connect 专用规则，由 communication-scene.css 负责这一场景，避免旧 Grid 与新纸面布局互相挤压。
+
+真实友链仍只有 `714.fyi`。没有接收 endpoint 时明确表示本机保存，公开提交保留 GitHub 确认步骤；没有虚构来信或在线访客。新增「预览信纸」支持保留称呼、换行，原生 dialog 可返回继续写，另可下载 UTF-8 文本草稿。文章尾部的留言也接入同一套预览和信纸行距；游戏桥接对话没有改变。所有用户输入以 textContent 显示。
+
+已在浏览器检查通信室桌面及 390 像素布局、留言预览、切换友链、RSS 复制反馈。测试输入只留在预览浏览器并已清空，没有发送任何消息。截图在 `output/observatory-2026-10-29.jpg` 与 `output/correspondence-2026-10-29.jpg`。
+
+第二张原创资产为 `public/assets/observatory/correspondence.webp`。使用内置 imagegen，提示如下：
+
+> Use case: illustration-story. Asset type: original background plate for the correspondence page of a 2D Japanese PC visual novel blog set in a lighthouse by a lonely sea. A close, intimate daytime view of the corner of a worn pale-blue wooden writing desk beside an open sea-facing window, an unsealed cream envelope, several blank folded letters, a small bottle of blue ink and a fountain pen on the lower LEFT of the desk, a tiny sprig of sea lavender in a simple glass at far left. Window fills left half, sea sunlight, pale cyan water, a distant tiny lighthouse, thin linen curtain, wind lifting a corner of a blank sheet. Right HALF is mostly quiet muted warm grey wall and pale desk, intentionally very low detail because the real interactive cream letter form will be placed over it in code. No people. Elegant late-2000s Japanese PC visual novel background painting, translucent watercolor and gouache with delicate traditional brush texture, crisp but gentle edges, very clearly 2D painted anime background, NOT a photograph, NOT a 3D render. Wide cinematic composition, asymmetric restrained art direction. Soft cool spring daylight entering from left mixed with gentle ivory paper colors, dusty blue wood, small violet flowers, natural subtle shadow. No text, no lettering, no stamps containing letters, no logos, no UI, no cartoon icons, no decorative frame, no neon, no desk computer, no generic workspace photograph. Make the left window and stationery the beautiful visual focal point; reserve right half for interface. Landscape format.
 
 用户请求持续几个小时，已创建一小时后开始、每小时一轮、共三轮的有限自动任务。每轮先看本文件的完成状态及远端分支，避免重复重做或覆盖并行提交。之后可继续打磨 OPTION 的现场预览；不为消耗额度反复运行测试，不为了新功能数量破坏已有风格。
+
+下一轮建议先处理：OPTION 的当前内容与现场字号／声音预览是否已经足够连贯，再决定是否重排。不要重做上述观海室与通信室。可以检查从首页 iframe 宿主进入这些独立场景时的音频所有权和返回路径；目前主要验收的是独立页面及从首页直接进入观海室的路线。

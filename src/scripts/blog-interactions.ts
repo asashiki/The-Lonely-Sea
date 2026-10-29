@@ -249,6 +249,7 @@ export function initBlogInteractionScene(root: HTMLElement): InteractionControll
 
   function renderComment(): void {
     comments = listLocalComments(contextKey);
+    root.dataset.commentCount = String(comments.length);
     if (comments.length === 0) {
       commentIndex = -1;
       const language = String(readPreferences().language);
