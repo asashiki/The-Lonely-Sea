@@ -7,7 +7,7 @@ const xml = (value: string) => value.replaceAll("&", "&amp;").replaceAll("<", "&
 export const GET: APIRoute = async () => {
   const posts = await getPublishedPosts();
   const entries = [
-    ...["/", "/load/", "/connect/"].map((path) => ({ path, modified: undefined as Date | undefined })),
+    ...["/", "/load/", "/connect/", "/observatory/"].map((path) => ({ path, modified: undefined as Date | undefined })),
     ...posts.map((post) => ({ path: postHref(post), modified: post.data.updated ?? post.data.published })),
   ];
   const body = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' +

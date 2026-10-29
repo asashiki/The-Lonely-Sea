@@ -1,0 +1,87 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getExperienceRecords } from "../../lib/experience-records";
+import "../../styles/observatory.css";
+const records = await getExperienceRecords();
+const first = records[0];
+const readingUrl = (url: string) => `${url}?from=observatory`;
+---
+
+<BaseLayout title="观海室" description="在海边转动望远镜，寻找一篇想读的文章。">
+  <main class="observatory" data-observatory data-records={JSON.stringify(records)}>
+    <img class="observatory-background" src="/assets/observatory/blue-hour.webp" alt="暮色中的海边观景台，窗沿放着海图和一架望远镜，远处灯塔亮着微光。" width="1536" height="1024" fetchpriority="high" />
+    <div class="observatory-shade" aria-hidden="true"></div>
+    <header class="observatory-header">
+      <a href="/" class="observatory-back"><span aria-hidden="true">←</span><span data-copy="home">回到标题</span></a>
+      <p>THE LONELY SEA <span>/</span> OBSERVATORY</p>
+      <nav aria-label="观海室操作">
+        <a href="/connect/?view=comments" data-copy="letter">海边通信</a>
+        <button type="button" data-observatory-bgm aria-label="背景音乐" aria-pressed="false">BGM</button>
+        <button type="button" data-quiet aria-pressed="false" data-copy="quiet">只看海</button>
+      </nav>
+    </header>
+
+    <div class="observatory-masthead" data-reading-ui>
+      <h1 data-copy="room">观海室</h1><p>READING THE DISTANCE</p>
+    </div>
+
+    {first ? <section class="observatory-stage" data-reading-ui aria-label="海上选篇">
+      <div class="observatory-copy" aria-live="polite" aria-atomic="true">
+        <p class="observatory-edition"><span data-record-number>01</span><span aria-hidden="true">/</span><span data-record-label>{first.label}</span><time data-record-date>{first.date}</time></p>
+        <h2 data-record-title>{first.title}</h2>
+        <p class="observatory-description" data-record-description>{first.excerpt}</p>
+        <p class="observatory-meta"><span data-record-time>约 {first.readingMinutes} 分钟</span><span data-record-progress>尚未阅读</span></p>
+        <a href={readingUrl(first.url)} class="observatory-read" data-open-record data-ui-sound="open"><span data-copy="read">打开这一页</span><span aria-hidden="true">↗</span></a>
+      </div>
+
+      <div class="observatory-instrument">
+        <a class="observatory-lens" href={readingUrl(first.url)} data-open-record aria-label={`阅读：${first.title}`}>
+          <div class="observatory-glass">
+            <img data-record-image src={first.coverUrl} alt={first.title} width="640" height="640" decoding="async" />
+            <span class="observatory-crosshair" aria-hidden="true"></span>
+          </div>
+          <svg class="observatory-ring" viewBox="0 0 500 500" aria-hidden="true">
+            <circle cx="250" cy="250" r="241" />
+            {Array.from({length: 60}, (_, i) => <path d={`M250 ${i % 5 === 0 ? 3 : 5} v${i % 5 === 0 ? 15 : 6}`} transform={`rotate(${i * 6} 250 250)`} />)}
+          </svg>
+          <span class="observatory-lens-label">L.S. <span>OPTICAL ARCHIVE</span> 01</span>
+        </a>
+        <div class="observatory-bearing">
+          <span aria-hidden="true">−</span>
+          <label for="observatory-focus" data-copy="focus">转动望远镜</label>
+          <span aria-hidden="true">＋</span>
+          <input id="observatory-focus" type="range" min="0" max={records.length - 1} value="0" step="1" aria-valuetext={first.title} />
+        </div>
+      </div>
+    </section> : <p class="observatory-empty">暂无公开文章。可以先在这里看一会儿海。</p>}
+
+    <footer class="observatory-desk" data-reading-ui>
+      <div class="observatory-page-turns">
+        <button type="button" data-turn="-1" aria-label="上一篇" disabled>←</button>
+        <p><b data-page-current>01</b><span>/</span>{String(records.length).padStart(2, "0")}</p>
+        <button type="button" data-turn="1" aria-label="下一篇" disabled={records.length < 2}>→</button>
+      </div>
+      <p class="observatory-desk-note" data-copy="hint">转动刻度，或用 ← → 寻找一篇文章。</p>
+      <div class="observatory-desk-actions">
+        <button type="button" data-unread data-copy="unread">选一篇未读</button>
+        <button type="button" data-index-open aria-haspopup="dialog"><span data-copy="index">观测目录</span><span aria-hidden="true">＋</span></button>
+      </div>
+    </footer>
+    <p class="observatory-status" data-observatory-status role="status"></p>
+    <button class="observatory-quiet-return" type="button" data-quiet-return hidden data-copy="return">回到书页</button>
+    <dialog class="observatory-index" data-index aria-labelledby="observatory-index-title">
+      <div class="observatory-index-heading"><div><small>THE READING INDEX</small><h2 id="observatory-index-title" data-copy="index">观测目录</h2></div><button type="button" data-index-close data-copy="close">关闭</button></div>
+      <label class="observatory-search"><span data-copy="search">寻找文章</span><input type="search" data-index-search placeholder="标题、分类或关键词" /></label>
+      <ol>
+        {records.map((record, index) => <li data-index-entry>
+          <a href={readingUrl(record.url)} data-select-record={index} aria-current={index === 0 ? "true" : undefined}>
+            <small>{String(index + 1).padStart(2, "0")}</small><span><strong>{record.title}</strong><em>{record.label} · {record.date}</em></span><span data-index-progress>未读</span>
+          </a>
+        </li>)}
+      </ol>
+      <p data-search-empty hidden data-copy="empty">没有找到这篇文章，试试其他词。</p>
+    </dialog>
+  </main>
+  <noscript><nav class="observatory-noscript" aria-label="公开文章">{records.map(record => <a href={record.url}>{record.title}</a>)}</nav></noscript>
+  <script>import "../../scripts/observatory";</script>
+</BaseLayout>

@@ -8,6 +8,13 @@ export function initReadingChapter(root, { reducedMotion = () => false } = {}) {
   let previous = [];
   let active = false;
   const locale = root.querySelector('article')?.lang || 'zh-CN';
+  if (window.parent === window && new URLSearchParams(location.search).get('from') === 'observatory') {
+    const back = root.querySelector('.record-back');
+    if (back) {
+      back.href = `/observatory/?record=${encodeURIComponent(location.pathname)}`;
+      back.textContent = locale.startsWith('en') ? '← Observatory' : locale.startsWith('ja') ? '← 海の展望室へ' : '← 回到观海室';
+    }
+  }
   if (returnButton) returnButton.textContent = locale.startsWith('en') ? 'Leave focus mode' : locale.startsWith('ja') ? '集中モードを終了' : '退出专注阅读';
 
   function focus(show, restore = true) {

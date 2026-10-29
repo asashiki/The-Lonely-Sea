@@ -1,4 +1,5 @@
 import { initReadingChapter } from "./reading-chapter.js";
+import { writeReadingTrail } from "../lib/reading-trail";
 import { transitionReadingChapter } from "./reading-transition.js";
 import { applyPreferences, publishPreferences, readPreferences } from "./experience/preferences.js";
 import { initExperienceAudio } from "./experience/audio.js";
@@ -473,6 +474,7 @@ function initReadingPage(readingSystem) {
   function saveReadingPosition() {
     writeArticleContinue(`${window.location.pathname}${window.location.search}`, document.title);
     if (!preferences.autoSavePosition) return;
+    writeReadingTrail(window.location.pathname, Number(progressLabel?.textContent || 0));
     try {
       localStorage.setItem(positionKey, String(Math.max(0, Math.round(window.scrollY))));
     } catch {}
@@ -747,6 +749,7 @@ function initReadingPage(readingSystem) {
     }
 
     if (isArticleUrl(destination)) {
+      if (new URLSearchParams(location.search).get("from") === "observatory") destination.searchParams.set("from", "observatory");
       event.preventDefault();
       setReadingMenuOpen(false);
       articleDialog?.close?.();

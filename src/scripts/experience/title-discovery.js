@@ -33,6 +33,8 @@ export function initTitleDiscovery({ onArticle, onArchive }) {
   return {
     sync(hasContinue, language) {
       currentLanguage = language;
+      const observatory = document.querySelector('[data-title-observatory]');
+      if (observatory) observatory.textContent = language === 'EN-US' ? 'Enter the observatory' : language === 'JA-JP' ? '海の展望室へ' : '进入观海室';
       updateGuide();
       if (!root) return;
       root.hidden = hasContinue;

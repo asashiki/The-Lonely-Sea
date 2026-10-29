@@ -6,6 +6,13 @@
   opacity: 0; visibility: hidden; pointer-events: none;
   transform: translateY(8px); transition: opacity 280ms, transform 360ms, visibility 280ms;
 }
+.title-observatory { display:inline-flex; align-items:center; gap:18px; margin-top:28px; min-height:44px; color:var(--ink); text-decoration:none; font:400 13px/1.7 "Yu Mincho","Songti SC",serif; letter-spacing:.12em; }
+.title-observatory small { font:400 8px/1.5 "Yu Gothic",sans-serif; letter-spacing:.15em; opacity:.65; }
+.title-observatory i { font:400 22px/1 serif; transition:translate 180ms; }
+.title-observatory:hover i { translate:3px -3px; }
+.title-observatory:focus-visible { outline:2px solid currentColor; outline-offset:5px; }
+@media(max-height:570px) { .title-observatory { margin-top:7px; font-size:11px; } }
+@media(max-width:760px) and (orientation:portrait) { .title-observatory { margin-top:12px; font-size:12px; gap:12px; } }
 .title-discovery[hidden] { display: none; }
 body.is-ready[data-route="title"] .title-discovery { opacity: 1; visibility: visible; pointer-events: auto; transform: none; }
 .title-discovery__heading { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 10px; font: 500 10px/1.5 "Yu Gothic", sans-serif; letter-spacing: .12em; }
