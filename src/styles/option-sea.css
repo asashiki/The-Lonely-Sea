@@ -85,3 +85,24 @@ html:not([data-forced-landscape="true"]):not([data-reading-system-fixed="true"])
   .option-canvas .option-switch,
   .option-canvas .option-command { min-height: 44px; }
 }
+
+/* A live typesetting proof, alongside the controls rather than below the fold. */
+.option-canvas [data-option-panel="reading"].is-active { display:grid; grid-template-columns:minmax(0,1fr) minmax(260px,.85fr); column-gap:3cqw; align-items:start; }
+.option-canvas [data-option-panel="reading"] .option-panel-intro { grid-column:1/-1; }
+.option-canvas [data-option-panel="reading"] .option-setting { grid-template-columns:1fr; gap:10px; min-height:0; padding:16px 0; }
+.option-canvas [data-option-panel="reading"] .option-setting-control { justify-content:flex-start; }
+.option-reading-proof { --font-display:"Noto Serif SC", "Songti SC", "Yu Mincho", serif; --font-sans:"Noto Sans SC", "Microsoft YaHei", sans-serif; --font-latin:Baskerville, Georgia, serif; margin:0; color:var(--opt-ink); min-width:0; }
+.option-reading-proof figcaption { font:400 20px/1.6 var(--font-display); letter-spacing:.08em; }
+.option-reading-proof figcaption small { display:block; font:400 8px/2 var(--font-latin); letter-spacing:.16em; color:var(--opt-soft); }
+.option-proof-toolbar { display:flex; flex-wrap:wrap; gap:4px 20px; margin:12px 0; }
+.option-proof-toolbar button { padding:8px 0; min-height:36px; border:0; background:none; color:var(--opt-soft); font:400 11px/1.6 var(--font-sans); cursor:pointer; }
+.option-proof-toolbar button[aria-pressed=true] { color:var(--opt-ink); font-weight:700; }
+.option-proof-viewport { height:32cqh; min-height:210px; max-height:360px; overflow:auto; overscroll-behavior:contain; scrollbar-width:thin; padding:20px 22px; background:var(--sheet); outline-offset:4px; }
+.option-proof-text { font:400 calc(17px * var(--reading-text-scale,1))/var(--reading-line-height,1.8) var(--font-display); overflow-wrap:anywhere; }
+.option-proof-text h4 { margin:0; font-size:1.05em; font-weight:500; letter-spacing:.04em; }
+.option-proof-text p { margin-block:var(--reading-paragraph-gap,1.5em); }
+.option-proof-text section + section { margin-top:2em; }
+.option-proof-text .option-proof-source { font-size:.7em; color:var(--opt-soft); }
+.option-proof-note { margin:12px 0 0; color:var(--opt-soft); font:400 10px/1.8 var(--font-sans); }
+@media(max-width:1000px) { .option-canvas [data-option-panel="reading"].is-active { grid-template-columns:1fr; } .option-reading-proof { margin-top:24px; } }
+@media(max-width:600px) { .option-proof-text { font-size:calc(16px * var(--reading-text-scale,1)); } }

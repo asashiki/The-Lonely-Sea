@@ -149,6 +149,7 @@ export function applyPreferences(preferences, root = document.documentElement) {
   root.style.setProperty("--experience-ui-scale", String(normalized.interfaceScale / 100));
   root.style.setProperty("--reading-text-scale", String(normalized.textSize / 100));
   root.style.setProperty("--reading-line-height", String(normalized.readingLineHeight / 100));
+  root.style.setProperty("--reading-paragraph-gap", normalized.typeset === "NOVEL" ? "0.65em" : "1.5em");
   root.style.setProperty("--weather-density", String(normalized.particleDensity / 100));
   return normalized;
 }

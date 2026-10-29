@@ -1,4 +1,6 @@
 ---
+import { getExperienceRecords } from "../../lib/experience-records";
+const readingSamples = (await getExperienceRecords()).slice(0, 6);
 import {
   DEFAULT_SOUND_SELECTION,
   SOUND_CATEGORIES,
@@ -371,9 +373,19 @@ const categories = [
                 <div class="option-setting-control"><button class="option-switch" type="button" data-setting-toggle aria-pressed="true" aria-label="记录阅读位置"><i aria-hidden="true"></i><output class="setting-value">开</output></button></div>
               </div>
             </div>
-          <figure class="option-type-specimen" data-option-type-sample="reading">
-              <figcaption data-option-sample-label>文字预览</figcaption>
-              <p>孤独之海<br><span lang="en">The Lonely Sea</span></p>
+          <figure class="option-reading-proof" data-reading-proof>
+              <figcaption><span data-proof-copy="title">阅读试页</span><small>THE LONELY SEA / TYPE PROOF</small></figcaption>
+              <div class="option-proof-toolbar">
+                <button type="button" data-proof-auto aria-pressed="false">AUTO 试读</button>
+                <button type="button" data-proof-top data-proof-copy="top">回到页首</button>
+                <button type="button" data-proof-size data-proof-copy="size">调整字号 ↗</button>
+              </div>
+              <div class="option-proof-viewport" data-proof-viewport tabindex="0" role="region" aria-label="阅读排版预览">
+                <div class="option-proof-text">
+                  {readingSamples.map(record => <section><h4>{record.title}</h4><p>{record.excerpt}</p><p class="option-proof-source">{record.label} · {record.date}</p></section>)}
+                </div>
+              </div>
+              <p class="option-proof-note" data-proof-copy="note">公开文章简介 · 仅试读，不记录阅读进度</p>
             </figure>
           </section>
 

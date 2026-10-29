@@ -52,7 +52,7 @@
 .reading-body-heading i { margin-inline: 14px; font-style: normal; }
 .reading-body-heading button { min-height: 44px; padding: 8px 0 8px 16px; border: 0; color: var(--reading-ink); background: none; font: inherit; cursor: pointer; }
 .reading-system .prose { font-size: calc(17px * var(--reading-text-scale, 1)); line-height: var(--reading-line-height, 1.95); }
-.reading-system .prose > p { margin-block: 1.5em; }
+.reading-system .prose > p { margin-block: var(--reading-paragraph-gap, 1.5em); }
 .reading-system .prose > h2 { margin-top: 3.4em; margin-bottom: 1.3em; font-weight: 500; scroll-margin-top: 96px; }
 .reading-system .prose :is(h2,h3) { text-wrap: balance; }
 .reading-system .prose img { border-radius: 0; }

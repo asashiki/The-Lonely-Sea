@@ -281,7 +281,48 @@ export function initOptions({ onReplayOpening = () => {}, onResetExperience = ()
     return translatedOptionCopy(source, preferences.language);
   }
 
+  const proofViewport = optionScreen.querySelector("[data-proof-viewport]");
+  const proofAuto = optionScreen.querySelector("[data-proof-auto]");
+  let proofFrame = 0;
+  let proofTime = 0;
+  const proofCopy = () => preferences.language === "EN-US"
+    ? {title:"Reading proof",top:"Back to top",size:"Text size ↗",note:"Published article summaries · Preview only; no reading progress saved",play:"Try AUTO",stop:"Stop AUTO",region:"Reading layout preview"}
+    : preferences.language === "JA-JP"
+    ? {title:"読み心地の確認",top:"先頭へ",size:"文字サイズ ↗",note:"公開記事の概要 · 試読では進捗を記録しません",play:"AUTO 試読",stop:"AUTO 停止",region:"組版プレビュー"}
+    : {title:"阅读试页",top:"回到页首",size:"调整字号 ↗",note:"公开文章简介 · 仅试读，不记录阅读进度",play:"AUTO 试读",stop:"停止试读",region:"阅读排版预览"};
+  function stopProof() {
+    cancelAnimationFrame(proofFrame); proofFrame = 0; proofTime = 0;
+    proofAuto?.setAttribute("aria-pressed", "false");
+    if (proofAuto) proofAuto.textContent = proofCopy().play;
+  }
+  function runProof(time) {
+    if (!proofFrame || !proofViewport) return;
+    const delta = proofTime ? Math.min(40,time-proofTime) : 16;
+    proofTime = time;
+    proofViewport.scrollTop += (14 + preferences.readingAutoSpeed * 7) * delta / 1000;
+    if (proofViewport.scrollTop + proofViewport.clientHeight >= proofViewport.scrollHeight - 1) { stopProof(); return; }
+    proofFrame = requestAnimationFrame(runProof);
+  }
+  proofAuto?.addEventListener("click", () => {
+    if (proofFrame) { stopProof(); return; }
+    if (proofViewport.scrollTop + proofViewport.clientHeight >= proofViewport.scrollHeight - 1) proofViewport.scrollTop = 0;
+    proofAuto.setAttribute("aria-pressed", "true"); proofAuto.textContent = proofCopy().stop;
+    proofFrame = requestAnimationFrame(runProof);
+  });
+  optionScreen.querySelector("[data-proof-top]")?.addEventListener("click", () => { stopProof(); proofViewport.scrollTop = 0; });
+  optionScreen.querySelector("[data-proof-size]")?.addEventListener("click", () => {
+    stopProof(); selectCategory("game", {panelId:"text"});
+    optionScreen.querySelector('[name="text-size"]')?.focus({preventScroll:true});
+  });
+  ["wheel", "touchstart", "pointerdown", "keydown"].forEach(type => proofViewport?.addEventListener(type, stopProof, {passive:true}));
+  document.addEventListener("visibilitychange", () => { if (document.hidden) stopProof(); });
+
   function syncTypeSamples() {
+    const copy = proofCopy();
+    all("[data-proof-copy]", optionScreen).forEach(node => { node.textContent = copy[node.dataset.proofCopy]; });
+    if (proofAuto) proofAuto.textContent = proofFrame ? copy.stop : copy.play;
+    proofViewport?.setAttribute("aria-label",copy.region);
+
     all("[data-option-type-sample]", optionScreen).forEach((sample) => {
       sample.style.setProperty("--sample-scale", String(preferences.textSize / 100));
       sample.style.setProperty("--sample-leading", String(sample.dataset.optionTypeSample === "reading" ? preferences.readingLineHeight / 100 : 1.8));
@@ -432,6 +473,7 @@ export function initOptions({ onReplayOpening = () => {}, onResetExperience = ()
     const nextPanel = panel(owner, id);
     if (!nextButton || !nextPanel) return;
 
+    stopProof();
     activeCategory = owner;
     activePanel = id;
     optionCanvas.dataset.optionCategory = owner;
@@ -678,6 +720,7 @@ export function initOptions({ onReplayOpening = () => {}, onResetExperience = ()
       transitionToCategory(primaryButtons[next]?.dataset.optionPrimary, { focus: true, animate: false });
     },
     deactivate() {
+      stopProof();
       stopVoiceTest();
       interruptPanelTransition();
       soundLaboratory?.setActive(false);
