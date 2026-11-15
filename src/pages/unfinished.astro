@@ -1,0 +1,72 @@
+---
+import "../styles/unfinished-sea.css";
+import { siteConfig } from "../../site.config.mjs";
+
+const canonicalUrl = new URL("/unfinished/", siteConfig.url);
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#d9dde1" />
+    <meta name="description" content="写下还没想好的事，让下一次的自己接着说。" />
+    <link rel="canonical" href={canonicalUrl} />
+    <link rel="preload" as="image" href="/assets/lonely-sea/mist.webp" />
+    <title>未竟之海 · {siteConfig.name}</title>
+  </head>
+  <body>
+    <div class="unfinished-backdrop" aria-hidden="true"></div>
+    <main id="unfinished-sea" class="unfinished-sea">
+      <header class="sea-masthead">
+        <div class="sea-heading">
+          <a class="sea-back" href="/?screen=extra"><span aria-hidden="true">←</span> BACK <span class="sea-back-name">孤独之海</span></a>
+          <p class="sea-latin">THE UNFINISHED SEA</p>
+          <h1>未竟之海<span aria-hidden="true">。</span></h1>
+          <p class="sea-introduction">写下还没想好的事，<br class="sea-mobile-break" />让下一次的自己接着说。</p>
+        </div>
+
+        <nav class="sea-tools" aria-label="海面上的操作">
+          <button type="button" class="sea-write is-primary" data-sea-new>写下一念<span aria-hidden="true">↗</span></button>
+          <button type="button" data-sea-drift>随潮拾一封</button>
+          <button type="button" data-sea-example>拾起一封示例</button>
+          <div class="sea-archive-tools">
+            <button type="button" data-sea-export>带走整片海</button>
+            <button type="button" data-sea-import>带回存档</button>
+          </div>
+        </nav>
+      </header>
+
+      <section id="sea-map" class="sea-map" aria-label="留在海面上的念头">
+        <p class="sea-map-caption" aria-hidden="true">THOUGHTS, STILL AT SEA</p>
+        <svg id="sea-routes" class="sea-routes" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"></svg>
+        <div id="sea-letters" class="sea-letters"></div>
+        <div id="sea-empty" class="sea-empty">
+          <span class="sea-empty-fold" aria-hidden="true"></span>
+          <p>这里容得下，<br />还没长大的念头。</p>
+          <span>写半句话。留一页反悔。把两个问题连起来。</span>
+          <div class="sea-invitations">
+            <button type="button" data-sea-new><small>01 / 落笔</small><strong>我一直想做的是……</strong><span>写我自己的第一封 ↗</span></button>
+            <button type="button" data-sea-example="1"><small>02 / 生长</small><strong>后来，我又想到</strong><span>看看一封信怎样续写 ↗</span></button>
+            <button type="button" data-sea-example="2"><small>03 / 转向</small><strong>这次，我不同意了</strong><span>给改变主意留一页 ↗</span></button>
+          </div>
+        </div>
+        <span class="sea-map-coordinate" aria-hidden="true">NO DESTINATION REQUIRED</span>
+      </section>
+
+      <footer class="sea-footer">
+        <p class="sea-local-note">仅保存在此浏览器</p>
+        <p id="sea-status" class="sea-status" role="status" aria-live="polite"></p>
+        <p class="sea-footer-signature" aria-hidden="true">LONELY SEA <span>／</span> 未完，待续</p>
+      </footer>
+      <input type="file" id="sea-import-file" accept="application/json" hidden />
+      <noscript><p class="sea-noscript">开启 JavaScript 后，就能在这里写下、续写和带走你的念头。</p></noscript>
+    </main>
+
+    <dialog id="sea-letter" class="sea-letter" aria-label="展开的信">
+      <div id="sea-letter-content" class="sea-letter-content"></div>
+    </dialog>
+    <script>import "../scripts/unfinished-sea";</script>
+  </body>
+</html>

@@ -2,7 +2,6 @@ import {
   bangumiItems,
   achievementText,
   cgItems,
-  characterItems,
   externalActivity,
   extraDefaults,
   movieItems,
@@ -13,6 +12,7 @@ import {
   projectTagLabels,
   projectTagOrder,
 } from "../../data/extra-content.js";
+import { createCompanionRoom } from "./companion-room";
 import { all, required } from "./dom.js";
 import { clearListenSession, readListenSession, writeListenSession } from "./listen-session.js";
 import { effectivePlaylistVolume, preferencesReduceMotion, readPreferences } from "./preferences.js";
@@ -166,7 +166,8 @@ function projectLinks(item) {
   const links = [];
   if (item.github) links.push([labels.github, item.github, "external"]);
   if (item.href && item.href !== item.github) {
-    links.push([item.href.includes("github.com") ? labels.github : labels.visit, item.href, "external"]);
+    const local = item.href.startsWith("/") && !item.href.startsWith("//");
+    links.push([item.href.includes("github.com") ? labels.github : labels.visit, item.href, local ? "local" : "external"]);
   }
   if (item.source && item.source !== item.href && item.source !== item.github) {
     links.push([labels.source, item.source, "external"]);
@@ -178,6 +179,7 @@ function projectLinks(item) {
 export function initExtraScreen() {
   const extraCanvas = required("#extra-canvas");
   const extraStage = required("#extra-stage");
+  const companionRoom = createCompanionRoom(extraStage, projectLanguage, setFocus);
   const extraFocus = required("#extra-focus");
   const extraModeButtons = all("[data-extra-mode]", extraCanvas);
   const extraPageButtons = all("[data-extra-page-direction]", extraCanvas);
@@ -846,7 +848,7 @@ export function initExtraScreen() {
             ${links.length ? `
               <nav aria-label="${escapeHtml(title)} links" data-link-count="${links.length}">
                 ${links.map(([label, href, kind]) => `
-                  <a href="${escapeHtml(href)}" ${kind === "internal" ? 'data-project-article="true"' : externalAttributes()}>${escapeHtml(label)}</a>
+                  <a href="${escapeHtml(href)}" ${kind === "internal" ? 'data-project-article="true"' : kind === "local" ? "" : externalAttributes()}>${escapeHtml(label)}</a>
                 `).join("")}
               </nav>
             ` : ""}
@@ -1333,46 +1335,7 @@ export function initExtraScreen() {
   }
 
   function renderCharacter() {
-    const character = characterItems[0];
-    const language = projectLanguage();
-    const copy = language === "JA-JP"
-      ? {
-          name: "アリス",
-          role: "灯台の案内役",
-          description: "孤独の海の灯台に暮らし、訪れた人を文章や記録、物語の入口へ案内している。",
-          line: "お帰りなさいませ。次の記録も、私がご案内します。",
-        }
-      : language === "EN-US"
-        ? {
-            name: "Alice",
-            role: "Lighthouse Guide",
-            description: "She watches over the lighthouse and guides visitors to essays, records, and stories across the Lonely Sea.",
-            line: "Welcome back. I will guide you to the next record.",
-          }
-        : {
-            name: "爱丽丝",
-            role: "灯塔向导",
-            description: "驻守在孤独之海的灯塔里，负责把来访者带往文章、记录与故事的入口。",
-            line: "欢迎回来。下一份记录，也由我为您带路。",
-          };
-    extraStage.innerHTML = `
-      <div class="extra-room extra-character-room extra-character-room-v3">
-        <header class="extra-character-heading">
-          <h3>CHARACTER</h3>
-        </header>
-        <section class="extra-character-stage extra-character-presentation">
-          <div class="extra-character-visual" style="${artStyle(character.art)}" aria-hidden="true">
-            <span class="extra-character-art"></span>
-          </div>
-          <article class="extra-character-profile-copy">
-            <h4>${escapeHtml(copy.name)}</h4>
-            <p class="extra-character-role">${escapeHtml(copy.role)}</p>
-            <p class="extra-character-description">${escapeHtml(copy.description)}</p>
-            <blockquote>${escapeHtml(copy.line)}</blockquote>
-          </article>
-        </section>
-      </div>
-    `;
+    companionRoom.render();
   }
 
   function renderAchievement() {
@@ -1795,12 +1758,21 @@ export function initExtraScreen() {
     });
     renderMode();
     if (mode === "achievement") setFocus("", "");
-    else setFocus(...extraDefaultFocus(mode));
+    else if (mode !== "character") setFocus(...extraDefaultFocus(mode));
+    if (mode === "character") companionRoom.updateUrl();
     syncListenDock();
   }
 
   async function setMode(mode, { animate = true } = {}) {
     if (!extraDefaults[mode] || mode === extraMode) return;
+    if (mode !== "character") {
+      const url = new URL(window.location.href);
+      if (url.searchParams.get("extraMode") === "character") {
+        url.searchParams.delete("extraMode");
+        url.searchParams.delete("memory");
+        history.replaceState(history.state, "", url);
+      }
+    }
     const token = ++transitionToken;
     stageTransition?.cancel();
 
@@ -2152,6 +2124,11 @@ export function initExtraScreen() {
       if (extraMode === "achievement") renderMode();
       syncListenDock();
     },
+    setCharacterMemory(id) {
+      companionRoom.selectMemory(id);
+      commitMode("character");
+    },
+    restoreCharacterFocus() { companionRoom.restoreFocus(); },
     changePage,
     closeCg,
     deactivate() {

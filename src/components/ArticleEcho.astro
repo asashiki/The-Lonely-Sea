@@ -1,0 +1,27 @@
+---
+import type { ResolvedPair } from "../lib/intertidal";
+
+interface Props {
+  postSlug: string;
+  pairs: ResolvedPair[];
+}
+
+const { postSlug, pairs } = Astro.props;
+const pair = pairs.find((entry) => entry.left.slug === postSlug || entry.right.slug === postSlug);
+const source = pair ? (pair.left.slug === postSlug ? pair.right : pair.left) : null;
+const quote = source?.quote.replace(/\s+/g, " ").trim() ?? "";
+const opening = quote.match(/^[^。！？]+[。！？]?/u)?.[0] ?? quote;
+const characters = Array.from(opening);
+const excerpt = characters.length > 88 ? `${characters.slice(0, 88).join("")}…` : opening;
+---
+
+{pair && source && (
+  <aside class="article-echo" aria-label="另一页的回声">
+    <p class="article-echo-label">另一页的回声</p>
+    <blockquote class="article-echo-quote"><p>{excerpt}</p></blockquote>
+    <p class="article-echo-source">{source.year} 年记录 · {source.title}</p>
+    <a class="article-echo-link" href={`/intertidal/?pair=${encodeURIComponent(pair.id)}`}>
+      <span>在潮间带对读</span><span aria-hidden="true"> · </span><span>{pair.title}</span>
+    </a>
+  </aside>
+)}

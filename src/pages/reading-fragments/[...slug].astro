@@ -1,5 +1,7 @@
 ---
 import { getCollection, type CollectionEntry, render } from "astro:content";
+import ArticleEcho from "../../components/ArticleEcho.astro";
+import { getIntertidalPairs } from "../../lib/intertidal";
 import BlogInteractionScene from "../../components/experience/BlogInteractionScene.astro";
 import SiteDiscovery from "../../components/SiteDiscovery.astro";
 import { siteConfig } from "../../../site.config.mjs";
@@ -30,6 +32,7 @@ const { post } = Astro.props;
 const { data } = post;
 const { Content, headings } = await render(post);
 const posts = await getPublishedPosts();
+const intertidalPairs = await getIntertidalPairs(posts);
 const postIndex = posts.findIndex((entry) => entry.id === post.id);
 const olderPost = posts[postIndex + 1];
 const newerPost = posts[postIndex - 1];
@@ -85,6 +88,7 @@ const href = postHref(post);
 
       <footer class="record-ending">
         <p class="record-end-mark">—— 终 ——</p>
+        <ArticleEcho postSlug={postSlug(post)} pairs={intertidalPairs} />
         <nav class="record-neighbours" aria-label="相邻文章">
           {olderPost ? (
             <a href={postHref(olderPost)} data-reading-transition>

@@ -1,0 +1,118 @@
+/* A continuous index on the same night sea, rather than a set of result cards. */
+.tidal-concordance {
+  --concordance-ink: #edf0eb;
+  --concordance-soft: #bdcbd0;
+  --concordance-mark: #f1dfae;
+  --concordance-serif: var(--tide-serif, "Songti SC", "STSong", "Yu Mincho", serif);
+  --concordance-sans: var(--tide-sans, "Hiragino Sans GB", "Yu Gothic", sans-serif);
+  color-scheme: dark;
+  width: min(1300px, calc(100vw - 64px));
+  height: calc(100dvh - 56px);
+  max-width: none;
+  max-height: none;
+  margin: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  outline: none;
+  color: var(--concordance-ink);
+  background: linear-gradient(#132733e8, #142832e8), url("/assets/lonely-sea/night.webp") center / cover no-repeat;
+  box-shadow: none;
+  font-family: var(--concordance-serif);
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #d7e0d144 transparent;
+}
+.tidal-concordance::backdrop { background: #07151db3; }
+body:has(.tidal-concordance[open]) { overflow: hidden; }
+.tidal-concordance *, .tidal-concordance *::before, .tidal-concordance *::after { box-sizing: border-box; }
+.tidal-concordance button, .tidal-concordance input { font: inherit; -webkit-tap-highlight-color: transparent; }
+.tidal-concordance button { min-height: 38px; padding: 7px 0; border: 0; border-radius: 0; background: transparent; color: inherit; cursor: pointer; }
+.tidal-concordance a { color: inherit; text-decoration: none; }
+.tidal-concordance button:focus-visible, .tidal-concordance a:focus-visible, .tidal-concordance input:focus-visible { outline: 1px solid var(--concordance-soft); outline-offset: 6px; }
+.tidal-concordance button:disabled { opacity: .4; cursor: default; }
+.concordance-sheet { display: grid; grid-template-columns: 160px minmax(0, 1fr); grid-template-rows: auto 1fr; gap: 56px 55px; max-width: 1160px; min-height: 100%; margin: 0 auto; padding: 25px clamp(28px, 5vw, 68px) 65px; }
+.concordance-toolbar { grid-column: 1 / -1; display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 12px 24px; }
+.concordance-toolbar p { margin: 0; color: var(--concordance-soft); font: 400 8px/1.8 var(--concordance-sans); letter-spacing: .15em; }
+.concordance-toolbar p span { padding: 0 12px; opacity: .55; }
+.concordance-toolbar button { display: inline-flex; align-items: center; gap: 13px; font-size: 11px; letter-spacing: .06em; }
+.concordance-toolbar button > span { font-size: 18px; }
+.concordance-heading { align-self: start; padding-top: 4px; }
+.concordance-heading h2 { margin: 0 0 30px; font-size: clamp(42px, 4.8vw, 65px); font-weight: 400; line-height: 1.6; letter-spacing: .22em; writing-mode: vertical-rl; }
+.concordance-heading p { margin: 0; color: var(--concordance-soft); font-size: 11px; line-height: 2.15; letter-spacing: .07em; }
+.concordance-reading { min-width: 0; }
+.concordance-form { display: flex; align-items: center; gap: 24px; margin: 0; }
+.concordance-input-label { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.concordance-form input { display: block; flex: 1; min-width: 0; width: 100%; min-height: 55px; padding: 8px 0; border: 0; border-radius: 0; background: transparent; color: var(--concordance-ink); font-size: clamp(22px, 2.4vw, 34px); line-height: 1.5; letter-spacing: .045em; caret-color: var(--concordance-mark); }
+.concordance-form input::placeholder { color: #a9bac1; opacity: .85; }
+.concordance-form input::-webkit-search-cancel-button { cursor: pointer; }
+.concordance-form button { flex-shrink: 0; display: flex; align-items: center; gap: 18px; padding: 9px 0 9px 12px; font-size: 15px; letter-spacing: .08em; }
+.concordance-form button > span { font-family: var(--concordance-sans); font-size: 20px; }
+.concordance-terms { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 26px; margin: 17px 0 0; }
+.concordance-terms button { color: var(--concordance-soft); font-size: 11px; letter-spacing: .08em; }
+.concordance-terms button:hover { color: var(--concordance-ink); }
+.concordance-terms button[aria-pressed="true"] { color: var(--concordance-ink); font-weight: 700; }
+.concordance-status { min-height: 1.8em; margin: 27px 0 0; color: var(--concordance-soft); font: 400 10px/1.8 var(--concordance-sans); letter-spacing: .04em; }
+.concordance-results { margin-top: 24px; }
+.concordance-hit { margin: 0; padding: 24px 0 35px; border: 0; border-radius: 0; background: transparent; }
+.concordance-hit:first-child { padding-top: 7px; }
+.concordance-hit > header { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px 22px; margin-bottom: 14px; }
+.concordance-hit > header strong { color: #d4dace; font: 400 33px/1.2 Georgia, serif; letter-spacing: -.04em; }
+.concordance-hit > header span { color: var(--concordance-soft); font-size: 11px; line-height: 1.9; letter-spacing: .035em; }
+.concordance-quote { margin: 0; color: var(--concordance-ink); font-size: clamp(17px, 1.55vw, 21px); line-height: 2; letter-spacing: .025em; white-space: pre-wrap; overflow-wrap: anywhere; text-wrap: pretty; }
+.concordance-quote mark { padding: 0; border: 0; background: transparent; color: var(--concordance-mark); font-weight: 600; }
+.concordance-hit > footer { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 23px; margin-top: 15px; }
+.concordance-hit > footer button { color: var(--concordance-soft); font-size: 11px; letter-spacing: .05em; }
+.concordance-hit > footer button:hover { color: var(--concordance-ink); }
+.concordance-hit > footer a { margin-left: auto; padding: 8px 0; color: var(--concordance-soft); font-size: 10px; line-height: 1.8; }
+.concordance-hit > footer a:hover { text-decoration: underline; text-underline-offset: 5px; }
+
+@media (max-width: 1000px) {
+  .concordance-sheet { grid-template-columns: 110px minmax(0, 1fr); column-gap: 36px; padding-inline: 32px; }
+  .concordance-heading h2 { font-size: 48px; }
+  .concordance-heading p { font-size: 10px; letter-spacing: .02em; }
+}
+@media (max-width: 700px) {
+  .tidal-concordance { width: 100vw; height: 100dvh; margin: 0; }
+  .concordance-sheet { display: block; padding: max(19px, env(safe-area-inset-top)) 26px max(45px, env(safe-area-inset-bottom)); }
+  .concordance-toolbar { gap: 8px 14px; }
+  .concordance-toolbar p { font-size: 7px; letter-spacing: .08em; }
+  .concordance-toolbar p span { padding-inline: 6px; }
+  .concordance-toolbar button { gap: 7px; font-size: 10px; }
+  .concordance-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 22px; padding: 40px 0 34px; }
+  .concordance-heading h2 { writing-mode: horizontal-tb; flex-shrink: 0; margin: 0; font-size: 43px; line-height: 1.4; letter-spacing: .16em; }
+  .concordance-heading p { font-size: 10px; line-height: 1.9; }
+  .concordance-form { gap: 16px; }
+  .concordance-form input { min-height: 48px; font-size: 23px; letter-spacing: .01em; }
+  .concordance-form button { gap: 9px; padding-left: 0; font-size: 13px; }
+  .concordance-form button > span { font-size: 17px; }
+  .concordance-terms { gap: 2px 23px; margin-top: 12px; }
+  .concordance-terms button { font-size: 10px; }
+  .concordance-status { margin-top: 22px; font-size: 9px; }
+  .concordance-results { margin-top: 19px; }
+  .concordance-hit { padding-top: 20px; padding-bottom: 32px; }
+  .concordance-hit > header { gap: 7px 17px; }
+  .concordance-hit > header strong { font-size: 30px; }
+  .concordance-hit > header span { font-size: 10px; }
+  .concordance-quote { font-size: 17px; line-height: 1.95; }
+  .concordance-hit > footer { gap: 3px 21px; margin-top: 12px; }
+  .concordance-hit > footer button { font-size: 10px; }
+  .concordance-hit > footer a { font-size: 9px; }
+}
+@media (max-width: 370px) {
+  .concordance-sheet { padding-inline: 21px; }
+  .concordance-toolbar p { max-width: 120px; }
+  .concordance-toolbar p span { padding-inline: 3px; }
+  .concordance-heading { gap: 12px; }
+  .concordance-heading h2 { font-size: 39px; }
+  .concordance-form input { font-size: 21px; }
+  .concordance-terms { column-gap: 19px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .tidal-concordance[open] { animation: concordance-open 170ms ease-out; }
+}
+@keyframes concordance-open { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .tidal-concordance, .tidal-concordance * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}

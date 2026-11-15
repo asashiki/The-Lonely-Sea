@@ -78,6 +78,7 @@ export function initNvlEngine() {
   let noticeTimer = 0;
   let music = null;
   let playing = false;
+  let returnTarget = "";
   let skipTimer = 0;
   function stopSkip() {
     window.clearInterval(skipTimer);
@@ -130,7 +131,8 @@ export function initNvlEngine() {
 
   function findChapter(chapterOrMonthId) {
     const localized = chapters[playerPreferences.language] || chapters["ZH-CN"] || {};
-    return localized[chapterOrMonthId]
+    if (typeof chapterOrMonthId !== "string") return null;
+    return (Object.hasOwn(localized, chapterOrMonthId) ? localized[chapterOrMonthId] : null)
       || Object.values(localized).find((chapter) => (
         chapter.id === chapterOrMonthId || chapter.monthId === chapterOrMonthId
       ))
@@ -517,7 +519,9 @@ export function initNvlEngine() {
   function resumeFromLoad() {
     if (!awaitingLoadReturn || !["load", "option"].includes(document.body.dataset.route)) return false;
     awaitingLoadReturn = false;
-    window.dispatchEvent(new CustomEvent("lonely-sea:nvl-system-return"));
+    window.dispatchEvent(new CustomEvent("lonely-sea:nvl-system-return", {
+      detail: returnTarget ? { returnTo: returnTarget } : {},
+    }));
     modal.setAttribute("aria-hidden", "false");
     document.documentElement.classList.add("nvl-open");
     if (stage instanceof HTMLElement) stage.inert = true;
@@ -546,15 +550,29 @@ export function initNvlEngine() {
     }
   }
 
-  function openChapter(chapterOrMonthId, resume = null) {
+  function openChapter(chapterOrMonthId, resume = null, anchor = {}) {
     const chapter = findChapter(chapterOrMonthId);
-    if (!chapter) return false;
+    if (!chapter || !Array.isArray(chapter.scenario)) return false;
+    let requestedResume = resume;
+    const hasAnchor = Object.hasOwn(anchor, "pageId") || Object.hasOwn(anchor, "lineIndex")
+      || anchor.returnTo === "character";
+    if (hasAnchor) {
+      const targetStep = chapter.scenario.findIndex((step) => step.type === "page" && step.pageId === anchor.pageId);
+      const targetLine = anchor.lineIndex === undefined ? 0 : anchor.lineIndex;
+      const lines = chapter.scenario[targetStep]?.lines;
+      if (typeof anchor.pageId !== "string" || !Array.isArray(lines)
+        || !Number.isInteger(targetLine) || targetLine < 0 || targetLine >= lines.length) return false;
+      // Public memories point at authored lines, not browser-specific save IDs.
+      // The reader's resume cursor counts already visible lines; it never saves here.
+      requestedResume = { chapterId: chapter.id, stepIndex: targetStep, lineIndex: targetLine + 1 };
+    }
+    returnTarget = hasAnchor && anchor.returnTo === "character" ? "character" : "";
+    btnClose.setAttribute("aria-label", returnTarget ? "退出 NVL，返回角色记忆" : "退出 NVL，返回日记月份");
     awaitingLoadReturn = false;
     playing = true;
-    window.dispatchEvent(new CustomEvent("lonely-sea:nvl-playing", { detail: { active: true } }));
-    awaitingLoadReturn = false;
-
-    const requestedResume = resume;
+    window.dispatchEvent(new CustomEvent("lonely-sea:nvl-playing", {
+      detail: { active: true, ...(returnTarget ? { returnTo: returnTarget } : {}) },
+    }));
 
     clearTimers();
     // Clear the rendered frame, not the checkpoint captured above.
@@ -638,7 +656,10 @@ export function initNvlEngine() {
     if (restoreFocus) {
       playing = false;
       syncMusic();
-      window.dispatchEvent(new CustomEvent("lonely-sea:nvl-playing", { detail: { active: false } }));
+      window.dispatchEvent(new CustomEvent("lonely-sea:nvl-playing", {
+        detail: { active: false, ...(returnTarget ? { returnTo: returnTarget } : {}) },
+      }));
+      returnTarget = "";
     }
     if (restoreFocus) lastFocused?.focus?.({ preventScroll: true });
     window.dispatchEvent(new CustomEvent("lonely-sea:ui-cue", {
@@ -731,7 +752,7 @@ export function initNvlEngine() {
   window.addEventListener("lonely-sea:open-nvl", (event) => {
     const target = event.detail?.monthId || event.detail?.chapterId;
     if (!target) return;
-    openChapter(target, event.detail?.resume || null);
+    openChapter(target, event.detail?.resume || null, event.detail || {});
   });
 
   window.addEventListener("lonely-sea:preferences-change", (event) => {
@@ -764,6 +785,7 @@ export function initNvlEngine() {
   window.addEventListener("lonely-sea:nvl-leave", () => {
     playing = false;
     awaitingLoadReturn = false;
+    returnTarget = "";
     syncMusic();
   });
   window.addEventListener("pagehide", () => music?.pause());

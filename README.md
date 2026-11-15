@@ -2,6 +2,8 @@
 
 以 Galgame 系统界面呈现个人文章与长期记录的 Astro 项目。
 
+**探索回看入口：** [2026-11-15 本地试作、远端体验与 PR 索引](./docs/exploration-index-2026-11-15.md)。包含两条体验线的下载、运行方法、已验证范围与待定方向。
+
 正式域名：https://asashiki.com 。当前上线候选分支：`codex/latest-nvl-20260910`。
 Cloudflare 配置、域名替换与回退步骤见 [部署指南](./docs/deployment.md)。
 

@@ -1,0 +1,56 @@
+.article-echo {
+  max-width: 36rem;
+  margin: 3.6rem 0 4rem;
+  color: var(--reading-soft);
+}
+
+.article-echo-label {
+  margin: 0 0 1.25rem;
+  color: var(--reading-faint);
+  font: 500 .72rem/1.6 var(--font-ui);
+  letter-spacing: .12em;
+}
+
+.article-echo-quote {
+  margin: 0;
+  color: var(--reading-ink);
+  font: 400 1.03rem/2 var(--font-write);
+  text-wrap: pretty;
+}
+
+.article-echo-quote p {
+  margin: 0;
+}
+
+.article-echo-source {
+  margin: 1rem 0 1.2rem;
+  color: var(--reading-faint);
+  font: 400 .75rem/1.8 var(--font-copy);
+}
+
+.article-echo-link {
+  display: inline-block;
+  color: var(--reading-soft);
+  font: 400 .82rem/1.8 var(--font-write);
+  text-decoration: none;
+}
+
+.article-echo-link:hover,
+.article-echo-link:focus-visible {
+  color: var(--reading-accent);
+}
+
+.article-echo-link:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: .4rem;
+}
+
+@media (max-width: 600px) {
+  .article-echo {
+    margin: 3rem 0 3.4rem;
+  }
+
+  .article-echo-quote {
+    font-size: .96rem;
+  }
+}

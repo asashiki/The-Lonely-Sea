@@ -100,6 +100,9 @@ const requestedOptionCategory = ["system", "blog", "game"].includes(routeQuery.g
   : "system";
 const requestedOptionPanel = routeQuery.get("optionPanel") || "";
 const requestedNvlSaveId = routeQuery.get("nvlSave") || "";
+const requestedCharacterMemory = requestedRoute === "extra" && routeQuery.get("extraMode") === "character"
+  ? routeQuery.get("memory") || ""
+  : null;
 const requestedReturnTarget = (() => {
   const value = routeQuery.get("returnTo") || "";
   return value.startsWith("/") && !value.startsWith("//") ? value : "";
@@ -496,6 +499,7 @@ const loadScreen = initLoadTracksXiiiConcept({
   },
 });
 const extraScreen = initExtraScreen();
+if (requestedCharacterMemory !== null) extraScreen.setCharacterMemory(requestedCharacterMemory);
 const startScreen = initStartScreen({ reduceMotion });
 const optionScreen = initOptions({
   onReplayOpening: replayOpeningFromTitle,
@@ -512,17 +516,22 @@ window.addEventListener("lonely-sea:nvl-system", (event) => {
     navigateTo("load");
   }
 });
-window.addEventListener("lonely-sea:nvl-system-return", () => {
+window.addEventListener("lonely-sea:nvl-system-return", (event) => {
   loadScreen.setSaveOperation("load");
-  navigateTo("load", { instant: true });
+  navigateTo(event.detail?.returnTo === "character" ? "extra" : "load", { instant: true });
 });
 window.addEventListener("lonely-sea:nvl-playing", (event) => {
   nvlActive = event.detail?.active === true;
   experienceAudio.setTitleActive(!nvlActive && gameShell.hidden);
   if (!nvlActive) {
     loadScreen.setSaveOperation("load");
-    loadScreen.showPage("diary");
-    navigateTo("load");
+    if (event.detail?.returnTo === "character") {
+      navigateTo("extra", { instant: true });
+      extraScreen.restoreCharacterFocus?.();
+    } else {
+      loadScreen.showPage("diary");
+      navigateTo("load");
+    }
   }
 });
 initAmbientDock(fxPanel);
@@ -668,7 +677,7 @@ function moveTitleFocus(direction) {
 }
 
 document.addEventListener("keydown", (event) => {
-  if (event.repeat || event.ctrlKey || event.metaKey || event.altKey) return;
+  if (event.defaultPrevented || event.repeat || event.ctrlKey || event.metaKey || event.altKey) return;
   if (!languageGate.hidden) {
     if (event.key === "Escape") {
       event.preventDefault();

@@ -1,0 +1,88 @@
+/* One illustrated spread in the existing EXTRA stage; no separate site shell. */
+.extra-canvas .companion-room {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, .88fr) minmax(0, 1.12fr);
+  grid-template-rows: auto auto minmax(0, 1fr);
+  column-gap: 3.5cqw;
+  height: 100%;
+  padding: 0 .8cqw 0 0;
+  color: var(--v4-ink);
+  background: none;
+}
+.companion-heading { grid-column: 1 / -1; display: flex; align-items: baseline; gap: 1.3cqw; padding: 0 0 2cqh; }
+.extra-canvas .companion-heading h3 { margin: 0; font: 400 clamp(25px, 2.25cqw, 40px)/1.3 "Yu Mincho", "Noto Serif SC", serif; letter-spacing: .16em; }
+.companion-heading > span { color: var(--v4-soft); font: 500 10px/1.5 "Yu Gothic", sans-serif; letter-spacing: .14em; }
+.companion-cast { grid-column: 1 / -1; display: flex; align-items: center; gap: 1.1cqw; padding-bottom: 1cqh; }
+.companion-room button { font-family: "Yu Mincho", "Noto Serif SC", serif; cursor: pointer; border: 0; border-radius: 0; }
+.companion-cast button { min-height: 38px; padding: 5px 18px; color: var(--v4-soft); background: transparent; font-size: clamp(14px, 1.1cqw, 19px); letter-spacing: .07em; transition: background 150ms, color 150ms; }
+.companion-cast button[aria-pressed="true"] { color: var(--v4-ink); background: color-mix(in srgb, var(--v4-paper) 55%, transparent); font-weight: 700; }
+.companion-room button:focus-visible, .companion-preview summary:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
+.companion-room button:hover { color: var(--v4-ink); }
+.companion-portrait { position: relative; grid-column: 1; grid-row: 3; min-height: 0; isolation: isolate; overflow: hidden; }
+.companion-portrait > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; object-position: center bottom; }
+.companion-room[data-companion="anna"] .companion-portrait > img { width: 105%; max-width: none; left: -2%; }
+.companion-room[data-companion="claude"] .companion-portrait > img { object-fit: cover; object-position: center 16%; }
+.companion-portrait-number { position: absolute; top: -3cqh; left: 0; z-index: -1; color: color-mix(in srgb, var(--v4-ink) 10%, transparent); font: 400 clamp(100px, 15cqw, 230px)/1 Baskerville, serif; letter-spacing: -.06em; }
+.companion-portrait-caption { position: absolute; left: 0; bottom: 0; display: flex; flex-direction: column; gap: 4px; padding: 7px 12px; color: var(--v4-ink); background: var(--v4-paper); font: 500 11px/1.4 "Yu Gothic", sans-serif; letter-spacing: .16em; }
+.companion-portrait-caption small { font-size: 9px; letter-spacing: .15em; opacity: .72; }
+.companion-copy { grid-column: 2; grid-row: 3; align-self: center; max-height: 100%; overflow: auto; padding: 1cqh 5px 1cqh 0; scrollbar-width: thin; overscroll-behavior: contain; }
+.companion-role { margin: 0 0 .8cqh; font: 400 clamp(12px,.8cqw,15px)/1.7 "Yu Mincho", serif; color: var(--v4-soft); letter-spacing: .14em; }
+.companion-name { margin: 0 0 2.7cqh; font: 400 clamp(36px,4cqw,66px)/1.15 Baskerville,"Yu Mincho","Noto Serif SC",serif; letter-spacing: .08em; }
+.companion-memory-meta { display: flex; flex-wrap: wrap; gap: 8px 1.1cqw; margin: 0 0 1.5cqh; color: var(--v4-soft); font: 500 10px/1.6 "Yu Gothic",sans-serif; letter-spacing: .08em; }
+.companion-excerpt { margin: 0; padding: 0; border: 0; font: 400 clamp(17px,1.35cqw,23px)/1.85 "Yu Mincho","Noto Serif SC",serif; letter-spacing: .035em; text-wrap: pretty; }
+.companion-excerpt p { margin: 0 0 1.1cqh; }
+.companion-excerpt p + p { font-size: .83em; color: var(--v4-soft); }
+.companion-omission { display: block; margin: 0 0 .8cqh; color: var(--v4-soft); font: 400 10px/1.5 "Yu Gothic",sans-serif; letter-spacing: .08em; }
+.companion-source { margin: 1cqh 0 0; color: var(--v4-soft); font: 400 11px/1.7 "Yu Mincho",serif; }
+.companion-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 1.2cqw; margin: 2.8cqh 0 0; }
+.companion-actions button { min-height: 42px; padding: 8px 0; color: var(--v4-ink); background: none; font-size: clamp(12px,.95cqw,16px); line-height: 1.4; }
+.companion-actions .companion-action-primary { padding: 10px 18px; background: color-mix(in srgb, var(--v4-ink) 88%, transparent); color: var(--v4-paper); }
+.companion-actions .companion-action-primary:hover { background: var(--v4-ink); color: var(--v4-paper); }
+.companion-link { min-height: 32px; margin: 8px 0 0; padding: 0; background: none; color: var(--v4-soft); font-size: 11px; letter-spacing: .04em; }
+.companion-status { min-height: 1.4em; margin: 4px 0 0; color: var(--v4-soft); font: 400 11px/1.5 "Yu Gothic",sans-serif; }
+.companion-status:empty { display: none; }
+.companion-introduction,.companion-alice-note { font: 400 clamp(15px,1.05cqw,19px)/1.9 "Yu Mincho",serif; color: var(--v4-soft); }
+.companion-alice-note { margin-top: 2cqh; color: var(--v4-ink); }
+.companion-return { min-height: 30px; margin: 0 0 1.3cqh; padding: 0; background: none; color: var(--v4-soft); font-size: 11px; }
+.companion-carry-title { margin: 0; font: 400 clamp(21px,1.65cqw,28px)/1.5 "Yu Mincho",serif; }
+.companion-carry-source { color: var(--v4-soft); font: 400 11px/1.6 "Yu Mincho",serif; margin: .7cqh 0 2cqh; }
+.companion-note-label { display: block; margin: 0 0 8px; font: 500 12px/1.5 "Yu Mincho",serif; }
+.companion-note,.companion-preview textarea,.companion-copy-fallback { box-sizing: border-box; display: block; width: 100%; padding: 12px; border: 1px solid color-mix(in srgb,var(--v4-ink) 24%,transparent); border-radius: 0; resize: vertical; background: color-mix(in srgb,var(--v4-paper) 78%,transparent); color: var(--v4-ink); font: 400 13px/1.7 "Yu Mincho",serif; }
+.companion-note { min-height: 90px; max-height: 20cqh; }
+.companion-note::placeholder { color: var(--v4-soft); opacity: .85; }
+.companion-note:focus { outline: 2px solid var(--v4-ink); outline-offset: 2px; }
+.companion-note-hint { margin: 8px 0; color: var(--v4-soft); font: 400 11px/1.7 "Yu Gothic",sans-serif; }
+.companion-preview summary { padding: 6px 0; color: var(--v4-soft); font: 400 11px/1.6 "Yu Gothic",sans-serif; cursor: pointer; }
+.companion-preview textarea { max-height: 150px; font-size: 11px; }
+.companion-room[data-carrying="true"] .companion-actions { margin-top: 1cqh; }
+.companion-room[data-carrying="true"] .companion-copy { align-self: start; }
+@media (max-width: 500px) and (orientation: portrait), (max-height: 500px) {
+  html[data-forced-landscape="true"] .companion-heading h3 { font-size: 24px; }
+  html[data-forced-landscape="true"] .companion-heading > span { font-size: 8px; }
+  html[data-forced-landscape="true"] .companion-cast button { min-height: 30px; padding: 4px 12px; font-size: 12px; }
+  html[data-forced-landscape="true"] .companion-role { font-size: 10px; }
+  html[data-forced-landscape="true"] .companion-name { font-size: 30px; margin-bottom: 8px; }
+  html[data-forced-landscape="true"] .companion-memory-meta { font-size: 8px; margin-bottom: 8px; }
+  html[data-forced-landscape="true"] .companion-excerpt { font-size: 14px; line-height: 1.6; }
+  html[data-forced-landscape="true"] .companion-source { font-size: 9px; }
+  html[data-forced-landscape="true"] .companion-actions { margin-top: 10px; gap: 8px; }
+  html[data-forced-landscape="true"] .companion-actions button { min-height: 32px; padding: 7px 9px; font-size: 10px; }
+  html[data-forced-landscape="true"] .companion-link { min-height: 24px; margin-top: 4px; font-size: 9px; }
+}
+@media (max-width: 900px) and (orientation: portrait) {
+  html:not([data-forced-landscape="true"]) .extra-canvas .companion-room { display: grid; grid-template-columns: minmax(0,.7fr) minmax(0,1fr); grid-template-rows: auto auto 225px auto; gap: 12px; min-height: 0; overflow: auto; }
+  html:not([data-forced-landscape="true"]) .companion-heading { display: block; padding-bottom: 0; }
+  html:not([data-forced-landscape="true"]) .companion-heading > span { display: block; margin-top: 5px; }
+  html:not([data-forced-landscape="true"]) .companion-cast { gap: 0; padding: 0; }
+  html:not([data-forced-landscape="true"]) .companion-cast button { padding: 7px 12px; }
+  html:not([data-forced-landscape="true"]) .companion-portrait { height: 225px; grid-column: 1; }
+  html:not([data-forced-landscape="true"]) .companion-copy { grid-column: 1 / -1; grid-row: 4; padding: 8px 4px 25px; overflow: visible; max-height: none; }
+  html:not([data-forced-landscape="true"]) .companion-portrait { grid-column: 1 / -1; }
+  html:not([data-forced-landscape="true"]) .companion-room[data-companion="claude"] .companion-portrait > img { width: 160px; left: 50%; transform: translateX(-50%); object-position: center 12%; }
+  html:not([data-forced-landscape="true"]) .companion-name { font-size: 38px; margin-bottom: 22px; }
+  html:not([data-forced-landscape="true"]) .companion-excerpt { font-size: 18px; }
+  html:not([data-forced-landscape="true"]) .companion-room[data-carrying="true"] .companion-portrait { display: none; }
+  html:not([data-forced-landscape="true"]) .extra-canvas .companion-room[data-carrying="true"] { grid-template-rows: auto auto auto; align-content: start; }
+  html:not([data-forced-landscape="true"]) .companion-room[data-carrying="true"] .companion-copy { grid-row: 3; }
+}

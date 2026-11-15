@@ -2,6 +2,8 @@
 import { getCollection, type CollectionEntry, render } from "astro:content";
 import { siteConfig } from "../../../site.config.mjs";
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import ArticleEcho from "../../components/ArticleEcho.astro";
+import { getIntertidalPairs } from "../../lib/intertidal";
 import BlogInteractionScene from "../../components/experience/BlogInteractionScene.astro";
 import AmbientDock from "../../components/experience/AmbientDock.astro";
 import ListenDock from "../../components/experience/ListenDock.astro";
@@ -17,6 +19,7 @@ import "../../styles/blog-interaction-scene.css";
 import "../../styles/listen-dock.css";
 import "../../styles/ambient-dock.css";
 import "../../styles/reading-page.css";
+import "../../styles/article-echo.css";
 
 export async function getStaticPaths() {
   const posts = import.meta.env.DEV
@@ -37,6 +40,7 @@ const { post } = Astro.props;
 const { data } = post;
 const { Content, headings } = await render(post);
 const posts = await getPublishedPosts();
+const intertidalPairs = await getIntertidalPairs(posts);
 const postIndex = posts.findIndex((entry) => entry.id === post.id);
 const olderPost = posts[postIndex + 1];
 const newerPost = posts[postIndex - 1];
@@ -136,6 +140,7 @@ const compactHeading = (text: string) => {
 
           <footer class="record-ending">
             <p class="record-end-mark">—— 终 ——</p>
+            <ArticleEcho postSlug={postSlug(post)} pairs={intertidalPairs} />
             <nav class="record-neighbours" aria-label="相邻文章">
               {olderPost ? (
                 <a href={postHref(olderPost)} data-reading-transition>

@@ -1,0 +1,33 @@
+---
+import "../styles/tidal-concordance.css";
+const startingWords = ["游戏", "工作", "喜欢", "生活", "海贼王", "世界"];
+---
+
+<dialog id="tidal-concordance" class="tidal-concordance" aria-labelledby="tidal-concordance-title" aria-describedby="tidal-concordance-description">
+  <div class="concordance-sheet">
+    <header class="concordance-toolbar">
+      <p>INTERTIDAL <span aria-hidden="true">／</span> WORDS IN PASSAGE</p>
+      <button type="button" data-concordance-close><span aria-hidden="true">←</span> 回到两页之间</button>
+    </header>
+
+    <div class="concordance-heading">
+      <h2 id="tidal-concordance-title">循词</h2>
+      <p id="tidal-concordance-description">在旧文章里，<br />找一个词经过的地方。</p>
+    </div>
+
+    <section class="concordance-reading" aria-label="循词索引">
+      <form id="tidal-search-form" class="concordance-form" role="search">
+        <label class="concordance-input-label" for="tidal-search-input">想找哪个词</label>
+        <input id="tidal-search-input" type="search" name="term" placeholder="一个词，或一句话" maxlength="80" autocomplete="off" spellcheck="false" />
+        <button type="submit">循词 <span aria-hidden="true">→</span></button>
+      </form>
+
+      <nav class="concordance-terms" aria-label="从这些词开始">
+        {startingWords.map((word) => <button type="button" data-concordance-term={word}>{word}</button>)}
+      </nav>
+
+      <p id="tidal-search-status" class="concordance-status" role="status" aria-live="polite"></p>
+      <div id="tidal-search-results" class="concordance-results"></div>
+    </section>
+  </div>
+</dialog>

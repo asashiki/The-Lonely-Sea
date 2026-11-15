@@ -52,6 +52,32 @@ function copy(zh, en, ja) {
 // tags: 多对多属性。github / href / note 有值才出按钮；note 为站内文章路径。
 export const projectItems = Object.freeze([
   {
+    title: copy("潮间带", "Intertidal", "潮間帯"),
+    mark: "INTERTIDAL / YEARS",
+    category: "web",
+    tags: Object.freeze(["想法"]),
+    art: "/assets/lonely-sea/mist.webp",
+    description: copy(
+      "把不同年份写下的原话并排放在岸边。从通关之后，到每个星期，看看那些心情后来漂向了哪里。",
+      "Read words from different years side by side. After the ending, or week after week, see where those feelings drifted.",
+      "別々の年に書いた言葉を岸辺に並べる。物語の終わりにも、毎週の楽しみにも、その後へ続く余韻がある。",
+    ),
+    href: "/intertidal/",
+  },
+  {
+    title: copy("未竟之海", "The Unfinished Sea", "未完の海"),
+    mark: "UNFINISHED / SEA",
+    category: "web",
+    tags: Object.freeze(["想法", "进行中"]),
+    art: "/assets/lonely-sea/night.webp",
+    description: copy(
+      "把暂时写不成文章的念头留在海上，续写、牵线，再把一段上下文带给下一位 AI。",
+      "Keep thoughts that are not yet essays. Return to them, draw connections, and carry their context into your next AI conversation.",
+      "まだ文章にならない考えを海に残す。続きを書き、つながりを結び、次の AI との会話へ文脈を持っていく。",
+    ),
+    href: "/unfinished/",
+  },
+  {
     title: "The-Lonely-Sea",
     mark: "LONELY / SEA",
     category: "main",
